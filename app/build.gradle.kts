@@ -1,3 +1,5 @@
+import java.io.File
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -23,7 +25,7 @@ android {
         create("release") {
             val path = System.getenv("KEYSTORE_PATH") ?: "release.p12"
             // Resolve against the repo root when relative; honour absolute paths.
-            storeFile = if (path.startsWith("/")) java.io.File(path) else rootProject.file(path)
+            storeFile = if (path.startsWith("/")) File(path) else rootProject.file(path)
             storeType = System.getenv("KEYSTORE_TYPE") ?: "PKCS12"
             storePassword = System.getenv("KEYSTORE_PASSWORD")
             keyAlias = System.getenv("KEY_ALIAS")
