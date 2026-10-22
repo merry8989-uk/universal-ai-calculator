@@ -1,12 +1,13 @@
-# Universal AI Calculator
+# Nexus Calc
 
-An all-in-one Android calculator: standard and scientific maths, a full unit
+Nexus Calc is an all-in-one Android calculator: standard and scientific maths, a full unit
 converter, a programmer tool, date maths, statistics, matrices, numerical
 calculus, a graphing plotter, format converters and 151 built-in one-shot
 calculators across Everyday, Finance, Economics, Health, Geometry, Physics,
 Engineering, Construction and Math.
 
-- **Package ID:** `com.merry8989uk.universalcalculator`
+- **App name:** Nexus Calc
+- **Package ID:** `com.merry8989uk.universalcalculator` (unchanged, so updates install over the old app)
 - **Platform:** Android (Kotlin + Jetpack Compose)
 - **Public app page:** https://merry8989-uk.github.io/universal-ai-calculator/
 - **Downloads:** https://github.com/merry8989-uk/universal-ai-calculator/releases

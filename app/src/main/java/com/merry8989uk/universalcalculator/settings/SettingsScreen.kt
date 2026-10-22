@@ -203,7 +203,7 @@ fun SettingsScreen(
             HorizontalDivider()
 
             // --- Footer: version + contact (Rule 4) ---
-            Text("Universal AI Calculator  ·  version ${BuildConfig.VERSION_NAME}",
+            Text("Nexus Calc  ·  version ${BuildConfig.VERSION_NAME}",
                 style = MaterialTheme.typography.bodySmall)
             Text(
                 text = "@${Contact.INSTAGRAM_HANDLE}",
