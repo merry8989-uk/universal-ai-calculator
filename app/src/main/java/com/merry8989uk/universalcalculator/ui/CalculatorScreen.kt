@@ -7,6 +7,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,7 +104,13 @@ private fun KeyButton(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, style = MaterialTheme.typography.titleMedium, color = contentColor)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            color = contentColor,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 14.dp),
+        )
     }
 }
 
@@ -234,15 +241,17 @@ fun CalculatorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
-                    .padding(vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 functionKeys.forEach { k ->
                     KeyButton(
                         label = label(k),
-                        colors = listOf(Color(0xFFFCD34D), Amber),
+                        colors = listOf(Color(0xFFFFD54F), Amber),
                         contentColor = Color(0xFF3A2600),
-                        modifier = Modifier.height(42.dp).padding(horizontal = 0.dp),
+                        modifier = Modifier
+                            .height(50.dp)
+                            .defaultMinSize(minWidth = 68.dp),
                         onClick = { expr += insertFor(k) },
                     )
                 }

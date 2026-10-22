@@ -69,6 +69,17 @@ app/src/main/java/com/merry8989uk/universalcalculator/
 docs/               the public GitHub Pages site
 ```
 
+## AI backend
+
+The app never holds the Gemini API key. It calls a small proxy that does; two
+ready-to-deploy versions live in `backend/`:
+
+- `backend/cloudflare/` — Cloudflare Worker (`wrangler deploy`)
+- `backend/gcloud/` — Google Cloud Function (`gcloud functions deploy`)
+
+Both read the key from a secret named `GEMINI_API_KEY`. After deploying, put the
+URL into `ai/AiClient.kt` and rebuild.
+
 ## Building
 
 CI builds every tagged release. Locally:
