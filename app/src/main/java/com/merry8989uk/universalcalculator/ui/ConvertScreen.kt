@@ -117,7 +117,7 @@ private fun UnitPicker(
     units: List<Unit>,
     selectedIndex: Int,
     modifier: Modifier = Modifier,
-    onSelect: (Int) -> Unit,
+    onSelect: (Int) -> kotlin.Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selected = units.getOrElse(selectedIndex) { units.first() }
