@@ -70,7 +70,6 @@ fun SettingsScreen(
 ) {
     val state by vm.state.collectAsState()
     val context = LocalContext.current
-    var aiUrl by remember(state.aiBackendUrl) { mutableStateOf(state.aiBackendUrl) }
 
     Scaffold(
         topBar = {
@@ -148,24 +147,14 @@ fun SettingsScreen(
             ToggleRow("Calculation history", state.historyEnabled, vm::setHistoryEnabled)
             ToggleRow("Haptic feedback", state.hapticsEnabled, vm::setHapticsEnabled)
 
-            Section("AI assist (optional)")
+            Section("AI assistant")
 
             Text(
-                "Point this at your own AI backend proxy to enable \"Explain\" on " +
-                    "results. Leave empty to keep AI off. No key is stored in the app.",
+                "Ask AI is built in and ready to use. The API key is fixed on the " +
+                    "server, so there is nothing to set up or paste here.",
                 style = MaterialTheme.typography.bodySmall,
             )
-            OutlinedTextField(
-                value = aiUrl,
-                onValueChange = { aiUrl = it },
-                label = { Text("AI backend URL") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedButton(
-                onClick = { vm.setAiBackendUrl(aiUrl.trim()) },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("Save AI backend URL") }
+            ToggleRow("Enable Ask AI", state.aiEnabled, vm::setAiEnabled)
 
             Section("Updates")
 

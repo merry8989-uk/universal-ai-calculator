@@ -33,7 +33,7 @@ class SettingsRepository(private val context: Context) {
         val GROUP_DIGITS = booleanPreferencesKey("group_digits")
         val HISTORY = booleanPreferencesKey("history_enabled")
         val HAPTICS = booleanPreferencesKey("haptics_enabled")
-        val AI_URL = stringPreferencesKey("ai_backend_url")
+        val AI_ENABLED = booleanPreferencesKey("ai_enabled")
     }
 
     val settings: Flow<SettingsState> = context.dataStore.data.map { p ->
@@ -52,7 +52,7 @@ class SettingsRepository(private val context: Context) {
             groupDigits = p[Keys.GROUP_DIGITS] ?: true,
             historyEnabled = p[Keys.HISTORY] ?: true,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
-            aiBackendUrl = p[Keys.AI_URL] ?: "",
+            aiEnabled = p[Keys.AI_ENABLED] ?: true,
         )
     }
 
@@ -92,8 +92,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun setHapticsEnabled(enabled: Boolean) =
         context.dataStore.edit { it[Keys.HAPTICS] = enabled }
 
-    suspend fun setAiBackendUrl(url: String) =
-        context.dataStore.edit { it[Keys.AI_URL] = url }
+    suspend fun setAiEnabled(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.AI_ENABLED] = enabled }
 
     suspend fun reset() = context.dataStore.edit { it.clear() }
 }

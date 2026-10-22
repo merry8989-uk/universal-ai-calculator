@@ -2,7 +2,7 @@
 
 An all-in-one Android calculator: standard and scientific maths, a full unit
 converter, a programmer tool, date maths, statistics, matrices, numerical
-calculus, a graphing plotter, format converters and 146 built-in one-shot
+calculus, a graphing plotter, format converters and 151 built-in one-shot
 calculators across Everyday, Finance, Health, Geometry, Physics, Engineering,
 Construction and Math.
 
@@ -13,14 +13,17 @@ Construction and Math.
 
 ## Features
 
+- **Ask AI** — ask anything in plain language and get an answer with the working.
+  The assistant key is fixed on the server (a Supabase Edge Function); the app
+  never holds it and the user never enters one.
 - **Standard calculator** — live result preview, `ans` memory, percentage, sign
   toggle, thousands separators.
 - **Scientific calculator** — trig (DEG/RAD), inverse trig, logs, powers, roots,
   factorial, nCr/nPr, gcd/lcm, constants (pi, e, tau, phi).
-- **Unit converter** — 24 categories and 293 units (length, mass, temperature,
+- **Unit converter** — 26 categories and 304 units (length, mass, temperature,
   area, volume, speed, time, data, data rate, pressure, energy, power, force,
   torque, frequency, fuel economy, illuminance, radiation, electric, density,
-  viscosity, cooking, typography, sound).
+  viscosity, cooking, typography, sound, acceleration, volumetric flow).
 - **Programmer tool** — base 2/8/10/16/36 conversion and AND/OR/XOR/NOT/shift,
   rotate-free bitwise helpers and popcount.
 - **Date calculator** — difference, age, weeks/months/years, working days, week
@@ -35,13 +38,13 @@ Construction and Math.
 - **Converters** — Roman numerals, number to words (Indian & international
   grouping), text ↔ binary / hex / ASCII, RGB ↔ hex, timestamps.
 - **Currency converter** — live exchange rates (open.er-api.com).
-- **146 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
+- **151 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
   mortgage, gratuity, PF, depreciation, BMI, BMR, TDEE, BSA, eGFR, creatinine
   clearance, Parkland, insulin, geometry solids, physics laws, concrete/bricks/
   tiles/paint/steel, staircase, solar sizing, GPA, cooking scale, run rate and
   much more.
 - **Rich Settings** — theme, six accent colours, text size, density, language,
-  per-feature toggles, optional AI backend URL.
+  per-feature toggles including Enable Ask AI.
 - **In-app updates** — checks GitHub Releases and installs a new signed APK
   without leaving the app.
 - **Diagnostics** — log collection on by default, with share / export
@@ -51,6 +54,7 @@ Construction and Math.
 
 ```
 app/src/main/java/com/merry8989uk/universalcalculator/
+  ai/           client for the assistant backend (key lives server-side)
   calc/         evaluator, units, formulas, statistics, matrix, calculus,
                 converters, programmer, dates, currency
   ui/           AppRoot + the five mode screens and every tool screen (Compose)

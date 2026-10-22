@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,10 +52,13 @@ private fun insertFor(key: String): String = when (key) {
     "ln" -> "ln("
     "log" -> "log("
     "sqrt" -> "sqrt("
+    "cbrt" -> "cbrt("
     "x^2" -> "^2"
     "x^y" -> "^"
     "pi" -> "pi"
     "e" -> "e"
+    "i" -> "i"
+    "x" -> "x"
     "!" -> "!"
     "(" -> "("
     ")" -> ")"
@@ -71,16 +75,34 @@ fun CalculatorScreen(
     title: String,
     functionKeys: List<String>,
     settings: SettingsState,
+    onAskAi: (String) -> Unit,
 ) {
     var expr by rememberSaveable { mutableStateOf("") }
     var ans by rememberSaveable { mutableStateOf(0.0) }
     var degrees by rememberSaveable { mutableStateOf(settings.degreesMode) }
     var history by rememberSaveable { mutableStateOf("") }
+    var memory by rememberSaveable { mutableStateOf(0.0) }
+    var showHistory by rememberSaveable { mutableStateOf(false) }
 
     val preview: String = if (expr.isBlank()) "" else try {
         Format.number(Evaluator.evaluate(expr, degrees, mapOf("ans" to ans)))
     } catch (e: Exception) {
         ""
+    }
+
+    fun currentValue(): Double = try {
+        if (expr.isBlank()) ans else Evaluator.evaluate(expr, degrees, mapOf("ans" to ans))
+    } catch (e: Exception) {
+        ans
+    }
+
+    if (showHistory) {
+        HistoryScreen(
+            history = history,
+            onBack = { showHistory = false },
+            onClear = { history = ""; showHistory = false },
+        )
+        return
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
@@ -90,9 +112,34 @@ fun CalculatorScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(title, style = MaterialTheme.typography.titleLarge)
-            TextButton(onClick = { degrees = !degrees }) {
-                Text(if (degrees) "DEG" else "RAD")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = { showHistory = true }) { Text("History") }
+                TextButton(onClick = { degrees = !degrees }) {
+                    Text(if (degrees) "DEG" else "RAD")
+                }
             }
+        }
+
+        // Memory row (MC / M+ / M- / MR), like a classic scientific calculator.
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(onClick = { memory = 0.0 }, modifier = Modifier.weight(1f)) { Text("MC") }
+            OutlinedButton(onClick = { memory += currentValue() }, modifier = Modifier.weight(1f)) { Text("M+") }
+            OutlinedButton(onClick = { memory -= currentValue() }, modifier = Modifier.weight(1f)) { Text("M\u2212") }
+            OutlinedButton(
+                onClick = { expr = Format.number(memory) },
+                modifier = Modifier.weight(1f),
+            ) { Text("MR") }
+        }
+        if (memory != 0.0) {
+            Text(
+                "M = ${Format.number(memory)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
 
         Column(
@@ -125,6 +172,13 @@ fun CalculatorScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+            TextButton(
+                onClick = {
+                    val q = if (expr.isBlank()) "" else "Explain this calculation and the result: $expr = $preview"
+                    onAskAi(q)
+                },
+                enabled = expr.isNotBlank(),
+            ) { Text("Ask AI about this") }
         }
 
         if (functionKeys.isNotEmpty()) {
@@ -167,8 +221,10 @@ fun CalculatorScreen(
                                     } catch (e: Exception) {
                                         "error"
                                     }
-                                    history = (history + "\n${expr.ifBlank { "0" }} = $shown")
-                                        .trim().split("\n").takeLast(20).joinToString("\n")
+                                    if (settings.historyEnabled) {
+                                        history = (history + "\n${expr.ifBlank { "0" }} = $shown")
+                                            .trim().split("\n").takeLast(200).joinToString("\n")
+                                    }
                                     expr = shown
                                 }
                                 "neg" -> expr = if (expr.startsWith("-")) expr.drop(1) else "-$expr"

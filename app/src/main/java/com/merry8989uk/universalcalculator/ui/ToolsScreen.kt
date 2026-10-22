@@ -136,6 +136,8 @@ fun DateScreen(onBack: () -> Unit) {
     var toText by remember { mutableStateOf(today) }
     var offsetText by remember { mutableStateOf("30") }
     var epochText by remember { mutableStateOf("1700000000") }
+    var startTime by remember { mutableStateOf("09:30") }
+    var endTime by remember { mutableStateOf("18:15") }
 
     val from = remember(fromText) { runCatching { LocalDate.parse(fromText) }.getOrNull() }
     val to = remember(toText) { runCatching { LocalDate.parse(toText) }.getOrNull() }
@@ -208,6 +210,30 @@ fun DateScreen(onBack: () -> Unit) {
         )
         if (epoch != null) ResultLine("Local date", DateCalc.fromEpochSeconds(epoch))
         from?.let { ResultLine("From date as epoch", DateCalc.toEpochSeconds(it).toString()) }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+        Text("Time interval", style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+            OutlinedTextField(
+                value = startTime, onValueChange = { startTime = it }, label = { Text("Start (HH:mm)") },
+                singleLine = true, modifier = Modifier.weight(1f),
+            )
+            OutlinedTextField(
+                value = endTime, onValueChange = { endTime = it }, label = { Text("End (HH:mm)") },
+                singleLine = true, modifier = Modifier.weight(1f),
+            )
+        }
+        val mins = runCatching {
+            val fmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+            val s0 = java.time.LocalTime.parse(startTime.trim(), fmt)
+            val e0 = java.time.LocalTime.parse(endTime.trim(), fmt)
+            val m = java.time.Duration.between(s0, e0).toMinutes()
+            if (m < 0) m + 1440 else m
+        }.getOrNull()
+        if (mins != null) {
+            ResultLine("Minutes", mins.toString())
+            ResultLine("Hours", String.format("%.2f", mins / 60.0))
+        }
     }
 }
 

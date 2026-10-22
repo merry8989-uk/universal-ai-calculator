@@ -27,7 +27,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setGroupDigits(enabled: Boolean) = viewModelScope.launch { repo.setGroupDigits(enabled) }
     fun setHistoryEnabled(enabled: Boolean) = viewModelScope.launch { repo.setHistoryEnabled(enabled) }
     fun setHapticsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setHapticsEnabled(enabled) }
-    fun setAiBackendUrl(url: String) = viewModelScope.launch { repo.setAiBackendUrl(url) }
+    fun setAiEnabled(enabled: Boolean) = viewModelScope.launch { repo.setAiEnabled(enabled) }
 
     fun setDiagnosticsEnabled(enabled: Boolean) = viewModelScope.launch {
         repo.setDiagnosticsEnabled(enabled)

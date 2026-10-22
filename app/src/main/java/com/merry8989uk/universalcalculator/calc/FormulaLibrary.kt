@@ -1671,6 +1671,92 @@ object FormulaLibrary {
             for (i in 0 until n) { val t = a + b; a = b; b = t }
             listOf(out("F(n)", a.toDouble()))
         },
+
+        Formula("prime_checker", "Prime checker", "Math",
+            "Is it prime? Also shows the smallest factor and the divisor count.",
+            listOf(InputSpec("n", "Number", 91.0)),
+        ) { m ->
+            val n = v(m, "n").toLong()
+            if (n < 2) listOf(out("Is prime", 0.0, note = "Numbers below 2 are not prime"))
+            else {
+                var prime = true
+                var smallest = n
+                var i = 2L
+                while (i * i <= n) {
+                    if (n % i == 0L) { prime = false; smallest = i; break }
+                    i++
+                }
+                var count = 0L
+                var d = 1L
+                while (d * d <= n) {
+                    if (n % d == 0L) count += if (d * d == n) 1 else 2
+                    d++
+                }
+                listOf(
+                    out("Is prime", if (prime) 1.0 else 0.0, "", if (prime) "Prime" else "Composite"),
+                    out("Smallest factor", if (prime) n.toDouble() else smallest.toDouble()),
+                    out("Number of divisors", count.toDouble()),
+                )
+            }
+        },
+
+        Formula("number_generator", "Number generator", "Everyday",
+            "Random numbers in a range (re-rolls when the range changes).",
+            listOf(InputSpec("min", "Minimum", 1.0), InputSpec("max", "Maximum", 100.0)),
+        ) { m ->
+            val lo = v(m, "min").toLong()
+            val hi = v(m, "max").toLong()
+            if (hi < lo) listOf(out("Random", 0.0, note = "Maximum must be at least the minimum"))
+            else listOf(
+                out("Random integer", kotlin.random.Random.nextLong(lo, hi + 1).toDouble()),
+                out("Random decimal", lo + kotlin.random.Random.nextDouble() * (hi - lo)),
+            )
+        },
+
+        Formula("average", "Average (mean)", "Math",
+            "Mean and sum of up to five numbers.",
+            listOf(
+                InputSpec("v1", "Value 1", 10.0), InputSpec("v2", "Value 2", 20.0),
+                InputSpec("v3", "Value 3", 30.0), InputSpec("v4", "Value 4", 40.0),
+                InputSpec("v5", "Value 5", 50.0),
+            ),
+        ) { m ->
+            val xs = listOf("v1", "v2", "v3", "v4", "v5").map { v(m, it) }
+            listOf(out("Average", xs.sum() / xs.size), out("Sum", xs.sum()))
+        },
+
+        Formula("ratio", "Ratio", "Math",
+            "Simplify a ratio and read its decimal form.",
+            listOf(InputSpec("a", "First", 12.0), InputSpec("b", "Second", 18.0)),
+        ) { m ->
+            val a = v(m, "a").toLong()
+            val b = v(m, "b").toLong()
+            if (a == 0L && b == 0L) listOf(out("Simplified first", 0.0, note = "Enter a non-zero value"))
+            else {
+                val g = Evaluator.gcd(a, b).coerceAtLeast(1L)
+                listOf(
+                    out("Simplified first", (a / g).toDouble()),
+                    out("Simplified second", (b / g).toDouble()),
+                    out("Decimal (a / b)", if (b == 0L) 0.0 else v(m, "a") / v(m, "b")),
+                )
+            }
+        },
+
+        Formula("unit_price", "Unit price", "Everyday",
+            "Price per unit and the cost for a wanted quantity.",
+            listOf(
+                InputSpec("price", "Total price", 240.0),
+                InputSpec("qty", "Quantity", 12.0),
+                InputSpec("want", "Wanted quantity", 20.0),
+            ),
+        ) { m ->
+            val q = v(m, "qty")
+            if (q == 0.0) listOf(out("Unit price", 0.0, note = "Quantity must not be zero"))
+            else {
+                val unit = v(m, "price") / q
+                listOf(out("Unit price", unit), out("Cost for wanted quantity", unit * v(m, "want")))
+            }
+        },
     )
 
     fun byCategory(category: String): List<Formula> = formulas.filter { it.category == category }

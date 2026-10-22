@@ -20,8 +20,8 @@ data class SettingsState(
     val historyEnabled: Boolean = true,
     /** Haptic feedback on key press. */
     val hapticsEnabled: Boolean = true,
-    /** Optional AI backend URL for "Explain" (empty = disabled). */
-    val aiBackendUrl: String = "",
+    /** The built-in AI assistant. The key is fixed on the server. */
+    val aiEnabled: Boolean = true,
 )
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

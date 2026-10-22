@@ -67,7 +67,15 @@ fun FormulasScreen() {
 @Composable
 private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
     var category by remember { mutableStateOf("Tools") }
+    var query by remember { mutableStateOf("") }
+    val searching = query.isNotBlank()
     val list = FormulaLibrary.byCategory(category)
+    val results = if (searching) {
+        FormulaLibrary.formulas.filter {
+            it.title.contains(query, ignoreCase = true) ||
+                it.description.contains(query, ignoreCase = true)
+        }
+    } else emptyList()
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Calculators", style = MaterialTheme.typography.titleLarge)
@@ -76,7 +84,15 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
             style = MaterialTheme.typography.bodySmall,
         )
 
-        androidx.compose.foundation.layout.Row(
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text("Search calculators") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
+
+        if (!searching) androidx.compose.foundation.layout.Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -95,19 +111,39 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
         }
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (category == "Tools") {
-                items(TOOLS) { t ->
-                    ToolCard(t.title, t.subtitle) { onTool(t.id) }
-                }
-            }
-            items(list) { f ->
-                Card(modifier = Modifier.fillMaxWidth().clickable { onOpen(f) }) {
-                    Column(modifier = Modifier.padding(14.dp)) {
-                        Text(f.title, style = MaterialTheme.typography.titleMedium)
-                        Text(f.description, style = MaterialTheme.typography.bodySmall)
+            if (searching) {
+                if (results.isEmpty()) {
+                    item {
+                        Text(
+                            "No calculator matches your search.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                     }
                 }
+                items(results) { f -> FormulaCard(f, onOpen) }
+            } else {
+                if (category == "Tools") {
+                    items(TOOLS) { t ->
+                        ToolCard(t.title, t.subtitle) { onTool(t.id) }
+                    }
+                }
+                items(list) { f -> FormulaCard(f, onOpen) }
             }
+        }
+    }
+}
+
+@Composable
+private fun FormulaCard(f: Formula, onOpen: (Formula) -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth().clickable { onOpen(f) }) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Text(f.title, style = MaterialTheme.typography.titleMedium)
+            Text(f.description, style = MaterialTheme.typography.bodySmall)
+            Text(
+                f.category,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
     }
 }

@@ -208,6 +208,17 @@ object Units {
             L("Decibel", "dB", 1.0), L("Decibel-milliwatt", "dBm", 1.0),
             L("Decibel-watt", "dBW", 1.0), L("Bel", "bel", 10.0), L("Neper", "Np", 8.685889638),
         )),
+        UnitCategory("Acceleration", listOf(
+            L("Metre/second squared", "m/s2", 1.0), L("Standard gravity", "g", 9.80665),
+            L("Foot/second squared", "ft/s2", 0.3048), L("Gal", "Gal", 0.01),
+        )),
+        UnitCategory("Volumetric flow", listOf(
+            L("Cubic metre/second", "m3/s", 1.0), L("Cubic metre/hour", "m3/h", 1.0 / 3600.0),
+            L("Litre/second", "L/s", 0.001), L("Litre/minute", "L/min", 1.0 / 60000.0),
+            L("Millilitre/minute", "mL/min", 1.0 / 60000000.0),
+            L("Cubic foot/minute", "cfm", 0.000471947443),
+            L("Gallon/minute (US)", "gpm", 6.30901964e-5),
+        )),
     )
 
     /** Total number of units across every category. */
