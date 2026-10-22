@@ -3,8 +3,8 @@
 An all-in-one Android calculator: standard and scientific maths, a full unit
 converter, a programmer tool, date maths, statistics, matrices, numerical
 calculus, a graphing plotter, format converters and 151 built-in one-shot
-calculators across Everyday, Finance, Health, Geometry, Physics, Engineering,
-Construction and Math.
+calculators across Everyday, Finance, Economics, Health, Geometry, Physics,
+Engineering, Construction and Math.
 
 - **Package ID:** `com.merry8989uk.universalcalculator`
 - **Platform:** Android (Kotlin + Jetpack Compose)
@@ -38,7 +38,7 @@ Construction and Math.
 - **Converters** — Roman numerals, number to words (Indian & international
   grouping), text ↔ binary / hex / ASCII, RGB ↔ hex, timestamps.
 - **Currency converter** — live exchange rates (open.er-api.com).
-- **151 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
+- **192 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
   mortgage, gratuity, PF, depreciation, BMI, BMR, TDEE, BSA, eGFR, creatinine
   clearance, Parkland, insulin, geometry solids, physics laws, concrete/bricks/
   tiles/paint/steel, staircase, solar sizing, GPA, cooking scale, run rate and
@@ -47,8 +47,11 @@ Construction and Math.
   per-feature toggles including Enable Ask AI.
 - **In-app updates** — checks GitHub Releases and installs a new signed APK
   without leaving the app.
-- **Diagnostics** — log collection on by default, with share / export
-  (.txt, .json, .md, .zip) and clear.
+- **Colourful UI** — gradient colour-coded keypad, vivid category accents and a
+  glassy display panel.
+- **Diagnostics** — log collection on by default, with a **real-time log box** in
+  Settings showing every line as it is written (all on-device), plus share /
+  export (.txt, .json, .md, .zip) and clear.
 
 ## Project layout
 

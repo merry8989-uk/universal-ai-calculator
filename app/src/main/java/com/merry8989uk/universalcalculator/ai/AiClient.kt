@@ -1,5 +1,6 @@
 package com.merry8989uk.universalcalculator.ai
 
+import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -40,6 +41,7 @@ object AiClient {
                 setRequestProperty("Authorization", "Bearer $PUBLISHABLE_KEY")
                 setRequestProperty("apikey", PUBLISHABLE_KEY)
             }
+            DiagnosticsLogger.log("AI", "Ask: ${question.take(140)}")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
 
             val code = conn.responseCode
@@ -48,7 +50,9 @@ object AiClient {
             val json = runCatching { JSONObject(text) }.getOrNull()
 
             if (code in 200..299) {
-                json?.optString("answer")?.takeIf { it.isNotBlank() } ?: "The assistant returned no answer."
+                val ans = json?.optString("answer")?.takeIf { it.isNotBlank() }
+                DiagnosticsLogger.log("AI", "Answer received (${ans?.length ?: 0} chars)")
+                ans ?: "The assistant returned no answer."
             } else {
                 "Could not reach the assistant: " +
                     (json?.optString("error")?.takeIf { it.isNotBlank() } ?: "request failed ($code)")

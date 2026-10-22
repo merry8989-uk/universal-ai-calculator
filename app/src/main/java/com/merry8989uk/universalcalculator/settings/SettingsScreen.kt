@@ -45,12 +45,12 @@ import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
 
 private val ACCENTS = listOf(
-    "Blue" to 0xFF1565C0,
-    "Purple" to 0xFF6750A4,
-    "Green" to 0xFF2E7D32,
-    "Orange" to 0xFFEF6C00,
-    "Red" to 0xFFC62828,
-    "Teal" to 0xFF00897B,
+    "Violet" to 0xFF6C4CF1,
+    "Blue" to 0xFF3B82F6,
+    "Teal" to 0xFF14B8A6,
+    "Green" to 0xFF10B981,
+    "Amber" to 0xFFF59E0B,
+    "Pink" to 0xFFEC4899,
 )
 
 private val LANGUAGES = listOf("system", "en", "hi")

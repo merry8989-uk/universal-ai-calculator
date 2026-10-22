@@ -44,7 +44,7 @@ object FormulaLibrary {
         OutputSpec(label, value, unit, note)
 
     val categories = listOf(
-        "Everyday", "Finance", "Health", "Geometry", "Physics",
+        "Everyday", "Finance", "Economics", "Health", "Geometry", "Physics",
         "Engineering", "Construction", "Math",
     )
 
@@ -1756,6 +1756,481 @@ object FormulaLibrary {
                 val unit = v(m, "price") / q
                 listOf(out("Unit price", unit), out("Cost for wanted quantity", unit * v(m, "want")))
             }
+        },
+
+        // ================= ECONOMICS =================
+        Formula("gdp_expenditure", "GDP (expenditure method)", "Economics",
+            "GDP = C + I + G + (X - M).",
+            listOf(
+                InputSpec("c", "Consumption (C)", 1000.0),
+                InputSpec("i", "Investment (I)", 400.0),
+                InputSpec("g", "Government spending (G)", 300.0),
+                InputSpec("x", "Exports (X)", 200.0),
+                InputSpec("m", "Imports (M)", 250.0),
+            ),
+        ) { m -> listOf(out("GDP", v(m, "c") + v(m, "i") + v(m, "g") + (v(m, "x") - v(m, "m")))) },
+
+        Formula("gdp_growth", "GDP growth rate", "Economics",
+            "Percentage change in GDP between two periods.",
+            listOf(InputSpec("gdp1", "GDP period 1", 1000.0), InputSpec("gdp2", "GDP period 2", 1080.0)),
+        ) { m ->
+            val a = v(m, "gdp1")
+            if (a == 0.0) listOf(out("Growth", 0.0, note = "Period 1 must not be zero"))
+            else listOf(out("Growth", (v(m, "gdp2") - a) / a * 100.0, "%"))
+        },
+
+        Formula("gdp_per_capita", "GDP per capita", "Economics",
+            "Output per person.",
+            listOf(InputSpec("gdp", "GDP", 3000000.0), InputSpec("pop", "Population", 1400000000.0)),
+        ) { m ->
+            val p = v(m, "pop")
+            if (p == 0.0) listOf(out("GDP per capita", 0.0, note = "Population must not be zero"))
+            else listOf(out("GDP per capita", v(m, "gdp") / p))
+        },
+
+        Formula("gdp_deflator", "GDP deflator", "Economics",
+            "Nominal GDP over real GDP, times 100.",
+            listOf(InputSpec("nominal", "Nominal GDP", 1100.0), InputSpec("real", "Real GDP", 1000.0)),
+        ) { m ->
+            val r = v(m, "real")
+            if (r == 0.0) listOf(out("Deflator", 0.0, note = "Real GDP must not be zero"))
+            else listOf(out("GDP deflator", v(m, "nominal") / r * 100.0))
+        },
+
+        Formula("real_gdp", "Real GDP", "Economics",
+            "Real GDP = nominal GDP / deflator x 100.",
+            listOf(InputSpec("nominal", "Nominal GDP", 1100.0), InputSpec("deflator", "Deflator", 110.0)),
+        ) { m ->
+            val d = v(m, "deflator")
+            if (d == 0.0) listOf(out("Real GDP", 0.0, note = "Deflator must not be zero"))
+            else listOf(out("Real GDP", v(m, "nominal") / d * 100.0))
+        },
+
+        Formula("inflation_cpi", "Inflation rate (CPI)", "Economics",
+            "Percentage change in the consumer price index.",
+            listOf(InputSpec("cpi1", "CPI earlier", 120.0), InputSpec("cpi2", "CPI later", 132.0)),
+        ) { m ->
+            val a = v(m, "cpi1")
+            if (a == 0.0) listOf(out("Inflation", 0.0, note = "Earlier CPI must not be zero"))
+            else listOf(out("Inflation", (v(m, "cpi2") - a) / a * 100.0, "%"))
+        },
+
+        Formula("unemployment_rate", "Unemployment rate", "Economics",
+            "Unemployed over the labour force.",
+            listOf(
+                InputSpec("unemployed", "Unemployed", 5.0),
+                InputSpec("labour", "Labour force", 100.0),
+            ),
+        ) { m ->
+            val l = v(m, "labour")
+            if (l == 0.0) listOf(out("Unemployment rate", 0.0, note = "Labour force must not be zero"))
+            else listOf(out("Unemployment rate", v(m, "unemployed") / l * 100.0, "%"))
+        },
+
+        Formula("participation_rate", "Labour participation rate", "Economics",
+            "Labour force over the working-age population.",
+            listOf(
+                InputSpec("labour", "Labour force", 100.0),
+                InputSpec("pop", "Working-age population", 160.0),
+            ),
+        ) { m ->
+            val p = v(m, "pop")
+            if (p == 0.0) listOf(out("Participation rate", 0.0, note = "Population must not be zero"))
+            else listOf(out("Participation rate", v(m, "labour") / p * 100.0, "%"))
+        },
+
+        Formula("fisher", "Fisher equation (nominal & real rate)", "Economics",
+            "Links nominal interest, real interest and inflation.",
+            listOf(
+                InputSpec("nominal", "Nominal rate (%)", 9.0),
+                InputSpec("inflation", "Inflation (%)", 5.0),
+            ),
+        ) { m ->
+            val i = v(m, "nominal") / 100.0; val pi = v(m, "inflation") / 100.0
+            listOf(
+                out("Real rate (exact)", ((1.0 + i) / (1.0 + pi) - 1.0) * 100.0, "%"),
+                out("Real rate (approx)", v(m, "nominal") - v(m, "inflation"), "%"),
+            )
+        },
+
+        Formula("money_multiplier", "Money multiplier", "Economics",
+            "1 / reserve ratio.",
+            listOf(InputSpec("reserve", "Reserve ratio (%)", 10.0)),
+        ) { m ->
+            val r = v(m, "reserve")
+            if (r <= 0.0) listOf(out("Money multiplier", 0.0, note = "Reserve ratio must be positive"))
+            else listOf(out("Money multiplier", 100.0 / r))
+        },
+
+        Formula("required_reserves", "Required reserves", "Economics",
+            "Deposits x reserve ratio.",
+            listOf(InputSpec("deposits", "Deposits", 100000.0), InputSpec("reserve", "Reserve ratio (%)", 10.0)),
+        ) { m -> listOf(out("Required reserves", v(m, "deposits") * v(m, "reserve") / 100.0)) },
+
+        Formula("money_creation", "Money creation by banks", "Economics",
+            "Total deposits created from an initial deposit.",
+            listOf(
+                InputSpec("initial", "Initial deposit", 10000.0),
+                InputSpec("reserve", "Reserve ratio (%)", 10.0),
+            ),
+        ) { m ->
+            val r = v(m, "reserve")
+            if (r <= 0.0) listOf(out("Total money", 0.0, note = "Reserve ratio must be positive"))
+            else {
+                val mult = 100.0 / r
+                listOf(out("Money multiplier", mult), out("Total money created", v(m, "initial") * mult))
+            }
+        },
+
+        Formula("velocity_money", "Velocity of money", "Economics",
+            "V = (P x Y) / M.",
+            listOf(
+                InputSpec("p", "Price level", 110.0),
+                InputSpec("y", "Real output (Y)", 1000.0),
+                InputSpec("m", "Money supply (M)", 500.0),
+            ),
+        ) { m ->
+            val ms = v(m, "m")
+            if (ms == 0.0) listOf(out("Velocity", 0.0, note = "Money supply must not be zero"))
+            else listOf(out("Velocity of money", v(m, "p") * v(m, "y") / ms))
+        },
+
+        Formula("quantity_equation", "Quantity equation (MV = PY)", "Economics",
+            "Solves for real output Y.",
+            listOf(
+                InputSpec("m", "Money supply (M)", 500.0),
+                InputSpec("vel", "Velocity (V)", 2.0),
+                InputSpec("p", "Price level (P)", 110.0),
+            ),
+        ) { m ->
+            val p = v(m, "p")
+            if (p == 0.0) listOf(out("Real output", 0.0, note = "Price level must not be zero"))
+            else listOf(out("Real output (Y)", v(m, "m") * v(m, "vel") / p))
+        },
+
+        Formula("elasticity_demand", "Price elasticity of demand", "Economics",
+            "Arc elasticity between two points.",
+            listOf(
+                InputSpec("q1", "Quantity 1", 100.0), InputSpec("q2", "Quantity 2", 80.0),
+                InputSpec("p1", "Price 1", 10.0), InputSpec("p2", "Price 2", 12.0),
+            ),
+        ) { m ->
+            val dq = v(m, "q2") - v(m, "q1"); val dp = v(m, "p2") - v(m, "p1")
+            val qAvg = (v(m, "q1") + v(m, "q2")) / 2.0; val pAvg = (v(m, "p1") + v(m, "p2")) / 2.0
+            if (dp == 0.0 || pAvg == 0.0 || qAvg == 0.0) listOf(out("Elasticity", 0.0, note = "Prices must differ"))
+            else {
+                val e = (dq / qAvg) / (dp / pAvg)
+                val kind = when {
+                    abs(e) > 1.0 -> "Elastic"
+                    abs(e) < 1.0 -> "Inelastic"
+                    else -> "Unit elastic"
+                }
+                listOf(out("Price elasticity of demand", e, "", kind))
+            }
+        },
+
+        Formula("elasticity_income", "Income elasticity of demand", "Economics",
+            "How demand responds to income.",
+            listOf(
+                InputSpec("q1", "Quantity 1", 100.0), InputSpec("q2", "Quantity 2", 130.0),
+                InputSpec("y1", "Income 1", 50000.0), InputSpec("y2", "Income 2", 60000.0),
+            ),
+        ) { m ->
+            val dq = v(m, "q2") - v(m, "q1"); val dy = v(m, "y2") - v(m, "y1")
+            val qAvg = (v(m, "q1") + v(m, "q2")) / 2.0; val yAvg = (v(m, "y1") + v(m, "y2")) / 2.0
+            if (dy == 0.0 || qAvg == 0.0 || yAvg == 0.0) listOf(out("Elasticity", 0.0, note = "Incomes must differ"))
+            else {
+                val e = (dq / qAvg) / (dy / yAvg)
+                val kind = if (e < 0) "Inferior good" else "Normal good"
+                listOf(out("Income elasticity", e, "", kind))
+            }
+        },
+
+        Formula("elasticity_cross", "Cross-price elasticity", "Economics",
+            "How demand for A responds to the price of B.",
+            listOf(
+                InputSpec("qa1", "Qty A 1", 100.0), InputSpec("qa2", "Qty A 2", 120.0),
+                InputSpec("pb1", "Price B 1", 50.0), InputSpec("pb2", "Price B 2", 60.0),
+            ),
+        ) { m ->
+            val dq = v(m, "qa2") - v(m, "qa1"); val dp = v(m, "pb2") - v(m, "pb1")
+            val qAvg = (v(m, "qa1") + v(m, "qa2")) / 2.0; val pAvg = (v(m, "pb1") + v(m, "pb2")) / 2.0
+            if (dp == 0.0 || qAvg == 0.0 || pAvg == 0.0) listOf(out("Elasticity", 0.0, note = "Prices must differ"))
+            else {
+                val e = (dq / qAvg) / (dp / pAvg)
+                val kind = if (e > 0) "Substitutes" else "Complements"
+                listOf(out("Cross-price elasticity", e, "", kind))
+            }
+        },
+
+        Formula("mpc_mps", "MPC & MPS", "Economics",
+            "Marginal propensity to consume and to save.",
+            listOf(
+                InputSpec("dc", "Change in consumption", 80.0),
+                InputSpec("ds", "Change in saving", 20.0),
+                InputSpec("dy", "Change in income", 100.0),
+            ),
+        ) { m ->
+            val dy = v(m, "dy")
+            if (dy == 0.0) listOf(out("MPC", 0.0, note = "Change in income must not be zero"))
+            else listOf(
+                out("MPC", v(m, "dc") / dy),
+                out("MPS", v(m, "ds") / dy),
+            )
+        },
+
+        Formula("spending_multiplier", "Spending multiplier", "Economics",
+            "k = 1 / (1 - MPC) = 1 / MPS.",
+            listOf(InputSpec("mpc", "MPC", 0.8)),
+        ) { m ->
+            val mpc = v(m, "mpc")
+            if (mpc >= 1.0) listOf(out("Multiplier", 0.0, note = "MPC must be below 1"))
+            else listOf(out("Spending multiplier", 1.0 / (1.0 - mpc)))
+        },
+
+        Formula("tax_multiplier", "Tax multiplier", "Economics",
+            "-MPC / (1 - MPC).",
+            listOf(InputSpec("mpc", "MPC", 0.8)),
+        ) { m ->
+            val mpc = v(m, "mpc")
+            if (mpc >= 1.0) listOf(out("Multiplier", 0.0, note = "MPC must be below 1"))
+            else listOf(out("Tax multiplier", -mpc / (1.0 - mpc)))
+        },
+
+        Formula("multiplier_effect", "Multiplier effect on GDP", "Economics",
+            "Total change in GDP from an initial spending change.",
+            listOf(
+                InputSpec("change", "Initial spending change", 100.0),
+                InputSpec("mpc", "MPC", 0.8),
+            ),
+        ) { m ->
+            val mpc = v(m, "mpc")
+            if (mpc >= 1.0) listOf(out("Total change", 0.0, note = "MPC must be below 1"))
+            else listOf(out("Total change in GDP", v(m, "change") * 1.0 / (1.0 - mpc)))
+        },
+
+        Formula("consumer_surplus", "Consumer surplus", "Economics",
+            "0.5 x (max price - equilibrium price) x quantity.",
+            listOf(
+                InputSpec("max", "Maximum willingness to pay", 50.0),
+                InputSpec("eq", "Equilibrium price", 30.0),
+                InputSpec("qty", "Quantity", 100.0),
+            ),
+        ) { m -> listOf(out("Consumer surplus", 0.5 * (v(m, "max") - v(m, "eq")) * v(m, "qty"))) },
+
+        Formula("producer_surplus", "Producer surplus", "Economics",
+            "0.5 x (equilibrium price - minimum price) x quantity.",
+            listOf(
+                InputSpec("eq", "Equilibrium price", 30.0),
+                InputSpec("min", "Minimum acceptable price", 15.0),
+                InputSpec("qty", "Quantity", 100.0),
+            ),
+        ) { m -> listOf(out("Producer surplus", 0.5 * (v(m, "eq") - v(m, "min")) * v(m, "qty"))) },
+
+        Formula("deadweight_loss", "Deadweight loss", "Economics",
+            "0.5 x tax x fall in quantity.",
+            listOf(
+                InputSpec("tax", "Tax per unit", 5.0),
+                InputSpec("dq", "Fall in quantity", 40.0),
+            ),
+        ) { m -> listOf(out("Deadweight loss", 0.5 * v(m, "tax") * v(m, "dq"))) },
+
+        Formula("terms_of_trade", "Terms of trade", "Economics",
+            "Export prices over import prices, times 100.",
+            listOf(
+                InputSpec("px", "Export price index", 120.0),
+                InputSpec("pm", "Import price index", 100.0),
+            ),
+        ) { m ->
+            val pm = v(m, "pm")
+            if (pm == 0.0) listOf(out("Terms of trade", 0.0, note = "Import index must not be zero"))
+            else listOf(out("Terms of trade", v(m, "px") / pm * 100.0))
+        },
+
+        Formula("balance_of_trade", "Balance of trade", "Economics",
+            "Exports minus imports.",
+            listOf(InputSpec("exports", "Exports", 500.0), InputSpec("imports", "Imports", 600.0)),
+        ) { m ->
+            val b = v(m, "exports") - v(m, "imports")
+            listOf(out("Balance of trade", b, "", if (b >= 0) "Surplus" else "Deficit"))
+        },
+
+        Formula("real_exchange_rate", "Real exchange rate", "Economics",
+            "Nominal rate x domestic price / foreign price.",
+            listOf(
+                InputSpec("nominal", "Nominal exchange rate", 83.0),
+                InputSpec("pd", "Domestic price level", 110.0),
+                InputSpec("pf", "Foreign price level", 100.0),
+            ),
+        ) { m ->
+            val pf = v(m, "pf")
+            if (pf == 0.0) listOf(out("Real exchange rate", 0.0, note = "Foreign price must not be zero"))
+            else listOf(out("Real exchange rate", v(m, "nominal") * v(m, "pd") / pf))
+        },
+
+        Formula("ppp_rate", "Purchasing power parity rate", "Economics",
+            "PPP exchange rate = price of the basket at home / abroad.",
+            listOf(
+                InputSpec("pd", "Price of basket at home", 2400.0),
+                InputSpec("pf", "Price of same basket abroad", 30.0),
+            ),
+        ) { m ->
+            val pf = v(m, "pf")
+            if (pf == 0.0) listOf(out("PPP rate", 0.0, note = "Foreign price must not be zero"))
+            else listOf(out("PPP exchange rate", v(m, "pd") / pf))
+        },
+
+        Formula("cobb_douglas", "Cobb-Douglas production", "Economics",
+            "Y = A x K^alpha x L^beta.",
+            listOf(
+                InputSpec("a", "Total factor productivity (A)", 1.0),
+                InputSpec("k", "Capital (K)", 100.0),
+                InputSpec("l", "Labour (L)", 200.0),
+                InputSpec("alpha", "alpha", 0.3),
+                InputSpec("beta", "beta", 0.7),
+            ),
+        ) { m ->
+            listOf(out("Output (Y)", v(m, "a") * v(m, "k").pow(v(m, "alpha")) * v(m, "l").pow(v(m, "beta"))))
+        },
+
+        Formula("labour_productivity", "Labour productivity", "Economics",
+            "Output per labour hour.",
+            listOf(InputSpec("output", "Output", 10000.0), InputSpec("hours", "Labour hours", 500.0)),
+        ) { m ->
+            val h = v(m, "hours")
+            if (h == 0.0) listOf(out("Productivity", 0.0, note = "Hours must not be zero"))
+            else listOf(out("Output per hour", v(m, "output") / h))
+        },
+
+        Formula("hdi", "Human Development Index", "Economics",
+            "Average of the health, education and income indices (each 0-1).",
+            listOf(
+                InputSpec("health", "Life expectancy index", 0.8),
+                InputSpec("education", "Education index", 0.7),
+                InputSpec("income", "Income index", 0.75),
+            ),
+        ) { m ->
+            val hdi = (v(m, "health") + v(m, "education") + v(m, "income")) / 3.0
+            val band = when {
+                hdi >= 0.8 -> "Very high"
+                hdi >= 0.7 -> "High"
+                hdi >= 0.55 -> "Medium"
+                else -> "Low"
+            }
+            listOf(out("HDI", hdi, "", band))
+        },
+
+        Formula("real_wage", "Real wage", "Economics",
+            "Real wage = nominal wage / CPI x 100.",
+            listOf(InputSpec("wage", "Nominal wage", 30000.0), InputSpec("cpi", "CPI", 120.0)),
+        ) { m ->
+            val cpi = v(m, "cpi")
+            if (cpi == 0.0) listOf(out("Real wage", 0.0, note = "CPI must not be zero"))
+            else listOf(out("Real wage", v(m, "wage") / cpi * 100.0))
+        },
+
+        Formula("eoq", "Economic order quantity", "Economics",
+            "EOQ = sqrt(2 x demand x order cost / holding cost).",
+            listOf(
+                InputSpec("d", "Annual demand", 10000.0),
+                InputSpec("s", "Cost per order", 500.0),
+                InputSpec("h", "Holding cost per unit", 20.0),
+            ),
+        ) { m ->
+            val h = v(m, "h")
+            if (h <= 0.0) listOf(out("EOQ", 0.0, note = "Holding cost must be positive"))
+            else listOf(out("Economic order quantity", sqrt(2.0 * v(m, "d") * v(m, "s") / h)))
+        },
+
+        Formula("marginal_cost", "Marginal cost & revenue", "Economics",
+            "Change in cost / revenue per extra unit.",
+            listOf(
+                InputSpec("dtc", "Change in total cost", 200.0),
+                InputSpec("dtr", "Change in total revenue", 300.0),
+                InputSpec("dq", "Change in quantity", 10.0),
+            ),
+        ) { m ->
+            val dq = v(m, "dq")
+            if (dq == 0.0) listOf(out("Marginal cost", 0.0, note = "Quantity change must not be zero"))
+            else {
+                val mc = v(m, "dtc") / dq
+                val mr = v(m, "dtr") / dq
+                listOf(
+                    out("Marginal cost", mc),
+                    out("Marginal revenue", mr),
+                    out("Marginal profit", mr - mc, "", if (mr > mc) "Expand output" else "Reduce output"),
+                )
+            }
+        },
+
+        Formula("savings_rate", "Savings rate", "Economics",
+            "Savings as a share of income.",
+            listOf(InputSpec("savings", "Savings", 20000.0), InputSpec("income", "Income", 100000.0)),
+        ) { m ->
+            val i = v(m, "income")
+            if (i == 0.0) listOf(out("Savings rate", 0.0, note = "Income must not be zero"))
+            else listOf(out("Savings rate", v(m, "savings") / i * 100.0, "%"))
+        },
+
+        Formula("debt_to_gdp", "Debt to GDP ratio", "Economics",
+            "Government debt over GDP.",
+            listOf(InputSpec("debt", "Government debt", 8000000.0), InputSpec("gdp", 3000000.0)),
+        ) { m ->
+            val g = v(m, "gdp")
+            if (g == 0.0) listOf(out("Debt to GDP", 0.0, note = "GDP must not be zero"))
+            else listOf(out("Debt to GDP", v(m, "debt") / g * 100.0, "%"))
+        },
+
+        Formula("fiscal_deficit", "Fiscal deficit", "Economics",
+            "Expenditure minus revenue, and its share of GDP.",
+            listOf(
+                InputSpec("exp", "Government expenditure", 500.0),
+                InputSpec("rev", "Government revenue", 450.0),
+                InputSpec("gdp", "GDP", 3000.0),
+            ),
+        ) { m ->
+            val deficit = v(m, "exp") - v(m, "rev")
+            val g = v(m, "gdp")
+            listOf(
+                out("Fiscal deficit", deficit),
+                out("Deficit as % of GDP", if (g == 0.0) 0.0 else deficit / g * 100.0, "%"),
+            )
+        },
+
+        Formula("cola", "Cost of living adjustment", "Economics",
+            "Salary adjusted for inflation.",
+            listOf(InputSpec("salary", "Current salary", 60000.0), InputSpec("inflation", "Inflation (%)", 6.0)),
+        ) { m ->
+            val newSalary = v(m, "salary") * (1.0 + v(m, "inflation") / 100.0)
+            listOf(out("Adjusted salary", newSalary), out("Increase needed", newSalary - v(m, "salary")))
+        },
+
+        Formula("okun", "Okun's law", "Economics",
+            "Unemployment change from the GDP growth gap.",
+            listOf(
+                InputSpec("actual", "Actual GDP growth (%)", 4.0),
+                InputSpec("potential", "Potential GDP growth (%)", 6.0),
+            ),
+        ) { m ->
+            val gap = v(m, "actual") - v(m, "potential")
+            listOf(out("Output gap", gap, "%"), out("Change in unemployment", -0.5 * gap, "%"))
+        },
+
+        Formula("rule70", "Rule of 70 (doubling time)", "Economics",
+            "Years for an economy to double at a growth rate.",
+            listOf(InputSpec("growth", "Growth rate (% per year)", 7.0)),
+        ) { m ->
+            val g = v(m, "growth")
+            if (g <= 0.0) listOf(out("Years to double", 0.0, note = "Growth rate must be positive"))
+            else listOf(out("Years to double", 70.0 / g))
+        },
+
+        Formula("inflation_adjusted_return", "Inflation-adjusted return", "Economics",
+            "Real return after inflation.",
+            listOf(InputSpec("nominal", "Nominal return (%)", 12.0), InputSpec("inflation", "Inflation (%)", 6.0)),
+        ) { m ->
+            val r = (1.0 + v(m, "nominal") / 100.0) / (1.0 + v(m, "inflation") / 100.0) - 1.0
+            listOf(out("Real return", r * 100.0, "%"))
         },
     )
 

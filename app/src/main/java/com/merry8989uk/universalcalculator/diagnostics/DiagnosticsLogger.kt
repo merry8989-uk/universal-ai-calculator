@@ -14,6 +14,7 @@ import java.util.Locale
 object DiagnosticsLogger {
 
     private const val MAX_BYTES = 1_000_000L   // rotate at ~1 MB
+    private const val MAX_RING = 300           // lines kept in memory for the live box
     private const val DIR = "logs"
     private const val NAME = "app.log"
 
@@ -21,6 +22,9 @@ object DiagnosticsLogger {
     private val timeFmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
 
     private var logFile: File? = null
+
+    /** Recent lines, kept in memory so the app can show logs in real time. */
+    private val ring = ArrayDeque<String>()
 
     /** Whether collection is on. Defaults to true (Rule 7). */
     @Volatile
@@ -45,14 +49,19 @@ object DiagnosticsLogger {
     fun log(tag: String, message: String) {
         if (!enabled) return
         val file = logFile ?: return
-        val line = "${timeFmt.format(Date())} [$tag] $message\n"
+        val line = "${timeFmt.format(Date())} [$tag] $message"
         synchronized(lock) {
             runCatching {
                 if (file.length() > MAX_BYTES) rotate(file)
-                file.appendText(line)
+                file.appendText(line + "\n")
             }
+            ring.addLast(line)
+            while (ring.size > MAX_RING) ring.removeFirst()
         }
     }
+
+    /** Most recent log lines, oldest first — drives the live log box. */
+    fun recent(): List<String> = synchronized(lock) { ring.toList() }
 
     fun readAll(): String = synchronized(lock) {
         val file = logFile ?: return ""

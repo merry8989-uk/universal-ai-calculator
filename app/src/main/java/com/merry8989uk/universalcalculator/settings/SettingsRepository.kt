@@ -41,7 +41,7 @@ class SettingsRepository(private val context: Context) {
             themeMode = p[Keys.THEME_MODE]
                 ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                 ?: ThemeMode.SYSTEM,
-            accentColor = p[Keys.ACCENT_COLOR] ?: 0xFF1565C0,
+            accentColor = p[Keys.ACCENT_COLOR] ?: 0xFF6C4CF1,
             textScale = p[Keys.TEXT_SCALE] ?: 1.0f,
             density = p[Keys.DENSITY] ?: 1.0f,
             language = p[Keys.LANGUAGE] ?: "system",

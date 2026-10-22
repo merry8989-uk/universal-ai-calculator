@@ -1,14 +1,20 @@
 package com.merry8989uk.universalcalculator.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -23,7 +29,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -31,6 +39,14 @@ import com.merry8989uk.universalcalculator.calc.Formula
 import com.merry8989uk.universalcalculator.calc.FormulaLibrary
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.OutputSpec
+import com.merry8989uk.universalcalculator.ui.theme.CategoryColors
+import com.merry8989uk.universalcalculator.ui.theme.Cyan
+import com.merry8989uk.universalcalculator.ui.theme.Emerald
+import com.merry8989uk.universalcalculator.ui.theme.Indigo
+import com.merry8989uk.universalcalculator.ui.theme.Orange
+import com.merry8989uk.universalcalculator.ui.theme.Pink
+import com.merry8989uk.universalcalculator.ui.theme.Teal
+import com.merry8989uk.universalcalculator.ui.theme.Violet
 
 private data class Tool(val id: String, val title: String, val subtitle: String)
 
@@ -123,8 +139,12 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
                 items(results) { f -> FormulaCard(f, onOpen) }
             } else {
                 if (category == "Tools") {
-                    items(TOOLS) { t ->
-                        ToolCard(t.title, t.subtitle) { onTool(t.id) }
+                    itemsIndexed(TOOLS) { i, t ->
+                        ToolCard(
+                            title = t.title,
+                            subtitle = t.subtitle,
+                            accent = TOOL_COLORS[i % TOOL_COLORS.size],
+                        ) { onTool(t.id) }
                     }
                 }
                 items(list) { f -> FormulaCard(f, onOpen) }
@@ -133,27 +153,36 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
     }
 }
 
+private val TOOL_COLORS = listOf(Cyan, Violet, Indigo, Emerald, Orange, Teal, Pink, Cyan)
+
 @Composable
 private fun FormulaCard(f: Formula, onOpen: (Formula) -> Unit) {
+    val accent = CategoryColors.of(f.category)
     Card(modifier = Modifier.fillMaxWidth().clickable { onOpen(f) }) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(f.title, style = MaterialTheme.typography.titleMedium)
-            Text(f.description, style = MaterialTheme.typography.bodySmall)
-            Text(
-                f.category,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.width(6.dp).height(72.dp).background(accent))
+            Column(modifier = Modifier.padding(14.dp)) {
+                Text(f.title, style = MaterialTheme.typography.titleMedium)
+                Text(f.description, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    f.category,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = accent,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ToolCard(title: String, subtitle: String, onClick: () -> Unit) {
+private fun ToolCard(title: String, subtitle: String, accent: Color, onClick: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.width(6.dp).height(72.dp).background(accent))
+            Column(modifier = Modifier.padding(14.dp)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

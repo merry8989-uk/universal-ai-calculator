@@ -3,7 +3,7 @@ package com.merry8989uk.universalcalculator.settings
 /** Everything the Settings screen can control. */
 data class SettingsState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val accentColor: Long = 0xFF1565C0,
+    val accentColor: Long = 0xFF6C4CF1,
     val textScale: Float = 1.0f,
     val density: Float = 1.0f,
     val language: String = "system",

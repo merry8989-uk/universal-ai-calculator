@@ -1,7 +1,11 @@
 package com.merry8989uk.universalcalculator.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,11 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,12 +26,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.Format
+import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.settings.SettingsState
+import com.merry8989uk.universalcalculator.ui.theme.Amber
+import com.merry8989uk.universalcalculator.ui.theme.Coral
+import com.merry8989uk.universalcalculator.ui.theme.Cyan
+import com.merry8989uk.universalcalculator.ui.theme.Emerald
+import com.merry8989uk.universalcalculator.ui.theme.Indigo
+import com.merry8989uk.universalcalculator.ui.theme.Orange
+import com.merry8989uk.universalcalculator.ui.theme.Violet
 
 private val PAD = listOf(
     listOf("C", "del", "%", "/"),
@@ -46,6 +59,9 @@ private val LABELS = mapOf(
 )
 
 private fun label(k: String) = LABELS[k] ?: k
+
+private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
+private fun isClear(k: String) = k == "C" || k == "del"
 
 private fun insertFor(key: String): String = when (key) {
     "sin", "cos", "tan", "asin", "acos", "atan" -> "$key("
@@ -68,6 +84,27 @@ private fun insertFor(key: String): String = when (key) {
     "nPr" -> "nPr("
     "round" -> "round("
     else -> key
+}
+
+/** A keypad key with a gradient fill. */
+@Composable
+private fun KeyButton(
+    label: String,
+    colors: List<Color>,
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.linearGradient(colors))
+            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, style = MaterialTheme.typography.titleMedium, color = contentColor)
+    }
 }
 
 @Composable
@@ -120,19 +157,16 @@ fun CalculatorScreen(
             }
         }
 
-        // Memory row (MC / M+ / M- / MR), like a classic scientific calculator.
+        // Memory row (MC / M+ / M- / MR).
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            OutlinedButton(onClick = { memory = 0.0 }, modifier = Modifier.weight(1f)) { Text("MC") }
-            OutlinedButton(onClick = { memory += currentValue() }, modifier = Modifier.weight(1f)) { Text("M+") }
-            OutlinedButton(onClick = { memory -= currentValue() }, modifier = Modifier.weight(1f)) { Text("M\u2212") }
-            OutlinedButton(
-                onClick = { expr = Format.number(memory) },
-                modifier = Modifier.weight(1f),
-            ) { Text("MR") }
+            FilledTonalButton(onClick = { memory = 0.0 }, modifier = Modifier.weight(1f)) { Text("MC") }
+            FilledTonalButton(onClick = { memory += currentValue() }, modifier = Modifier.weight(1f)) { Text("M+") }
+            FilledTonalButton(onClick = { memory -= currentValue() }, modifier = Modifier.weight(1f)) { Text("M\u2212") }
+            FilledTonalButton(onClick = { expr = Format.number(memory) }, modifier = Modifier.weight(1f)) { Text("MR") }
         }
         if (memory != 0.0) {
             Text(
@@ -142,8 +176,22 @@ fun CalculatorScreen(
             )
         }
 
+        // Colourful display panel.
         Column(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(22.dp))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.60f),
+                            MaterialTheme.colorScheme.surface,
+                        ),
+                    ),
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(22.dp))
+                .padding(14.dp),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.End,
         ) {
@@ -190,11 +238,13 @@ fun CalculatorScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 functionKeys.forEach { k ->
-                    FilledTonalButton(
+                    KeyButton(
+                        label = label(k),
+                        colors = listOf(Color(0xFFFCD34D), Amber),
+                        contentColor = Color(0xFF3A2600),
+                        modifier = Modifier.height(42.dp).padding(horizontal = 0.dp),
                         onClick = { expr += insertFor(k) },
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        modifier = Modifier.height(40.dp),
-                    ) { Text(label(k)) }
+                    )
                 }
             }
         }
@@ -205,8 +255,25 @@ fun CalculatorScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 row.forEach { key ->
-                    val isOp = key in listOf("/", "*", "-", "+", "=", "%")
-                    Button(
+                    val colors: List<Color> = when {
+                        key == "=" -> listOf(Cyan, Emerald)
+                        isClear(key) -> listOf(Orange, Coral)
+                        isOperator(key) -> listOf(Violet, Indigo)
+                        else -> listOf(
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    }
+                    val content = if (key == "=" || isClear(key) || isOperator(key)) {
+                        Color.White
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
+                    KeyButton(
+                        label = label(key),
+                        colors = colors,
+                        contentColor = content,
+                        modifier = Modifier.weight(1f).height(56.dp),
                         onClick = {
                             when (key) {
                                 "C" -> expr = ""
@@ -221,6 +288,7 @@ fun CalculatorScreen(
                                     } catch (e: Exception) {
                                         "error"
                                     }
+                                    DiagnosticsLogger.log("Calc", "${expr.ifBlank { "0" }} = $shown")
                                     if (settings.historyEnabled) {
                                         history = (history + "\n${expr.ifBlank { "0" }} = $shown")
                                             .trim().split("\n").takeLast(200).joinToString("\n")
@@ -231,25 +299,7 @@ fun CalculatorScreen(
                                 else -> expr += key
                             }
                         },
-                        colors = if (key == "=") {
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            )
-                        } else {
-                            ButtonDefaults.buttonColors(
-                                containerColor = if (isOp) {
-                                    MaterialTheme.colorScheme.secondaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                },
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                            )
-                        },
-                        modifier = Modifier.weight(1f).height(56.dp),
-                        contentPadding = PaddingValues(0.dp),
-                    ) {
-                        Text(label(key), style = MaterialTheme.typography.titleMedium)
-                    }
+                    )
                 }
             }
         }

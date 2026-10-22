@@ -1,8 +1,16 @@
 package com.merry8989uk.universalcalculator.diagnostics
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -16,8 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
 import com.merry8989uk.universalcalculator.R
@@ -35,8 +47,17 @@ fun DiagnosticsSection(
 ) {
     val appName = stringResource(R.string.app_name)
     var format by remember { mutableStateOf(LogExporter.Format.TXT) }
+    var live by remember { mutableStateOf<List<String>>(emptyList()) }
 
     LaunchedEffect(enabled) { vm.refresh() }
+
+    // Poll the in-memory log ring once a second so the box updates in real time.
+    LaunchedEffect(Unit) {
+        while (true) {
+            live = DiagnosticsLogger.recent()
+            delay(1000)
+        }
+    }
 
     Text("Diagnostics", style = MaterialTheme.typography.titleMedium)
 
@@ -79,6 +100,40 @@ fun DiagnosticsSection(
             Text("Clear logs")
         }
     }
+
+    Text("Live log (updates in real time)")
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(170.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF0D0E15))
+            .padding(10.dp),
+    ) {
+        if (live.isEmpty()) {
+            Text(
+                "Nothing logged yet. Logs are written on this device only.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF8A93A6),
+                fontFamily = FontFamily.Monospace,
+            )
+        } else {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                live.takeLast(120).forEach { line ->
+                    Text(
+                        line,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF7CE38B),
+                        fontFamily = FontFamily.Monospace,
+                    )
+                }
+            }
+        }
+    }
+    Text(
+        "Stored on this device only \u2014 nothing is uploaded anywhere.",
+        style = MaterialTheme.typography.bodySmall,
+    )
 
     vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
 }
