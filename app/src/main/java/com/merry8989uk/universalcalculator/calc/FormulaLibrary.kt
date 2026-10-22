@@ -1,9 +1,13 @@
 package com.merry8989uk.universalcalculator.calc
 
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.math.PI
 
 data class InputSpec(
@@ -39,7 +43,10 @@ object FormulaLibrary {
     private fun out(label: String, value: Double, unit: String = "", note: String = "") =
         OutputSpec(label, value, unit, note)
 
-    val categories = listOf("Everyday", "Finance", "Health", "Geometry", "Physics", "Math")
+    val categories = listOf(
+        "Everyday", "Finance", "Health", "Geometry", "Physics",
+        "Engineering", "Construction", "Math",
+    )
 
     val formulas: List<Formula> = listOf(
 
@@ -578,6 +585,1091 @@ object FormulaLibrary {
             val x = v(m, "x")
             if (x <= 0.0) listOf(out("ln", 0.0, note = "Value must be positive"))
             else listOf(out("ln", ln(x)), out("log10", log10(x)), out("log2", ln(x) / ln(2.0)))
+        },
+
+        // ================= FINANCE (extended) =================
+        Formula("npv", "NPV (net present value)", "Finance",
+            "Discounted value of up to six yearly cash flows.",
+            listOf(
+                InputSpec("rate", "Discount rate (% per year)", 10.0),
+                InputSpec("cf0", "CF0 (today)", -100000.0), InputSpec("cf1", "CF1", 30000.0),
+                InputSpec("cf2", "CF2", 30000.0), InputSpec("cf3", "CF3", 30000.0),
+                InputSpec("cf4", "CF4", 30000.0), InputSpec("cf5", "CF5", 0.0),
+            ),
+        ) { m ->
+            val r = v(m, "rate") / 100.0
+            val cfs = listOf(v(m, "cf0"), v(m, "cf1"), v(m, "cf2"), v(m, "cf3"), v(m, "cf4"), v(m, "cf5"))
+            var s = 0.0
+            for (i in cfs.indices) s += cfs[i] / (1.0 + r).pow(i)
+            listOf(out("NPV", s))
+        },
+
+        Formula("irr", "IRR (internal rate of return)", "Finance",
+            "Rate at which the cash flows break even.",
+            listOf(
+                InputSpec("cf0", "CF0 (today)", -100000.0), InputSpec("cf1", "CF1", 30000.0),
+                InputSpec("cf2", "CF2", 30000.0), InputSpec("cf3", "CF3", 30000.0),
+                InputSpec("cf4", "CF4", 30000.0), InputSpec("cf5", "CF5", 0.0),
+            ),
+        ) { m ->
+            val cfs = listOf(v(m, "cf0"), v(m, "cf1"), v(m, "cf2"), v(m, "cf3"), v(m, "cf4"), v(m, "cf5"))
+            fun npv(r: Double): Double {
+                var s = 0.0
+                for (i in cfs.indices) s += cfs[i] / (1.0 + r).pow(i)
+                return s
+            }
+            var lo = -0.9; var hi = 10.0; var mid = 0.0
+            val bracketed = npv(lo) * npv(hi) < 0
+            if (bracketed) {
+                for (k in 0 until 200) {
+                    mid = (lo + hi) / 2
+                    val f = npv(mid)
+                    if (abs(f) < 1e-7) break
+                    if (npv(lo) * f < 0) hi = mid else lo = mid
+                }
+                listOf(out("IRR", mid * 100.0, "%"))
+            } else {
+                listOf(out("IRR", 0.0, note = "No sign change in the cash flows"))
+            }
+        },
+
+        Formula("pv_fv", "Present / future value", "Finance",
+            "Time value of money: PV and FV of a lump sum.",
+            listOf(
+                InputSpec("amount", "Amount", 100000.0),
+                InputSpec("rate", "Rate (% per year)", 8.0),
+                InputSpec("years", "Years", 5.0),
+            ),
+        ) { m ->
+            val r = v(m, "rate") / 100.0; val n = v(m, "years")
+            listOf(
+                out("Future value", v(m, "amount") * (1.0 + r).pow(n)),
+                out("Present value", v(m, "amount") / (1.0 + r).pow(n)),
+            )
+        },
+
+        Formula("inflation", "Inflation / purchasing power", "Finance",
+            "Future cost and the value of today's money later.",
+            listOf(
+                InputSpec("amount", "Amount today", 100000.0),
+                InputSpec("rate", "Inflation (% per year)", 6.0),
+                InputSpec("years", "Years", 10.0),
+            ),
+        ) { m ->
+            val f = (1.0 + v(m, "rate") / 100.0).pow(v(m, "years"))
+            listOf(
+                out("Future cost of the same basket", v(m, "amount") * f),
+                out("Future value of today's money", v(m, "amount") / f),
+            )
+        },
+
+        Formula("gratuity", "Gratuity (India)", "Finance",
+            "Gratuity = 15/26 x last drawn salary x years of service.",
+            listOf(
+                InputSpec("salary", "Last drawn monthly salary", 50000.0),
+                InputSpec("years", "Years of service", 10.0),
+            ),
+        ) { m -> listOf(out("Gratuity", 15.0 / 26.0 * v(m, "salary") * v(m, "years"))) },
+
+        Formula("pf_maturity", "Provident fund maturity", "Finance",
+            "EPF-style monthly contribution growth.",
+            listOf(
+                InputSpec("monthly", "Monthly contribution", 5000.0),
+                InputSpec("rate", "Interest (% per year)", 8.25),
+                InputSpec("years", "Years", 20.0),
+            ),
+        ) { m ->
+            val n = v(m, "years") * 12.0; val i = v(m, "rate") / 100.0 / 12.0
+            val fv = if (i == 0.0) v(m, "monthly") * n
+            else v(m, "monthly") * ((1.0 + i).pow(n) - 1.0) / i * (1.0 + i)
+            listOf(out("Invested", v(m, "monthly") * n), out("Maturity", fv))
+        },
+
+        Formula("salary_takehome", "CTC to monthly take-home", "Finance",
+            "Rough in-hand estimate after tax. Use your own effective tax rate.",
+            listOf(
+                InputSpec("ctc", "Annual CTC", 1200000.0),
+                InputSpec("tax", "Effective tax + deductions (%)", 20.0),
+            ),
+        ) { m ->
+            val net = v(m, "ctc") * (1.0 - v(m, "tax") / 100.0)
+            listOf(out("Annual take-home", net), out("Monthly take-home", net / 12.0))
+        },
+
+        Formula("depreciation_wdv", "Depreciation (declining balance)", "Finance",
+            "Written-down-value depreciation at a fixed rate.",
+            listOf(
+                InputSpec("cost", "Asset cost", 500000.0),
+                InputSpec("rate", "Rate (% per year)", 15.0),
+                InputSpec("years", "Years", 5.0),
+            ),
+        ) { m ->
+            val book = v(m, "cost") * (1.0 - v(m, "rate") / 100.0).pow(v(m, "years"))
+            listOf(out("Book value after", book), out("Total depreciation", v(m, "cost") - book))
+        },
+
+        Formula("rule72", "Rule of 72 (doubling time)", "Finance",
+            "Years to double money at a given return.",
+            listOf(InputSpec("rate", "Annual return (%)", 12.0)),
+        ) { m ->
+            val r = v(m, "rate")
+            if (r <= 0.0) listOf(out("Years to double", 0.0, note = "Rate must be positive"))
+            else listOf(out("Years to double (rule of 72)", 72.0 / r))
+        },
+
+        Formula("markup", "Markup to selling price", "Finance",
+            "Selling price from cost and desired markup.",
+            listOf(InputSpec("cost", "Cost price", 800.0), InputSpec("markup", "Markup (%)", 25.0)),
+        ) { m ->
+            val price = v(m, "cost") * (1.0 + v(m, "markup") / 100.0)
+            listOf(out("Selling price", price), out("Profit", price - v(m, "cost")))
+        },
+
+        Formula("roas", "ROAS (ad return)", "Finance",
+            "Return on ad spend.",
+            listOf(InputSpec("revenue", "Revenue", 50000.0), InputSpec("spend", "Ad spend", 10000.0)),
+        ) { m ->
+            val sp = v(m, "spend")
+            if (sp == 0.0) listOf(out("ROAS", 0.0, note = "Spend must not be zero"))
+            else listOf(out("ROAS", v(m, "revenue") / sp, "x"))
+        },
+
+        Formula("mortgage", "Home affordability", "Finance",
+            "Loan needed and monthly payment for a home purchase.",
+            listOf(
+                InputSpec("price", "Home price", 5000000.0),
+                InputSpec("down", "Down payment (%)", 20.0),
+                InputSpec("rate", "Interest (% per year)", 8.5),
+                InputSpec("years", "Tenure (years)", 20.0),
+            ),
+        ) { m ->
+            val loan = v(m, "price") * (1.0 - v(m, "down") / 100.0)
+            val n = v(m, "years") * 12.0; val i = v(m, "rate") / 100.0 / 12.0
+            val emi = if (i == 0.0) loan / n else loan * i * (1.0 + i).pow(n) / ((1.0 + i).pow(n) - 1.0)
+            listOf(out("Loan amount", loan), out("Monthly payment", emi), out("Total interest", emi * n - loan))
+        },
+
+        // ================= HEALTH (extended) =================
+        Formula("bsa", "Body surface area (Mosteller)", "Health",
+            "BSA = sqrt(height x weight / 3600).",
+            listOf(InputSpec("w", "Weight (kg)", 70.0), InputSpec("h", "Height (cm)", 170.0)),
+        ) { m -> listOf(out("BSA", sqrt(v(m, "h") * v(m, "w") / 3600.0), "m2")) },
+
+        Formula("creatinine_clearance", "Creatinine clearance (Cockcroft-Gault)", "Health",
+            "Sex: 1 = male, 0 = female.",
+            listOf(
+                InputSpec("age", "Age (years)", 40.0),
+                InputSpec("w", "Weight (kg)", 70.0),
+                InputSpec("cr", "Serum creatinine (mg/dL)", 1.0),
+                InputSpec("sex", "Sex (1=M, 0=F)", 1.0),
+            ),
+        ) { m ->
+            val cr = v(m, "cr")
+            if (cr <= 0.0) listOf(out("CrCl", 0.0, note = "Creatinine must be positive"))
+            else {
+                val f = if (v(m, "sex") >= 0.5) 1.0 else 0.85
+                listOf(out("Creatinine clearance", (140.0 - v(m, "age")) * v(m, "w") * f / (72.0 * cr), "mL/min"))
+            }
+        },
+
+        Formula("egfr", "eGFR (MDRD)", "Health",
+            "Estimated glomerular filtration rate. Sex: 1 = male, 0 = female.",
+            listOf(
+                InputSpec("cr", "Serum creatinine (mg/dL)", 1.0),
+                InputSpec("age", "Age (years)", 40.0),
+                InputSpec("sex", "Sex (1=M, 0=F)", 1.0),
+            ),
+        ) { m ->
+            val cr = v(m, "cr")
+            if (cr <= 0.0) listOf(out("eGFR", 0.0, note = "Creatinine must be positive"))
+            else {
+                val f = if (v(m, "sex") >= 0.5) 1.0 else 0.742
+                listOf(out("eGFR", 175.0 * cr.pow(-1.154) * v(m, "age").pow(-0.203) * f, "mL/min/1.73m2"))
+            }
+        },
+
+        Formula("parkland", "Parkland burn formula", "Health",
+            "Fluid resuscitation: 4 mL x kg x %TBSA in 24 h (half in the first 8 h).",
+            listOf(
+                InputSpec("w", "Weight (kg)", 70.0),
+                InputSpec("tbsa", "Burn area (% TBSA)", 20.0),
+            ),
+        ) { m ->
+            val total = 4.0 * v(m, "w") * v(m, "tbsa")
+            listOf(out("Total in 24 h", total, "mL"), out("First 8 h", total / 2.0, "mL"), out("Next 16 h", total / 2.0, "mL"))
+        },
+
+        Formula("aa_gradient", "A-a gradient", "Health",
+            "Alveolar-arterial oxygen gradient at sea level.",
+            listOf(
+                InputSpec("pao2", "PaO2 (mmHg)", 90.0),
+                InputSpec("paco2", "PaCO2 (mmHg)", 40.0),
+                InputSpec("fio2", "FiO2 (%)", 21.0),
+            ),
+        ) { m ->
+            val pao2Alv = v(m, "fio2") / 100.0 * (760.0 - 47.0) - v(m, "paco2") / 0.8
+            listOf(out("A-a gradient", pao2Alv - v(m, "pao2"), "mmHg"))
+        },
+
+        Formula("anion_gap", "Anion gap", "Health",
+            "Na - (Cl + HCO3).",
+            listOf(
+                InputSpec("na", "Sodium (mEq/L)", 140.0),
+                InputSpec("cl", "Chloride (mEq/L)", 102.0),
+                InputSpec("hco3", "Bicarbonate (mEq/L)", 24.0),
+            ),
+        ) { m -> listOf(out("Anion gap", v(m, "na") - (v(m, "cl") + v(m, "hco3")), "mEq/L")) },
+
+        Formula("corrected_calcium", "Corrected calcium", "Health",
+            "Calcium + 0.8 x (4 - albumin).",
+            listOf(InputSpec("ca", "Calcium (mg/dL)", 9.0), InputSpec("alb", "Albumin (g/dL)", 3.0)),
+        ) { m -> listOf(out("Corrected calcium", v(m, "ca") + 0.8 * (4.0 - v(m, "alb")), "mg/dL")) },
+
+        Formula("insulin_dose", "Insulin dose", "Health",
+            "Weight-based insulin estimate.",
+            listOf(InputSpec("w", "Weight (kg)", 70.0), InputSpec("perKg", "Units per kg per day", 0.5)),
+        ) { m -> listOf(out("Total daily insulin", v(m, "w") * v(m, "perKg"), "units/day")) },
+
+        Formula("iv_drip", "IV drip rate", "Health",
+            "Infusion rate and drops per minute.",
+            listOf(
+                InputSpec("volume", "Volume (mL)", 500.0),
+                InputSpec("hours", "Over hours", 8.0),
+                InputSpec("drop", "Drop factor (drops/mL)", 20.0),
+            ),
+        ) { m ->
+            val h = v(m, "hours")
+            if (h <= 0.0) listOf(out("Rate", 0.0, note = "Hours must be positive"))
+            else {
+                val perHr = v(m, "volume") / h
+                listOf(out("Rate", perHr, "mL/h"), out("Drops", perHr * v(m, "drop") / 60.0, "drops/min"))
+            }
+        },
+
+        Formula("blood_pressure", "Blood pressure check", "Health",
+            "Mean arterial pressure and the category.",
+            listOf(InputSpec("sys", "Systolic", 120.0), InputSpec("dia", "Diastolic", 80.0)),
+        ) { m ->
+            val s = v(m, "sys"); val d = v(m, "dia")
+            val cat = when {
+                s < 90 || d < 60 -> "Low"
+                s < 120 && d < 80 -> "Normal"
+                s < 130 && d < 80 -> "Elevated"
+                s < 140 || d < 90 -> "Stage 1"
+                s < 180 || d < 120 -> "Stage 2"
+                else -> "Crisis"
+            }
+            listOf(out("Mean arterial pressure", (s + 2.0 * d) / 3.0, "mmHg", cat))
+        },
+
+        Formula("cholesterol_ratio", "Cholesterol ratio", "Health",
+            "Total cholesterol over HDL.",
+            listOf(InputSpec("total", "Total cholesterol", 180.0), InputSpec("hdl", "HDL", 50.0)),
+        ) { m ->
+            val hdl = v(m, "hdl")
+            if (hdl == 0.0) listOf(out("Ratio", 0.0, note = "HDL must not be zero"))
+            else listOf(out("Total / HDL ratio", v(m, "total") / hdl))
+        },
+
+        Formula("one_rep_max", "One-rep max (Epley)", "Health",
+            "Estimated 1RM from a set.",
+            listOf(InputSpec("w", "Weight lifted", 80.0), InputSpec("reps", "Reps", 5.0)),
+        ) { m -> listOf(out("Estimated 1RM", v(m, "w") * (1.0 + v(m, "reps") / 30.0))) },
+
+        Formula("pace", "Running pace", "Health",
+            "Pace per km and speed.",
+            listOf(InputSpec("distance", "Distance (km)", 10.0), InputSpec("minutes", "Time (minutes)", 50.0)),
+        ) { m ->
+            val d = v(m, "distance")
+            if (d <= 0.0) listOf(out("Pace", 0.0, note = "Distance must be positive"))
+            else {
+                val minPerKm = v(m, "minutes") / d
+                listOf(out("Pace", minPerKm, "min/km"), out("Speed", 60.0 / minPerKm, "km/h"))
+            }
+        },
+
+        Formula("macros", "Macro split", "Health",
+            "Grams of protein, carbs and fat from calories and percentages.",
+            listOf(
+                InputSpec("cal", "Daily calories", 2000.0),
+                InputSpec("protein", "Protein (%)", 30.0),
+                InputSpec("carb", "Carbs (%)", 40.0),
+                InputSpec("fat", "Fat (%)", 30.0),
+            ),
+        ) { m ->
+            listOf(
+                out("Protein", v(m, "cal") * v(m, "protein") / 100.0 / 4.0, "g"),
+                out("Carbs", v(m, "cal") * v(m, "carb") / 100.0 / 4.0, "g"),
+                out("Fat", v(m, "cal") * v(m, "fat") / 100.0 / 9.0, "g"),
+            )
+        },
+
+        Formula("waist_hip", "Waist-to-hip ratio", "Health",
+            "Cardiovascular risk indicator.",
+            listOf(InputSpec("waist", "Waist (cm)", 85.0), InputSpec("hip", "Hip (cm)", 100.0)),
+        ) { m ->
+            val hip = v(m, "hip")
+            if (hip == 0.0) listOf(out("Ratio", 0.0, note = "Hip must not be zero"))
+            else listOf(out("Waist-to-hip ratio", v(m, "waist") / hip))
+        },
+
+        // ================= GEOMETRY (extended) =================
+        Formula("parallelogram", "Parallelogram", "Geometry", "Area from base and height.",
+            listOf(InputSpec("base", "Base", 8.0), InputSpec("h", "Height", 5.0)),
+        ) { m -> listOf(out("Area", v(m, "base") * v(m, "h"))) },
+
+        Formula("rhombus", "Rhombus", "Geometry", "Area from the two diagonals.",
+            listOf(InputSpec("d1", "Diagonal 1", 8.0), InputSpec("d2", "Diagonal 2", 6.0)),
+        ) { m -> listOf(out("Area", v(m, "d1") * v(m, "d2") / 2.0)) },
+
+        Formula("sector", "Circle sector", "Geometry", "Area and arc length of a sector.",
+            listOf(InputSpec("r", "Radius", 5.0), InputSpec("angle", "Angle (degrees)", 60.0)),
+        ) { m ->
+            val r = v(m, "r"); val a = v(m, "angle")
+            listOf(
+                out("Area", a / 360.0 * PI * r.pow(2)),
+                out("Arc length", a / 360.0 * 2.0 * PI * r),
+            )
+        },
+
+        Formula("ellipse", "Ellipse", "Geometry", "Area and approximate perimeter (Ramanujan).",
+            listOf(InputSpec("a", "Semi-major axis a", 6.0), InputSpec("b", "Semi-minor axis b", 4.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b")
+            val h = ((a - b).pow(2)) / ((a + b).pow(2))
+            listOf(
+                out("Area", PI * a * b),
+                out("Perimeter (approx)", PI * (a + b) * (1.0 + 3.0 * h / (10.0 + sqrt(4.0 - 3.0 * h)))),
+            )
+        },
+
+        Formula("polygon", "Regular polygon", "Geometry", "Area, perimeter and interior angle.",
+            listOf(InputSpec("n", "Number of sides", 6.0), InputSpec("side", "Side length", 4.0)),
+        ) { m ->
+            val n = v(m, "n").coerceAtLeast(3.0); val s = v(m, "side")
+            listOf(
+                out("Area", n * s * s / (4.0 * kotlin.math.tan(PI / n))),
+                out("Perimeter", n * s),
+                out("Interior angle", (n - 2.0) * 180.0 / n, "deg"),
+            )
+        },
+
+        Formula("hemisphere", "Hemisphere", "Geometry", "Volume and surface area.",
+            listOf(InputSpec("r", "Radius", 5.0)),
+        ) { m ->
+            val r = v(m, "r")
+            listOf(out("Volume", 2.0 / 3.0 * PI * r.pow(3)), out("Surface area", 3.0 * PI * r.pow(2)))
+        },
+
+        Formula("frustum", "Cone frustum", "Geometry", "Volume and surface of a truncated cone.",
+            listOf(
+                InputSpec("r1", "Top radius", 2.0),
+                InputSpec("r2", "Bottom radius", 5.0),
+                InputSpec("h", "Height", 8.0),
+            ),
+        ) { m ->
+            val r1 = v(m, "r1"); val r2 = v(m, "r2"); val h = v(m, "h")
+            val slant = sqrt((r2 - r1).pow(2) + h * h)
+            listOf(
+                out("Volume", PI * h / 3.0 * (r1 * r1 + r1 * r2 + r2 * r2)),
+                out("Slant height", slant),
+                out("Surface area", PI * (r1 + r2) * slant + PI * r1 * r1 + PI * r2 * r2),
+            )
+        },
+
+        Formula("pyramid", "Square pyramid", "Geometry", "Volume and surface area.",
+            listOf(InputSpec("base", "Base side", 6.0), InputSpec("h", "Height", 8.0)),
+        ) { m ->
+            val b = v(m, "base"); val h = v(m, "h")
+            val slant = sqrt((b / 2.0).pow(2) + h * h)
+            listOf(
+                out("Volume", b * b * h / 3.0),
+                out("Slant height", slant),
+                out("Surface area", b * b + 2.0 * b * slant),
+            )
+        },
+
+        Formula("prism", "Prism", "Geometry", "Volume from base area and height.",
+            listOf(InputSpec("baseArea", "Base area", 20.0), InputSpec("h", "Height", 10.0)),
+        ) { m -> listOf(out("Volume", v(m, "baseArea") * v(m, "h"))) },
+
+        Formula("torus", "Torus", "Geometry", "Volume and surface area.",
+            listOf(InputSpec("R", "Major radius", 10.0), InputSpec("r", "Minor radius", 3.0)),
+        ) { m ->
+            val R = v(m, "R"); val r = v(m, "r")
+            listOf(
+                out("Volume", 2.0 * PI * PI * R * r * r),
+                out("Surface area", 4.0 * PI * PI * R * r),
+            )
+        },
+
+        Formula("coordinate", "Coordinate geometry", "Geometry", "Distance, midpoint and slope of two points.",
+            listOf(
+                InputSpec("x1", "x1", 1.0), InputSpec("y1", "y1", 2.0),
+                InputSpec("x2", "x2", 4.0), InputSpec("y2", "y2", 6.0),
+            ),
+        ) { m ->
+            val dx = v(m, "x2") - v(m, "x1"); val dy = v(m, "y2") - v(m, "y1")
+            listOf(
+                out("Distance", sqrt(dx * dx + dy * dy)),
+                out("Midpoint x", (v(m, "x1") + v(m, "x2")) / 2.0),
+                out("Midpoint y", (v(m, "y1") + v(m, "y2")) / 2.0),
+                out("Slope", if (dx == 0.0) 0.0 else dy / dx),
+            )
+        },
+
+        // ================= PHYSICS (extended) =================
+        Formula("kinematics", "Kinematics (v = u + at)", "Physics", "Final velocity and distance travelled.",
+            listOf(
+                InputSpec("u", "Initial velocity (m/s)", 0.0),
+                InputSpec("a", "Acceleration (m/s2)", 9.81),
+                InputSpec("t", "Time (s)", 3.0),
+            ),
+        ) { m ->
+            val u = v(m, "u"); val a = v(m, "a"); val t = v(m, "t")
+            listOf(out("Final velocity", u + a * t, "m/s"), out("Distance", u * t + 0.5 * a * t * t, "m"))
+        },
+
+        Formula("projectile", "Projectile range", "Physics", "Range, height and flight time (g = 9.81).",
+            listOf(InputSpec("v", "Speed (m/s)", 20.0), InputSpec("angle", "Angle (degrees)", 45.0)),
+        ) { m ->
+            val v = v(m, "v"); val th = Math.toRadians(v(m, "angle"))
+            listOf(
+                out("Range", v * v * sin(2.0 * th) / 9.81, "m"),
+                out("Max height", v * v * sin(th).pow(2) / (2.0 * 9.81), "m"),
+                out("Flight time", 2.0 * v * sin(th) / 9.81, "s"),
+            )
+        },
+
+        Formula("momentum", "Momentum & impulse", "Physics", "p = m v and impulse F t.",
+            listOf(
+                InputSpec("m", "Mass (kg)", 2.0), InputSpec("v", "Velocity (m/s)", 10.0),
+                InputSpec("f", "Force (N)", 5.0), InputSpec("t", "Time (s)", 2.0),
+            ),
+        ) { m ->
+            listOf(out("Momentum", v(m, "m") * v(m, "v"), "kg m/s"), out("Impulse", v(m, "f") * v(m, "t"), "N s"))
+        },
+
+        Formula("circular_motion", "Circular motion", "Physics", "Centripetal acceleration and force.",
+            listOf(
+                InputSpec("m", "Mass (kg)", 1.0),
+                InputSpec("v", "Speed (m/s)", 10.0),
+                InputSpec("r", "Radius (m)", 5.0),
+            ),
+        ) { m ->
+            val r = v(m, "r")
+            if (r == 0.0) listOf(out("Centripetal accel", 0.0, note = "Radius must not be zero"))
+            else listOf(
+                out("Centripetal acceleration", v(m, "v").pow(2) / r, "m/s2"),
+                out("Centripetal force", v(m, "m") * v(m, "v").pow(2) / r, "N"),
+            )
+        },
+
+        Formula("gravitation", "Gravitational force", "Physics", "F = G m1 m2 / r^2.",
+            listOf(
+                InputSpec("m1", "Mass 1 (kg)", 5.972e24),
+                InputSpec("m2", "Mass 2 (kg)", 1000.0),
+                InputSpec("r", "Distance (m)", 6.371e6),
+            ),
+        ) { m ->
+            val r = v(m, "r")
+            if (r == 0.0) listOf(out("Force", 0.0, note = "Distance must not be zero"))
+            else listOf(out("Force", 6.674e-11 * v(m, "m1") * v(m, "m2") / (r * r), "N"))
+        },
+
+        Formula("escape_velocity", "Orbital & escape velocity", "Physics", "For a planet of mass M at radius r.",
+            listOf(
+                InputSpec("M", "Planet mass (kg)", 5.972e24),
+                InputSpec("r", "Orbit radius (m)", 6.771e6),
+            ),
+        ) { m ->
+            val r = v(m, "r")
+            if (r <= 0.0) listOf(out("Orbital velocity", 0.0, note = "Radius must be positive"))
+            else listOf(
+                out("Orbital velocity", sqrt(6.674e-11 * v(m, "M") / r), "m/s"),
+                out("Escape velocity", sqrt(2.0 * 6.674e-11 * v(m, "M") / r), "m/s"),
+            )
+        },
+
+        Formula("reynolds", "Reynolds number", "Physics", "Flow regime indicator.",
+            listOf(
+                InputSpec("rho", "Density (kg/m3)", 1000.0),
+                InputSpec("v", "Velocity (m/s)", 1.0),
+                InputSpec("d", "Diameter (m)", 0.05),
+                InputSpec("mu", "Viscosity (Pa s)", 0.001),
+            ),
+        ) { m ->
+            val mu = v(m, "mu")
+            if (mu == 0.0) listOf(out("Re", 0.0, note = "Viscosity must not be zero"))
+            else listOf(out("Reynolds number", v(m, "rho") * v(m, "v") * v(m, "d") / mu))
+        },
+
+        Formula("buoyancy", "Buoyant force", "Physics", "F = rho V g.",
+            listOf(InputSpec("rho", "Fluid density (kg/m3)", 1000.0), InputSpec("vol", "Volume (m3)", 0.01)),
+        ) { m -> listOf(out("Buoyant force", v(m, "rho") * v(m, "vol") * 9.81, "N")) },
+
+        Formula("heat", "Heat energy", "Physics", "Q = m c dT.",
+            listOf(
+                InputSpec("m", "Mass (kg)", 1.0),
+                InputSpec("c", "Specific heat (J/kgK)", 4186.0),
+                InputSpec("dt", "Temperature change (K)", 20.0),
+            ),
+        ) { m -> listOf(out("Heat", v(m, "m") * v(m, "c") * v(m, "dt"), "J")) },
+
+        Formula("boyle", "Boyle's law", "Physics", "P1 V1 = P2 V2.",
+            listOf(
+                InputSpec("p1", "P1", 100.0), InputSpec("v1", "V1", 2.0), InputSpec("p2", "P2", 150.0),
+            ),
+        ) { m ->
+            val p2 = v(m, "p2")
+            if (p2 == 0.0) listOf(out("V2", 0.0, note = "P2 must not be zero"))
+            else listOf(out("V2", v(m, "p1") * v(m, "v1") / p2))
+        },
+
+        Formula("wave", "Wave properties", "Physics", "Speed and period from frequency and wavelength.",
+            listOf(InputSpec("f", "Frequency (Hz)", 50.0), InputSpec("lambda", "Wavelength (m)", 2.0)),
+        ) { m ->
+            val f = v(m, "f")
+            listOf(
+                out("Speed", f * v(m, "lambda"), "m/s"),
+                out("Period", if (f == 0.0) 0.0 else 1.0 / f, "s"),
+            )
+        },
+
+        Formula("lens", "Thin lens equation", "Physics", "Image distance and magnification.",
+            listOf(InputSpec("f", "Focal length (cm)", 10.0), InputSpec("u", "Object distance (cm)", 30.0)),
+        ) { m ->
+            val f = v(m, "f"); val u = v(m, "u")
+            val denom = 1.0 / f - 1.0 / u
+            if (denom == 0.0) listOf(out("Image distance", 0.0, note = "Image at infinity"))
+            else {
+                val vImg = 1.0 / denom
+                listOf(out("Image distance", vImg, "cm"), out("Magnification", -vImg / u))
+            }
+        },
+
+        Formula("snell", "Snell's law", "Physics", "Refraction angle between two media.",
+            listOf(
+                InputSpec("n1", "n1", 1.0),
+                InputSpec("theta1", "Angle of incidence (deg)", 30.0),
+                InputSpec("n2", "n2", 1.5),
+            ),
+        ) { m ->
+            val n2 = v(m, "n2")
+            if (n2 == 0.0) listOf(out("Angle 2", 0.0, note = "n2 must not be zero"))
+            else {
+                val s = v(m, "n1") * sin(Math.toRadians(v(m, "theta1"))) / n2
+                if (s > 1.0) listOf(out("Angle 2", 0.0, note = "Total internal reflection"))
+                else listOf(out("Angle 2", Math.toDegrees(kotlin.math.asin(s)), "deg"))
+            }
+        },
+
+        Formula("resistors", "Resistors series & parallel", "Physics", "Combined resistance of three resistors.",
+            listOf(
+                InputSpec("r1", "R1", 10.0), InputSpec("r2", "R2", 20.0), InputSpec("r3", "R3", 30.0),
+            ),
+        ) { m ->
+            val r1 = v(m, "r1"); val r2 = v(m, "r2"); val r3 = v(m, "r3")
+            val par = 1.0 / (1.0 / r1 + 1.0 / r2 + 1.0 / r3)
+            listOf(out("Series", r1 + r2 + r3, "ohm"), out("Parallel", par, "ohm"))
+        },
+
+        Formula("rc_time", "RC time constant", "Physics", "tau = R C.",
+            listOf(InputSpec("r", "Resistance (ohm)", 1000.0), InputSpec("c", "Capacitance (uF)", 100.0)),
+        ) { m -> listOf(out("Time constant", v(m, "r") * v(m, "c") / 1e6, "s")) },
+
+        Formula("emc2", "Mass-energy (E = mc^2)", "Physics", "Rest energy of a mass.",
+            listOf(InputSpec("m", "Mass (kg)", 1.0)),
+        ) { m -> listOf(out("Energy", v(m, "m") * (3e8).pow(2), "J")) },
+
+        Formula("photon", "Photon energy", "Physics", "Energy of a photon from its wavelength.",
+            listOf(InputSpec("lambda", "Wavelength (nm)", 550.0)),
+        ) { m ->
+            val l = v(m, "lambda")
+            if (l == 0.0) listOf(out("Energy", 0.0, note = "Wavelength must not be zero"))
+            else listOf(out("Energy", 1240.0 / l, "eV"))
+        },
+
+        Formula("torque", "Torque", "Physics", "tau = F x r.",
+            listOf(InputSpec("f", "Force (N)", 50.0), InputSpec("r", "Lever arm (m)", 0.3)),
+        ) { m -> listOf(out("Torque", v(m, "f") * v(m, "r"), "N m")) },
+
+        Formula("efficiency", "Efficiency & mech. advantage", "Physics", "Output over input, and MA.",
+            listOf(
+                InputSpec("out", "Output", 80.0), InputSpec("in", "Input", 100.0),
+                InputSpec("load", "Load", 200.0), InputSpec("effort", "Effort", 50.0),
+            ),
+        ) { m ->
+            val inp = v(m, "in"); val eff = v(m, "effort")
+            listOf(
+                out("Efficiency", if (inp == 0.0) 0.0 else v(m, "out") / inp * 100.0, "%"),
+                out("Mechanical advantage", if (eff == 0.0) 0.0 else v(m, "load") / eff),
+            )
+        },
+
+        // ================= ENGINEERING =================
+        Formula("voltage_drop", "Cable voltage drop", "Engineering", "Two-wire voltage drop.",
+            listOf(
+                InputSpec("i", "Current (A)", 10.0),
+                InputSpec("len", "Cable length (m)", 30.0),
+                InputSpec("rpm", "Resistance (ohm/m)", 0.007),
+            ),
+        ) { m -> listOf(out("Voltage drop", 2.0 * v(m, "i") * v(m, "len") * v(m, "rpm"), "V")) },
+
+        Formula("led_resistor", "LED series resistor", "Engineering", "R = (Vs - Vled) / I.",
+            listOf(
+                InputSpec("vs", "Supply voltage", 5.0),
+                InputSpec("vl", "LED forward voltage", 2.0),
+                InputSpec("ma", "LED current (mA)", 20.0),
+            ),
+        ) { m ->
+            val ma = v(m, "ma")
+            if (ma == 0.0) listOf(out("Resistor", 0.0, note = "Current must not be zero"))
+            else listOf(out("Resistor", (v(m, "vs") - v(m, "vl")) / (ma / 1000.0), "ohm"))
+        },
+
+        Formula("voltage_divider", "Voltage divider", "Engineering", "Vout = Vin x R2 / (R1 + R2).",
+            listOf(
+                InputSpec("vin", "Vin", 12.0), InputSpec("r1", "R1", 1000.0), InputSpec("r2", "R2", 2000.0),
+            ),
+        ) { m ->
+            val d = v(m, "r1") + v(m, "r2")
+            if (d == 0.0) listOf(out("Vout", 0.0, note = "R1 + R2 must not be zero"))
+            else listOf(out("Vout", v(m, "vin") * v(m, "r2") / d, "V"))
+        },
+
+        Formula("three_phase", "Three-phase power", "Engineering", "P = sqrt(3) V I pf.",
+            listOf(
+                InputSpec("v", "Line voltage", 415.0),
+                InputSpec("i", "Current (A)", 10.0),
+                InputSpec("pf", "Power factor", 0.9),
+            ),
+        ) { m -> listOf(out("Power", sqrt(3.0) * v(m, "v") * v(m, "i") * v(m, "pf") / 1000.0, "kW")) },
+
+        Formula("battery_life", "Battery life", "Engineering", "Hours from capacity and load.",
+            listOf(InputSpec("mah", "Capacity (mAh)", 3000.0), InputSpec("load", "Load (mA)", 250.0)),
+        ) { m ->
+            val load = v(m, "load")
+            if (load == 0.0) listOf(out("Hours", 0.0, note = "Load must not be zero"))
+            else listOf(out("Hours", v(m, "mah") / load))
+        },
+
+        Formula("gear_ratio", "Gear ratio", "Engineering", "Driven over driver teeth.",
+            listOf(InputSpec("driver", "Driver teeth", 12.0), InputSpec("driven", "Driven teeth", 36.0)),
+        ) { m ->
+            val d = v(m, "driver")
+            if (d == 0.0) listOf(out("Ratio", 0.0, note = "Driver must not be zero"))
+            else listOf(out("Ratio", v(m, "driven") / d))
+        },
+
+        Formula("stress_strain", "Stress, strain & Young's modulus", "Engineering", "Basic solid mechanics.",
+            listOf(
+                InputSpec("f", "Force (N)", 1000.0),
+                InputSpec("area", "Area (mm2)", 50.0),
+                InputSpec("dl", "Change in length (mm)", 0.5),
+                InputSpec("l", "Original length (mm)", 100.0),
+            ),
+        ) { m ->
+            val area = v(m, "area"); val l = v(m, "l")
+            val stress = if (area == 0.0) 0.0 else v(m, "f") / area
+            val strain = if (l == 0.0) 0.0 else v(m, "dl") / l
+            listOf(
+                out("Stress", stress, "N/mm2"),
+                out("Strain", strain),
+                out("Young's modulus", if (strain == 0.0) 0.0 else stress / strain, "N/mm2"),
+            )
+        },
+
+        Formula("molarity", "Molarity", "Engineering", "Moles per litre.",
+            listOf(InputSpec("moles", "Moles", 0.5), InputSpec("vol", "Volume (L)", 2.0)),
+        ) { m ->
+            val vol = v(m, "vol")
+            if (vol == 0.0) listOf(out("Molarity", 0.0, note = "Volume must not be zero"))
+            else listOf(out("Molarity", v(m, "moles") / vol, "mol/L"))
+        },
+
+        Formula("dilution", "Dilution (C1 V1 = C2 V2)", "Engineering", "Volume of C1 needed to reach C2.",
+            listOf(
+                InputSpec("c1", "Stock concentration", 10.0),
+                InputSpec("v1", "Stock volume (mL)", 50.0),
+                InputSpec("c2", "Target concentration", 2.0),
+            ),
+        ) { m ->
+            val c2 = v(m, "c2")
+            if (c2 == 0.0) listOf(out("Final volume", 0.0, note = "Target must not be zero"))
+            else listOf(out("Final volume", v(m, "c1") * v(m, "v1") / c2, "mL"))
+        },
+
+        Formula("ph", "pH from H+ concentration", "Engineering", "pH = -log10([H+] mol/L).",
+            listOf(InputSpec("h", "H+ concentration (mol/L)", 0.001)),
+        ) { m ->
+            val h = v(m, "h")
+            if (h <= 0.0) listOf(out("pH", 0.0, note = "Concentration must be positive"))
+            else listOf(out("pH", -log10(h)))
+        },
+
+        Formula("ip_subnet", "IP subnet hosts", "Engineering", "Usable hosts for a CIDR prefix.",
+            listOf(InputSpec("prefix", "CIDR prefix (/n)", 24.0)),
+        ) { m ->
+            val p = v(m, "prefix").toInt().coerceIn(0, 32)
+            val hosts = if (p >= 31) 0.0 else 2.0.pow(32 - p) - 2.0
+            listOf(out("Usable hosts", hosts), out("Total addresses", 2.0.pow(32 - p)))
+        },
+
+        Formula("transfer_time", "Data transfer time", "Engineering", "Time to move a file at a given speed.",
+            listOf(InputSpec("size", "Size (GB)", 5.0), InputSpec("speed", "Speed (Mbps)", 100.0)),
+        ) { m ->
+            val sp = v(m, "speed")
+            if (sp == 0.0) listOf(out("Time", 0.0, note = "Speed must not be zero"))
+            else {
+                val sec = v(m, "size") * 8000.0 / sp
+                listOf(out("Seconds", sec), out("Minutes", sec / 60.0))
+            }
+        },
+
+        Formula("aspect_ratio", "Aspect ratio & megapixels", "Engineering", "Simplified ratio and pixel count.",
+            listOf(InputSpec("w", "Width (px)", 1920.0), InputSpec("h", "Height (px)", 1080.0)),
+        ) { m ->
+            val w = v(m, "w").toInt(); val h = v(m, "h").toInt()
+            val g = Evaluator.gcd(w.toLong(), h.toLong()).toInt().coerceAtLeast(1)
+            listOf(
+                out("Megapixels", v(m, "w") * v(m, "h") / 1e6, "MP"),
+                out("Ratio width part", (w / g).toDouble()),
+                out("Ratio height part", (h / g).toDouble()),
+            )
+        },
+
+        Formula("ppi", "Screen PPI", "Engineering", "Pixels per inch.",
+            listOf(
+                InputSpec("w", "Width (px)", 1080.0),
+                InputSpec("h", "Height (px)", 2400.0),
+                InputSpec("diag", "Diagonal (inches)", 6.4),
+            ),
+        ) { m ->
+            val d = v(m, "diag")
+            if (d == 0.0) listOf(out("PPI", 0.0, note = "Diagonal must not be zero"))
+            else listOf(out("PPI", sqrt(v(m, "w").pow(2) + v(m, "h").pow(2)) / d))
+        },
+
+        // ================= CONSTRUCTION =================
+        Formula("concrete", "Concrete volume & mix", "Construction", "M20 (1:1.5:3) cement, sand and aggregate.",
+            listOf(
+                InputSpec("len", "Length (m)", 5.0),
+                InputSpec("wid", "Width (m)", 3.0),
+                InputSpec("thk", "Thickness (m)", 0.15),
+            ),
+        ) { m ->
+            val wet = v(m, "len") * v(m, "wid") * v(m, "thk")
+            val dry = wet * 1.54
+            listOf(
+                out("Wet volume", wet, "m3"),
+                out("Cement bags (50 kg)", dry * 1.0 / 5.5 / 0.0347, "bags"),
+                out("Sand", dry * 1.5 / 5.5, "m3"),
+                out("Aggregate", dry * 3.0 / 5.5, "m3"),
+            )
+        },
+
+        Formula("bricks", "Brick count", "Construction", "Standard 190x90x90 mm brick with mortar.",
+            listOf(
+                InputSpec("len", "Wall length (m)", 5.0),
+                InputSpec("hgt", "Wall height (m)", 3.0),
+                InputSpec("thk", "Wall thickness (mm)", 230.0),
+            ),
+        ) { m ->
+            val vol = v(m, "len") * v(m, "hgt") * v(m, "thk") / 1000.0
+            val bricks = vol / 0.002
+            listOf(out("Bricks", Math.ceil(bricks)), out("Mortar", vol - bricks * 0.001539, "m3"))
+        },
+
+        Formula("tiles", "Tiles needed", "Construction", "Tiles for a floor, including wastage.",
+            listOf(
+                InputSpec("area", "Floor area (m2)", 20.0),
+                InputSpec("tl", "Tile length (cm)", 60.0),
+                InputSpec("tw", "Tile width (cm)", 60.0),
+                InputSpec("waste", "Wastage (%)", 10.0),
+            ),
+        ) { m ->
+            val tile = (v(m, "tl") / 100.0) * (v(m, "tw") / 100.0)
+            if (tile == 0.0) listOf(out("Tiles", 0.0, note = "Tile size must be positive"))
+            else {
+                val base = v(m, "area") / tile
+                listOf(out("Tiles", Math.ceil(base)), out("With wastage", Math.ceil(base * (1.0 + v(m, "waste") / 100.0))))
+            }
+        },
+
+        Formula("paint", "Paint quantity", "Construction", "Litres from area, coats and coverage.",
+            listOf(
+                InputSpec("area", "Wall area (m2)", 100.0),
+                InputSpec("coats", "Coats", 2.0),
+                InputSpec("coverage", "Coverage (m2/L)", 10.0),
+            ),
+        ) { m ->
+            val c = v(m, "coverage")
+            if (c == 0.0) listOf(out("Paint", 0.0, note = "Coverage must not be zero"))
+            else listOf(out("Paint", v(m, "area") * v(m, "coats") / c, "L"))
+        },
+
+        Formula("plaster", "Plaster quantity", "Construction", "1:4 cement plaster.",
+            listOf(
+                InputSpec("area", "Area (m2)", 100.0),
+                InputSpec("thk", "Thickness (mm)", 12.0),
+            ),
+        ) { m ->
+            val dry = v(m, "area") * v(m, "thk") / 1000.0 * 1.27
+            listOf(
+                out("Cement bags (50 kg)", dry / 5.0 / 0.0347, "bags"),
+                out("Sand", dry * 4.0 / 5.0, "m3"),
+            )
+        },
+
+        Formula("steel_weight", "Steel bar weight", "Construction", "TMT bar weight (d^2/162 per metre).",
+            listOf(InputSpec("dia", "Bar diameter (mm)", 12.0), InputSpec("len", "Total length (m)", 100.0)),
+        ) { m ->
+            val perM = v(m, "dia").pow(2) / 162.0
+            listOf(out("Weight", perM * v(m, "len"), "kg"), out("Per metre", perM, "kg/m"))
+        },
+
+        Formula("staircase", "Staircase design", "Construction", "Number of risers and total run.",
+            listOf(
+                InputSpec("height", "Floor height (m)", 3.0),
+                InputSpec("riser", "Riser height (mm)", 170.0),
+                InputSpec("tread", "Tread depth (mm)", 280.0),
+            ),
+        ) { m ->
+            val r = v(m, "riser") / 1000.0
+            if (r == 0.0) listOf(out("Risers", 0.0, note = "Riser must be positive"))
+            else {
+                val steps = Math.ceil(v(m, "height") / r)
+                listOf(out("Risers", steps), out("Total run", (steps - 1) * v(m, "tread") / 1000.0, "m"))
+            }
+        },
+
+        Formula("far", "Floor area ratio (FAR/FSI)", "Construction", "Built-up area over plot area.",
+            listOf(InputSpec("plot", "Plot area (m2)", 200.0), InputSpec("built", "Built-up area (m2)", 300.0)),
+        ) { m ->
+            val plot = v(m, "plot")
+            if (plot == 0.0) listOf(out("FAR", 0.0, note = "Plot area must not be zero"))
+            else listOf(out("FAR / FSI", v(m, "built") / plot))
+        },
+
+        Formula("cost_estimate", "Construction cost estimate", "Construction", "Area x rate.",
+            listOf(InputSpec("area", "Area (sq ft)", 1000.0), InputSpec("rate", "Rate (per sq ft)", 2000.0)),
+        ) { m -> listOf(out("Estimated cost", v(m, "area") * v(m, "rate"))) },
+
+        Formula("solar_panels", "Solar panel sizing", "Construction", "Panels for a daily energy need.",
+            listOf(
+                InputSpec("kwh", "Daily need (kWh)", 10.0),
+                InputSpec("sun", "Peak sun hours", 4.5),
+                InputSpec("panel", "Panel rating (W)", 540.0),
+            ),
+        ) { m ->
+            val denom = v(m, "sun") * v(m, "panel") / 1000.0
+            if (denom == 0.0) listOf(out("Panels", 0.0, note = "Check sun hours and panel rating"))
+            else listOf(out("Panels needed", Math.ceil(v(m, "kwh") / denom)))
+        },
+
+        // ================= EVERYDAY (extended) =================
+        Formula("gpa", "GPA / CGPA", "Everyday", "Total grade points over total credits.",
+            listOf(InputSpec("points", "Total grade points", 42.0), InputSpec("credits", "Total credits", 12.0)),
+        ) { m ->
+            val c = v(m, "credits")
+            if (c == 0.0) listOf(out("GPA", 0.0, note = "Credits must not be zero"))
+            else listOf(out("GPA", v(m, "points") / c))
+        },
+
+        Formula("grade_percent", "Marks percentage", "Everyday", "Score as a percentage and a letter grade.",
+            listOf(InputSpec("obtained", "Marks obtained", 450.0), InputSpec("total", "Total marks", 500.0)),
+        ) { m ->
+            val t = v(m, "total")
+            if (t == 0.0) listOf(out("Percentage", 0.0, note = "Total must not be zero"))
+            else {
+                val p = v(m, "obtained") / t * 100.0
+                val g = when {
+                    p >= 90 -> "A+"
+                    p >= 80 -> "A"
+                    p >= 70 -> "B"
+                    p >= 60 -> "C"
+                    p >= 50 -> "D"
+                    p >= 40 -> "E"
+                    else -> "F"
+                }
+                listOf(out("Percentage", p, "%", "Grade $g"))
+            }
+        },
+
+        Formula("cooking_scale", "Recipe scaling", "Everyday", "Scale a quantity to a new serving count.",
+            listOf(
+                InputSpec("orig", "Original servings", 4.0),
+                InputSpec("want", "Desired servings", 6.0),
+                InputSpec("qty", "Quantity", 250.0),
+            ),
+        ) { m ->
+            val o = v(m, "orig")
+            if (o == 0.0) listOf(out("Quantity", 0.0, note = "Original servings must not be zero"))
+            else listOf(out("Quantity", v(m, "qty") * v(m, "want") / o))
+        },
+
+        Formula("rent_split", "Rent / bill split", "Everyday", "Equal share per person.",
+            listOf(InputSpec("rent", "Total amount", 30000.0), InputSpec("people", "People", 3.0)),
+        ) { m ->
+            val p = v(m, "people").coerceAtLeast(1.0)
+            listOf(out("Per person", v(m, "rent") / p))
+        },
+
+        Formula("hourly_wage", "Salary to hourly", "Everyday", "Hourly rate from a monthly salary.",
+            listOf(
+                InputSpec("salary", "Monthly salary", 50000.0),
+                InputSpec("hours", "Hours per week", 45.0),
+            ),
+        ) { m ->
+            val h = v(m, "hours") * 52.0
+            if (h == 0.0) listOf(out("Hourly", 0.0, note = "Hours must not be zero"))
+            else listOf(out("Hourly rate", v(m, "salary") * 12.0 / h))
+        },
+
+        Formula("overtime", "Overtime pay", "Everyday", "Base rate x hours x multiplier.",
+            listOf(
+                InputSpec("rate", "Base hourly rate", 300.0),
+                InputSpec("hours", "Overtime hours", 10.0),
+                InputSpec("mult", "Multiplier", 1.5),
+            ),
+        ) { m -> listOf(out("Overtime pay", v(m, "rate") * v(m, "hours") * v(m, "mult"))) },
+
+        Formula("cricket", "Cricket run rate", "Everyday", "Current run rate and required rate.",
+            listOf(
+                InputSpec("runs", "Runs scored", 120.0),
+                InputSpec("overs", "Overs faced", 15.0),
+                InputSpec("target", "Target runs", 180.0),
+                InputSpec("totalOvers", "Total overs", 20.0),
+            ),
+        ) { m ->
+            val ov = v(m, "overs")
+            val rr = if (ov == 0.0) 0.0 else v(m, "runs") / ov
+            val remain = v(m, "totalOvers") - ov
+            val need = v(m, "target") - v(m, "runs")
+            listOf(
+                out("Current run rate", rr),
+                out("Required run rate", if (remain <= 0.0) 0.0 else need / remain),
+            )
+        },
+
+        Formula("appliance_cost", "Appliance running cost", "Everyday", "Energy cost from watts and hours.",
+            listOf(
+                InputSpec("watts", "Power (W)", 1500.0),
+                InputSpec("hours", "Hours per day", 2.0),
+                InputSpec("price", "Electricity (per kWh)", 8.0),
+            ),
+        ) { m ->
+            val kwhDay = v(m, "watts") / 1000.0 * v(m, "hours")
+            listOf(
+                out("kWh per day", kwhDay, "kWh"),
+                out("Cost per day", kwhDay * v(m, "price")),
+                out("Cost per month", kwhDay * v(m, "price") * 30.0),
+            )
+        },
+
+        Formula("commission", "Commission", "Everyday", "Sales x rate.",
+            listOf(InputSpec("sales", "Sales amount", 200000.0), InputSpec("rate", "Commission (%)", 5.0)),
+        ) { m -> listOf(out("Commission", v(m, "sales") * v(m, "rate") / 100.0)) },
+
+        // ================= MATH (extended) =================
+        Formula("linear1", "Linear equation (ax + b = 0)", "Math", "Solves for x.",
+            listOf(InputSpec("a", "a", 2.0), InputSpec("b", "b", -6.0)),
+        ) { m ->
+            val a = v(m, "a")
+            if (a == 0.0) listOf(out("x", 0.0, note = "a must not be zero"))
+            else listOf(out("x", -v(m, "b") / a))
+        },
+
+        Formula("system2", "2 equations, 2 unknowns", "Math",
+            "a1 x + b1 y = c1 and a2 x + b2 y = c2.",
+            listOf(
+                InputSpec("a1", "a1", 2.0), InputSpec("b1", "b1", 1.0), InputSpec("c1", "c1", 5.0),
+                InputSpec("a2", "a2", 1.0), InputSpec("b2", "b2", -1.0), InputSpec("c2", "c2", 1.0),
+            ),
+        ) { m ->
+            val d = v(m, "a1") * v(m, "b2") - v(m, "a2") * v(m, "b1")
+            if (abs(d) < 1e-12) listOf(out("x", 0.0, note = "No unique solution (parallel lines)"))
+            else listOf(
+                out("x", (v(m, "c1") * v(m, "b2") - v(m, "c2") * v(m, "b1")) / d),
+                out("y", (v(m, "a1") * v(m, "c2") - v(m, "a2") * v(m, "c1")) / d),
+            )
+        },
+
+        Formula("system3", "3 equations, 3 unknowns", "Math",
+            "a x + b y + c z = d for three equations (Cramer's rule).",
+            listOf(
+                InputSpec("a1", "a1", 1.0), InputSpec("b1", "b1", 1.0), InputSpec("c1", "c1", 1.0), InputSpec("d1", "d1", 6.0),
+                InputSpec("a2", "a2", 2.0), InputSpec("b2", "b2", -1.0), InputSpec("c2", "c2", 1.0), InputSpec("d2", "d2", 3.0),
+                InputSpec("a3", "a3", 1.0), InputSpec("b3", "b3", 2.0), InputSpec("c3", "c3", -1.0), InputSpec("d3", "d3", 2.0),
+            ),
+        ) { m ->
+            val a1 = v(m, "a1"); val b1 = v(m, "b1"); val c1 = v(m, "c1"); val d1 = v(m, "d1")
+            val a2 = v(m, "a2"); val b2 = v(m, "b2"); val c2 = v(m, "c2"); val d2 = v(m, "d2")
+            val a3 = v(m, "a3"); val b3 = v(m, "b3"); val c3 = v(m, "c3"); val d3 = v(m, "d3")
+            val det = a1 * (b2 * c3 - b3 * c2) - b1 * (a2 * c3 - a3 * c2) + c1 * (a2 * b3 - a3 * b2)
+            if (abs(det) < 1e-12) listOf(out("x", 0.0, note = "No unique solution"))
+            else listOf(
+                out("x", (d1 * (b2 * c3 - b3 * c2) - b1 * (d2 * c3 - d3 * c2) + c1 * (d2 * b3 - d3 * b2)) / det),
+                out("y", (a1 * (d2 * c3 - d3 * c2) - d1 * (a2 * c3 - a3 * c2) + c1 * (a2 * d3 - a3 * d2)) / det),
+                out("z", (a1 * (b2 * d3 - b3 * d2) - b1 * (a2 * d3 - a3 * d2) + d1 * (a2 * b3 - a3 * b2)) / det),
+            )
+        },
+
+        Formula("ap", "Arithmetic progression", "Math", "nth term and sum of n terms.",
+            listOf(
+                InputSpec("a", "First term a", 2.0),
+                InputSpec("d", "Common difference d", 3.0),
+                InputSpec("n", "Number of terms n", 10.0),
+            ),
+        ) { m ->
+            val a = v(m, "a"); val d = v(m, "d"); val n = v(m, "n")
+            listOf(out("nth term", a + (n - 1) * d), out("Sum of n terms", n / 2.0 * (2 * a + (n - 1) * d)))
+        },
+
+        Formula("gp", "Geometric progression", "Math", "nth term and sum of n terms.",
+            listOf(
+                InputSpec("a", "First term a", 2.0),
+                InputSpec("r", "Common ratio r", 3.0),
+                InputSpec("n", "Number of terms n", 5.0),
+            ),
+        ) { m ->
+            val a = v(m, "a"); val r = v(m, "r"); val n = v(m, "n")
+            val sum = if (r == 1.0) a * n else a * (r.pow(n) - 1.0) / (r - 1.0)
+            listOf(out("nth term", a * r.pow(n - 1)), out("Sum of n terms", sum))
+        },
+
+        Formula("proportion", "Proportion (a:b = c:x)", "Math", "Solve for x.",
+            listOf(InputSpec("a", "a", 2.0), InputSpec("b", "b", 4.0), InputSpec("c", "c", 6.0)),
+        ) { m ->
+            val a = v(m, "a")
+            if (a == 0.0) listOf(out("x", 0.0, note = "a must not be zero"))
+            else listOf(out("x", v(m, "b") * v(m, "c") / a))
+        },
+
+        Formula("fraction", "Fraction to decimal & percent", "Math", "Convert a fraction.",
+            listOf(InputSpec("num", "Numerator", 3.0), InputSpec("den", "Denominator", 8.0)),
+        ) { m ->
+            val d = v(m, "den")
+            if (d == 0.0) listOf(out("Decimal", 0.0, note = "Denominator must not be zero"))
+            else listOf(out("Decimal", v(m, "num") / d), out("Percent", v(m, "num") / d * 100.0, "%"))
+        },
+
+        Formula("log_base", "Logarithm to any base", "Math", "log base b of x.",
+            listOf(InputSpec("x", "Value x", 1000.0), InputSpec("b", "Base b", 10.0)),
+        ) { m ->
+            val x = v(m, "x"); val b = v(m, "b")
+            if (x <= 0.0 || b <= 0.0 || b == 1.0) listOf(out("Result", 0.0, note = "Need x > 0 and base > 0, not 1"))
+            else listOf(out("log_b(x)", ln(x) / ln(b)))
+        },
+
+        Formula("fibonacci", "Fibonacci", "Math", "nth Fibonacci number (iterative).",
+            listOf(InputSpec("n", "n", 10.0)),
+        ) { m ->
+            val n = v(m, "n").toInt().coerceIn(0, 90)
+            var a = 0L; var b = 1L
+            for (i in 0 until n) { val t = a + b; a = b; b = t }
+            listOf(out("F(n)", a.toDouble()))
         },
     )
 

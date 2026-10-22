@@ -1,9 +1,10 @@
 # Universal AI Calculator
 
 An all-in-one Android calculator: standard and scientific maths, a full unit
-converter, a programmer (base + bitwise) tool, a date calculator and 47
-built-in one-shot calculators across Everyday, Finance, Health, Geometry,
-Physics and Math.
+converter, a programmer tool, date maths, statistics, matrices, numerical
+calculus, a graphing plotter, format converters and 146 built-in one-shot
+calculators across Everyday, Finance, Health, Geometry, Physics, Engineering,
+Construction and Math.
 
 - **Package ID:** `com.merry8989uk.universalcalculator`
 - **Platform:** Android (Kotlin + Jetpack Compose)
@@ -12,21 +13,35 @@ Physics and Math.
 
 ## Features
 
-- **Standard calculator** — live result preview, memory of the last answer
-  (`ans`), percentage, sign toggle, thousands separators.
-- **Scientific calculator** — trig (with DEG/RAD), inverse trig, hyperbolic,
-  logs, powers, roots, factorial, nCr/nPr, gcd/lcm, constants (pi, e, tau, phi).
-- **Unit converter** — 12 categories and 120+ units (length, mass, temperature,
-  area, volume, speed, time, data, pressure, energy, power, angle).
-- **Programmer tool** — binary/octal/decimal/hex conversion and bitwise
-  AND/OR/XOR/NOT/shift.
-- **Date calculator** — difference between dates, age, weeks, months, working
-  days, leap years.
-- **47 formula calculators** — BMI, BMR, TDEE, ideal weight, EMI, SIP, compound
-  interest, CAGR, ROI, break-even, depreciation, GST, tip, discount, profit,
-  fuel cost, geometry solids, physics laws, quadratic roots and more.
-- **Rich Settings** — theme (light/dark/system), six accent colours, text size,
-  density, language, per-feature toggles, optional AI backend URL.
+- **Standard calculator** — live result preview, `ans` memory, percentage, sign
+  toggle, thousands separators.
+- **Scientific calculator** — trig (DEG/RAD), inverse trig, logs, powers, roots,
+  factorial, nCr/nPr, gcd/lcm, constants (pi, e, tau, phi).
+- **Unit converter** — 24 categories and 293 units (length, mass, temperature,
+  area, volume, speed, time, data, data rate, pressure, energy, power, force,
+  torque, frequency, fuel economy, illuminance, radiation, electric, density,
+  viscosity, cooking, typography, sound).
+- **Programmer tool** — base 2/8/10/16/36 conversion and AND/OR/XOR/NOT/shift,
+  rotate-free bitwise helpers and popcount.
+- **Date calculator** — difference, age, weeks/months/years, working days, week
+  number, quarter, day-of-year, add/subtract days, Unix timestamps.
+- **Statistics** — mean/median/mode, sample & population variance and SD,
+  quartiles, IQR, skewness, kurtosis and linear regression.
+- **Matrix calculator** — add, subtract, multiply, transpose, determinant,
+  trace and inverse.
+- **Calculus** — numerical derivative, second derivative, definite integral
+  (Simpson) and summation of f(x).
+- **Graphing** — plot y = f(x) live on a canvas with an adjustable x-range.
+- **Converters** — Roman numerals, number to words (Indian & international
+  grouping), text ↔ binary / hex / ASCII, RGB ↔ hex, timestamps.
+- **Currency converter** — live exchange rates (open.er-api.com).
+- **146 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
+  mortgage, gratuity, PF, depreciation, BMI, BMR, TDEE, BSA, eGFR, creatinine
+  clearance, Parkland, insulin, geometry solids, physics laws, concrete/bricks/
+  tiles/paint/steel, staircase, solar sizing, GPA, cooking scale, run rate and
+  much more.
+- **Rich Settings** — theme, six accent colours, text size, density, language,
+  per-feature toggles, optional AI backend URL.
 - **In-app updates** — checks GitHub Releases and installs a new signed APK
   without leaving the app.
 - **Diagnostics** — log collection on by default, with share / export
@@ -36,8 +51,9 @@ Physics and Math.
 
 ```
 app/src/main/java/com/merry8989uk/universalcalculator/
-  calc/         expression evaluator, units, formula library, programmer, dates
-  ui/           AppRoot + the five mode screens (Compose)
+  calc/         evaluator, units, formulas, statistics, matrix, calculus,
+                converters, programmer, dates, currency
+  ui/           AppRoot + the five mode screens and every tool screen (Compose)
   settings/     DataStore-backed Settings screen + contact footer
   updater/      in-app update check and install (GitHub Releases)
   diagnostics/  rolling log file, exporter, and the Diagnostics settings block

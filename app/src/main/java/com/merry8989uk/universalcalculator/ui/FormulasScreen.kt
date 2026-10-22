@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,6 +32,19 @@ import com.merry8989uk.universalcalculator.calc.FormulaLibrary
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.OutputSpec
 
+private data class Tool(val id: String, val title: String, val subtitle: String)
+
+private val TOOLS = listOf(
+    Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
+    Tool("matrix", "Matrix calculator", "Add, subtract, multiply, transpose, determinant and inverse."),
+    Tool("calculus", "Calculus", "Numerical derivative, second derivative, integral and summation."),
+    Tool("graph", "Graphing", "Plot y = f(x) on a live canvas."),
+    Tool("converter", "Converters", "Roman numerals, words, binary/hex/ASCII text, colour codes, timestamps."),
+    Tool("date", "Date calculator", "Difference, age, working days, week number, add/subtract, timestamps."),
+    Tool("programmer", "Programmer (base & bitwise)", "Base conversion and bitwise operations."),
+    Tool("currency", "Currency converter", "Live exchange rates between world currencies."),
+)
+
 @Composable
 fun FormulasScreen() {
     var selected by remember { mutableStateOf<Formula?>(null) }
@@ -40,28 +52,31 @@ fun FormulasScreen() {
 
     when {
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
-        tool == "programmer" -> ProgrammerScreen { tool = "" }
+        tool == "statistics" -> StatisticsScreen { tool = "" }
+        tool == "matrix" -> MatrixScreen { tool = "" }
+        tool == "calculus" -> CalculusScreen { tool = "" }
+        tool == "graph" -> GraphScreen { tool = "" }
+        tool == "converter" -> ConverterScreen { tool = "" }
         tool == "date" -> DateScreen { tool = "" }
-        else -> FormulaList(
-            onOpen = { selected = it },
-            onTool = { tool = it },
-        )
+        tool == "programmer" -> ProgrammerScreen { tool = "" }
+        tool == "currency" -> CurrencyScreen { tool = "" }
+        else -> FormulaList(onOpen = { selected = it }, onTool = { tool = it })
     }
 }
 
 @Composable
 private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
-    var category by remember { mutableStateOf(FormulaLibrary.categories.first()) }
+    var category by remember { mutableStateOf("Tools") }
     val list = FormulaLibrary.byCategory(category)
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Calculators", style = MaterialTheme.typography.titleLarge)
         Text(
-            "${FormulaLibrary.formulas.size} built-in calculators",
+            "${FormulaLibrary.formulas.size} built-in calculators + ${TOOLS.size} tools",
             style = MaterialTheme.typography.bodySmall,
         )
 
-        Row(
+        androidx.compose.foundation.layout.Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -81,21 +96,12 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (category == "Tools") {
-                item {
-                    ToolCard("Programmer (base & bitwise)", "Convert between bases and apply bitwise operations.") {
-                        onTool("programmer")
-                    }
-                }
-                item {
-                    ToolCard("Date calculator", "Difference between dates, age and working days.") {
-                        onTool("date")
-                    }
+                items(TOOLS) { t ->
+                    ToolCard(t.title, t.subtitle) { onTool(t.id) }
                 }
             }
             items(list) { f ->
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable { onOpen(f) },
-                ) {
+                Card(modifier = Modifier.fillMaxWidth().clickable { onOpen(f) }) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(f.title, style = MaterialTheme.typography.titleMedium)
                         Text(f.description, style = MaterialTheme.typography.bodySmall)

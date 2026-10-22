@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -57,28 +58,28 @@ fun ProgrammerScreen(onBack: () -> Unit) {
             "NOT a" -> Programmer.not(x).toString()
             "a << b" -> Programmer.shl(x, y).toString()
             "a >> b" -> Programmer.shr(x, y).toString()
+            "a >>> b" -> Programmer.ushr(x, y).toString()
+            "popcount a" -> Programmer.popcount(x).toString()
             else -> "\u2014"
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+    ) {
         TextButton(onClick = onBack) { Text("\u2190 Back") }
         Text("Programmer", style = MaterialTheme.typography.titleLarge)
 
         Text("Base converter", style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(
-            value = input,
-            onValueChange = { input = it },
-            label = { Text("Value") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth(),
+            value = input, onValueChange = { input = it }, label = { Text("Value") },
+            singleLine = true, modifier = Modifier.fillMaxWidth(),
         )
         Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            listOf(2, 8, 10, 16).forEach { bs ->
+            listOf(2, 8, 10, 16, 36).forEach { bs ->
                 FilterChip(selected = base == bs, onClick = { base = bs }, label = { Text("Base $bs") })
             }
         }
@@ -113,12 +114,11 @@ fun ProgrammerScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            listOf("AND", "OR", "XOR", "NOT a", "a << b", "a >> b").forEach { o ->
+            listOf("AND", "OR", "XOR", "NOT a", "a << b", "a >> b", "a >>> b", "popcount a").forEach { o ->
                 FilterChip(selected = op == o, onClick = { op = o }, label = { Text(o) })
             }
         }
-        Text("Result: $result", fontFamily = FontFamily.Monospace,
-            style = MaterialTheme.typography.titleLarge)
+        Text("Result: $result", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.titleLarge)
     }
 }
 
@@ -134,24 +134,27 @@ fun DateScreen(onBack: () -> Unit) {
     val today = remember { LocalDate.now().toString() }
     var fromText by remember { mutableStateOf("2000-01-01") }
     var toText by remember { mutableStateOf(today) }
+    var offsetText by remember { mutableStateOf("30") }
+    var epochText by remember { mutableStateOf("1700000000") }
 
     val from = remember(fromText) { runCatching { LocalDate.parse(fromText) }.getOrNull() }
     val to = remember(toText) { runCatching { LocalDate.parse(toText) }.getOrNull() }
+    val epoch = epochText.trim().toLongOrNull()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+    ) {
         TextButton(onClick = onBack) { Text("\u2190 Back") }
         Text("Date calculator", style = MaterialTheme.typography.titleLarge)
         Text("Dates in yyyy-mm-dd format", style = MaterialTheme.typography.bodySmall)
 
         OutlinedTextField(
-            value = fromText, onValueChange = { fromText = it },
-            label = { Text("From") }, singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            value = fromText, onValueChange = { fromText = it }, label = { Text("From") },
+            singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
         OutlinedTextField(
-            value = toText, onValueChange = { toText = it },
-            label = { Text("To") }, singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            value = toText, onValueChange = { toText = it }, label = { Text("To") },
+            singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
 
         if (from == null || to == null) {
@@ -168,6 +171,43 @@ fun DateScreen(onBack: () -> Unit) {
                 ResultLine("Age / span", "$y years, $m months, $d days")
             }
         }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+        Text("Facts about the \"from\" date", style = MaterialTheme.typography.titleMedium)
+        from?.let { dt ->
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 6.dp)) {
+                ResultLine("Day of week", DateCalc.dayName(dt))
+                ResultLine("Day of year", DateCalc.dayOfYear(dt).toString())
+                ResultLine("ISO week", DateCalc.isoWeek(dt).toString())
+                ResultLine("Quarter", "Q${DateCalc.quarter(dt)}")
+                ResultLine("Days in month", DateCalc.daysInMonth(dt).toString())
+                ResultLine("Leap year", if (DateCalc.isLeapYear(dt.year)) "Yes" else "No")
+            }
+        }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+        Text("Add / subtract days", style = MaterialTheme.typography.titleMedium)
+        OutlinedTextField(
+            value = offsetText, onValueChange = { offsetText = it },
+            label = { Text("Days (+ to add, - to subtract)") },
+            singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+        val offset = offsetText.trim().toLongOrNull()
+        if (from != null && offset != null) {
+            ResultLine("Result date", DateCalc.addDays(from, offset).toString())
+        }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+        Text("Unix timestamp", style = MaterialTheme.typography.titleMedium)
+        OutlinedTextField(
+            value = epochText, onValueChange = { epochText = it },
+            label = { Text("Epoch seconds") },
+            singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+        if (epoch != null) ResultLine("Local date", DateCalc.fromEpochSeconds(epoch))
+        from?.let { ResultLine("From date as epoch", DateCalc.toEpochSeconds(it).toString()) }
     }
 }
 
