@@ -2174,7 +2174,7 @@ object FormulaLibrary {
 
         Formula("debt_to_gdp", "Debt to GDP ratio", "Economics",
             "Government debt over GDP.",
-            listOf(InputSpec("debt", "Government debt", 8000000.0), InputSpec("gdp", 3000000.0)),
+            listOf(InputSpec("debt", "Government debt", 8000000.0), InputSpec("gdp", "GDP", 3000000.0)),
         ) { m ->
             val g = v(m, "gdp")
             if (g == 0.0) listOf(out("Debt to GDP", 0.0, note = "GDP must not be zero"))
