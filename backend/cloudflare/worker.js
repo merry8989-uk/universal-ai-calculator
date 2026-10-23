@@ -27,16 +27,16 @@ const WHISPER_MODELS = [
 
 // Vision models, tried in order for a photo. Workers AI retires models, so
 // several are listed.
+// Only this one works for reading arithmetic: llava rejects every input shape
+// Workers AI accepts here, and the other vision models are gone or gated.
 const VISION_MODELS = [
   "@cf/meta/llama-3.2-11b-vision-instruct",
-  "@cf/llava-hf/llava-1.5-7b-hf",
 ];
 
 // A caller may name one of these to compare readers. Anything outside the list
 // is ignored, so the endpoint cannot be used as a general model proxy.
 const VISION_ALLOWED = [
   "@cf/meta/llama-3.2-11b-vision-instruct",
-  "@cf/llava-hf/llava-1.5-7b-hf",
 ];
 
 // The photo prompt: we want a bare calculator expression back, nothing else.
