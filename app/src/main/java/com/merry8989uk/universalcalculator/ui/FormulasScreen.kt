@@ -57,6 +57,7 @@ private val TOOLS = listOf(
     Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),
     Tool("rpn", "RPN (stack) calculator", "Reverse-Polish entry: push numbers, then apply operations."),
     Tool("matrix", "Matrix calculator", "Add, subtract, multiply, transpose, determinant and inverse."),
+    Tool("symbolic", "Symbolic algebra", "Simplify, differentiate, integrate, factor and solve polynomials in x."),
     Tool("calculus", "Calculus", "Numerical derivative, second derivative, integral and summation."),
     Tool("graph", "Graphing", "Plot y = f(x) on a live canvas."),
     Tool("converter", "Converters", "Roman numerals, words, binary/hex/ASCII text, colour codes, timestamps."),
@@ -78,6 +79,7 @@ fun FormulasScreen() {
         tool == "complex" -> ComplexScreen { tool = "" }
         tool == "rpn" -> RpnScreen { tool = "" }
         tool == "matrix" -> MatrixScreen { tool = "" }
+        tool == "symbolic" -> SymbolicScreen { tool = "" }
         tool == "calculus" -> CalculusScreen { tool = "" }
         tool == "graph" -> GraphScreen { tool = "" }
         tool == "converter" -> ConverterScreen { tool = "" }

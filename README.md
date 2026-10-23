@@ -37,6 +37,8 @@ Engineering, Construction and Math.
 - **Formula reference** — 419 identities, rules and tables across 12 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
+- **Symbolic algebra** — simplify, differentiate, integrate, factor and solve polynomials
+- **ANOVA** and **chi-square** tests, **QR decomposition**
 - **Distributions & tests** — normal/t/binomial/Poisson, t-tests, confidence intervals
 - **Complex numbers** — full arithmetic, polar form and roots
 - **RPN (stack) calculator** — reverse-Polish entry

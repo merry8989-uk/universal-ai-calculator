@@ -249,4 +249,40 @@ object Matrix {
         if (a.any { it.size != n }) throw Evaluator.EvalException("Matrix must be square")
     }
 
+    // ================= QR =================
+
+    /** Householder QR: returns Q and R with A = Q·R, Q orthogonal, R upper triangular. */
+    fun qr(a: Array<DoubleArray>): Pair<Array<DoubleArray>, Array<DoubleArray>> {
+        if (a.isEmpty()) throw Evaluator.EvalException("Matrix is empty")
+        val m = rows(a)
+        val n = cols(a)
+        val r = Array(m) { a[it].copyOf() }
+        val q = identity(m)
+        for (k in 0 until minOf(m - 1, n)) {
+            var norm = 0.0
+            for (i in k until m) norm += r[i][k] * r[i][k]
+            norm = kotlin.math.sqrt(norm)
+            if (norm < 1e-14) continue
+            val alpha = if (r[k][k] > 0) -norm else norm
+            val v = DoubleArray(m)
+            for (i in k until m) v[i] = r[i][k]
+            v[k] -= alpha
+            var vnorm = 0.0
+            for (i in k until m) vnorm += v[i] * v[i]
+            if (vnorm < 1e-300) continue
+            for (j in 0 until n) {
+                var dot = 0.0
+                for (i in k until m) dot += v[i] * r[i][j]
+                val f = 2.0 * dot / vnorm
+                for (i in k until m) r[i][j] -= f * v[i]
+            }
+            for (i in 0 until m) {
+                var dot = 0.0
+                for (j in k until m) dot += q[i][j] * v[j]
+                val f = 2.0 * dot / vnorm
+                for (j in k until m) q[i][j] -= f * v[j]
+            }
+        }
+        return q to r
+    }
 }

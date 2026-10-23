@@ -110,6 +110,12 @@ fun MatrixScreen(onBack: () -> Unit) {
                     }.joinToString("")
                 }
             }) { Text("Char poly") }
+            Button(onClick = {
+                run {
+                    val (q, r) = Matrix.qr(Matrix.parse(aText))
+                    "Q =\n" + Matrix.format(q) + "\nR =\n" + Matrix.format(r)
+                }
+            }) { Text("QR") }
         }
 
         Text(

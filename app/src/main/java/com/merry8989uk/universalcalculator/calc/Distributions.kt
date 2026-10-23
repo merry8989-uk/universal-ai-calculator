@@ -195,4 +195,198 @@ object Distributions {
 
     /** Two-tailed p-value for a z score. */
     fun pValueFromZ(z: Double): Double = (2.0 * (1.0 - normalCdf(abs(z)))).coerceIn(0.0, 1.0)
+    // ---------- incomplete gamma and beta ----------
+
+    /** Series expansion for the regularised lower incomplete gamma. */
+    private fun gser(a: Double, x: Double): Double {
+        val gln = logGamma(a)
+        if (x <= 0) return 0.0
+        var ap = a
+        var sum = 1.0 / a
+        var del = sum
+        for (n in 1..500) {
+            ap += 1.0
+            del *= x / ap
+            sum += del
+            if (abs(del) < abs(sum) * 1e-12) break
+        }
+        return sum * exp(-x + a * ln(x) - gln)
+    }
+
+    /** Continued fraction for the upper incomplete gamma. */
+    private fun gcf(a: Double, x: Double): Double {
+        val fpmin = 1e-300
+        val gln = logGamma(a)
+        var b = x + 1.0 - a
+        var c = 1.0 / fpmin
+        var d = 1.0 / b
+        var h = d
+        for (i in 1..500) {
+            val an = -i * (i - a)
+            b += 2.0
+            d = an * d + b
+            if (abs(d) < fpmin) d = fpmin
+            c = b + an / c
+            if (abs(c) < fpmin) c = fpmin
+            d = 1.0 / d
+            val del = d * c
+            h *= del
+            if (abs(del - 1.0) < 1e-12) break
+        }
+        return exp(-x + a * ln(x) - gln) * h
+    }
+
+    /** Regularised lower incomplete gamma P(a, x). */
+    fun gammp(a: Double, x: Double): Double {
+        if (a <= 0.0 || x < 0.0) throw Evaluator.EvalException("Bad arguments for the incomplete gamma")
+        return if (x < a + 1.0) gser(a, x) else 1.0 - gcf(a, x)
+    }
+
+    private fun betacf(a: Double, b: Double, x: Double): Double {
+        val fpmin = 1e-300
+        val qab = a + b
+        val qap = a + 1.0
+        val qam = a - 1.0
+        var c = 1.0
+        var d = 1.0 - qab * x / qap
+        if (abs(d) < fpmin) d = fpmin
+        d = 1.0 / d
+        var h = d
+        for (m in 1..500) {
+            val m2 = 2 * m
+            var aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+            d = 1.0 + aa * d
+            if (abs(d) < fpmin) d = fpmin
+            c = 1.0 + aa / c
+            if (abs(c) < fpmin) c = fpmin
+            d = 1.0 / d
+            h *= d * c
+            aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+            d = 1.0 + aa * d
+            if (abs(d) < fpmin) d = fpmin
+            c = 1.0 + aa / c
+            if (abs(c) < fpmin) c = fpmin
+            d = 1.0 / d
+            val del = d * c
+            h *= del
+            if (abs(del - 1.0) < 1e-12) break
+        }
+        return h
+    }
+
+    /** Regularised incomplete beta I_x(a, b). */
+    fun betai(a: Double, b: Double, x: Double): Double {
+        if (x <= 0.0) return 0.0
+        if (x >= 1.0) return 1.0
+        val bt = exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * ln(x) + b * ln(1.0 - x))
+        return if (x < (a + 1.0) / (a + b + 2.0)) bt * betacf(a, b, x) / a
+        else 1.0 - bt * betacf(b, a, 1.0 - x) / b
+    }
+
+    // ---------- chi-square ----------
+
+    fun chiSquarePdf(x: Double, df: Double): Double {
+        if (df <= 0) throw Evaluator.EvalException("Degrees of freedom must be positive")
+        if (x <= 0) return 0.0
+        val k = df / 2.0
+        return exp((k - 1.0) * ln(x) - x / 2.0 - k * ln(2.0) - logGamma(k))
+    }
+
+    fun chiSquareCdf(x: Double, df: Double): Double {
+        if (df <= 0) throw Evaluator.EvalException("Degrees of freedom must be positive")
+        if (x <= 0) return 0.0
+        return gammp(df / 2.0, x / 2.0).coerceIn(0.0, 1.0)
+    }
+
+    /** P(X² > x) — the p-value for a chi-square statistic. */
+    fun chiSquareUpperTail(x: Double, df: Double): Double =
+        (1.0 - chiSquareCdf(x, df)).coerceIn(0.0, 1.0)
+
+    // ---------- F ----------
+
+    fun fCdf(f: Double, d1: Double, d2: Double): Double {
+        if (d1 <= 0 || d2 <= 0) throw Evaluator.EvalException("Degrees of freedom must be positive")
+        if (f <= 0) return 0.0
+        return betai(d1 / 2.0, d2 / 2.0, d1 * f / (d1 * f + d2)).coerceIn(0.0, 1.0)
+    }
+
+    /** P(F > f) — the p-value for an F statistic. */
+    fun fUpperTail(f: Double, d1: Double, d2: Double): Double =
+        (1.0 - fCdf(f, d1, d2)).coerceIn(0.0, 1.0)
+
+    // ---------- tests ----------
+
+    /** One-way analysis of variance. */
+    fun oneWayAnova(groups: List<List<Double>>): Map<String, Double> {
+        if (groups.size < 2) throw Evaluator.EvalException("Need at least two groups")
+        groups.forEach { if (it.size < 2) throw Evaluator.EvalException("Each group needs at least two values") }
+        val all = groups.flatten()
+        val grand = Statistics.mean(all)
+        val n = all.size
+        var ssBetween = 0.0
+        var ssWithin = 0.0
+        for (g in groups) {
+            val m = Statistics.mean(g)
+            ssBetween += g.size * (m - grand) * (m - grand)
+            for (x in g) ssWithin += (x - m) * (x - m)
+        }
+        val dfB = (groups.size - 1).toDouble()
+        val dfW = (n - groups.size).toDouble()
+        val msB = ssBetween / dfB
+        val msW = if (dfW > 0) ssWithin / dfW else 0.0
+        val f = if (msW == 0.0) 0.0 else msB / msW
+        val p = if (f > 0.0 && dfW > 0) fUpperTail(f, dfB, dfW) else 1.0
+        return linkedMapOf(
+            "F statistic" to f,
+            "df between" to dfB,
+            "df within" to dfW,
+            "p value" to p,
+            "SS between" to ssBetween,
+            "SS within" to ssWithin,
+            "MS between" to msB,
+            "MS within" to msW,
+        )
+    }
+
+    /** Chi-square goodness of fit. */
+    fun chiSquareGoodnessOfFit(observed: List<Double>, expected: List<Double>): Map<String, Double> {
+        if (observed.size != expected.size) throw Evaluator.EvalException("Both lists must be the same length")
+        if (observed.size < 2) throw Evaluator.EvalException("Need at least two categories")
+        var chi = 0.0
+        for (i in observed.indices) {
+            val e = expected[i]
+            if (e <= 0) throw Evaluator.EvalException("Expected counts must be positive")
+            chi += (observed[i] - e) * (observed[i] - e) / e
+        }
+        val df = (observed.size - 1).toDouble()
+        return linkedMapOf(
+            "Chi-square" to chi,
+            "Degrees of freedom" to df,
+            "p value" to chiSquareUpperTail(chi, df),
+        )
+    }
+
+    /** Chi-square test of independence on a contingency table. */
+    fun chiSquareIndependence(table: List<List<Double>>): Map<String, Double> {
+        if (table.size < 2) throw Evaluator.EvalException("Need at least two rows")
+        val cols = table[0].size
+        if (cols < 2) throw Evaluator.EvalException("Need at least two columns")
+        if (table.any { it.size != cols }) throw Evaluator.EvalException("Every row must be the same length")
+        val rowSums = table.map { it.sum() }
+        val colSums = (0 until cols).map { j -> table.sumOf { it[j] } }
+        val total = rowSums.sum()
+        if (total <= 0) throw Evaluator.EvalException("The table must not be empty")
+        var chi = 0.0
+        for (i in table.indices) for (j in 0 until cols) {
+            val e = rowSums[i] * colSums[j] / total
+            if (e <= 0) continue
+            chi += (table[i][j] - e) * (table[i][j] - e) / e
+        }
+        val df = ((table.size - 1) * (cols - 1)).toDouble()
+        return linkedMapOf(
+            "Chi-square" to chi,
+            "Degrees of freedom" to df,
+            "p value" to chiSquareUpperTail(chi, df),
+        )
+    }
 }

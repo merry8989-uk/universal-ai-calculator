@@ -39,6 +39,10 @@ fun DistributionsScreen(onBack: () -> Unit) {
     var p1 by remember { mutableStateOf("0") }
     var p2 by remember { mutableStateOf("1") }
 
+    var groups by remember { mutableStateOf("1, 2, 3; 4, 5, 6; 7, 8, 9") }
+    var observed by remember { mutableStateOf("10, 20, 30, 40") }
+    var expected by remember { mutableStateOf("25, 25, 25, 25") }
+    var table by remember { mutableStateOf("10, 20; 30, 40") }
     var data by remember { mutableStateOf("1, 2, 3, 4, 5") }
     var data2 by remember { mutableStateOf("2, 3, 4, 5, 6") }
     var mu0 by remember { mutableStateOf("3") }
@@ -133,6 +137,39 @@ fun DistributionsScreen(onBack: () -> Unit) {
                     r.entries.joinToString("\n") { "${it.key}: ${Format.number(it.value)}" }
                 }
             }) { Text("Confidence interval") }
+        }
+
+        Text("More tests", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
+        OutlinedTextField(value = groups, onValueChange = { groups = it },
+            label = { Text("ANOVA groups (separate groups with ;)") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = observed, onValueChange = { observed = it },
+            label = { Text("Observed counts") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = expected, onValueChange = { expected = it },
+            label = { Text("Expected counts") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = table, onValueChange = { table = it },
+            label = { Text("Contingency table (rows with ;, columns with ,)") }, modifier = Modifier.fillMaxWidth())
+
+        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = {
+                run {
+                    val gs = groups.split(';').map { Statistics.parse(it) }.filter { it.isNotEmpty() }
+                    val r = Distributions.oneWayAnova(gs)
+                    r.entries.joinToString("\n") { "${it.key}: ${Format.number(it.value)}" }
+                }
+            }) { Text("ANOVA") }
+            Button(onClick = {
+                run {
+                    val r = Distributions.chiSquareGoodnessOfFit(nums(observed), nums(expected))
+                    r.entries.joinToString("\n") { "${it.key}: ${Format.number(it.value)}" }
+                }
+            }) { Text("Goodness of fit") }
+            Button(onClick = {
+                run {
+                    val rows = table.split(';').map { Statistics.parse(it) }.filter { it.isNotEmpty() }
+                    val r = Distributions.chiSquareIndependence(rows)
+                    r.entries.joinToString("\n") { "${it.key}: ${Format.number(it.value)}" }
+                }
+            }) { Text("Independence") }
         }
 
         Text(
