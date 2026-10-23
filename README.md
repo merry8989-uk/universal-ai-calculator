@@ -1,5 +1,7 @@
 # Nexus Calc
 
+<img src="docs/icon.png" alt="Nexus Calc logo" width="120">
+
 Nexus Calc is an all-in-one Android calculator: standard and scientific maths, a full unit
 converter, a programmer tool, date maths, statistics, matrices, numerical
 calculus, a graphing plotter, format converters and 151 built-in one-shot
