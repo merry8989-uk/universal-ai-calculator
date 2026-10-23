@@ -8,6 +8,7 @@ import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.math.tan
 import kotlin.math.PI
 
 data class InputSpec(
