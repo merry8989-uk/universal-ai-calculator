@@ -21,8 +21,14 @@ data class Complex(val re: Double, val im: Double) {
 
     fun abs(): Double = hypot(re, im)
 
-    /** Argument (angle) in radians. */
-    fun arg(): Double = atan2(im, re)
+    /**
+     * Argument (angle) in radians, in (-π, π].
+     *
+     * A zero imaginary part is normalised to +0.0 first: negating a real number
+     * produces -0.0, and atan2(-0.0, -1) would wrongly give -π instead of +π,
+     * which put ln(-1) on the wrong branch.
+     */
+    fun arg(): Double = atan2(if (im == 0.0) 0.0 else im, re)
 
     fun conj() = Complex(re, -im)
     fun neg() = Complex(-re, -im)
