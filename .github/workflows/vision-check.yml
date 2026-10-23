@@ -1,0 +1,40 @@
+name: Vision model check
+
+# Tries several Workers AI vision models against the same test image, straight
+# through the Cloudflare REST API, to find the most accurate reader.
+# Run from the Actions tab.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Try each vision model
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ACCOUNT="${CF_ACCOUNT:-0784a770b23681036a10d1ab5e33ce38}"
+          try_model () {
+            M="$1"; SHAPE="$2"
+            echo "=== $M ($SHAPE) ==="
+            python3 tools/worker_check/vision_body.py "$SHAPE" > /tmp/body.json
+            curl -sS --max-time 90 -X POST \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/ai/run/$M" \
+              -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+              --data @/tmp/body.json | head -c 700
+            echo
+          }
+          try_model "@cf/meta/llama-3.2-11b-vision-instruct" url
+          try_model "@cf/meta/llama-3.2-90b-vision-instruct" url
+          try_model "@cf/llava-hf/llava-1.5-7b-hf" flat
+          try_model "@cf/qwen/qwen2.5-vl-7b-instruct" url
+          try_model "@cf/google/gemma-3-12b-it" url
+          try_model "@cf/mistralai/mistral-small-3.1-24b-instruct" url
