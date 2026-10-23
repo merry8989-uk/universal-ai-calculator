@@ -64,6 +64,28 @@ function json(obj, status = 200) {
   });
 }
 
+/**
+ * Belt and braces: the app also cleans the answer, but stripping Markdown and
+ * LaTeX here means nothing raw can reach a device even from an older build.
+ */
+function sanitize(text) {
+  let s = String(text == null ? "" : text);
+  s = s.replace(/\$\$?/g, "");
+  s = s.replace(/\\(?:text|mathrm|mathbf|mathit)\{([^}]*)\}/g, "$1");
+  s = s.replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2");
+  s = s.replace(/\\sqrt\{([^}]*)\}/g, "sqrt($1)");
+  s = s.replace(/\\times/g, " x ").replace(/\\div/g, " / ").replace(/\\cdot/g, " x ");
+  s = s.replace(/\\[a-zA-Z]+/g, "");
+  s = s.replace(/[{}\\]/g, "");
+  s = s.replace(/\*\*/g, "").replace(/__/g, "").replace(/`/g, "").replace(/~~/g, "");
+  s = s.replace(/\*([A-Za-z][^*\n]*)\*/g, "$1");
+  s = s.replace(/^#{1,6}\s*/gm, "");
+  s = s.replace(/^\s*[-*]\s+/gm, "\u2022 ");
+  s = s.replace(/[ \t]{2,}/g, " ");
+  s = s.replace(/\n{3,}/g, "\n\n");
+  return s.trim();
+}
+
 /** Pulls the text out of whichever shape the model returned. */
 function extractText(out) {
   if (out == null) return "";
@@ -171,8 +193,8 @@ export default {
       for (const model of candidates) {
         try {
           const out = await env.AI.run(model, { messages, max_tokens: 512 });
-          const answer = extractText(out);
-          if (answer.trim()) return json({ answer: answer.trim(), model });
+          const answer = sanitize(extractText(out));
+          if (answer) return json({ answer, model });
           problems.push(`${model}: empty response`);
         } catch (e) {
           problems.push(`${model}: ${e}`);

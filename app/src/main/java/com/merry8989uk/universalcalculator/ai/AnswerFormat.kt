@@ -32,11 +32,20 @@ object AnswerFormat {
         s = s.replace("{", "").replace("}", "")
 
         // Markdown
-        s = s.replace("**", "")
+        s = s.replace("**", "")          // bold
+        s = s.replace("__", "")          // bold (underscores)
         s = s.replace("`", "")
         s = s.replace(Regex("(?m)^#{1,6}\\s*"), "")
         s = s.replace(Regex("(?m)^\\s*\\*\\s+"), "\u2022 ")
         s = s.replace(Regex("(?m)^\\s*-\\s+"), "\u2022 ")
+        // Single-asterisk italics, e.g. *Note: ...*. Only when the run starts
+        // with a letter, so "2 * 3 * 4" is left alone.
+        s = s.replace(Regex("""\\*([A-Za-z][^*\\n]*)\\*""")) { it.groupValues[1] }
+        s = s.replace(Regex("""_([A-Za-z][^_\\n]*)_""")) { it.groupValues[1] }
+        s = s.replace("~~", "")          // strikethrough
+        // Tidy the punctuation left behind
+        s = s.replace(Regex(" +([,.;:!?])"), "$1")
+        s = s.replace(Regex("\\n{2,}(?=\\u2022)"), "\n")
 
         // Tidy whitespace
         s = s.replace(Regex("[ \\t]{2,}"), " ")
