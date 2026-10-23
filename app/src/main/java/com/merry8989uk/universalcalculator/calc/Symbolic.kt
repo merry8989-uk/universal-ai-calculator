@@ -79,13 +79,15 @@ object Symbolic {
         val terms = splitTerms(s)
         if (terms.isEmpty()) throw Evaluator.EvalException("Enter a polynomial in x")
         var maxDeg = 0
-        val parsed = terms.map { (sign, body) ->
-            val t = parseTerm(body) * sign
-            maxDeg = maxOf(maxDeg, t.second)
-            t
+        val parsed = ArrayList<Pair<Double, Int>>(terms.size)
+        for ((sign, body) in terms) {
+            val t = parseTerm(body)
+            val scaled = (t.first * sign) to t.second
+            maxDeg = maxOf(maxDeg, scaled.second)
+            parsed.add(scaled)
         }
         val out = DoubleArray(maxDeg + 1)
-        parsed.forEach { (coeff, deg) -> out[deg] += coeff }
+        for ((coeff, deg) in parsed) out[deg] += coeff
         return trim(out)
     }
 
