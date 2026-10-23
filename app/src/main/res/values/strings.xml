@@ -126,4 +126,22 @@
     <string name="sound_click">Click</string>
     <string name="sound_bubble">Bubble</string>
     <string name="sound_pop">Pop</string>
+    <string name="diag_title">Diagnostics</string>
+    <string name="diag_collect">Collect logs</string>
+    <string name="diag_collect_help">Logs, usage counters and crash reports are collected by default so problems can be diagnosed. They stay on this device. %1$s stored.</string>
+    <string name="diag_export_format">Export format</string>
+    <string name="diag_export">Export &amp; share</string>
+    <string name="diag_clear">Clear logs</string>
+    <string name="diag_reset_counters">Reset counters</string>
+    <string name="diag_live">Live log (updates in real time)</string>
+    <string name="diag_live_empty">Nothing logged yet. Logs are written on this device only.</string>
+    <string name="diag_usage">Usage counters</string>
+    <string name="diag_usage_help">Counted on this device only. They never leave the phone unless you export them.</string>
+    <string name="diag_usage_empty">Nothing recorded yet.</string>
+    <string name="diag_most_used">Most used</string>
+    <string name="diag_crashes">Crashes recorded: %1$d</string>
+    <string name="diag_crashes_none">No crashes recorded.</string>
+    <string name="diag_view_crashes">View crash reports</string>
+    <string name="diag_logs_cleared">Logs cleared</string>
+    <string name="diag_counters_reset">Counters reset</string>
 </resources>

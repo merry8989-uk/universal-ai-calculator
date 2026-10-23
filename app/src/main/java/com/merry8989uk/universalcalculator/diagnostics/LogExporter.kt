@@ -27,7 +27,8 @@ object LogExporter {
 
     /** Writes the export into the app cache and returns the file. */
     fun export(context: Context, format: Format, appName: String, version: String): File {
-        val raw = DiagnosticsLogger.readAll()
+        // The full report: header, usage counters, crash reports, then the log.
+        val raw = DiagnosticsLogger.exportReport(context)
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
         val dir = File(context.cacheDir, "exports").apply { mkdirs() }
         val out = File(dir, "logs-$stamp.${format.ext}")

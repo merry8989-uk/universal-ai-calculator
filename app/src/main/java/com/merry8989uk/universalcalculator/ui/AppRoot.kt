@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.settings.SettingsScreen
+import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.settings.SettingsState
 
@@ -97,8 +98,10 @@ fun AppRoot(settings: SettingsState) {
     // True while a tab is showing one of its inner screens.
     var innerOpen by remember { mutableStateOf(false) }
 
+    val analyticsContext = LocalContext.current
     fun selectTab(i: Int) {
         if (tab == i) resetTick++ else tab = i
+        Analytics.event(analyticsContext, "tab:" + TAB_LABELS[i].toString())
     }
 
     // The key tone follows the setting.

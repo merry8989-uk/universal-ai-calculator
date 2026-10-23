@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -80,6 +81,9 @@ fun FormulasScreen(
     resetSignal: Int = 0,
     onInnerChange: (Boolean) -> Unit = {},
 ) {
+    val analyticsContext = androidx.compose.ui.platform.LocalContext.current
+    fun analytics(key: String) = Analytics.event(analyticsContext, key)
+
     var selected by remember { mutableStateOf<Formula?>(null) }
     var tool by remember { mutableStateOf("") }
 
@@ -108,7 +112,16 @@ fun FormulasScreen(
         tool == "date" -> DateScreen { tool = "" }
         tool == "programmer" -> ProgrammerScreen { tool = "" }
         tool == "currency" -> CurrencyScreen { tool = "" }
-        else -> FormulaList(onOpen = { selected = it }, onTool = { tool = it })
+        else -> FormulaList(
+            onOpen = {
+                selected = it
+                analytics(it.id)
+            },
+            onTool = {
+                tool = it
+                analytics("tool:$it")
+            },
+        )
     }
 }
 

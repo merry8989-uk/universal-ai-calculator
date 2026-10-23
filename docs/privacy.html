@@ -35,10 +35,22 @@
     <li>Everything you type into the calculator, and your calculation history.</li>
     <li>Your settings — theme, language, number format, keypad layout and the rest.</li>
     <li>The diagnostics log, which records app events so you can export it when
-        reporting a problem. It never leaves your device unless you share it.</li>
+        reporting a problem.</li>
+    <li>Usage counters — how often each screen, calculator and tool is opened,
+        and how many AI requests you made. These are simple numbers kept on the
+        device to help diagnose problems and see what is actually used.</li>
+    <li>Crash reports — if the app crashes, the stack trace, your device model
+        and Android version, and the last few log lines are saved so the fault
+        can be found.</li>
     <li>Cached exchange rates, so the currency converter works offline.</li>
   </ul>
-  <p>None of this is uploaded anywhere. Uninstalling the app removes it.</p>
+  <p>None of this is uploaded anywhere. The log, the counters and the crash
+  reports are written to this app's private storage and are only shared if you
+  tap Export in Settings and choose where to send them. Uninstalling the app
+  removes all of it.</p>
+  <p>You can switch collection off, or wipe everything, in Settings →
+  Diagnostics. Collection is on by default so a problem can be diagnosed without
+  you having to reproduce it first.</p>
 
   <h2>What is sent off the device</h2>
   <p>Only when you choose to use these features:</p>
@@ -60,7 +72,9 @@
   <h2>What we do not do</h2>
   <ul>
     <li>No advertising and no ad SDKs.</li>
-    <li>No analytics or crash-reporting services.</li>
+    <li>No third-party analytics or crash-reporting services — nothing is sent to
+        any such service. The counters and crash reports described above are kept
+        on your device and nowhere else.</li>
     <li>No selling or sharing of data with third parties.</li>
     <li>No access to your contacts, location, camera roll or files beyond the
         specific item you pick to attach.</li>

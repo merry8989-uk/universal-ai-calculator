@@ -1,6 +1,8 @@
 package com.merry8989uk.universalcalculator.ai
 
+import android.content.Context
 import android.util.Base64
+import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +18,17 @@ object AiClient {
 
     /** Fixed assistant endpoint (Cloudflare Worker). Not user-editable. */
     private const val ENDPOINT = "https://nexus-calc-ai.br19shc39.workers.dev"
+
+    private var appContext: Context? = null
+
+    /** Call once, from the Application, so calls can be counted locally. */
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+
+    private fun count(kind: String) {
+        appContext?.let { Analytics.event(it, "ai:$kind") }
+    }
 
     /** Either the expression read from a photo, or why it could not be read. */
     data class PhotoResult(
@@ -43,6 +56,7 @@ object AiClient {
                 readTimeout = 60_000
                 setRequestProperty("Content-Type", "application/json")
             }
+            count("photo")
             DiagnosticsLogger.log("AI", "Photo solve: ${jpeg.size} bytes")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
             val code = conn.responseCode
@@ -78,6 +92,7 @@ object AiClient {
      */
     suspend fun readImage(jpeg: ByteArray, mode: String = "expression"): String? =
         withContext(Dispatchers.IO) {
+            count(if (mode == "text") "pdf" else "photo")
             var conn: HttpURLConnection? = null
             try {
                 val payload = JSONObject()
@@ -121,6 +136,7 @@ object AiClient {
                 readTimeout = 90_000
                 setRequestProperty("Content-Type", "application/json")
             }
+            count("audio")
             DiagnosticsLogger.log("AI", "Transcribe: ${audio.size} bytes")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
             val code = conn.responseCode
@@ -151,6 +167,7 @@ object AiClient {
                 readTimeout = 45_000
                 setRequestProperty("Content-Type", "application/json")
             }
+            count("ask")
             DiagnosticsLogger.log("AI", "Ask: ${question.take(140)}")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
 

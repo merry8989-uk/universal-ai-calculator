@@ -20,12 +20,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -59,23 +61,34 @@ fun DiagnosticsSection(
         }
     }
 
-    Text("Diagnostics", style = MaterialTheme.typography.titleMedium)
+    val context = LocalContext.current
+    var groups by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    var top by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    var crashCount by remember { mutableIntStateOf(0) }
+    var showCrashes by remember { mutableStateOf(false) }
+
+    LaunchedEffect(enabled, live.size) {
+        groups = Analytics.groupTotals(context)
+        top = Analytics.counters(context).take(10)
+        crashCount = DiagnosticsLogger.crashCount()
+    }
+
+    Text(stringResource(R.string.diag_title), style = MaterialTheme.typography.titleMedium)
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text("Collect logs")
+        Text(stringResource(R.string.diag_collect))
         Switch(checked = enabled, onCheckedChange = onEnabledChange)
     }
 
     Text(
-        "Logs are collected by default so problems can be diagnosed. " +
-            "${humanSize(vm.logBytes)} stored.",
+        stringResource(R.string.diag_collect_help, humanSize(vm.logBytes)),
         style = MaterialTheme.typography.bodySmall,
     )
 
-    Text("Export format")
+    Text(stringResource(R.string.diag_export_format))
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         LogExporter.Format.entries.forEach { f ->
             FilterChip(
@@ -91,17 +104,86 @@ fun DiagnosticsSection(
             onClick = { vm.exportAndShare(format, appName, BuildConfig.VERSION_NAME) },
             modifier = Modifier.weight(1f),
         ) {
-            Text("Export & share")
+            Text(stringResource(R.string.diag_export))
         }
         OutlinedButton(
             onClick = { vm.clear() },
             modifier = Modifier.weight(1f),
         ) {
-            Text("Clear logs")
+            Text(stringResource(R.string.diag_clear))
         }
     }
 
-    Text("Live log (updates in real time)")
+    // ---- usage counters and crashes ----
+    Text(stringResource(R.string.diag_usage), style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.diag_usage_help), style = MaterialTheme.typography.bodySmall)
+    if (groups.isEmpty()) {
+        Text(stringResource(R.string.diag_usage_empty), style = MaterialTheme.typography.bodySmall)
+    } else {
+        groups.forEach { (label, count) ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(label, style = MaterialTheme.typography.bodyMedium)
+                Text("$count", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        if (top.isNotEmpty()) {
+            Text(stringResource(R.string.diag_most_used), style = MaterialTheme.typography.bodyMedium)
+            top.forEach { (key, count) ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(key, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+                    Text("$count", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+    }
+
+    Text(
+        if (crashCount == 0) stringResource(R.string.diag_crashes_none)
+        else stringResource(R.string.diag_crashes, crashCount),
+        style = MaterialTheme.typography.bodyMedium,
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (crashCount > 0) {
+            OutlinedButton(onClick = { showCrashes = !showCrashes }, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.diag_view_crashes))
+            }
+        }
+        OutlinedButton(
+            onClick = {
+                DiagnosticsLogger.clearEverything(context)
+                vm.refresh()
+            },
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(stringResource(R.string.diag_reset_counters))
+        }
+    }
+    if (showCrashes && crashCount > 0) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF1A0F14))
+                .padding(10.dp),
+        ) {
+            Text(
+                DiagnosticsLogger.crashReport(),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFFE7B9C4),
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+            )
+        }
+    }
+
+    Text(stringResource(R.string.diag_live))
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,7 +194,7 @@ fun DiagnosticsSection(
     ) {
         if (live.isEmpty()) {
             Text(
-                "Nothing logged yet. Logs are written on this device only.",
+                stringResource(R.string.diag_live_empty),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color(0xFF8A93A6),
                 fontFamily = FontFamily.Monospace,

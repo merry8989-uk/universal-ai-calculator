@@ -124,4 +124,22 @@
     <string name="sound_click">क्लिक</string>
     <string name="sound_bubble">बबल</string>
     <string name="sound_pop">पॉप</string>
+    <string name="diag_title">डायग्नोस्टिक्स</string>
+    <string name="diag_collect">लॉग जमा करें</string>
+    <string name="diag_collect_help">लॉग, उपयोग गणक और क्रैश रिपोर्ट डिफ़ॉल्ट रूप से जमा होते हैं ताकि समस्या पकड़ी जा सके। ये इसी डिवाइस पर रहते हैं। %1$s संचित।</string>
+    <string name="diag_export_format">निर्यात प्रारूप</string>
+    <string name="diag_export">निर्यात और साझा करें</string>
+    <string name="diag_clear">लॉग साफ़ करें</string>
+    <string name="diag_reset_counters">गणक रीसेट करें</string>
+    <string name="diag_live">लाइव लॉग (तुरंत अपडेट होता है)</string>
+    <string name="diag_live_empty">अभी कुछ दर्ज नहीं हुआ। लॉग सिर्फ़ इसी डिवाइस पर लिखे जाते हैं।</string>
+    <string name="diag_usage">उपयोग गणक</string>
+    <string name="diag_usage_help">सिर्फ़ इसी डिवाइस पर गिने जाते हैं। जब तक आप निर्यात न करें, ये फ़ोन से बाहर नहीं जाते।</string>
+    <string name="diag_usage_empty">अभी कुछ दर्ज नहीं हुआ।</string>
+    <string name="diag_most_used">सबसे ज़्यादा इस्तेमाल</string>
+    <string name="diag_crashes">दर्ज क्रैश: %1$d</string>
+    <string name="diag_crashes_none">कोई क्रैश दर्ज नहीं हुआ।</string>
+    <string name="diag_view_crashes">क्रैश रिपोर्ट देखें</string>
+    <string name="diag_logs_cleared">लॉग साफ़ हो गए</string>
+    <string name="diag_counters_reset">गणक रीसेट हो गए</string>
 </resources>
