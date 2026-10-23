@@ -1,18 +1,21 @@
 name: Deploy AI Worker
 
-# Deploys the Nexus Calc AI backend (Cloudflare Worker) from GitHub's runners,
-# which can reach the Cloudflare API. Run it from the Actions tab.
+# Deploys the Nexus Calc AI backend (Cloudflare Worker, Workers AI) from
+# GitHub's runners, which can reach the Cloudflare API. Run it from the
+# Actions tab. No model API key is needed — Workers AI runs on Cloudflare.
 #
 # Required repository secret:
 #   CLOUDFLARE_API_TOKEN   — a Cloudflare API token with "Edit Cloudflare Workers"
-# Optional repository secrets (set automatically by the project owner):
+# Optional repository secrets:
 #   CLOUDFLARE_ACCOUNT_ID  — your Cloudflare account id
-#   GEMINI_API_KEY         — the Gemini key, stored as a Worker secret
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  WORKER_URL: https://nexus-calc-ai.br19shc39.workers.dev
 
 jobs:
   deploy:
@@ -34,15 +37,27 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "Missing repository secret CLOUDFLARE_API_TOKEN." >&2
             exit 1
           fi
-          if [ -n "$GEMINI_KEY" ]; then
-            printf '%s' "$GEMINI_KEY" | wrangler secret put GEMINI_API_KEY
-          fi
           wrangler deploy
-          echo "--- workers.dev URL ---"
-          wrangler deployments list || true
+          # The Gemini key is no longer used now that the model runs on Workers AI.
+          wrangler secret delete GEMINI_API_KEY || true
+
+      - name: Smoke test the Worker
+        run: |
+          sleep 8
+          echo "--- asking the deployed assistant ---"
+          curl -sS --max-time 60 -X POST "$WORKER_URL" \
+            -H 'Content-Type: application/json' \
+            -d '{"question":"What is 15 percent of 2400? Reply with one short line."}' \
+            | tee /tmp/answer.json
+          echo
+          if grep -qi '"answer"' /tmp/answer.json; then
+            echo "SMOKE TEST: PASS"
+          else
+            echo "SMOKE TEST: FAIL (no answer field)" >&2
+            exit 1
+          fi

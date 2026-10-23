@@ -1,17 +1,18 @@
 /**
- * Nexus Calc — AI backend (Cloudflare Worker).
+ * Nexus Calc — AI backend (Cloudflare Worker, Workers AI).
  *
- * Holds the Gemini API key on the server so the app never ships it.
- * The key is a Worker secret named GEMINI_API_KEY — it is NOT in this file
- * and never gets committed.
+ * The model runs ON Cloudflare, billed to your Cloudflare account, so there is
+ * no third-party API key anywhere — not in the app, not in this repo, and no
+ * secret to rotate.
  *
  * Deploy:
  *   cd backend/cloudflare
  *   npm install -g wrangler
  *   wrangler login
- *   wrangler secret put GEMINI_API_KEY     # paste the key when prompted
  *   wrangler deploy
  */
+
+const DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct";
 
 const SYSTEM = [
   "You are the built-in assistant of the Nexus Calc Android app.",
@@ -51,29 +52,22 @@ export default {
       if (!question) return json({ error: "Ask a question first." }, 400);
       if (question.length > 4000) return json({ error: "Question is too long." }, 400);
 
-      const key = env.GEMINI_API_KEY;
-      if (!key) return json({ error: "Server is not configured." }, 500);
-      const model = env.GEMINI_MODEL || "gemini-3.5-flash";
+      if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
+      const model = env.AI_MODEL || DEFAULT_MODEL;
 
-      const prompt = context
-        ? `${SYSTEM}\n\nApp context: ${context}\n\nUser question: ${question}`
-        : `${SYSTEM}\n\nUser question: ${question}`;
-
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      const messages = [
+        { role: "system", content: SYSTEM },
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          role: "user",
+          content: context
+            ? `App context: ${context}\n\nQuestion: ${question}`
+            : question,
         },
-      );
+      ];
 
-      const data = await resp.json().catch(() => null);
-      if (!resp.ok) {
-        return json({ error: data?.error?.message ?? `AI request failed (${resp.status})` }, 502);
-      }
+      const out = await env.AI.run(model, { messages, max_tokens: 512 });
       const answer =
-        data?.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+        typeof out === "string" ? out : (out?.response ?? out?.result?.response ?? "");
       if (!answer) return json({ error: "The model returned no answer." }, 502);
 
       return json({ answer, model });
