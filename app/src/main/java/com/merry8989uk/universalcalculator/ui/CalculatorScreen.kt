@@ -743,25 +743,25 @@ fun CalculatorScreen(
                         enabled = text.isNotBlank(),
                     ) { Text(stringResource(R.string.ask_ai_about_this)) }
                 }
+            }
 
-                // A sweep of light crosses the display whenever = is pressed.
-                Canvas(modifier = Modifier.matchParentSize()) {
-                    val p = ripple.value
-                    if (p > 0f && p < 1f) {
-                        val x = size.width * p
-                        val band = size.width * 0.55f
-                        drawRect(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.White.copy(alpha = 0.30f * (1f - p)),
-                                    Color.Transparent,
-                                ),
-                                startX = x - band,
-                                endX = x + band,
+            // A sweep of light crosses the display whenever = is pressed.
+            Canvas(modifier = Modifier.matchParentSize()) {
+                val p = ripple.value
+                if (p > 0f && p < 1f) {
+                    val x = size.width * p
+                    val band = size.width * 0.55f
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = 0.30f * (1f - p)),
+                                Color.Transparent,
                             ),
-                        )
-                    }
+                            startX = x - band,
+                            endX = x + band,
+                        ),
+                    )
                 }
             }
             }
