@@ -224,7 +224,9 @@ fun AskAiScreen(
                 enabled = !attachBusy && !loading,
             ) { Text("\uD83D\uDCF7 " + stringResource(R.string.photo)) }
             OutlinedButton(
-                onClick = { filePicker.launch(arrayOf("image/*", "audio/*", "text/*", "application/json")) },
+                onClick = { filePicker.launch(
+                    arrayOf("image/*", "audio/*", "text/*", "application/json", "application/pdf"),
+                ) },
                 enabled = !attachBusy && !loading,
             ) { Text("\uD83D\uDCCE " + stringResource(R.string.file)) }
         }

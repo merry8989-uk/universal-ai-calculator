@@ -49,7 +49,7 @@
     <string name="clear_the_question_a11y">clear the question</string>
     <string name="attach_something">Attach something</string>
     <string name="file">File</string>
-    <string name="attach_help">Photo takes a picture now. File opens your gallery, music or documents — images, audio clips and .txt/.md/.csv files are supported.</string>
+<string name="attach_help">Photo takes a picture now. File opens your gallery, music or documents — images, audio clips, PDFs (the first three pages) and .txt/.md/.csv files are supported.</string>
     <string name="attach_read">Reading the attachment…</string>
     <string name="remove">Remove</string>
     <string name="attached">Attached: %1$s</string>

@@ -72,6 +72,41 @@ object AiClient {
         }
     }
 
+    /**
+     * Reads a page image. With mode "text" the whole page is transcribed; with
+     * "expression" (the default) only the calculation on it is returned.
+     */
+    suspend fun readImage(jpeg: ByteArray, mode: String = "expression"): String? =
+        withContext(Dispatchers.IO) {
+            var conn: HttpURLConnection? = null
+            try {
+                val payload = JSONObject()
+                    .put("image", Base64.encodeToString(jpeg, Base64.NO_WRAP))
+                    .put("mode", mode)
+                    .toString()
+                conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    doOutput = true
+                    connectTimeout = 20_000
+                    readTimeout = 90_000
+                    setRequestProperty("Content-Type", "application/json")
+                }
+                conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
+                val code = conn.responseCode
+                val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+                val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
+                val json = runCatching { JSONObject(body) }.getOrNull()
+                if (code !in 200..299) return@withContext null
+                if (mode == "text") json?.optString("text")?.takeIf { it.isNotBlank() }
+                else json?.optString("expression")?.takeIf { it.isNotBlank() }
+            } catch (e: Exception) {
+                DiagnosticsLogger.log("AI", "Page read failed")
+                null
+            } finally {
+                conn?.disconnect()
+            }
+        }
+
     /** Transcribes an audio clip on the Worker (Whisper), or null on failure. */
     suspend fun transcribe(audio: ByteArray): String? = withContext(Dispatchers.IO) {
         var conn: HttpURLConnection? = null

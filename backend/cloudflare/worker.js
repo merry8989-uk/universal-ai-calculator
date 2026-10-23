@@ -54,6 +54,15 @@ const OCR_SYSTEM = [
   "Do not explain. Do not use Markdown. Output one line only.",
 ].join(" ");
 
+// Used when a whole page should be transcribed, not just one calculation.
+const TRANSCRIBE_SYSTEM = [
+  "You transcribe pages for a calculator app.",
+  "Write out the text and any mathematics on the page as plain text.",
+  "Keep formulas readable: use digits and + - * / ^ ( ) %, and write powers with ^.",
+  "Do not explain anything. Do not use Markdown. Output the page content only.",
+  "If the page has no readable text, reply with exactly: NONE",
+].join(" ");
+
 const SYSTEM = [
   "You are the built-in assistant of the Nexus Calc Android app.",
   "Answer maths, physics, chemistry, finance, economics, health and everyday",
@@ -119,9 +128,10 @@ function extractText(out) {
  * vision model is gated behind a licence prompt, and the Llava model wants a
  * plain data URL, so both are handled here.
  */
-function imageShapes(model, b64) {
+function imageShapes(model, b64, systemPrompt) {
   const url = `data:image/jpeg;base64,${b64}`;
   const ask = "Read the arithmetic in this photo.";
+  const sys = systemPrompt || OCR_SYSTEM;
 
   if (model.includes("llama-3.2-11b-vision")) {
     return [
@@ -129,7 +139,7 @@ function imageShapes(model, b64) {
         agree: true,
         body: {
           messages: [
-            { role: "system", content: OCR_SYSTEM },
+            { role: "system", content: sys },
             {
               role: "user",
               content: [
@@ -145,7 +155,7 @@ function imageShapes(model, b64) {
         agree: true,
         body: {
           messages: [
-            { role: "system", content: OCR_SYSTEM },
+            { role: "system", content: sys },
             {
               role: "user",
               content: [
@@ -162,7 +172,7 @@ function imageShapes(model, b64) {
 
   // llava-style: a flat object with the image as a base64 string
   return [
-    { agree: false, body: { image: b64, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
+    { agree: false, body: { image: b64, prompt: `${sys} ${ask}`, max_tokens: 512 } },
   ];
 }
 
@@ -227,6 +237,9 @@ export default {
 
         const asked = typeof body?.model === "string" ? body.model : "";
         const models = VISION_ALLOWED.includes(asked) ? [asked] : VISION_MODELS;
+        // "text" transcribes a whole page; anything else reads one calculation.
+        const transcribe = body?.mode === "text";
+        const systemPrompt = transcribe ? TRANSCRIBE_SYSTEM : OCR_SYSTEM;
 
         // The vision model is not deterministic: the same photo can come back
         // as "1250+3750" or "1250+37505000". So it is asked up to three times
@@ -236,7 +249,7 @@ export default {
           const votes = new Map();
           let agreed = false;
 
-          for (const shape of imageShapes(model, image)) {
+          for (const shape of imageShapes(model, image, systemPrompt)) {
             for (let attempt = 0; attempt < 3; attempt++) {
               try {
                 if (shape.agree && !agreed) {
@@ -249,7 +262,15 @@ export default {
                   agreed = true;
                 }
                 const out = await env.AI.run(model, shape.body);
-                const expression = tidyExpression(extractText(out));
+                const raw = extractText(out);
+                if (transcribe) {
+                  const page = raw.trim();
+                  if (page && page.toUpperCase() !== "NONE") {
+                    return json({ text: page, model });
+                  }
+                  break;
+                }
+                const expression = tidyExpression(raw);
                 if (!expression || expression.toUpperCase() === "NONE") break;
                 votes.set(expression, (votes.get(expression) || 0) + 1);
                 // two matching reads are enough

@@ -1,6 +1,8 @@
 package com.merry8989uk.universalcalculator.ai
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.provider.OpenableColumns
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,8 @@ object Attachments {
 
     private const val MAX_BYTES = 12 * 1024 * 1024
     private const val MAX_TEXT_CHARS = 6000
+    /** How many pages of a PDF are read, so a big document stays quick. */
+    private const val MAX_PDF_PAGES = 3
 
     suspend fun read(context: Context, uri: Uri): Read = withContext(Dispatchers.IO) {
         val name = displayName(context, uri) ?: "file"
@@ -62,7 +66,63 @@ object Attachments {
                 Read("text", name, "The attached file ($name) contains:\n$text", null)
             }
 
+            type == "application/pdf" || name.endsWith(".pdf") -> {
+                val text = readPdf(context, uri)
+                if (text.isNullOrBlank()) {
+                    Read("pdf", name, "", "Could not read text from that PDF.")
+                } else {
+                    Read("pdf", name, "The attached PDF ($name) contains:\n$text", null)
+                }
+            }
+
             else -> Read("file", name, "", "Unsupported file type: ${type.ifBlank { "unknown" }}")
+        }
+    }
+
+    /**
+     * Renders the first few pages and reads each with the vision model. Android
+     * has no PDF text extractor, so this is the way to get at the content.
+     */
+    private suspend fun readPdf(context: Context, uri: Uri): String? {
+        val descriptor = try {
+            context.contentResolver.openFileDescriptor(uri, "r")
+        } catch (e: Exception) {
+            null
+        } ?: return null
+
+        return try {
+            val renderer = PdfRenderer(descriptor)
+            val pages = minOf(renderer.pageCount, MAX_PDF_PAGES)
+            val chunks = ArrayList<String>()
+            for (index in 0 until pages) {
+                val page = renderer.openPage(index)
+                try {
+                    val width = (page.width * 1.6f).toInt().coerceIn(1, 2000)
+                    val height = (page.height * 1.6f).toInt().coerceIn(1, 2600)
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    bitmap.eraseColor(android.graphics.Color.WHITE)
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    val bytes = java.io.ByteArrayOutputStream().use { out ->
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
+                        out.toByteArray()
+                    }
+                    bitmap.recycle()
+                    val text = AiClient.readImage(bytes, mode = "text")
+                    if (!text.isNullOrBlank()) chunks.add("Page ${index + 1}:\n$text")
+                } finally {
+                    page.close()
+                }
+            }
+            renderer.close()
+            chunks.joinToString("\n\n").take(MAX_TEXT_CHARS).ifBlank { null }
+        } catch (e: Exception) {
+            null
+        } finally {
+            try {
+                descriptor.close()
+            } catch (e: Exception) {
+                // already closed
+            }
         }
     }
 

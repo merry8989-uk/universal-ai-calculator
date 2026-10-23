@@ -47,7 +47,7 @@
     <string name="clear_the_question_a11y">सवाल खाली करें</string>
     <string name="attach_something">कुछ संलग्न करें</string>
     <string name="file">फ़ाइल</string>
-    <string name="attach_help">फ़ोटो अभी तस्वीर लेता है। फ़ाइल आपकी गैलरी, संगीत या दस्तावेज़ खोलता है — चित्र, ऑडियो क्लिप और .txt/.md/.csv फ़ाइलें समर्थित हैं।</string>
+<string name="attach_help">फ़ोटो अभी तस्वीर लेता है। फ़ाइल आपकी गैलरी, संगीत या दस्तावेज़ खोलता है — चित्र, ऑडियो क्लिप, PDF (पहले तीन पेज) और .txt/.md/.csv फ़ाइलें समर्थित हैं।</string>
     <string name="attach_read">संलग्न फ़ाइल पढ़ी जा रही है…</string>
     <string name="remove">हटाएँ</string>
     <string name="attached">संलग्न: %1$s</string>
