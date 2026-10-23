@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +48,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
@@ -58,9 +61,11 @@ import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.Format
+import com.merry8989uk.universalcalculator.calc.Fractions
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.settings.SettingsState
+import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.ui.theme.Amber
 import com.merry8989uk.universalcalculator.ui.theme.Coral
 import com.merry8989uk.universalcalculator.ui.theme.Cyan
@@ -129,12 +134,19 @@ private fun KeyButton(
     colors: List<Color>,
     contentColor: Color,
     modifier: Modifier = Modifier,
+    classic: Boolean = false,
+    haptic: Boolean = false,
     onPress: () -> Unit,
     onHold: (() -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
+    val haptics = LocalHapticFeedback.current
+    val shape = if (classic) RoundedCornerShape(6.dp) else RoundedCornerShape(16.dp)
+    fun buzz() {
+        if (haptic) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
     val pressModifier = if (onHold == null) {
-        Modifier.clickable(onClick = onPress)
+        Modifier.clickable { buzz(); onPress() }
     } else {
         Modifier.pointerInput(Unit) {
             detectTapGestures(onPress = {
@@ -143,21 +155,27 @@ private fun KeyButton(
                     delay(450)
                     fired = true
                     while (isActive) {
+                        buzz()
                         onHold()
                         delay(55)
                     }
                 }
                 tryAwaitRelease()
                 job.cancel()
-                if (!fired) onPress()
+                if (!fired) {
+                    buzz()
+                    onPress()
+                }
             })
         }
     }
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Brush.linearGradient(colors))
-            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(16.dp))
+            .clip(shape)
+            .background(
+                if (classic) SolidColor(colors.last()) else Brush.linearGradient(colors),
+            )
+            .border(if (classic) 0.dp else 1.dp, Color.White.copy(alpha = 0.14f), shape)
             .then(pressModifier),
         contentAlignment = Alignment.Center,
     ) {
@@ -187,6 +205,23 @@ fun CalculatorScreen(
 
     val historyVm: HistoryViewModel = viewModel()
     val history by historyVm.entries.collectAsState()
+    val settingsVm: SettingsViewModel = viewModel()
+    val savedExpression by settingsVm.savedExpression.collectAsState()
+    var restored by remember { mutableStateOf(false) }
+
+    // Bring the previous expression back, and keep the new one saved.
+    LaunchedEffect(savedExpression, settings.saveState) {
+        if (!restored && settings.saveState && savedExpression.isNotBlank() && expr.text.isEmpty()) {
+            expr = TextFieldValue(savedExpression, TextRange(savedExpression.length))
+            restored = true
+        }
+    }
+    LaunchedEffect(expr.text, restored) {
+        if (!settings.saveState) return@LaunchedEffect
+        if (!restored && savedExpression.isNotBlank()) return@LaunchedEffect
+        delay(700)
+        settingsVm.setSavedExpression(expr.text)
+    }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -194,6 +229,7 @@ fun CalculatorScreen(
     var aiLoading by remember { mutableStateOf(false) }
 
     val text = expr.text
+    val classic = settings.layoutStyle == "Classic"
 
     val preview: String = if (text.isBlank()) "" else try {
         Format.number(Evaluator.evaluate(text, degrees, mapOf("ans" to ans)))
@@ -380,8 +416,14 @@ fun CalculatorScreen(
                 )
 
                 if (settings.livePreview) {
+                    val asFraction = if (settings.fractionsEnabled && preview.isNotEmpty()) {
+                        preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
+                    } else null
                     Text(
-                        text = if (preview.isNotEmpty()) "= ${pretty(preview, settings.groupDigits)}" else "",
+                        text = if (preview.isNotEmpty())
+                            "= ${pretty(preview, settings.groupDigits)}" +
+                                (asFraction?.let { "   ($it)" } ?: "")
+                        else "",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.End,
@@ -409,6 +451,8 @@ fun CalculatorScreen(
                             colors = listOf(Color(0xFFFFD54F), Amber),
                             contentColor = Color(0xFF3A2600),
                             modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 64.dp),
+                            classic = classic,
+                            haptic = settings.hapticsEnabled,
                             onPress = { insert(insertFor(k)) },
                         )
                     }
@@ -418,6 +462,8 @@ fun CalculatorScreen(
                         colors = listOf(Violet, Indigo),
                         contentColor = Color.White,
                         modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 56.dp),
+                        classic = classic,
+                        haptic = settings.hapticsEnabled,
                         onPress = { showMore = !showMore },
                     )
                 }
@@ -433,6 +479,8 @@ fun CalculatorScreen(
                                 colors = listOf(Color(0xFFFFD54F), Amber),
                                 contentColor = Color(0xFF3A2600),
                                 modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 64.dp),
+                                classic = classic,
+                                haptic = settings.hapticsEnabled,
                                 onPress = { insert(insertFor(k)) },
                             )
                         }
@@ -465,6 +513,8 @@ fun CalculatorScreen(
                             colors = colors,
                             contentColor = content,
                             modifier = Modifier.weight(1f).height(56.dp),
+                            classic = classic,
+                            haptic = settings.hapticsEnabled,
                             onPress = {
                                 when (key) {
                                     "C" -> expr = TextFieldValue("")

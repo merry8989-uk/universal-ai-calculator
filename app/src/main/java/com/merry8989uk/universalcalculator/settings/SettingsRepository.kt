@@ -34,6 +34,11 @@ class SettingsRepository(private val context: Context) {
         val HISTORY = booleanPreferencesKey("history_enabled")
         val HAPTICS = booleanPreferencesKey("haptics_enabled")
         val AI_ENABLED = booleanPreferencesKey("ai_enabled")
+        val FRACTIONS = booleanPreferencesKey("fractions_enabled")
+        val LAYOUT_STYLE = stringPreferencesKey("layout_style")
+        val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
+        val SAVE_STATE = booleanPreferencesKey("save_state")
+        val SAVED_EXPRESSION = stringPreferencesKey("saved_expression")
     }
 
     val settings: Flow<SettingsState> = context.dataStore.data.map { p ->
@@ -53,6 +58,10 @@ class SettingsRepository(private val context: Context) {
             historyEnabled = p[Keys.HISTORY] ?: true,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
             aiEnabled = p[Keys.AI_ENABLED] ?: true,
+            fractionsEnabled = p[Keys.FRACTIONS] ?: false,
+            layoutStyle = p[Keys.LAYOUT_STYLE] ?: "Modern",
+            keepScreenOn = p[Keys.KEEP_SCREEN_ON] ?: false,
+            saveState = p[Keys.SAVE_STATE] ?: true,
         )
     }
 
@@ -94,6 +103,24 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setAiEnabled(enabled: Boolean) =
         context.dataStore.edit { it[Keys.AI_ENABLED] = enabled }
+
+    suspend fun setFractionsEnabled(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.FRACTIONS] = enabled }
+
+    suspend fun setLayoutStyle(style: String) =
+        context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setKeepScreenOn(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.KEEP_SCREEN_ON] = enabled }
+
+    suspend fun setSaveState(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.SAVE_STATE] = enabled }
+
+    /** The expression to restore on the next launch. */
+    val savedExpression: Flow<String> = context.dataStore.data.map { it[Keys.SAVED_EXPRESSION] ?: "" }
+
+    suspend fun setSavedExpression(text: String) =
+        context.dataStore.edit { it[Keys.SAVED_EXPRESSION] = text }
 
     suspend fun reset() = context.dataStore.edit { it.clear() }
 }

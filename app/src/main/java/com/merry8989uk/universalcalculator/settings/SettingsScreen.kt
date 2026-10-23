@@ -143,6 +143,26 @@ fun SettingsScreen(
             ToggleRow("Thousands separators", state.groupDigits, vm::setGroupDigits)
             ToggleRow("Calculation history", state.historyEnabled, vm::setHistoryEnabled)
             ToggleRow("Haptic feedback", state.hapticsEnabled, vm::setHapticsEnabled)
+            ToggleRow("Fractions in results", state.fractionsEnabled, vm::setFractionsEnabled)
+            ToggleRow("Keep screen on", state.keepScreenOn, vm::setKeepScreenOn)
+            ToggleRow("Save state on exit", state.saveState, vm::setSaveState)
+
+            Text("Keypad layout", style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Modern", "Classic").forEach { style ->
+                    FilterChip(
+                        selected = state.layoutStyle == style,
+                        onClick = { vm.setLayoutStyle(style) },
+                        label = { Text(style) },
+                    )
+                }
+            }
+            Text(
+                if (state.layoutStyle == "Classic")
+                    "Classic: flat, square keys with no colour gradient."
+                else "Modern: rounded keys with a colour gradient.",
+                style = MaterialTheme.typography.bodySmall,
+            )
 
             Section("AI assistant")
 
@@ -196,6 +216,26 @@ fun SettingsScreen(
             OutlinedButton(onClick = vm::reset, modifier = Modifier.fillMaxWidth()) {
                 Text("Reset to defaults")
             }
+
+            Section("Feedback")
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OutlinedButton(
+                    onClick = { Contact.rateApp(context) },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Rate app") }
+                OutlinedButton(
+                    onClick = { Contact.reportIssue(context) },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Report issue") }
+            }
+            OutlinedButton(
+                onClick = { Contact.emailSupport(context) },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("Email support") }
 
             HorizontalDivider()
 

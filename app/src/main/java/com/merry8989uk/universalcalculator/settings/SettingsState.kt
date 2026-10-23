@@ -22,6 +22,14 @@ data class SettingsState(
     val hapticsEnabled: Boolean = true,
     /** The built-in AI assistant. The key is fixed on the server. */
     val aiEnabled: Boolean = true,
+    /** Also show results as simple fractions, e.g. 0.75 as 3/4. */
+    val fractionsEnabled: Boolean = false,
+    /** Keypad style: "Modern" (rounded, gradient) or "Classic" (flat, square). */
+    val layoutStyle: String = "Modern",
+    /** Keep the screen awake while the calculator is open. */
+    val keepScreenOn: Boolean = false,
+    /** Remember the expression and bring it back on the next launch. */
+    val saveState: Boolean = true,
 )
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

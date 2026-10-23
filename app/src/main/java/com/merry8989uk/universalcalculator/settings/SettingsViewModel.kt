@@ -28,6 +28,16 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setHistoryEnabled(enabled: Boolean) = viewModelScope.launch { repo.setHistoryEnabled(enabled) }
     fun setHapticsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setHapticsEnabled(enabled) }
     fun setAiEnabled(enabled: Boolean) = viewModelScope.launch { repo.setAiEnabled(enabled) }
+    fun setFractionsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setFractionsEnabled(enabled) }
+    fun setLayoutStyle(style: String) = viewModelScope.launch { repo.setLayoutStyle(style) }
+    fun setKeepScreenOn(enabled: Boolean) = viewModelScope.launch { repo.setKeepScreenOn(enabled) }
+    fun setSaveState(enabled: Boolean) = viewModelScope.launch { repo.setSaveState(enabled) }
+
+    /** The remembered expression, so the board survives a restart. */
+    val savedExpression: StateFlow<String> = repo.savedExpression
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+    fun setSavedExpression(text: String) = viewModelScope.launch { repo.setSavedExpression(text) }
 
     fun setDiagnosticsEnabled(enabled: Boolean) = viewModelScope.launch {
         repo.setDiagnosticsEnabled(enabled)
