@@ -42,6 +42,8 @@ Engineering, Construction and Math.
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **x variable key** (with an inline value field) and a **⇄ swap** key
 - **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
+- **Privacy policy** at [docs/privacy.html](docs/privacy.html)
+- **Overflow menu**: Settings, diagnostics logs, app info (update / contact / privacy)
 - **Hindi UI** (Settings → Language) and English
 - **Screen-reader labels** on every key, tab and control
 - **Home-screen widget** (solid / dimmed / transparent)

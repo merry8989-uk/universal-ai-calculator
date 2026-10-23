@@ -32,6 +32,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FilledTonalButton
+androidx.compose.material3.DropdownMenu
+androidx.compose.material3.DropdownMenuItem
+androidx.compose.material3.HorizontalDivider
+androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ModalDrawerSheet
@@ -227,6 +231,7 @@ fun CalculatorScreen(
     settings: SettingsState,
     onAskAi: (String) -> Unit,
     onAskAiNow: (String) -> Unit = {},
+    onOpenSettings: () -> Unit = {},
 ) {
     var expr by rememberSaveable(stateSaver = exprSaver) { mutableStateOf(TextFieldValue("")) }
     var ans by rememberSaveable { mutableStateOf(0.0) }
@@ -234,6 +239,10 @@ fun CalculatorScreen(
     var memory by rememberSaveable { mutableStateOf(0.0) }
     // The value the variable x takes when it appears in the expression.
     var xText by rememberSaveable { mutableStateOf("0") }
+    var menuOpen by remember { mutableStateOf(false) }
+    var showDiagnostics by remember { mutableStateOf(false) }
+    var showAppInfo by remember { mutableStateOf(false) }
+    var logLines by remember { mutableStateOf(listOf<String>()) }
     val xValue = xText.toDoubleOrNull() ?: 0.0
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var showMore by rememberSaveable { mutableStateOf(false) }
@@ -503,16 +512,51 @@ fun CalculatorScreen(
             ) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 val historySpoken = stringResource(R.string.history_a11y)
-                val angleSpoken = stringResource(if (degrees) R.string.degrees_a11y else R.string.radians_a11y)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(
                         onClick = { showHistory = true },
                         modifier = Modifier.semantics { contentDescription = historySpoken },
                     ) { Text(stringResource(R.string.history)) }
-                    TextButton(
-                        onClick = { degrees = !degrees },
-                        modifier = Modifier.semantics { contentDescription = angleSpoken },
-                    ) { Text(stringResource(if (degrees) R.string.degrees_mode else R.string.radians_mode)) }
+                    Box {
+                        IconButton(
+                            onClick = { menuOpen = true },
+                            modifier = Modifier.semantics {
+                                contentDescription = stringResource(R.string.more_options)
+                            },
+                        ) {
+                            Text("\u22EE", style = MaterialTheme.typography.headlineSmall)
+                        }
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_settings)) },
+                                onClick = { menuOpen = false; onOpenSettings() },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_diagnostics)) },
+                                onClick = {
+                                    menuOpen = false
+                                    logLines = DiagnosticsLogger.recent().reversed()
+                                    showDiagnostics = true
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_app_info)) },
+                                onClick = { menuOpen = false; showAppInfo = true },
+                            )
+                            HorizontalDivider()
+                            // The angle mode moved here from the top bar.
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        stringResource(
+                                            if (degrees) R.string.degrees_mode else R.string.radians_mode,
+                                        ),
+                                    )
+                                },
+                                onClick = { menuOpen = false; degrees = !degrees },
+                            )
+                        }
+                    }
                 }
             }
 
@@ -829,6 +873,17 @@ fun CalculatorScreen(
                 }
             }
         }
+    }
+
+    if (showDiagnostics) {
+        DiagnosticsLogDialog(
+            lines = logLines,
+            onClear = { DiagnosticsLogger.clear(); logLines = emptyList() },
+            onClose = { showDiagnostics = false },
+        )
+    }
+    if (showAppInfo) {
+        AppInfoDialog(onClose = { showAppInfo = false })
     }
 }
 

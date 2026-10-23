@@ -66,9 +66,9 @@ private const val SETTINGS_TAB = 5
  * Slot weights. The leading spacer matches the settings gear on the right, so
  * the assistant lands exactly in the middle of the bar.
  */
-private const val SIDE_WEIGHT = 0.7f
+private const val SIDE_WEIGHT = 0.3f
 private const val TAB_WEIGHT = 1f
-private const val AI_WEIGHT = 1.6f
+private const val AI_WEIGHT = 1.5f
 
 private val SCIENTIFIC_KEYS = listOf(
     "sin", "cos", "tan", "asin", "acos", "atan",
@@ -129,7 +129,7 @@ fun AppRoot(settings: SettingsState) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(horizontal = 6.dp, vertical = 8.dp),
+                    .padding(horizontal = 2.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Balances the settings gear at the other end.
@@ -149,7 +149,7 @@ fun AppRoot(settings: SettingsState) {
                             selected = tab == AI_TAB
                         },
                     ) {
-                        MagicButton(onClick = { selectTab(AI_TAB) }, size = 56.dp)
+                        MagicButton(onClick = { selectTab(AI_TAB) }, size = 62.dp)
                         Spacer(Modifier.width(2.dp))
                         Text(
                             labels[AI_TAB],
@@ -172,13 +172,13 @@ fun AppRoot(settings: SettingsState) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             TAB_GLYPHS[SETTINGS_TAB],
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.headlineSmall,
                             color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
                             labels[SETTINGS_TAB],
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelMedium,
                             color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -208,6 +208,7 @@ fun AppRoot(settings: SettingsState) {
                     settings = settings,
                     onAskAi = { q -> aiContext = q; tab = AI_TAB },
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
+                    onOpenSettings = { selectTab(SETTINGS_TAB) },
                 )
                 1 -> CalculatorScreen(
                     title = "Scientific",
@@ -215,6 +216,7 @@ fun AppRoot(settings: SettingsState) {
                     settings = settings,
                     onAskAi = { q -> aiContext = q; tab = AI_TAB },
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
+                    onOpenSettings = { selectTab(SETTINGS_TAB) },
                 )
                 2 -> ConvertScreen()
                 3 -> FormulasScreen(
@@ -263,7 +265,7 @@ private fun RowScope.NavItem(
             )
             .border(1.dp, Color.White.copy(alpha = 0.14f), shape)
             .clickable(onClick = onClick)
-            .padding(vertical = 6.dp)
+            .padding(vertical = 7.dp)
             // Only the name is read out, never the glyph.
             .clearAndSetSemantics {
                 contentDescription = spoken
@@ -272,10 +274,10 @@ private fun RowScope.NavItem(
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(glyph, style = MaterialTheme.typography.titleMedium, color = tint)
+        Text(glyph, style = MaterialTheme.typography.headlineSmall, color = tint)
         Text(
             label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = tint,
             textAlign = TextAlign.Center,
             maxLines = 1,

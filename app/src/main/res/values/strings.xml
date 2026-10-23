@@ -101,4 +101,24 @@
     <string name="metric">Metric</string>
     <string name="imperial">Imperial</string>
     <string name="auto">Auto</string>
+    <!-- Overflow menu -->
+    <string name="more_options">More options</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_diagnostics">Diagnostics logs</string>
+    <string name="menu_app_info">App info</string>
+    <string name="diagnostics_title">Diagnostics logs</string>
+    <string name="diagnostics_empty">No log entries yet.</string>
+    <string name="clear_log">Clear log</string>
+    <string name="share_log">Share log</string>
+    <string name="close">Close</string>
+    <string name="app_info_title">App info</string>
+    <string name="version_label">Version %1$s</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="checking_updates">Checking…</string>
+    <string name="up_to_date">You are on the latest version.</string>
+    <string name="update_available">Version %1$s is available.</string>
+    <string name="update_failed">Could not check for updates.</string>
+    <string name="contact_on_instagram">Contact on Instagram</string>
+    <string name="instagram_handle">@%1$s</string>
+    <string name="privacy_policy">Privacy policy</string>
 </resources>

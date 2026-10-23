@@ -99,4 +99,24 @@
     <string name="metric">मीट्रिक</string>
     <string name="imperial">इम्पीरियल</string>
     <string name="auto">स्वतः</string>
+    <!-- Overflow menu -->
+    <string name="more_options">और विकल्प</string>
+    <string name="menu_settings">सेटिंग</string>
+    <string name="menu_diagnostics">डायग्नोस्टिक्स लॉग</string>
+    <string name="menu_app_info">ऐप जानकारी</string>
+    <string name="diagnostics_title">डायग्नोस्टिक्स लॉग</string>
+    <string name="diagnostics_empty">अभी कोई लॉग प्रविष्टि नहीं है।</string>
+    <string name="clear_log">लॉग साफ़ करें</string>
+    <string name="share_log">लॉग साझा करें</string>
+    <string name="close">बंद करें</string>
+    <string name="app_info_title">ऐप जानकारी</string>
+    <string name="version_label">संस्करण %1$s</string>
+    <string name="check_for_updates">अपडेट जाँचें</string>
+    <string name="checking_updates">जाँच हो रही है…</string>
+    <string name="up_to_date">आप नवीनतम संस्करण पर हैं।</string>
+    <string name="update_available">संस्करण %1$s उपलब्ध है।</string>
+    <string name="update_failed">अपडेट जाँच नहीं हो सका।</string>
+    <string name="contact_on_instagram">Instagram पर संपर्क करें</string>
+    <string name="instagram_handle">@%1$s</string>
+    <string name="privacy_policy">गोपनीयता नीति</string>
 </resources>

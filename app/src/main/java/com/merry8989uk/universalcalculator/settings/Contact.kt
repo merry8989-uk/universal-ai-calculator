@@ -15,6 +15,7 @@ object Contact {
     const val PACKAGE_NAME = "com.merry8989uk.universalcalculator"
     const val PLAY_URL = "https://play.google.com/store/apps/details?id=$PACKAGE_NAME"
     const val ISSUES_URL = "https://github.com/merry8989-uk/universal-ai-calculator/issues"
+    const val PRIVACY_URL = "https://merry8989-uk.github.io/universal-ai-calculator/privacy.html"
     const val SUPPORT_EMAIL = "br19shc39@gmail.com"
 
     /** Opens the Play Store listing, falling back to the browser. */
