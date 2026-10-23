@@ -142,4 +142,5 @@
     <string name="diag_view_crashes">क्रैश रिपोर्ट देखें</string>
     <string name="diag_logs_cleared">लॉग साफ़ हो गए</string>
     <string name="diag_counters_reset">गणक रीसेट हो गए</string>
+    <string name="diag_anr">ऐप प्रतिक्रिया नहीं दे रहा (ANR): %1$d</string>
 </resources>

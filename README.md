@@ -42,6 +42,7 @@ Engineering, Construction and Math.
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **x variable key** (with an inline value field) and a **⇄ swap** key
 - **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
+- **ANR capture** alongside crash reports
 - **On-device analytics and crash reports** (exportable, never uploaded)
 - **PDF solve** (attach a PDF to Ask AI)
 - **Glassmorphism** with an ambient glow and a light sweep on =

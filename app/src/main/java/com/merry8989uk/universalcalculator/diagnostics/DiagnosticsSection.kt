@@ -65,12 +65,14 @@ fun DiagnosticsSection(
     var groups by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
     var top by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
     var crashCount by remember { mutableIntStateOf(0) }
+    var anrCount by remember { mutableIntStateOf(0) }
     var showCrashes by remember { mutableStateOf(false) }
 
     LaunchedEffect(enabled, live.size) {
         groups = Analytics.groupTotals(context)
         top = Analytics.counters(context).take(10)
         crashCount = DiagnosticsLogger.crashCount()
+        anrCount = DiagnosticsLogger.anrCount()
     }
 
     Text(stringResource(R.string.diag_title), style = MaterialTheme.typography.titleMedium)
@@ -148,6 +150,12 @@ fun DiagnosticsSection(
         else stringResource(R.string.diag_crashes, crashCount),
         style = MaterialTheme.typography.bodyMedium,
     )
+    if (anrCount > 0) {
+        Text(
+            stringResource(R.string.diag_anr, anrCount),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (crashCount > 0) {
             OutlinedButton(onClick = { showCrashes = !showCrashes }, modifier = Modifier.weight(1f)) {

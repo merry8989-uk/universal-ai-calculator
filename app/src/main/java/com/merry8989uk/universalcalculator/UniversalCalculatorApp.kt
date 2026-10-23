@@ -3,6 +3,7 @@ package com.merry8989uk.universalcalculator
 import android.app.Application
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
+import com.merry8989uk.universalcalculator.diagnostics.ExitReporter
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 
 /**
@@ -17,6 +18,9 @@ class UniversalCalculatorApp : Application() {
         SoundPlayer.init(this)
         AiClient.init(this)
         DiagnosticsLogger.installCrashHandler()
+        // ANRs and native crashes never reach the handler above; the system
+        // remembers them, so pick them up now.
+        ExitReporter.capture(this)
         DiagnosticsLogger.log("App", "Started version ${BuildConfig.VERSION_NAME}")
     }
 }

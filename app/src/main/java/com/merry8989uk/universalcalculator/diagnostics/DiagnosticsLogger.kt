@@ -141,20 +141,81 @@ object DiagnosticsLogger {
         context?.let { Analytics.event(it, "error:crash") }
     }
 
-    private fun crashFile(): File? = logFile?.let { File(it.parentFile, CRASH_NAME) }
+    /**
+     * Records an exit reported by the system afterwards — an ANR, a native
+     * crash, a low-memory kill. Same file as the crashes, different heading.
+     */
+    fun recordExit(
+        context: Context,
+        kind: String,
+        timestamp: Long,
+        description: String,
+        trace: String,
+    ) {
+        if (!enabled) return
+        val when_ = timeFmt.format(Date(timestamp))
+        val entry = buildString {
+            appendLine("===== $kind $when_ =====")
+            appendLine("app    : ${BuildConfig.VERSION_NAME}")
+            appendLine("device : ${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
+            appendLine("source : system exit history (the process died before it could report)")
+            if (description.isNotBlank()) appendLine("detail : $description")
+            if (trace.isNotBlank()) {
+                appendLine("--- trace (first lines) ---")
+                appendLine(trace)
+            } else {
+                appendLine("--- trace ---")
+                appendLine("(none available)")
+            }
+            appendLine()
+        }
 
-    /** How many crashes have been recorded. */
-    fun crashCount(): Int {
+        synchronized(lock) {
+            runCatching {
+                val file = crashFile()
+                if (file != null) {
+                    if (file.length() > MAX_CRASH_BYTES) file.writeText("")
+                    file.appendText(entry)
+                }
+                val line = "${timeFmt.format(Date())} [$kind] $description"
+                logFile?.let { if (it.length() > MAX_BYTES) rotate(it); it.appendText(line + "\n") }
+                ring.addLast(line)
+                while (ring.size > MAX_RING) ring.removeFirst()
+            }
+        }
+        Analytics.event(context, "error:" + kind.lowercase().replace(' ', '_'))
+    }
+
+    /** How many entries the crash file holds, whatever their kind. */
+    private fun entryCount(): Int {
         val text = crashReport()
         if (text.isEmpty()) return 0
         var count = 0
-        var index = text.indexOf("===== CRASH")
+        var index = text.indexOf("===== ")
         while (index >= 0) {
             count++
-            index = text.indexOf("===== CRASH", index + 1)
+            index = text.indexOf("===== ", index + 1)
         }
         return count
     }
+
+    /** How many ANRs have been recorded. */
+    fun anrCount(): Int {
+        val text = crashReport()
+        if (text.isEmpty()) return 0
+        var count = 0
+        var index = text.indexOf("===== ANR")
+        while (index >= 0) {
+            count++
+            index = text.indexOf("===== ANR", index + 1)
+        }
+        return count
+    }
+
+    private fun crashFile(): File? = logFile?.let { File(it.parentFile, CRASH_NAME) }
+
+    /** How many crash entries have been recorded, of any kind. */
+    fun crashCount(): Int = entryCount()
 
     fun crashReport(): String = synchronized(lock) {
         val file = crashFile() ?: return ""
@@ -171,7 +232,7 @@ object DiagnosticsLogger {
         appendLine("Nexus Calc diagnostics report")
         appendLine("app    : ${BuildConfig.VERSION_NAME}")
         appendLine("device : ${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
-        appendLine("crashes: ${crashCount()}")
+        appendLine("crashes: ${crashCount()} (of which ANR: ${anrCount()})")
         appendLine("log    : ${sizeBytes()} bytes")
         appendLine()
         append(Analytics.report(context))

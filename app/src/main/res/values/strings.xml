@@ -144,4 +144,5 @@
     <string name="diag_view_crashes">View crash reports</string>
     <string name="diag_logs_cleared">Logs cleared</string>
     <string name="diag_counters_reset">Counters reset</string>
+    <string name="diag_anr">App not responding (ANR): %1$d</string>
 </resources>
