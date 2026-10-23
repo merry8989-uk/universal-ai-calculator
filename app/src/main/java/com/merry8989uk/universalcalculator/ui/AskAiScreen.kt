@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -51,6 +52,7 @@ fun AskAiScreen(
     enabled: Boolean = true,
     initialQuestion: String = "",
     onInitialQuestionUsed: () -> Unit = {},
+    resetSignal: Int = 0,
 ) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
@@ -130,6 +132,14 @@ fun AskAiScreen(
         }
     }
 
+    // Pressing the Ask AI tab again clears the screen back to the start.
+    LaunchedEffect(resetSignal) {
+        if (resetSignal > 0) {
+            question = ""; answer = ""; attachText = ""; attachLabel = ""
+            attachError = ""; attachBusy = false; used = false
+        }
+    }
+
     // A question handed over from the calculator (voice or photo) is asked here.
     LaunchedEffect(initialQuestion, enabled) {
         if (enabled && initialQuestion.isNotBlank()) {
@@ -178,6 +188,14 @@ fun AskAiScreen(
             value = question,
             onValueChange = { question = it },
             label = { Text("Your question") },
+            // A tap on the cross empties the question box.
+            trailingIcon = {
+                if (question.isNotEmpty()) {
+                    IconButton(onClick = { question = "" }) {
+                        Text("\u2715", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+            },
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         )
 
@@ -272,7 +290,7 @@ fun AskAiScreen(
                 Text(answer, style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(top = 4.dp))
             }
-            AnswerActions(answer)
+            AnswerActions(answer, onClear = { answer = "" })
         }
     }
 }

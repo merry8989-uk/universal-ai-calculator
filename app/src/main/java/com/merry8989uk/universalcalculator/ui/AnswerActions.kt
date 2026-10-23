@@ -20,7 +20,11 @@ import androidx.compose.ui.unit.dp
  * SelectionContainer where it is shown, so it can also be selected by hand.
  */
 @Composable
-fun AnswerActions(text: String, modifier: Modifier = Modifier) {
+fun AnswerActions(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClear: (() -> Unit)? = null,
+) {
     val context = LocalContext.current
 
     fun copy() {
@@ -43,5 +47,8 @@ fun AnswerActions(text: String, modifier: Modifier = Modifier) {
     ) {
         OutlinedButton(onClick = { copy() }) { Text("Copy") }
         OutlinedButton(onClick = { share() }) { Text("Share") }
+        if (onClear != null) {
+            OutlinedButton(onClick = onClear) { Text("Clear") }
+        }
     }
 }

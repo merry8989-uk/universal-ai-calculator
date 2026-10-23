@@ -462,7 +462,7 @@ fun CalculatorScreen(
                                 Text(aiText, style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(top = 16.dp))
                             }
-                            AnswerActions(aiText)
+                            AnswerActions(aiText, onClear = { aiText = "" })
                         }
                         else -> Text("Tap the magic button to get an explanation here.",
                             style = MaterialTheme.typography.bodyMedium,

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,9 +62,16 @@ fun SettingsScreen(
     onBack: () -> Unit,
     vm: SettingsViewModel = viewModel(),
     updater: UpdateViewModel = viewModel(),
+    resetSignal: Int = 0,
 ) {
     val state by vm.state.collectAsState()
     val context = LocalContext.current
+    val scroll = rememberScrollState()
+
+    // Pressing the Settings tab again returns to the top of this screen.
+    LaunchedEffect(resetSignal) {
+        if (resetSignal > 0) scroll.animateScrollTo(0)
+    }
 
     Scaffold(
         topBar = {
@@ -77,7 +85,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scroll)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

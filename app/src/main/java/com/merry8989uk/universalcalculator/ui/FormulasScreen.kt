@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,9 +70,21 @@ private val TOOLS = listOf(
 )
 
 @Composable
-fun FormulasScreen() {
+fun FormulasScreen(
+    resetSignal: Int = 0,
+    onInnerChange: (Boolean) -> Unit = {},
+) {
     var selected by remember { mutableStateOf<Formula?>(null) }
     var tool by remember { mutableStateOf("") }
+
+    // Pressing the Formulas tab again returns to this hub.
+    LaunchedEffect(resetSignal) {
+        if (resetSignal > 0) { selected = null; tool = "" }
+    }
+    // Tell the root whether an inner screen is open, so the back button knows
+    // to leave it before it offers to exit. Leaving the tab clears the flag.
+    LaunchedEffect(selected, tool) { onInnerChange(selected != null || tool.isNotEmpty()) }
+    DisposableEffect(Unit) { onDispose { onInnerChange(false) } }
 
     when {
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
