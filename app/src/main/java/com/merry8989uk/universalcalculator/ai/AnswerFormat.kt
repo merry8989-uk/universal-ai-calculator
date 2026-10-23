@@ -40,8 +40,8 @@ object AnswerFormat {
         s = s.replace(Regex("(?m)^\\s*-\\s+"), "\u2022 ")
         // Single-asterisk italics, e.g. *Note: ...*. Only when the run starts
         // with a letter, so "2 * 3 * 4" is left alone.
-        s = s.replace(Regex("""\\*([A-Za-z][^*\\n]*)\\*""")) { it.groupValues[1] }
-        s = s.replace(Regex("""_([A-Za-z][^_\\n]*)_""")) { it.groupValues[1] }
+        s = s.replace(Regex("\\*([A-Za-z][^*\\n]*)\\*")) { it.groupValues[1] }
+        s = s.replace(Regex("_([A-Za-z][^_\\n]*)_")) { it.groupValues[1] }
         s = s.replace("~~", "")          // strikethrough
         // Tidy the punctuation left behind
         s = s.replace(Regex(" +([,.;:!?])"), "$1")
