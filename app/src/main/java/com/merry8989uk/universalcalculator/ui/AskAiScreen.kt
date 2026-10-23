@@ -1,17 +1,22 @@
 package com.merry8989uk.universalcalculator.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -23,9 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.AiClient
+import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import kotlinx.coroutines.launch
 
 private val SUGGESTIONS = listOf(
@@ -39,21 +48,24 @@ private val SUGGESTIONS = listOf(
 
 /**
  * "Ask AI" — ask anything. The key is fixed on the server, so there is nothing
- * for the user to configure.
+ * for the user to configure. The suggestion list disappears once it has been
+ * used, so it never nags.
  */
 @Composable
 fun AskAiScreen(contextText: String, onClearContext: () -> Unit, enabled: Boolean = true) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    var used by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     fun send(q: String) {
         if (q.isBlank() || loading) return
         loading = true
         answer = ""
+        used = true
         scope.launch {
-            answer = AiClient.ask(q, contextText)
+            answer = AnswerFormat.clean(AiClient.ask(q, contextText))
             loading = false
         }
     }
@@ -70,58 +82,78 @@ fun AskAiScreen(contextText: String, onClearContext: () -> Unit, enabled: Boolea
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 12.dp),
             )
-        } else {
-            Text(
-                "Ask anything \u2014 maths, science, money, health or everyday questions. " +
-                    "Answered by the app's built-in assistant.",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            return@Column
+        }
 
-            if (contextText.isNotBlank()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        "Context: $contextText",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    TextButton(onClick = onClearContext) { Text("Clear") }
-                }
-            }
+        Text(
+            "Ask anything \u2014 maths, science, money, health or everyday questions.",
+            style = MaterialTheme.typography.bodySmall,
+        )
 
-            OutlinedTextField(
-                value = question,
-                onValueChange = { question = it },
-                label = { Text("Your question") },
-                modifier = Modifier.fillMaxWidth().height(110.dp).padding(top = 8.dp),
-            )
-
-            Button(
-                onClick = { send(question) },
-                enabled = !loading && question.isNotBlank(),
+        if (contextText.isNotBlank()) {
+            Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            ) { Text(if (loading) "Thinking\u2026" else "Ask") }
-
-            if (loading) {
-                Row(
-                    modifier = Modifier.padding(top = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                    Text("Getting the answer\u2026")
-                }
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    "Context: $contextText",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = onClearContext) { Text("Clear") }
             }
+        }
 
-            if (answer.isNotBlank()) {
-                Text("Answer", style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 16.dp))
-                Text(answer, style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 4.dp))
+        OutlinedTextField(
+            value = question,
+            onValueChange = { question = it },
+            label = { Text("Your question") },
+            modifier = Modifier.fillMaxWidth().height(104.dp).padding(top = 8.dp),
+        )
+
+        // Big, magical Ask button.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp)
+                .padding(top = 12.dp)
+                .clip(RoundedCornerShape(29.dp))
+                .background(MagicBrush)
+                .clickable(enabled = !loading && question.isNotBlank()) { send(question) },
+            contentAlignment = Alignment.Center,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("\u2726", color = Color.White)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    if (loading) "Thinking\u2026" else "Ask AI",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                )
             }
+        }
 
+        if (loading) {
+            Row(
+                modifier = Modifier.padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp))
+                Text("Working it out\u2026")
+            }
+        }
+
+        if (answer.isNotBlank()) {
+            Text("Answer", style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 16.dp))
+            Text(answer, style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 4.dp))
+        }
+
+        // Suggestions show only until the assistant has been used once.
+        if (!used && answer.isBlank()) {
             Text("Try one of these", style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 20.dp))
             Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {

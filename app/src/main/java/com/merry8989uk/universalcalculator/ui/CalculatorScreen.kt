@@ -7,22 +7,33 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,6 +44,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.merry8989uk.universalcalculator.ai.AiClient
+import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
@@ -44,6 +57,7 @@ import com.merry8989uk.universalcalculator.ui.theme.Emerald
 import com.merry8989uk.universalcalculator.ui.theme.Indigo
 import com.merry8989uk.universalcalculator.ui.theme.Orange
 import com.merry8989uk.universalcalculator.ui.theme.Violet
+import kotlinx.coroutines.launch
 
 private val PAD = listOf(
     listOf("C", "del", "%", "/"),
@@ -60,7 +74,6 @@ private val LABELS = mapOf(
 )
 
 private fun label(k: String) = LABELS[k] ?: k
-
 private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
 private fun isClear(k: String) = k == "C" || k == "del"
 
@@ -74,8 +87,6 @@ private fun insertFor(key: String): String = when (key) {
     "x^y" -> "^"
     "pi" -> "pi"
     "e" -> "e"
-    "i" -> "i"
-    "x" -> "x"
     "!" -> "!"
     "(" -> "("
     ")" -> ")"
@@ -87,7 +98,6 @@ private fun insertFor(key: String): String = when (key) {
     else -> key
 }
 
-/** A keypad key with a gradient fill. */
 @Composable
 private fun KeyButton(
     label: String,
@@ -128,6 +138,11 @@ fun CalculatorScreen(
     var memory by rememberSaveable { mutableStateOf(0.0) }
     var showHistory by rememberSaveable { mutableStateOf(false) }
 
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var aiText by remember { mutableStateOf("") }
+    var aiLoading by remember { mutableStateOf(false) }
+
     val preview: String = if (expr.isBlank()) "" else try {
         Format.number(Evaluator.evaluate(expr, degrees, mapOf("ans" to ans)))
     } catch (e: Exception) {
@@ -140,6 +155,22 @@ fun CalculatorScreen(
         ans
     }
 
+    fun explainNow() {
+        val q = if (expr.isBlank()) {
+            "What can this calculator do? Give three short examples."
+        } else {
+            "Explain this calculation step by step and give the final answer: $expr" +
+                (if (preview.isNotEmpty()) " = $preview" else "")
+        }
+        aiText = ""
+        aiLoading = true
+        scope.launch {
+            aiText = AnswerFormat.clean(AiClient.ask(q))
+            aiLoading = false
+        }
+        scope.launch { drawerState.open() }
+    }
+
     if (showHistory) {
         HistoryScreen(
             history = history,
@@ -149,166 +180,223 @@ fun CalculatorScreen(
         return
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(title, style = MaterialTheme.typography.titleLarge)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { showHistory = true }) { Text("History") }
-                TextButton(onClick = { degrees = !degrees }) {
-                    Text(if (degrees) "DEG" else "RAD")
-                }
-            }
-        }
-
-        // Memory row (MC / M+ / M- / MR).
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            FilledTonalButton(onClick = { memory = 0.0 }, modifier = Modifier.weight(1f)) { Text("MC") }
-            FilledTonalButton(onClick = { memory += currentValue() }, modifier = Modifier.weight(1f)) { Text("M+") }
-            FilledTonalButton(onClick = { memory -= currentValue() }, modifier = Modifier.weight(1f)) { Text("M\u2212") }
-            FilledTonalButton(onClick = { expr = Format.number(memory) }, modifier = Modifier.weight(1f)) { Text("MR") }
-        }
-        if (memory != 0.0) {
-            Text(
-                "M = ${Format.number(memory)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
-
-        // Colourful display panel.
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(22.dp))
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.60f),
-                            MaterialTheme.colorScheme.surface,
-                        ),
-                    ),
-                )
-                .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(22.dp))
-                .padding(14.dp),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.End,
-        ) {
-            history.split("\n").filter { it.isNotBlank() }.takeLast(3).forEach {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            Text(
-                text = expr.ifBlank { "0" },
-                style = MaterialTheme.typography.headlineMedium,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            )
-            if (settings.livePreview) {
-                Text(
-                    text = if (preview.isNotEmpty()) "= ${pretty(preview, settings.groupDigits)}" else "",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            TextButton(
-                onClick = {
-                    val q = if (expr.isBlank()) "" else "Explain this calculation and the result: $expr = $preview"
-                    onAskAi(q)
-                },
-                enabled = expr.isNotBlank(),
-            ) { Text("Ask AI about this") }
-        }
-
-        if (functionKeys.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                functionKeys.forEach { k ->
-                    KeyButton(
-                        label = label(k),
-                        colors = listOf(Color(0xFFFFD54F), Amber),
-                        contentColor = Color(0xFF3A2600),
-                        modifier = Modifier
-                            .height(50.dp)
-                            .defaultMinSize(minWidth = 68.dp),
-                        onClick = { expr += insertFor(k) },
-                    )
-                }
-            }
-        }
-
-        PAD.forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                row.forEach { key ->
-                    val colors: List<Color> = when {
-                        key == "=" -> listOf(Cyan, Emerald)
-                        isClear(key) -> listOf(Orange, Coral)
-                        isOperator(key) -> listOf(Violet, Indigo)
-                        else -> listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.colorScheme.surfaceVariant,
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(modifier = Modifier.fillMaxHeight().width(320.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(18.dp)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("\u2726", color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(8.dp))
+                        Text("AI explain", style = MaterialTheme.typography.titleLarge)
+                    }
+                    if (expr.isNotBlank()) {
+                        Text(
+                            expr,
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(top = 12.dp),
+                        )
+                        if (preview.isNotEmpty()) {
+                            Text(
+                                "= ${pretty(preview, settings.groupDigits)}",
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
+                    when {
+                        aiLoading -> Row(
+                            modifier = Modifier.padding(top = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp))
+                            Text("Thinking\u2026")
+                        }
+                        aiText.isNotBlank() -> Text(
+                            aiText,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(top = 16.dp),
+                        )
+                        else -> Text(
+                            "Tap the magic button to get an explanation here.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 16.dp),
                         )
                     }
-                    val content = if (key == "=" || isClear(key) || isOperator(key)) {
-                        Color.White
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
+                    TextButton(
+                        onClick = { explainNow() },
+                        modifier = Modifier.padding(top = 12.dp),
+                    ) { Text("Explain again") }
+                }
+            }
+        },
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(title, style = MaterialTheme.typography.titleLarge)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MagicButton(onClick = { explainNow() })
+                    Spacer(Modifier.width(6.dp))
+                    TextButton(onClick = { showHistory = true }) { Text("History") }
+                    TextButton(onClick = { degrees = !degrees }) {
+                        Text(if (degrees) "DEG" else "RAD")
                     }
-                    KeyButton(
-                        label = label(key),
-                        colors = colors,
-                        contentColor = content,
-                        modifier = Modifier.weight(1f).height(56.dp),
-                        onClick = {
-                            when (key) {
-                                "C" -> expr = ""
-                                "del" -> if (expr.isNotEmpty()) expr = expr.dropLast(1)
-                                "=" -> {
-                                    val shown = try {
-                                        val value = Evaluator.evaluate(
-                                            expr, degrees, mapOf("ans" to ans),
-                                        )
-                                        ans = value
-                                        Format.number(value)
-                                    } catch (e: Exception) {
-                                        "error"
-                                    }
-                                    DiagnosticsLogger.log("Calc", "${expr.ifBlank { "0" }} = $shown")
-                                    if (settings.historyEnabled) {
-                                        history = (history + "\n${expr.ifBlank { "0" }} = $shown")
-                                            .trim().split("\n").takeLast(200).joinToString("\n")
-                                    }
-                                    expr = shown
-                                }
-                                "neg" -> expr = if (expr.startsWith("-")) expr.drop(1) else "-$expr"
-                                else -> expr += key
-                            }
-                        },
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FilledTonalButton(onClick = { memory = 0.0 }, modifier = Modifier.weight(1f)) { Text("MC") }
+                FilledTonalButton(onClick = { memory += currentValue() }, modifier = Modifier.weight(1f)) { Text("M+") }
+                FilledTonalButton(onClick = { memory -= currentValue() }, modifier = Modifier.weight(1f)) { Text("M\u2212") }
+                FilledTonalButton(onClick = { expr = Format.number(memory) }, modifier = Modifier.weight(1f)) { Text("MR") }
+            }
+            if (memory != 0.0) {
+                Text(
+                    "M = ${Format.number(memory)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.60f),
+                                MaterialTheme.colorScheme.surface,
+                            ),
+                        ),
                     )
+                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(22.dp))
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.End,
+            ) {
+                history.split("\n").filter { it.isNotBlank() }.takeLast(3).forEach {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                Text(
+                    text = expr.ifBlank { "0" },
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                )
+                if (settings.livePreview) {
+                    Text(
+                        text = if (preview.isNotEmpty()) "= ${pretty(preview, settings.groupDigits)}" else "",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                TextButton(
+                    onClick = {
+                        val q = if (expr.isBlank()) "" else "Explain this calculation and the result: $expr = $preview"
+                        onAskAi(q)
+                    },
+                    enabled = expr.isNotBlank(),
+                ) { Text("Ask AI about this") }
+            }
+
+            if (functionKeys.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    functionKeys.forEach { k ->
+                        KeyButton(
+                            label = label(k),
+                            colors = listOf(Color(0xFFFFD54F), Amber),
+                            contentColor = Color(0xFF3A2600),
+                            modifier = Modifier.height(50.dp).defaultMinSize(minWidth = 68.dp),
+                            onClick = { expr += insertFor(k) },
+                        )
+                    }
+                }
+            }
+
+            PAD.forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    row.forEach { key ->
+                        val colors: List<Color> = when {
+                            key == "=" -> listOf(Cyan, Emerald)
+                            isClear(key) -> listOf(Orange, Coral)
+                            isOperator(key) -> listOf(Violet, Indigo)
+                            else -> listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                        val content = if (key == "=" || isClear(key) || isOperator(key)) {
+                            Color.White
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                        KeyButton(
+                            label = label(key),
+                            colors = colors,
+                            contentColor = content,
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            onClick = {
+                                when (key) {
+                                    "C" -> expr = ""
+                                    "del" -> if (expr.isNotEmpty()) expr = expr.dropLast(1)
+                                    "=" -> {
+                                        val shown = try {
+                                            val value = Evaluator.evaluate(
+                                                expr, degrees, mapOf("ans" to ans),
+                                            )
+                                            ans = value
+                                            Format.number(value)
+                                        } catch (e: Exception) {
+                                            "error"
+                                        }
+                                        DiagnosticsLogger.log("Calc", "${expr.ifBlank { "0" }} = $shown")
+                                        if (settings.historyEnabled) {
+                                            history = (history + "\n${expr.ifBlank { "0" }} = $shown")
+                                                .trim().split("\n").takeLast(200).joinToString("\n")
+                                        }
+                                        expr = shown
+                                    }
+                                    "neg" -> expr = if (expr.startsWith("-")) expr.drop(1) else "-$expr"
+                                    else -> expr += key
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
