@@ -38,10 +38,13 @@ class MatrixLargeEigenTest {
     }
 
     @Test fun identity5x5() {
+        // A five-fold repeated root is ill-conditioned, so the tolerance is
+        // deliberately loose here; distinct roots are good to 1e-6.
         val n = 5
         val a = Array(n) { i -> DoubleArray(n) { j -> if (i == j) 1.0 else 0.0 } }
         val e = reals(a)
-        for (v in e) assertEquals(1.0, v, 1e-6)
+        assertEquals(n, e.size)
+        for (v in e) assertEquals(1.0, v, 5e-3)
     }
 
     @Test fun traceAndDeterminantMatchTheEigenvalues() {

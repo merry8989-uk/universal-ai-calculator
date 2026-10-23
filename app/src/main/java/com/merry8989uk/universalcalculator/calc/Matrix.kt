@@ -188,7 +188,13 @@ object Matrix {
         return coeffs
     }
 
-    /** Durand-Kerner roots of a polynomial given highest power first. */
+    /**
+     * Durand-Kerner roots of a polynomial given highest power first.
+     *
+     * Distinct roots come out to full precision. A repeated root is inherently
+     * ill-conditioned (a 1e-5 wobble in a coefficient moves a 5-fold root by
+     * about 0.1), so those are only accurate to a few decimal places.
+     */
     fun polyRoots(coeffs: DoubleArray): List<Complex> {
         val lead = coeffs.firstOrNull() ?: 0.0
         if (lead == 0.0) throw Evaluator.EvalException("Leading coefficient must not be zero")
@@ -201,7 +207,7 @@ object Matrix {
             return acc
         }
         val roots = MutableList(n) { Complex.of(0.4, 0.9).pow(it + 1) }
-        repeat(2000) {
+        repeat(20000) {
             var moved = 0.0
             for (i in 0 until n) {
                 var denom = Complex.of(1.0)
