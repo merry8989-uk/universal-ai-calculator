@@ -38,7 +38,9 @@ const OCR_SYSTEM = [
   "Reply with ONLY a calculator expression made of digits and the characters",
   "+ - * / ^ ( ) % . and the names sqrt, cbrt, sin, cos, tan, ln, log, pi, e.",
   "Use * for multiplication and ^ for powers.",
-  "If the photo shows an equation, return the left-hand side only.",
+  "Read the digits carefully. Do not guess: if a character is unclear, leave it out.",
+  "If there is an equals sign, return only the part BEFORE it, never what follows.",
+  "Ignore any question mark, box, tick or handwriting that is not a digit or operator.",
   "If you cannot read any arithmetic, reply with exactly: NONE",
   "Do not explain. Do not use Markdown. Output one line only.",
 ].join(" ");
