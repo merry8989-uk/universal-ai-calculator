@@ -15,7 +15,12 @@ data class SettingsState(
     /** Use degrees for trigonometry by default. */
     val degreesMode: Boolean = true,
     /** Thousands separators in results. */
-    val groupDigits: Boolean = true,
+    /** Digit grouping: "Indian", "International", "European" or "None". */
+    val numberFormat: String = "Indian",
+    /** Fixed decimal places for results, or -1 for automatic. */
+    val decimals: Int = -1,
+    /** Preferred measurement system for the converters. */
+    val unitSystem: String = "Metric",
     /** Keep a history of calculations. */
     val historyEnabled: Boolean = true,
     /** Haptic feedback on key press. */

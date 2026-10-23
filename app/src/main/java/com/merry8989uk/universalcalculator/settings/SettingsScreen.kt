@@ -140,7 +140,61 @@ fun SettingsScreen(
             ToggleRow("Notifications", state.notificationsEnabled, vm::setNotifications)
             ToggleRow("Live result preview", state.livePreview, vm::setLivePreview)
             ToggleRow("Degrees by default", state.degreesMode, vm::setDegreesMode)
-            ToggleRow("Thousands separators", state.groupDigits, vm::setGroupDigits)
+            Text("Number format", style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Indian", "International", "European", "None").forEach { fmt ->
+                    FilterChip(
+                        selected = state.numberFormat == fmt,
+                        onClick = { vm.setNumberFormat(fmt) },
+                        label = { Text(fmt) },
+                    )
+                }
+            }
+            Text(
+                when (state.numberFormat) {
+                    "Indian" -> "30,00,000.5 \u2014 lakh and crore grouping."
+                    "European" -> "3.000.000,5 \u2014 dot groups, comma decimal."
+                    "None" -> "3000000.5 \u2014 no separators."
+                    else -> "3,000,000.5 \u2014 thousands grouping."
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text("Decimal places", style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                listOf(-1 to "Auto", 0 to "0", 2 to "2", 3 to "3", 4 to "4", 6 to "6").forEach { (n, name) ->
+                    FilterChip(
+                        selected = state.decimals == n,
+                        onClick = { vm.setDecimals(n) },
+                        label = { Text(name) },
+                    )
+                }
+            }
+            Text(
+                if (state.decimals < 0) "Results keep as many decimals as they need."
+                else "Results are rounded to ${state.decimals} decimal places.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text("Measuring units", style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Metric", "Imperial").forEach { sys ->
+                    FilterChip(
+                        selected = state.unitSystem == sys,
+                        onClick = { vm.setUnitSystem(sys) },
+                        label = { Text(sys) },
+                    )
+                }
+            }
+            Text(
+                if (state.unitSystem == "Imperial")
+                    "Converters open on imperial units (miles, pounds, gallons)."
+                else "Converters open on metric units (kilometres, kilograms, litres).",
+                style = MaterialTheme.typography.bodySmall,
+            )
             ToggleRow("Calculation history", state.historyEnabled, vm::setHistoryEnabled)
             ToggleRow("Haptic feedback", state.hapticsEnabled, vm::setHapticsEnabled)
             ToggleRow("Fractions in results", state.fractionsEnabled, vm::setFractionsEnabled)

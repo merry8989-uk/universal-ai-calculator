@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,9 @@ class SettingsRepository(private val context: Context) {
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
-        val GROUP_DIGITS = booleanPreferencesKey("group_digits")
+        val NUMBER_FORMAT = stringPreferencesKey("number_format")
+        val DECIMALS = intPreferencesKey("decimals")
+        val UNIT_SYSTEM = stringPreferencesKey("unit_system")
         val HISTORY = booleanPreferencesKey("history_enabled")
         val HAPTICS = booleanPreferencesKey("haptics_enabled")
         val AI_ENABLED = booleanPreferencesKey("ai_enabled")
@@ -54,7 +57,9 @@ class SettingsRepository(private val context: Context) {
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
-            groupDigits = p[Keys.GROUP_DIGITS] ?: true,
+            numberFormat = p[Keys.NUMBER_FORMAT] ?: "Indian",
+            decimals = p[Keys.DECIMALS] ?: -1,
+            unitSystem = p[Keys.UNIT_SYSTEM] ?: "Metric",
             historyEnabled = p[Keys.HISTORY] ?: true,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
             aiEnabled = p[Keys.AI_ENABLED] ?: true,
@@ -91,6 +96,15 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setDegreesMode(enabled: Boolean) =
         context.dataStore.edit { it[Keys.DEGREES] = enabled }
+
+    suspend fun setNumberFormat(value: String) =
+        edit { it[Keys.NUMBER_FORMAT] = value }
+
+    suspend fun setDecimals(value: Int) =
+        edit { it[Keys.DECIMALS] = value }
+
+    suspend fun setUnitSystem(value: String) =
+        edit { it[Keys.UNIT_SYSTEM] = value }
 
     suspend fun setGroupDigits(enabled: Boolean) =
         context.dataStore.edit { it[Keys.GROUP_DIGITS] = enabled }

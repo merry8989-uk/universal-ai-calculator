@@ -88,11 +88,11 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 private val PAD = listOf(
-    listOf("C", "del", "%", "/"),
-    listOf("7", "8", "9", "*"),
-    listOf("4", "5", "6", "-"),
-    listOf("1", "2", "3", "+"),
-    listOf("neg", "0", ".", "="),
+    listOf("C", "del", "%", "/", "^"),
+    listOf("7", "8", "9", "*", "("),
+    listOf("4", "5", "6", "-", ")"),
+    listOf("1", "2", "3", "+", "neg"),
+    listOf("0", "00", ".", "=", "ans"),
 )
 
 /** First scientific row — always visible. */
@@ -420,7 +420,7 @@ fun CalculatorScreen(
                         Text(text, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(top = 12.dp))
                         if (preview.isNotEmpty()) {
-                            Text("= ${pretty(preview, settings.groupDigits)}",
+                            Text("= ${pretty(preview, settings.numberFormat, settings.decimals)}",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium)
                         }
@@ -535,7 +535,7 @@ fun CalculatorScreen(
                     } else null
                     Text(
                         text = if (preview.isNotEmpty())
-                            "= ${pretty(preview, settings.groupDigits)}" +
+                            "= ${pretty(preview, settings.numberFormat, settings.decimals)}" +
                                 (asFraction?.let { "   ($it)" } ?: "")
                         else "",
                         style = MaterialTheme.typography.titleLarge,
@@ -683,6 +683,8 @@ fun CalculatorScreen(
                                         }
                                         expr = TextFieldValue(shown, TextRange(shown.length))
                                     }
+                                    "00" -> insert("00")
+                                    "ans" -> insert("ans")
                                     "neg" -> {
                                         val t = expr.text
                                         expr = if (t.startsWith("-")) {
@@ -709,14 +711,15 @@ fun CalculatorScreen(
 }
 
 /** Adds thousands separators to the integer part when the user wants them. */
-private fun pretty(text: String, group: Boolean): String {
-    if (!group) return text
-    val neg = text.startsWith("-")
-    val body = if (neg) text.substring(1) else text
-    val dot = body.indexOf('.')
-    val intPart = if (dot >= 0) body.substring(0, dot) else body
-    val rest = if (dot >= 0) body.substring(dot) else ""
-    if (intPart.isEmpty() || intPart.any { !it.isDigit() }) return text
-    val grouped = intPart.reversed().chunked(3).joinToString(",").reversed()
-    return (if (neg) "-" else "") + grouped + rest
-}
+/**
+ * Formats a result for display: rounds to the chosen number of decimals, then
+ * groups the digits the way the chosen locale does.
+ *
+ *   Indian        30,00,000.5
+ *   International  3,000,000.5
+ *   European       3.000.000,5
+ *   None           3000000.5
+ */
+private fun pretty(text: String, format: String, decimals: Int): String =
+    Format.grouped(text, format, decimals)
+

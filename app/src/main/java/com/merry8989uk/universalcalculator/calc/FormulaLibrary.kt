@@ -3199,6 +3199,19 @@ object FormulaLibrary {
                 out("Premium or discount", price - f))
         },
 
+        Formula("sales_tax", "Sales tax / GST", "Finance",
+            "Tax on a price, the total to pay, and the reverse from a tax-inclusive price.",
+            listOf(InputSpec("price", "Price before tax", 1000.0), InputSpec("rate", "Tax rate (%)", 18.0)),
+        ) { m ->
+            val tax = v(m, "price") * v(m, "rate") / 100.0
+            val total = v(m, "price") + tax
+            // the same total, backed out
+            val base = total / (1 + v(m, "rate") / 100.0)
+            listOf(out("Tax", tax), out("Total to pay", total),
+                out("Base if the total is inclusive", base),
+                out("Tax inside an inclusive total", total - base))
+        },
+
     )
 
     fun byCategory(category: String): List<Formula> = formulas.filter { it.category == category }
