@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
@@ -205,6 +206,7 @@ fun CalculatorScreen(
     functionKeys: List<String>,
     settings: SettingsState,
     onAskAi: (String) -> Unit,
+    onAskAiNow: (String) -> Unit = {},
 ) {
     var expr by rememberSaveable(stateSaver = exprSaver) { mutableStateOf(TextFieldValue("")) }
     var ans by rememberSaveable { mutableStateOf(0.0) }
@@ -294,6 +296,16 @@ fun CalculatorScreen(
             val exprText = SpeechMath.normalise(spoken)
             if (SpeechMath.looksUsable(exprText)) {
                 expr = TextFieldValue(exprText, TextRange(exprText.length))
+                // Hand the words and the expression to the assistant so it can
+                // answer and explain, not just evaluate.
+                if (settings.aiEnabled) {
+                    // Send the spoken words and the expression to the assistant
+                    // so it answers and explains, not just evaluates.
+                    onAskAiNow(
+                        "I asked by voice: \"$spoken\". That is the calculation $exprText. " +
+                            "Work it out in a few lines and give the final answer.",
+                    )
+                }
             } else {
                 aiText = "I heard \"$spoken\" but could not turn it into a calculation."
                 scope.launch { drawerState.open() }
@@ -330,11 +342,20 @@ fun CalculatorScreen(
             photoBusy = false
             if (r.expression != null) {
                 expr = TextFieldValue(r.expression, TextRange(r.expression.length))
-                aiText = "Read from the photo: ${r.expression}"
+                // Send the text read from the photo to the assistant too.
+                if (settings.aiEnabled) {
+                    onAskAiNow(
+                        "I photographed a calculation and the text read from the photo is: " +
+                            "${r.expression}. Work it out in a few lines and give the final answer.",
+                    )
+                } else {
+                    aiText = "Read from the photo: ${r.expression}"
+                    drawerState.open()
+                }
             } else {
                 aiText = r.error ?: "Could not read the photo."
+                drawerState.open()
             }
-            drawerState.open()
         }
     }
 
@@ -347,6 +368,17 @@ fun CalculatorScreen(
         }
     }
 
+    /** Asks the assistant and shows the answer in the side drawer. */
+    fun explainText(question: String) {
+        aiText = ""
+        aiLoading = true
+        scope.launch {
+            aiText = AnswerFormat.clean(AiClient.ask(question))
+            aiLoading = false
+        }
+        scope.launch { drawerState.open() }
+    }
+
     fun explainNow() {
         val q = if (text.isBlank()) {
             "What can this calculator do? Give three short examples."
@@ -354,13 +386,7 @@ fun CalculatorScreen(
             "Explain this calculation step by step and give the final answer: $text" +
                 (if (preview.isNotEmpty()) " = $preview" else "")
         }
-        aiText = ""
-        aiLoading = true
-        scope.launch {
-            aiText = AnswerFormat.clean(AiClient.ask(q))
-            aiLoading = false
-        }
-        scope.launch { drawerState.open() }
+        explainText(q)
     }
 
     if (showHistory) {
@@ -408,8 +434,13 @@ fun CalculatorScreen(
                             CircularProgressIndicator(modifier = Modifier.size(18.dp))
                             Text("Thinking\u2026")
                         }
-                        aiText.isNotBlank() -> Text(aiText, style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(top = 16.dp))
+                        aiText.isNotBlank() -> {
+                            SelectionContainer {
+                                Text(aiText, style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(top = 16.dp))
+                            }
+                            AnswerActions(aiText)
+                        }
                         else -> Text("Tap the magic button to get an explanation here.",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 16.dp))

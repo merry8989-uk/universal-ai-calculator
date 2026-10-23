@@ -2,6 +2,7 @@ package com.merry8989uk.universalcalculator.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +54,13 @@ private val SUGGESTIONS = listOf(
  * used, so it never nags.
  */
 @Composable
-fun AskAiScreen(contextText: String, onClearContext: () -> Unit, enabled: Boolean = true) {
+fun AskAiScreen(
+    contextText: String,
+    onClearContext: () -> Unit,
+    enabled: Boolean = true,
+    initialQuestion: String = "",
+    onInitialQuestionUsed: () -> Unit = {},
+) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
@@ -67,6 +75,15 @@ fun AskAiScreen(contextText: String, onClearContext: () -> Unit, enabled: Boolea
         scope.launch {
             answer = AnswerFormat.clean(AiClient.ask(q, contextText))
             loading = false
+        }
+    }
+
+    // A question handed over from the calculator (voice or photo) is asked here.
+    LaunchedEffect(initialQuestion, enabled) {
+        if (enabled && initialQuestion.isNotBlank()) {
+            question = initialQuestion
+            send(initialQuestion)
+            onInitialQuestionUsed()
         }
     }
 
@@ -148,8 +165,12 @@ fun AskAiScreen(contextText: String, onClearContext: () -> Unit, enabled: Boolea
         if (answer.isNotBlank()) {
             Text("Answer", style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 16.dp))
-            Text(answer, style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 4.dp))
+            // Selectable, so it can be copied by hand as well.
+            SelectionContainer {
+                Text(answer, style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 4.dp))
+            }
+            AnswerActions(answer)
         }
 
         // Suggestions show only until the assistant has been used once.

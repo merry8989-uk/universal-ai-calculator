@@ -35,6 +35,7 @@ private val SCIENTIFIC_KEYS = listOf(
 fun AppRoot(settings: SettingsState) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var aiContext by rememberSaveable { mutableStateOf("") }
+    var aiAsk by rememberSaveable { mutableStateOf("") }
 
     // "Keep screen on" — applied to the window for as long as it is switched on.
     val view = LocalView.current
@@ -64,18 +65,23 @@ fun AppRoot(settings: SettingsState) {
                     functionKeys = emptyList(),
                     settings = settings,
                     onAskAi = { q -> aiContext = q; tab = 4 },
+                    onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = 4 },
                 )
                 1 -> CalculatorScreen(
                     title = "Scientific",
                     functionKeys = SCIENTIFIC_KEYS,
                     settings = settings,
                     onAskAi = { q -> aiContext = q; tab = 4 },
+                    onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = 4 },
                 )
                 2 -> ConvertScreen()
                 3 -> FormulasScreen()
                 4 -> AskAiScreen(
                     contextText = aiContext,
                     onClearContext = { aiContext = "" },
+                    enabled = settings.aiEnabled,
+                    initialQuestion = aiAsk,
+                    onInitialQuestionUsed = { aiAsk = "" },
                 )
                 else -> SettingsScreen(onBack = { tab = 0 })
             }
