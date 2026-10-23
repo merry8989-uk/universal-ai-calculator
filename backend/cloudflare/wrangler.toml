@@ -9,4 +9,4 @@ binding = "AI"
 [vars]
 # Preferred model. If Cloudflare retires it, the Worker automatically falls back
 # to the other current models listed in worker.js.
-AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
