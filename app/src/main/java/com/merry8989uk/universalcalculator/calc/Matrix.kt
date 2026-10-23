@@ -285,4 +285,44 @@ object Matrix {
         }
         return q to r
     }
+    // ================= least squares =================
+
+    /**
+     * Solves min ||A·x − b|| by QR decomposition. A is m × n with m ≥ n.
+     * Returns null when A does not have full column rank.
+     */
+    fun leastSquares(a: Array<DoubleArray>, b: DoubleArray): DoubleArray? {
+        if (a.isEmpty()) throw Evaluator.EvalException("Matrix is empty")
+        val m = rows(a)
+        val n = cols(a)
+        if (b.size != m) throw Evaluator.EvalException("b must have one entry per row")
+        if (m < n) throw Evaluator.EvalException("Need at least as many rows as columns")
+
+        val (q, r) = qr(a)
+        // c = Qᵀ b
+        val c = DoubleArray(m) { i -> (0 until m).sumOf { j -> q[j][i] * b[j] } }
+
+        // back-substitute the top n rows of R
+        val x = DoubleArray(n)
+        for (i in n - 1 downTo 0) {
+            var sum = c[i]
+            for (j in i + 1 until n) sum -= r[i][j] * x[j]
+            if (kotlin.math.abs(r[i][i]) < 1e-12) return null
+            x[i] = sum / r[i][i]
+        }
+        return x
+    }
+
+    /** ||A·x − b|| — how far a fitted x is from the data. */
+    fun residualNorm(a: Array<DoubleArray>, b: DoubleArray, x: DoubleArray): Double {
+        val m = rows(a)
+        val n = cols(a)
+        var sum = 0.0
+        for (i in 0 until m) {
+            var row = 0.0
+            for (j in 0 until n) row += a[i][j] * x[j]
+            sum += (row - b[i]) * (row - b[i])
+        }
+        return kotlin.math.sqrt(sum)
+    }
 }

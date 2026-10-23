@@ -31,6 +31,7 @@ import com.merry8989uk.universalcalculator.calc.Matrix
 fun MatrixScreen(onBack: () -> Unit) {
     var aText by remember { mutableStateOf("2 1\n1 3") }
     var bText by remember { mutableStateOf("1 0\n0 1") }
+    var vText by remember { mutableStateOf("2\n4\n6") }
     var result by remember { mutableStateOf("") }
 
     fun run(block: () -> String) {
@@ -51,6 +52,11 @@ fun MatrixScreen(onBack: () -> Unit) {
         )
         OutlinedTextField(
             value = bText, onValueChange = { bText = it }, label = { Text("Matrix B") },
+            modifier = Modifier.fillMaxWidth().height(100.dp).padding(top = 8.dp),
+        )
+        OutlinedTextField(
+            value = vText, onValueChange = { vText = it },
+            label = { Text("Vector b (one number per line) \u2014 for least squares") },
             modifier = Modifier.fillMaxWidth().height(100.dp).padding(top = 8.dp),
         )
 
@@ -116,6 +122,17 @@ fun MatrixScreen(onBack: () -> Unit) {
                     "Q =\n" + Matrix.format(q) + "\nR =\n" + Matrix.format(r)
                 }
             }) { Text("QR") }
+            Button(onClick = {
+                run {
+                    val a = Matrix.parse(aText)
+                    val b = vText.split('\n', ',', ';')
+                        .mapNotNull { it.trim().toDoubleOrNull() }
+                        .toDoubleArray()
+                    val x = Matrix.leastSquares(a, b) ?: return@run "A does not have full column rank"
+                    "x = " + Matrix.format(x) +
+                        "\nresidual = " + Format.number(Matrix.residualNorm(a, b, x))
+                }
+            }) { Text("Least squares") }
         }
 
         Text(

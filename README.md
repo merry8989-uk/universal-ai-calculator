@@ -37,6 +37,8 @@ Engineering, Construction and Math.
 - **Formula reference** — 1509 formulas across 12 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
+- **Handwriting pad** — write a calculation with a finger
+- **Least squares** and eigenvalues for any matrix size
 - **Voice input** and a **photo solver** (reads arithmetic from a picture)
 - **3-D surface** and **parametric** graphing
 - **Complex numbers on the main keypad** — the `i` key works, and 2pi / 3(4+5) are accepted
