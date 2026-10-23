@@ -40,6 +40,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.ui.theme.Amber
 import kotlin.math.roundToInt
 
 /** How many keys sit across the drawer. */
