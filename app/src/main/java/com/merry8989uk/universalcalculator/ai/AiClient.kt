@@ -66,6 +66,35 @@ object AiClient {
         }
     }
 
+    /** Transcribes an audio clip on the Worker (Whisper), or null on failure. */
+    suspend fun transcribe(audio: ByteArray): String? = withContext(Dispatchers.IO) {
+        var conn: HttpURLConnection? = null
+        try {
+            val payload = JSONObject()
+                .put("audio", Base64.encodeToString(audio, Base64.NO_WRAP))
+                .toString()
+            conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                connectTimeout = 20_000
+                readTimeout = 90_000
+                setRequestProperty("Content-Type", "application/json")
+            }
+            DiagnosticsLogger.log("AI", "Transcribe: ${audio.size} bytes")
+            conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
+            val code = conn.responseCode
+            val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+            val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
+            val json = runCatching { JSONObject(text) }.getOrNull()
+            if (code in 200..299) json?.optString("text")?.takeIf { it.isNotBlank() } else null
+        } catch (e: Exception) {
+            DiagnosticsLogger.log("AI", "Transcribe failed")
+            null
+        } finally {
+            conn?.disconnect()
+        }
+    }
+
     /** Sends a question (with optional app context) and returns the answer text. */
     suspend fun ask(question: String, context: String = ""): String = withContext(Dispatchers.IO) {
         var conn: HttpURLConnection? = null

@@ -460,8 +460,6 @@ fun CalculatorScreen(
             ) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    MagicButton(onClick = { explainNow() })
-                    Spacer(Modifier.width(6.dp))
                     TextButton(onClick = { showHistory = true }) { Text("History") }
                     TextButton(onClick = { degrees = !degrees }) { Text(if (degrees) "DEG" else "RAD") }
                 }
@@ -563,6 +561,22 @@ fun CalculatorScreen(
                         enabled = text.isNotBlank(),
                     ) { Text("Ask AI about this") }
                 }
+            }
+
+            // The magic button sits on the left, above the yellow rows and the
+            // Clear key, so it is within reach of the thumb.
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MagicButton(onClick = { explainNow() })
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    "Explain with AI",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
             if (functionKeys.isNotEmpty()) {

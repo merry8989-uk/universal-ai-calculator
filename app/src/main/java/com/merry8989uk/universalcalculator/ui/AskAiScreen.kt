@@ -1,25 +1,23 @@
 package com.merry8989uk.universalcalculator.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.selection.SelectionContainer
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,26 +30,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
+import com.merry8989uk.universalcalculator.ai.Attachments
 import kotlinx.coroutines.launch
-
-private val SUGGESTIONS = listOf(
-    "Explain the Pythagorean theorem with an example",
-    "A 1200 sq ft flat at 2500 per sq ft, what is the total cost?",
-    "How much EMI on a 20 lakh loan at 9% for 15 years?",
-    "Convert 5 miles per hour to km/h and explain",
-    "Is 91 a prime number, and why?",
-    "Compound interest on 50000 at 8% for 5 years?",
-)
+import java.io.ByteArrayOutputStream
 
 /**
- * "Ask AI" — ask anything. The key is fixed on the server, so there is nothing
- * for the user to configure. The suggestion list disappears once it has been
- * used, so it never nags.
+ * "Ask AI" — ask anything, or attach a photo, an image, an audio clip or a text
+ * file and get it solved. The key is fixed on the server, so there is nothing
+ * for the user to configure.
  */
 @Composable
 fun AskAiScreen(
@@ -65,16 +56,72 @@ fun AskAiScreen(
     var answer by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var used by remember { mutableStateOf(false) }
+
+    var attachBusy by remember { mutableStateOf(false) }
+    var attachLabel by remember { mutableStateOf("") }
+    var attachText by remember { mutableStateOf("") }
+    var attachError by remember { mutableStateOf("") }
+
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     fun send(q: String) {
-        if (q.isBlank() || loading) return
+        if (loading) return
+        val asked = q.ifBlank { "Please solve and explain this." }
+        val full = if (attachText.isNotBlank()) "$asked\n\n$attachText" else asked
+        if (full.isBlank()) return
         loading = true
         answer = ""
         used = true
         scope.launch {
-            answer = AnswerFormat.clean(AiClient.ask(q, contextText))
+            answer = AnswerFormat.clean(AiClient.ask(full, contextText))
             loading = false
+        }
+    }
+
+    fun handleRead(r: Attachments.Read) {
+        attachBusy = false
+        if (r.error != null) {
+            attachError = r.error
+            attachText = ""
+            attachLabel = ""
+        } else {
+            attachError = ""
+            attachText = r.text
+            attachLabel = r.label
+            // give the solution straight away
+            send(question)
+        }
+    }
+
+    val filePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        attachBusy = true
+        attachError = ""
+        scope.launch { handleRead(Attachments.read(context, uri)) }
+    }
+
+    val camera = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicturePreview(),
+    ) { bmp: Bitmap? ->
+        if (bmp == null) return@rememberLauncherForActivityResult
+        attachBusy = true
+        attachError = ""
+        scope.launch {
+            val bytes = ByteArrayOutputStream().use { out ->
+                bmp.compress(Bitmap.CompressFormat.JPEG, 85, out)
+                out.toByteArray()
+            }
+            val r = AiClient.solveImage(bytes)
+            handleRead(
+                if (r.expression != null) {
+                    Attachments.Read("image", "photo", "The photo shows this calculation: ${r.expression}")
+                } else {
+                    Attachments.Read("image", "photo", "", r.error ?: "Could not read the photo.")
+                },
+            )
         }
     }
 
@@ -103,7 +150,7 @@ fun AskAiScreen(
         }
 
         Text(
-            "Ask anything \u2014 maths, science, money, health or everyday questions.",
+            "Ask anything, or attach a photo, an image, an audio clip or a text file.",
             style = MaterialTheme.typography.bodySmall,
         )
 
@@ -126,29 +173,79 @@ fun AskAiScreen(
             value = question,
             onValueChange = { question = it },
             label = { Text("Your question") },
-            modifier = Modifier.fillMaxWidth().height(104.dp).padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         )
 
-        // Big, magical Ask button.
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp)
-                .padding(top = 12.dp)
-                .clip(RoundedCornerShape(29.dp))
-                .background(MagicBrush)
-                .clickable(enabled = !loading && question.isNotBlank()) { send(question) },
-            contentAlignment = Alignment.Center,
+        // ---- attach ----
+        Text(
+            "Attach something",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 14.dp),
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("\u2726", color = Color.White)
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    if (loading) "Thinking\u2026" else "Ask AI",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+            OutlinedButton(
+                onClick = { camera.launch(null) },
+                enabled = !attachBusy && !loading,
+            ) { Text("\uD83D\uDCF7 Photo") }
+            OutlinedButton(
+                onClick = { filePicker.launch(arrayOf("image/*", "audio/*", "text/*", "application/json")) },
+                enabled = !attachBusy && !loading,
+            ) { Text("\uD83D\uDCCE File") }
+        }
+        Text(
+            "Photo takes a picture now. File opens your gallery, music or documents \u2014 " +
+                "images, audio clips and .txt/.md/.csv files are supported.",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+
+        if (attachBusy) {
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp))
+                Text("Reading the attachment\u2026")
             }
+        }
+        if (attachError.isNotBlank()) {
+            Text(
+                attachError,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+        if (attachLabel.isNotBlank()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "Attached: $attachLabel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = { attachText = ""; attachLabel = "" }) { Text("Remove") }
+            }
+        }
+
+        Button(
+            onClick = { send(question) },
+            enabled = !loading && !attachBusy && (question.isNotBlank() || attachText.isNotBlank()),
+            modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
+        ) {
+            Text(
+                if (loading) "Thinking\u2026" else "Ask AI",
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
 
         if (loading) {
@@ -171,17 +268,6 @@ fun AskAiScreen(
                     modifier = Modifier.padding(top = 4.dp))
             }
             AnswerActions(answer)
-        }
-
-        // Suggestions show only until the assistant has been used once.
-        if (!used && answer.isBlank()) {
-            Text("Try one of these", style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
-                SUGGESTIONS.forEach { s ->
-                    AssistChip(onClick = { question = s; send(s) }, label = { Text(s) })
-                }
-            }
         }
     }
 }

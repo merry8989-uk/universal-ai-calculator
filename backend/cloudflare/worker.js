@@ -19,6 +19,12 @@ const FALLBACK_MODELS = [
   "@cf/ibm-granite/granite-4.0-h-micro",
 ];
 
+// Speech-to-text, tried in order for an uploaded audio clip.
+const WHISPER_MODELS = [
+  "@cf/openai/whisper-large-v3-turbo",
+  "@cf/openai/whisper",
+];
+
 // Vision models, tried in order for a photo. Workers AI retires models, so
 // several are listed.
 const VISION_MODELS = [
@@ -123,6 +129,34 @@ export default {
 
     try {
       const body = await request.json().catch(() => ({}));
+
+      // --- audio mode: transcribe an uploaded clip ---
+      const audio = typeof body?.audio === "string" ? body.audio : "";
+      if (audio) {
+        if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
+        if (audio.length > 20_000_000) return json({ error: "That audio file is too large." }, 413);
+        let bytes;
+        try {
+          bytes = b64ToBytes(audio);
+        } catch (e) {
+          return json({ error: "The audio could not be read." }, 400);
+        }
+        const problems = [];
+        for (const model of WHISPER_MODELS) {
+          try {
+            const out = await env.AI.run(model, { audio: bytes });
+            const text = (out && (out.text || out.response || "")) + "";
+            if (text.trim()) return json({ text: text.trim(), model });
+            problems.push(`${model}: empty transcript`);
+          } catch (e) {
+            problems.push(`${model}: ${e}`);
+          }
+        }
+        return json(
+          { error: "Could not transcribe that audio.", detail: problems.join(" | ") },
+          502,
+        );
+      }
 
       // --- photo mode: read the maths out of an image ---
       const image = typeof body?.image === "string" ? body.image : "";

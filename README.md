@@ -41,6 +41,7 @@ Engineering, Construction and Math.
 - **Least squares** and eigenvalues for any matrix size
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **Copy / select / share** on every assistant answer
+- **Attach a photo, image, audio clip or text file** to Ask AI and get it solved
 - **3-D surface** and **parametric** graphing
 - **Complex numbers on the main keypad** — the `i` key works, and 2pi / 3(4+5) are accepted
 - **Symbolic algebra** — simplify, differentiate, integrate, factor and solve polynomials
