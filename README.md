@@ -83,6 +83,19 @@ ready-to-deploy versions live in `backend/`:
 Both read the key from a secret named `GEMINI_API_KEY`. After deploying, put the
 URL into `ai/AiClient.kt` and rebuild.
 
+## Tests
+
+Every calculation engine has a JVM unit test suite (114 tests) covering
+arithmetic, powers, percentages, scientific functions, unit conversions,
+all 192 formulas, matrices, statistics, format converters, dates, the
+programmer tool and numerical calculus. It runs in CI:
+
+```
+./gradlew test
+```
+
+The `Tests` workflow runs it on every push to `main`.
+
 ## Building
 
 CI builds every tagged release. Locally:
