@@ -29,7 +29,6 @@ const WHISPER_MODELS = [
 // several are listed.
 const VISION_MODELS = [
   "@cf/meta/llama-3.2-11b-vision-instruct",
-  "@cf/meta/llama-3.2-90b-vision-instruct",
   "@cf/llava-hf/llava-1.5-7b-hf",
 ];
 
@@ -37,11 +36,7 @@ const VISION_MODELS = [
 // is ignored, so the endpoint cannot be used as a general model proxy.
 const VISION_ALLOWED = [
   "@cf/meta/llama-3.2-11b-vision-instruct",
-  "@cf/meta/llama-3.2-90b-vision-instruct",
   "@cf/llava-hf/llava-1.5-7b-hf",
-  "@cf/qwen/qwen2.5-vl-7b-instruct",
-  "@cf/google/gemma-3-12b-it",
-  "@cf/mistralai/mistral-small-3.1-24b-instruct",
 ];
 
 // The photo prompt: we want a bare calculator expression back, nothing else.
@@ -163,10 +158,16 @@ function imageShapes(model, b64) {
     ];
   }
 
-  // llava-style: a flat object with the image as a data URL string
+  // llava-style: a flat object, and this one wants the image as raw bytes
+  let bytes;
+  try {
+    bytes = b64ToBytes(b64);
+  } catch (e) {
+    bytes = [];
+  }
   return [
+    { agree: false, body: { image: bytes, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
     { agree: false, body: { image: url, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
-    { agree: false, body: { image: b64, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
   ];
 }
 
