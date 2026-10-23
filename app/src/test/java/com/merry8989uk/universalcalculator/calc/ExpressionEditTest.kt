@@ -18,7 +18,7 @@ class ExpressionEditTest {
     @Test fun keepsTheValueWhenPrecedenceDiffers() {
         // the loosest-binding operator is the one that moves, so 11 stays 11
         assertEquals("3*2+5", ExpressionEdit.swapOperands("5+3*2"))
-        assertEquals("4*3+2", ExpressionEdit.swapOperands("2+3*4"))
+        assertEquals("3*4+2", ExpressionEdit.swapOperands("2+3*4"))
         assertEquals(11.0, Evaluator.evaluate(ExpressionEdit.swapOperands("5+3*2")), 1e-9)
     }
 
