@@ -1,0 +1,57 @@
+name: Tests
+
+# Runs the engine unit tests (formulas, unit conversions, scientific maths,
+# matrix, statistics, converters, dates, programmer, calculus) on the JVM.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Ensure Gradle wrapper exists
+        run: test -f gradlew || gradle wrapper --gradle-version 8.9
+
+      - name: Run unit tests
+        run: ./gradlew --no-daemon test
+
+      - name: Summarise results
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          total = fail = err = skip = 0
+          problems = []
+          for f in glob.glob('app/build/test-results/**/*.xml', recursive=True):
+              root = ET.parse(f).getroot()
+              total += int(root.get('tests', 0))
+              fail += int(root.get('failures', 0))
+              err += int(root.get('errors', 0))
+              skip += int(root.get('skipped', 0))
+              for tc in root.iter('testcase'):
+                  for bad in list(tc.findall('failure')) + list(tc.findall('error')):
+                      msg = (bad.get('message') or '').strip().replace('\n', ' ')
+                      problems.append(f"{tc.get('classname')}.{tc.get('name')} -> {msg[:300]}")
+          print(f"TESTS: total={total} failures={fail} errors={err} skipped={skip}")
+          for p in problems[:60]:
+              print("FAIL:", p)
+          if not problems:
+              print("All engine tests passed.")
+          PY
