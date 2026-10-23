@@ -30,7 +30,6 @@ const WHISPER_MODELS = [
 const VISION_MODELS = [
   "@cf/meta/llama-3.2-11b-vision-instruct",
   "@cf/llava-hf/llava-1.5-7b-hf",
-  "@cf/unum/uform-gen2-qwen-500m",
 ];
 
 // The photo prompt: we want a bare calculator expression back, nothing else.
@@ -104,6 +103,59 @@ function extractText(out) {
   return "";
 }
 
+/**
+ * The image input shapes Workers AI models accept, tried in order. Meta's
+ * vision model is gated behind a licence prompt, and the Llava model wants a
+ * plain data URL, so both are handled here.
+ */
+function imageShapes(model, b64) {
+  const url = `data:image/jpeg;base64,${b64}`;
+  const ask = "Read the arithmetic in this photo.";
+
+  if (model.includes("llama-3.2-11b-vision")) {
+    return [
+      {
+        agree: true,
+        body: {
+          messages: [
+            { role: "system", content: OCR_SYSTEM },
+            {
+              role: "user",
+              content: [
+                { type: "text", text: ask },
+                { type: "image_url", image_url: { url } },
+              ],
+            },
+          ],
+          max_tokens: 256,
+        },
+      },
+      {
+        agree: true,
+        body: {
+          messages: [
+            { role: "system", content: OCR_SYSTEM },
+            {
+              role: "user",
+              content: [
+                { type: "text", text: ask },
+                { type: "image", image: url },
+              ],
+            },
+          ],
+          max_tokens: 256,
+        },
+      },
+    ];
+  }
+
+  // llava-style: a flat object with the image as a data URL string
+  return [
+    { agree: false, body: { image: url, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
+    { agree: false, body: { image: b64, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
+  ];
+}
+
 /** base64 (no data: prefix) to bytes, which is what Workers AI wants. */
 function b64ToBytes(b64) {
   const clean = String(b64).replace(/^data:[^,]*,/, "");
@@ -134,22 +186,21 @@ export default {
       const audio = typeof body?.audio === "string" ? body.audio : "";
       if (audio) {
         if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
-        if (audio.length > 20_000_000) return json({ error: "That audio file is too large." }, 413);
-        let bytes;
-        try {
-          bytes = b64ToBytes(audio);
-        } catch (e) {
-          return json({ error: "The audio could not be read." }, 400);
-        }
+        if (audio.length > 40_000_000) return json({ error: "That audio file is too large." }, 413);
+
         const problems = [];
         for (const model of WHISPER_MODELS) {
-          try {
-            const out = await env.AI.run(model, { audio: bytes });
-            const text = (out && (out.text || out.response || "")) + "";
-            if (text.trim()) return json({ text: text.trim(), model });
-            problems.push(`${model}: empty transcript`);
-          } catch (e) {
-            problems.push(`${model}: ${e}`);
+          // the turbo model wants the clip as a base64 string
+          for (const payload of [{ audio }, { audio: `data:audio/wav;base64,${audio}` }]) {
+            try {
+              const out = await env.AI.run(model, payload);
+              const text = (out && (out.text || out.response || "")) + "";
+              if (text.trim()) return json({ text: text.trim(), model });
+              problems.push(`${model}: empty transcript`);
+              break;
+            } catch (e) {
+              problems.push(`${model}: ${e}`);
+            }
           }
         }
         return json(
@@ -162,37 +213,32 @@ export default {
       const image = typeof body?.image === "string" ? body.image : "";
       if (image) {
         if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
-        if (image.length > 6_000_000) return json({ error: "That photo is too large." }, 413);
-        let bytes;
-        try {
-          bytes = b64ToBytes(image);
-        } catch (e) {
-          return json({ error: "The photo could not be read." }, 400);
-        }
+        if (image.length > 8_000_000) return json({ error: "That photo is too large." }, 413);
+
         const problems = [];
         for (const model of VISION_MODELS) {
-          try {
-            const out = await env.AI.run(model, {
-              messages: [
-                { role: "system", content: OCR_SYSTEM },
-                {
-                  role: "user",
-                  content: [
-                    { type: "text", text: "Read the arithmetic in this photo." },
-                    { type: "image", image: bytes },
-                  ],
-                },
-              ],
-              max_tokens: 256,
-            });
-            const raw = extractText(out);
-            const expression = tidyExpression(raw);
-            if (expression && expression.toUpperCase() !== "NONE") {
-              return json({ expression, model });
+          let agreed = false;
+          for (const shape of imageShapes(model, image)) {
+            try {
+              // Meta's vision model needs the licence accepted once per account.
+              if (shape.agree && !agreed) {
+                try {
+                  await env.AI.run(model, { prompt: "agree" });
+                } catch (e) {
+                  problems.push(`${model} agree: ${e}`);
+                }
+                agreed = true;
+              }
+              const out = await env.AI.run(model, shape.body);
+              const expression = tidyExpression(extractText(out));
+              if (expression && expression.toUpperCase() !== "NONE") {
+                return json({ expression, model });
+              }
+              problems.push(`${model}: nothing readable`);
+              break;
+            } catch (e) {
+              problems.push(`${model}: ${e}`);
             }
-            problems.push(`${model}: nothing readable`);
-          } catch (e) {
-            problems.push(`${model}: ${e}`);
           }
         }
         return json(
