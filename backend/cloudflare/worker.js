@@ -19,6 +19,25 @@ const FALLBACK_MODELS = [
   "@cf/ibm-granite/granite-4.0-h-micro",
 ];
 
+// Vision models, tried in order for a photo. Workers AI retires models, so
+// several are listed.
+const VISION_MODELS = [
+  "@cf/meta/llama-3.2-11b-vision-instruct",
+  "@cf/llava-hf/llava-1.5-7b-hf",
+  "@cf/unum/uform-gen2-qwen-500m",
+];
+
+// The photo prompt: we want a bare calculator expression back, nothing else.
+const OCR_SYSTEM = [
+  "You read arithmetic from a photo for a calculator app.",
+  "Reply with ONLY a calculator expression made of digits and the characters",
+  "+ - * / ^ ( ) % . and the names sqrt, cbrt, sin, cos, tan, ln, log, pi, e.",
+  "Use * for multiplication and ^ for powers.",
+  "If the photo shows an equation, return the left-hand side only.",
+  "If you cannot read any arithmetic, reply with exactly: NONE",
+  "Do not explain. Do not use Markdown. Output one line only.",
+].join(" ");
+
 const SYSTEM = [
   "You are the built-in assistant of the Nexus Calc Android app.",
   "Answer maths, physics, chemistry, finance, economics, health and everyday",
@@ -57,6 +76,24 @@ function extractText(out) {
   return "";
 }
 
+/** base64 (no data: prefix) to bytes, which is what Workers AI wants. */
+function b64ToBytes(b64) {
+  const clean = String(b64).replace(/^data:[^,]*,/, "");
+  const bin = atob(clean);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+/** Keeps only what a calculator expression may contain. */
+function tidyExpression(text) {
+  const first = String(text || "").split("\n").find((l) => l.trim().length) || "";
+  let s = first.toLowerCase();
+  s = s.replace(/×/g, "*").replace(/÷/g, "/").replace(/−/g, "-").replace(/\s+/g, "");
+  s = s.replace(/[^0-9a-z.+\-*/^()%!]/g, "");
+  return s;
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -64,6 +101,50 @@ export default {
 
     try {
       const body = await request.json().catch(() => ({}));
+
+      // --- photo mode: read the maths out of an image ---
+      const image = typeof body?.image === "string" ? body.image : "";
+      if (image) {
+        if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
+        if (image.length > 6_000_000) return json({ error: "That photo is too large." }, 413);
+        let bytes;
+        try {
+          bytes = b64ToBytes(image);
+        } catch (e) {
+          return json({ error: "The photo could not be read." }, 400);
+        }
+        const problems = [];
+        for (const model of VISION_MODELS) {
+          try {
+            const out = await env.AI.run(model, {
+              messages: [
+                { role: "system", content: OCR_SYSTEM },
+                {
+                  role: "user",
+                  content: [
+                    { type: "text", text: "Read the arithmetic in this photo." },
+                    { type: "image", image: bytes },
+                  ],
+                },
+              ],
+              max_tokens: 256,
+            });
+            const raw = extractText(out);
+            const expression = tidyExpression(raw);
+            if (expression && expression.toUpperCase() !== "NONE") {
+              return json({ expression, model });
+            }
+            problems.push(`${model}: nothing readable`);
+          } catch (e) {
+            problems.push(`${model}: ${e}`);
+          }
+        }
+        return json(
+          { error: "Could not read maths in that photo.", detail: problems.join(" | ") },
+          502,
+        );
+      }
+
       const question = typeof body?.question === "string" ? body.question.trim() : "";
       const context = typeof body?.context === "string" ? body.context.trim() : "";
       if (!question) return json({ error: "Ask a question first." }, 400);

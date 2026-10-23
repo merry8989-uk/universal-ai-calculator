@@ -1,5 +1,10 @@
 package com.merry8989uk.universalcalculator.ui
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -64,6 +69,7 @@ import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Complex
 import com.merry8989uk.universalcalculator.calc.ComplexEvaluator
 import com.merry8989uk.universalcalculator.calc.Fractions
+import com.merry8989uk.universalcalculator.calc.SpeechMath
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.settings.SettingsState
@@ -75,6 +81,7 @@ import com.merry8989uk.universalcalculator.ui.theme.Emerald
 import com.merry8989uk.universalcalculator.ui.theme.Indigo
 import com.merry8989uk.universalcalculator.ui.theme.Orange
 import com.merry8989uk.universalcalculator.ui.theme.Violet
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -275,6 +282,71 @@ fun CalculatorScreen(
         ans
     }
 
+    // ---- voice input ----
+    val micLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val spoken = result.data
+            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.firstOrNull()
+            .orEmpty()
+        if (spoken.isNotBlank()) {
+            val exprText = SpeechMath.normalise(spoken)
+            if (SpeechMath.looksUsable(exprText)) {
+                expr = TextFieldValue(exprText, TextRange(exprText.length))
+            } else {
+                aiText = "I heard \"$spoken\" but could not turn it into a calculation."
+                scope.launch { drawerState.open() }
+            }
+        }
+    }
+
+    fun startVoice() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Say a calculation, e.g. twenty percent of fifty")
+        }
+        try {
+            micLauncher.launch(intent)
+        } catch (e: Exception) {
+            aiText = "No speech service is available on this device."
+            scope.launch { drawerState.open() }
+        }
+    }
+
+    // ---- photo solve ----
+    var photoBusy by remember { mutableStateOf(false) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicturePreview(),
+    ) { bitmap: Bitmap? ->
+        if (bitmap == null) return@rememberLauncherForActivityResult
+        photoBusy = true
+        scope.launch {
+            val bytes = ByteArrayOutputStream().use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
+                out.toByteArray()
+            }
+            val r = AiClient.solveImage(bytes)
+            photoBusy = false
+            if (r.expression != null) {
+                expr = TextFieldValue(r.expression, TextRange(r.expression.length))
+                aiText = "Read from the photo: ${r.expression}"
+            } else {
+                aiText = r.error ?: "Could not read the photo."
+            }
+            drawerState.open()
+        }
+    }
+
+    fun startPhoto() {
+        try {
+            cameraLauncher.launch(null)
+        } catch (e: Exception) {
+            aiText = "No camera is available on this device."
+            scope.launch { drawerState.open() }
+        }
+    }
+
     fun explainNow() {
         val q = if (text.isBlank()) {
             "What can this calculator do? Give three short examples."
@@ -443,13 +515,23 @@ fun CalculatorScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                TextButton(
-                    onClick = {
-                        val q = if (text.isBlank()) "" else "Explain this calculation and the result: $text = $preview"
-                        onAskAi(q)
-                    },
-                    enabled = text.isNotBlank(),
-                ) { Text("Ask AI about this") }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TextButton(onClick = { startVoice() }) { Text("\uD83C\uDFA4 Speak") }
+                    TextButton(onClick = { startPhoto() }, enabled = !photoBusy) {
+                        Text(if (photoBusy) "Reading\u2026" else "\uD83D\uDCF7 Photo")
+                    }
+                    TextButton(
+                        onClick = {
+                            val q = if (text.isBlank()) "" else "Explain this calculation and the result: $text = $preview"
+                            onAskAi(q)
+                        },
+                        enabled = text.isNotBlank(),
+                    ) { Text("Ask AI about this") }
+                }
             }
 
             if (functionKeys.isNotEmpty()) {
