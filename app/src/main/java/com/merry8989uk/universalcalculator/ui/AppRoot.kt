@@ -128,7 +128,12 @@ fun AppRoot(settings: SettingsState) {
         }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+    AmbientGlow()
+
     Scaffold(
+        // Transparent, so the ambient glow behind shows through the glass.
+        containerColor = Color.Transparent,
         bottomBar = {
             Row(
                 modifier = Modifier
@@ -242,6 +247,7 @@ fun AppRoot(settings: SettingsState) {
                 )
             }
         }
+    }
     }
 }
 

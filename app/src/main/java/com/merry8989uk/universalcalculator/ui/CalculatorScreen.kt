@@ -5,8 +5,12 @@ import android.graphics.Bitmap
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -270,6 +274,8 @@ fun CalculatorScreen(
     var showDiagnostics by remember { mutableStateOf(false) }
     var showAppInfo by remember { mutableStateOf(false) }
     var logLines by remember { mutableStateOf(listOf<String>()) }
+    // Bumped on every "=" so the display can flash a sweep of light.
+    var rippleTick by remember { mutableIntStateOf(0) }
     val xValue = xText.toDoubleOrNull() ?: 0.0
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var showMore by rememberSaveable { mutableStateOf(false) }
@@ -613,20 +619,35 @@ fun CalculatorScreen(
                     color = MaterialTheme.colorScheme.primary)
             }
 
-            Column(
+            val ripple = remember { Animatable(0f) }
+            LaunchedEffect(rippleTick) {
+                if (rippleTick > 0) {
+                    ripple.snapTo(0f)
+                    ripple.animateTo(1f, tween(780, easing = LinearEasing))
+                }
+            }
+
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(22.dp))
+                    .glassSurface(RoundedCornerShape(22.dp)),
+            ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.60f),
-                                MaterialTheme.colorScheme.surface,
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.32f),
+                                Color.Transparent,
                             ),
                         ),
-                    )
-                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(22.dp))
+                    ),
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(14.dp),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.End,
@@ -681,7 +702,7 @@ fun CalculatorScreen(
                     val asFraction = if (settings.fractionsEnabled && preview.isNotEmpty()) {
                         preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
                     } else null
-                    Text(
+                    AutoSizeText(
                         text = if (preview.isNotEmpty())
                             "= ${pretty(preview, settings.numberFormat, settings.decimals)}" +
                                 (asFraction?.let { "   ($it)" } ?: "")
@@ -721,6 +742,27 @@ fun CalculatorScreen(
                         enabled = text.isNotBlank(),
                     ) { Text(stringResource(R.string.ask_ai_about_this)) }
                 }
+
+                // A sweep of light crosses the display whenever = is pressed.
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    val p = ripple.value
+                    if (p > 0f && p < 1f) {
+                        val x = size.width * p
+                        val band = size.width * 0.55f
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.White.copy(alpha = 0.30f * (1f - p)),
+                                    Color.Transparent,
+                                ),
+                                startX = x - band,
+                                endX = x + band,
+                            ),
+                        )
+                    }
+                }
+            }
             }
 
             // When the expression uses x, a small field sets its value.
@@ -872,6 +914,7 @@ fun CalculatorScreen(
                                             historyVm.append("${text.ifBlank { "0" }} = $shown")
                                         }
                                         expr = TextFieldValue(shown, TextRange(shown.length))
+                                        rippleTick++
                                     }
                                     "00" -> insert("00")
                                     "ans" -> insert("ans")
