@@ -121,4 +121,9 @@
     <string name="contact_on_instagram">Contact on Instagram</string>
     <string name="instagram_handle">@%1$s</string>
     <string name="privacy_policy">Privacy policy</string>
+    <string name="key_sounds">Key sounds</string>
+    <string name="sound_off">Off</string>
+    <string name="sound_click">Click</string>
+    <string name="sound_bubble">Bubble</string>
+    <string name="sound_pop">Pop</string>
 </resources>

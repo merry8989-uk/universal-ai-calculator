@@ -119,4 +119,9 @@
     <string name="contact_on_instagram">Instagram पर संपर्क करें</string>
     <string name="instagram_handle">@%1$s</string>
     <string name="privacy_policy">गोपनीयता नीति</string>
+    <string name="key_sounds">की ध्वनि</string>
+    <string name="sound_off">बंद</string>
+    <string name="sound_click">क्लिक</string>
+    <string name="sound_bubble">बबल</string>
+    <string name="sound_pop">पॉप</string>
 </resources>

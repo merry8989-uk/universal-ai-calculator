@@ -63,6 +63,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -77,6 +78,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
@@ -173,14 +175,30 @@ private fun KeyButton(
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
     val shape = if (classic) RoundedCornerShape(6.dp) else RoundedCornerShape(16.dp)
+
+    // A key dips in while it is held, with a spring so it feels physical.
+    val interaction = remember { MutableInteractionSource() }
+    val pressedByClick by interaction.collectIsPressedAsState()
+    var pressedByHold by remember { mutableStateOf(false) }
+    val dip by animateFloatAsState(
+        targetValue = if (pressedByClick || pressedByHold) 0.93f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 1200f),
+        label = "keypress",
+    )
+
     fun buzz() {
         if (haptic) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        SoundPlayer.key()
     }
     val pressModifier = if (onHold == null) {
-        Modifier.clickable { buzz(); onPress() }
+        Modifier.clickable(interactionSource = interaction, indication = null) {
+            buzz()
+            onPress()
+        }
     } else {
         Modifier.pointerInput(Unit) {
             detectTapGestures(onPress = {
+                pressedByHold = true
                 var fired = false
                 val job = scope.launch {
                     delay(450)
@@ -192,6 +210,7 @@ private fun KeyButton(
                     }
                 }
                 tryAwaitRelease()
+                pressedByHold = false
                 job.cancel()
                 if (!fired) {
                     buzz()
@@ -202,6 +221,10 @@ private fun KeyButton(
     }
     Box(
         modifier = modifier
+            .graphicsLayer {
+                scaleX = dip
+                scaleY = dip
+            }
             .clip(shape)
             .background(
                 if (classic) SolidColor(colors.last()) else Brush.linearGradient(colors),

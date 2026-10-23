@@ -19,6 +19,8 @@ data class SettingsState(
     val numberFormat: String = "Indian",
     /** Fixed decimal places for results, or -1 for automatic. */
     val decimals: Int = -1,
+    /** Key tone: Off, Click, Bubble or Pop. */
+    val keySound: String = "Off",
     /** Preferred measurement system for the converters. */
     val unitSystem: String = "Metric",
     /** Keep a history of calculations. */

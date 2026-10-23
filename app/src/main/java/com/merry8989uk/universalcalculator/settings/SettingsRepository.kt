@@ -35,6 +35,7 @@ class SettingsRepository(private val context: Context) {
         val NUMBER_FORMAT = stringPreferencesKey("number_format")
         val DECIMALS = intPreferencesKey("decimals")
         val UNIT_SYSTEM = stringPreferencesKey("unit_system")
+        val KEY_SOUND = stringPreferencesKey("key_sound")
         val HISTORY = booleanPreferencesKey("history_enabled")
         val HAPTICS = booleanPreferencesKey("haptics_enabled")
         val AI_ENABLED = booleanPreferencesKey("ai_enabled")
@@ -61,6 +62,7 @@ class SettingsRepository(private val context: Context) {
             numberFormat = p[Keys.NUMBER_FORMAT] ?: "Indian",
             decimals = p[Keys.DECIMALS] ?: -1,
             unitSystem = p[Keys.UNIT_SYSTEM] ?: "Metric",
+            keySound = p[Keys.KEY_SOUND] ?: "Off",
             historyEnabled = p[Keys.HISTORY] ?: true,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
             aiEnabled = p[Keys.AI_ENABLED] ?: true,
@@ -106,6 +108,9 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setDecimals(value: Int) =
         context.dataStore.edit { it[Keys.DECIMALS] = value }
+
+    suspend fun setKeySound(value: String) =
+        context.dataStore.edit { it[Keys.KEY_SOUND] = value }
 
     suspend fun setUnitSystem(value: String) =
         context.dataStore.edit { it[Keys.UNIT_SYSTEM] = value }

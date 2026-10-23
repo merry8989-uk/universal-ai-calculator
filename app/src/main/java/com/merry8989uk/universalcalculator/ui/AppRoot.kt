@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.settings.SettingsScreen
+import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.settings.SettingsState
 
 private val TAB_LABELS = listOf(
@@ -97,6 +99,9 @@ fun AppRoot(settings: SettingsState) {
     fun selectTab(i: Int) {
         if (tab == i) resetTick++ else tab = i
     }
+
+    // The key tone follows the setting.
+    LaunchedEffect(settings.keySound) { SoundPlayer.setChoice(settings.keySound) }
 
     // "Keep screen on" — applied to the window for as long as it is switched on.
     val view = LocalView.current

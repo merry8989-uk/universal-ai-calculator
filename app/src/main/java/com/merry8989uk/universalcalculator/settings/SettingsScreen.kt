@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsSection
+import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
 
@@ -220,6 +221,34 @@ fun SettingsScreen(
             )
             ToggleRow(stringResource(R.string.calculation_history), state.historyEnabled, vm::setHistoryEnabled)
             ToggleRow(stringResource(R.string.haptic_feedback), state.hapticsEnabled, vm::setHapticsEnabled)
+
+            Text(stringResource(R.string.key_sounds), style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SoundPlayer.CHOICES.forEach { choice ->
+                    FilterChip(
+                        selected = state.keySound == choice,
+                        onClick = {
+                            vm.setKeySound(choice)
+                            // play it straight away so the choice is audible
+                            SoundPlayer.setChoice(choice)
+                            SoundPlayer.key()
+                        },
+                        label = {
+                            Text(
+                                when (choice) {
+                                    SoundPlayer.OFF -> stringResource(R.string.sound_off)
+                                    "Click" -> stringResource(R.string.sound_click)
+                                    "Bubble" -> stringResource(R.string.sound_bubble)
+                                    else -> stringResource(R.string.sound_pop)
+                                },
+                            )
+                        },
+                    )
+                }
+            }
             ToggleRow(stringResource(R.string.fractions_in_results), state.fractionsEnabled, vm::setFractionsEnabled)
             ToggleRow(stringResource(R.string.keep_screen_on), state.keepScreenOn, vm::setKeepScreenOn)
             ToggleRow(stringResource(R.string.save_state), state.saveState, vm::setSaveState)

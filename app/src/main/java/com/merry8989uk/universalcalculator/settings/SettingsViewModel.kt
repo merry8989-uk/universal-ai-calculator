@@ -27,6 +27,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setNumberFormat(value: String) = viewModelScope.launch { repo.setNumberFormat(value) }
     fun setDecimals(value: Int) = viewModelScope.launch { repo.setDecimals(value) }
     fun setUnitSystem(value: String) = viewModelScope.launch { repo.setUnitSystem(value) }
+    fun setKeySound(value: String) = viewModelScope.launch { repo.setKeySound(value) }
     fun setHistoryEnabled(enabled: Boolean) = viewModelScope.launch { repo.setHistoryEnabled(enabled) }
     fun setHapticsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setHapticsEnabled(enabled) }
     fun setAiEnabled(enabled: Boolean) = viewModelScope.launch { repo.setAiEnabled(enabled) }
