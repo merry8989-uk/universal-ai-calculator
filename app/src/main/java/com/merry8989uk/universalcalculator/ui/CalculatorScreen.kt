@@ -33,6 +33,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
@@ -66,6 +67,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import com.merry8989uk.universalcalculator.calc.Evaluator
+import com.merry8989uk.universalcalculator.calc.ExpressionEdit
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Complex
 import com.merry8989uk.universalcalculator.calc.ComplexEvaluator
@@ -98,12 +100,16 @@ private val PAD = listOf(
 /** First scientific row — always visible. */
 private val SCI_ROW_A = listOf("sin", "cos", "tan", "ln", "log", "sqrt", "x^2", "x^y", "pi", "e", "!")
 /** Second scientific row — revealed by the one "more / less" button. */
-private val SCI_ROW_B = listOf("asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs", "nCr", "nPr", "round", "deg", "i")
+private val SCI_ROW_B = listOf(
+    "asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs",
+    "nCr", "nPr", "round", "deg", "i", "x", "swap",
+)
 
 private val LABELS = mapOf(
     "del" to "\u232B", "/" to "\u00F7", "*" to "\u00D7", "-" to "\u2212",
     "neg" to "\u00B1", "x^2" to "x\u00B2", "x^y" to "x\u02B8", "pi" to "\u03C0",
     "sqrt" to "\u221A", "deg" to "\u00B0", "cbrt" to "\u221B",
+    "swap" to "\u21C4", "x" to "x",
 )
 
 private fun label(k: String) = LABELS[k] ?: k
@@ -212,6 +218,9 @@ fun CalculatorScreen(
     var ans by rememberSaveable { mutableStateOf(0.0) }
     var degrees by rememberSaveable { mutableStateOf(settings.degreesMode) }
     var memory by rememberSaveable { mutableStateOf(0.0) }
+    // The value the variable x takes when it appears in the expression.
+    var xText by rememberSaveable { mutableStateOf("0") }
+    val xValue = xText.toDoubleOrNull() ?: 0.0
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var showMore by rememberSaveable { mutableStateOf(false) }
 
@@ -245,7 +254,10 @@ fun CalculatorScreen(
 
     val preview: String = if (text.isBlank()) "" else try {
         if (ComplexEvaluator.hasImaginary(text)) {
-            val r = ComplexEvaluator.evaluate(text, degrees, mapOf("ans" to Complex(ans, 0.0)))
+            val r = ComplexEvaluator.evaluate(
+                                                text, degrees,
+                                                mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
+                                            )
             if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
         } else {
             Format.number(Evaluator.evaluate(text, degrees, mapOf("ans" to ans)))
@@ -277,8 +289,11 @@ fun CalculatorScreen(
         when {
             text.isBlank() -> ans
             ComplexEvaluator.hasImaginary(text) ->
-                ComplexEvaluator.evaluate(text, degrees, mapOf("ans" to Complex(ans, 0.0))).abs()
-            else -> Evaluator.evaluate(text, degrees, mapOf("ans" to ans))
+                ComplexEvaluator.evaluate(
+                    text, degrees,
+                    mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
+                ).abs()
+            else -> Evaluator.evaluate(text, degrees, mapOf("ans" to ans, "x" to xValue))
         }
     } catch (e: Exception) {
         ans
@@ -366,6 +381,12 @@ fun CalculatorScreen(
             aiText = "No camera is available on this device."
             scope.launch { drawerState.open() }
         }
+    }
+
+    fun swapOperands() {
+        val t = expr.text
+        val swapped = ExpressionEdit.swapOperands(t)
+        if (swapped != t) expr = TextFieldValue(swapped, TextRange(swapped.length))
     }
 
     /** Asks the assistant and shows the answer in the side drawer. */
@@ -563,6 +584,29 @@ fun CalculatorScreen(
                 }
             }
 
+            // When the expression uses x, a small field sets its value.
+            if (ExpressionEdit.usesVariable(text)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("x =", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.width(10.dp))
+                    OutlinedTextField(
+                        value = xText,
+                        onValueChange = { xText = it },
+                        singleLine = true,
+                        modifier = Modifier.width(140.dp),
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        "used wherever x appears",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
             // The magic button sits on the left, above the yellow rows and the
             // Clear key, so it is within reach of the thumb.
             Row(
@@ -662,7 +706,10 @@ fun CalculatorScreen(
                                     "=" -> {
                                         val shown = try {
                                             if (ComplexEvaluator.hasImaginary(text)) {
-                                                val r = ComplexEvaluator.evaluate(text, degrees, mapOf("ans" to Complex(ans, 0.0)))
+                                                val r = ComplexEvaluator.evaluate(
+                                                text, degrees,
+                                                mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
+                                            )
                                                 if (r.isReal(1e-10)) {
                                                     ans = r.re
                                                     Format.number(r.re)
@@ -670,7 +717,7 @@ fun CalculatorScreen(
                                                     Complex.text(r)
                                                 }
                                             } else {
-                                                val value = Evaluator.evaluate(text, degrees, mapOf("ans" to ans))
+                                                val value = Evaluator.evaluate(text, degrees, mapOf("ans" to ans, "x" to xValue))
                                                 ans = value
                                                 Format.number(value)
                                             }
@@ -685,6 +732,8 @@ fun CalculatorScreen(
                                     }
                                     "00" -> insert("00")
                                     "ans" -> insert("ans")
+                                    "x" -> insert("x")
+                                    "swap" -> swapOperands()
                                     "neg" -> {
                                         val t = expr.text
                                         expr = if (t.startsWith("-")) {
