@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">होम स्क्रीन पर एक मानक कैलकुलेटर — ठोस, धुँधले या पूरी तरह पारदर्शी रूप में।</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_standard">मानक</string>
+    <string name="tab_scientific">वैज्ञानिक</string>
+    <string name="tab_convert">रूपांतरण</string>
+    <string name="tab_formulas">सूत्र</string>
+    <string name="tab_ask_ai">AI से पूछें</string>
+    <string name="tab_settings">सेटिंग</string>
+    <string name="tab_standard_a11y">मानक टैब</string>
+    <string name="tab_scientific_a11y">वैज्ञानिक टैब</string>
+    <string name="tab_convert_a11y">रूपांतरण टैब</string>
+    <string name="tab_formulas_a11y">सूत्र टैब</string>
+    <string name="tab_ask_ai_a11y">AI से पूछें टैब</string>
+    <string name="tab_settings_a11y">सेटिंग टैब</string>
+
+    <!-- Calculator screen -->
+    <string name="history">इतिहास</string>
+    <string name="history_a11y">गणना का इतिहास</string>
+    <string name="degrees_mode">अंश</string>
+    <string name="radians_mode">रेडियन</string>
+    <string name="degrees_a11y">अंश मोड, रेडियन के लिए टैप करें</string>
+    <string name="radians_a11y">रेडियन मोड, अंश के लिए टैप करें</string>
+    <string name="speak">बोलें</string>
+    <string name="speak_a11y">गणना बोलें</string>
+    <string name="photo">फ़ोटो</string>
+    <string name="photo_a11y">गणना की फ़ोटो लें</string>
+    <string name="reading">पढ़ रहा है…</string>
+    <string name="ask_ai_about_this">इसके बारे में AI से पूछें</string>
+    <string name="explain_with_ai">AI से समझाएँ</string>
+    <string name="explain_with_ai_a11y">AI से समझाएँ</string>
+    <string name="x_value_used">जहाँ भी x आए वहाँ यह मान लगेगा</string>
+    <string name="x_equals">x =</string>
+    <string name="show_more_functions">और फ़ंक्शन दिखाएँ</string>
+    <string name="show_fewer_functions">कम फ़ंक्शन दिखाएँ</string>
+    <string name="calc_a11y">गणना, %1$s</string>
+    <string name="calc_empty">खाली</string>
+    <string name="result_a11y">परिणाम %1$s</string>
+    <string name="ai_explain">AI व्याख्या</string>
+    <string name="thinking">सोच रहा है…</string>
+    <string name="assistant_answer_a11y">सहायक का उत्तर %1$s</string>
+
+    <!-- Ask AI -->
+    <string name="your_question">आपका सवाल</string>
+    <string name="clear_the_question_a11y">सवाल खाली करें</string>
+    <string name="attach_something">कुछ संलग्न करें</string>
+    <string name="file">फ़ाइल</string>
+    <string name="attach_help">फ़ोटो अभी तस्वीर लेता है। फ़ाइल आपकी गैलरी, संगीत या दस्तावेज़ खोलता है — चित्र, ऑडियो क्लिप और .txt/.md/.csv फ़ाइलें समर्थित हैं।</string>
+    <string name="attach_read">संलग्न फ़ाइल पढ़ी जा रही है…</string>
+    <string name="remove">हटाएँ</string>
+    <string name="attached">संलग्न: %1$s</string>
+    <string name="answer">उत्तर</string>
+    <string name="copy">कॉपी</string>
+    <string name="share">साझा करें</string>
+    <string name="clear">साफ़ करें</string>
+    <string name="working_it_out">हल किया जा रहा है…</string>
+    <string name="ask_anything">कुछ भी पूछें, या फ़ोटो, चित्र, ऑडियो क्लिप या टेक्स्ट फ़ाइल संलग्न करें।</string>
+    <string name="ai_off">AI से पूछें बंद है। इसे सेटिंग → AI सहायक में वापस चालू करें।</string>
+    <string name="context_label">संदर्भ: %1$s</string>
+
+    <!-- Formulas hub -->
+    <string name="calculators">कैलकुलेटर</string>
+    <string name="tools">औज़ार</string>
+    <string name="search_hint">सूत्र या कैलकुलेटर खोजें</string>
+
+    <!-- Settings sections -->
+    <string name="section_appearance">रूप-रंग</string>
+    <string name="section_general">सामान्य</string>
+    <string name="section_ai">AI सहायक</string>
+    <string name="section_updates">अपडेट</string>
+    <string name="section_diagnostics">डायग्नोस्टिक्स</string>
+    <string name="section_reset">रीसेट</string>
+    <string name="section_feedback">फ़ीडबैक</string>
+    <string name="settings_title">सेटिंग</string>
+    <string name="back">वापस</string>
+
+    <!-- Settings rows -->
+    <string name="language">भाषा</string>
+    <string name="notifications">सूचनाएँ</string>
+    <string name="live_preview">तुरंत परिणाम झलक</string>
+    <string name="degrees_default">डिफ़ॉल्ट रूप से अंश</string>
+    <string name="number_format">संख्या प्रारूप</string>
+    <string name="decimal_places">दशमलव स्थान</string>
+    <string name="measuring_units">माप इकाइयाँ</string>
+    <string name="calculation_history">गणना इतिहास</string>
+    <string name="haptic_feedback">स्पर्श कंपन</string>
+    <string name="fractions_in_results">परिणाम में भिन्न</string>
+    <string name="keep_screen_on">स्क्रीन चालू रखें</string>
+    <string name="save_state">बंद करने पर स्थिति सहेजें</string>
+    <string name="keypad_layout">कीपैड लेआउट</string>
+    <string name="theme_label">थीम</string>
+    <string name="home_screen_widget">होम स्क्रीन विजेट</string>
+    <string name="home_screen_widget_help">होम स्क्रीन पर खाली जगह दबाकर रखें, विजेट चुनें, फिर Nexus Calc। जोड़ते समय आप ठोस, धुँधला या पूरी तरह पारदर्शी बैकग्राउंड चुन सकते हैं।</string>
+    <string name="lang_system">सिस्टम</string>
+    <string name="lang_en">English</string>
+    <string name="lang_hi">हिन्दी</string>
+    <string name="metric">मीट्रिक</string>
+    <string name="imperial">इम्पीरियल</string>
+    <string name="auto">स्वतः</string>
+</resources>

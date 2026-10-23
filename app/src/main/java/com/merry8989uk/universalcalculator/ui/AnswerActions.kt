@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import androidx.compose.ui.unit.dp
 
 /**
@@ -30,7 +32,7 @@ fun AnswerActions(
     fun copy() {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
         clipboard?.setPrimaryClip(ClipData.newPlainText("Nexus Calc answer", text))
-        Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.copy), Toast.LENGTH_SHORT).show()
     }
 
     fun share() {
@@ -45,10 +47,10 @@ fun AnswerActions(
         modifier = modifier.padding(top = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        OutlinedButton(onClick = { copy() }) { Text("Copy") }
-        OutlinedButton(onClick = { share() }) { Text("Share") }
+        OutlinedButton(onClick = { copy() }) { Text(stringResource(R.string.copy)) }
+        OutlinedButton(onClick = { share() }) { Text(stringResource(R.string.share)) }
         if (onClear != null) {
-            OutlinedButton(onClick = onClear) { Text("Clear") }
+            OutlinedButton(onClick = onClear) { Text(stringResource(R.string.clear)) }
         }
     }
 }

@@ -3,6 +3,7 @@ package com.merry8989uk.universalcalculator.settings
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.merry8989uk.universalcalculator.locale.LocaleHelper
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
@@ -82,8 +83,11 @@ class SettingsRepository(private val context: Context) {
     suspend fun setDensity(value: Float) =
         context.dataStore.edit { it[Keys.DENSITY] = value }
 
-    suspend fun setLanguage(language: String) =
+    suspend fun setLanguage(language: String) {
+        // Kept in SharedPreferences too: the activity reads it synchronously.
+        LocaleHelper.store(context, language)
         context.dataStore.edit { it[Keys.LANGUAGE] = language }
+    }
 
     suspend fun setNotifications(enabled: Boolean) =
         context.dataStore.edit { it[Keys.NOTIFICATIONS] = enabled }

@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -42,8 +44,9 @@ fun MagicButton(
     size: Dp = 46.dp,
     glyph: String = "\u2726",
     /** What a screen reader says. The glyph on its own means nothing. */
-    spoken: String = "explain with AI",
+    spoken: String? = null,
 ) {
+    val description = spoken ?: stringResource(R.string.explain_with_ai_a11y)
     val transition = rememberInfiniteTransition(label = "magic")
     val glow by transition.animateFloat(
         initialValue = 0.25f,
@@ -59,7 +62,7 @@ fun MagicButton(
             .border(1.5.dp, Color.White.copy(alpha = glow), CircleShape)
             .clickable(onClick = onClick)
             .semantics {
-                contentDescription = spoken
+                contentDescription = description
                 role = Role.Button
             },
         contentAlignment = Alignment.Center,

@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,6 +51,14 @@ import com.merry8989uk.universalcalculator.updater.UpdateViewModel
 private val THEME_NAMES = com.merry8989uk.universalcalculator.ui.theme.AppTheme.labels
 
 private val LANGUAGES = listOf("system", "en", "hi")
+
+/** Friendly names for the language chips. */
+@Composable
+private fun languageName(code: String): String = when (code) {
+    "en" -> stringResource(R.string.lang_en)
+    "hi" -> stringResource(R.string.lang_hi)
+    else -> stringResource(R.string.lang_system)
+}
 
 /**
  * Rich, fully-wired Settings screen. Every control writes through the view
@@ -76,8 +86,8 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+                title = { Text(stringResource(R.string.settings_title)) },
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
             )
         },
     ) { padding ->
@@ -89,7 +99,7 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Section("Appearance")
+            Section(stringResource(R.string.section_appearance))
 
             Text("Theme")
             SingleChoiceSegmentedButtonRow {
@@ -133,23 +143,27 @@ fun SettingsScreen(
                 valueRange = 0.80f..1.20f,
             )
 
-            Section("General")
+            Section(stringResource(R.string.section_general))
 
-            Text("Language")
+            Text(stringResource(R.string.language))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 LANGUAGES.forEach { lang ->
                     FilterChip(
                         selected = state.language == lang,
-                        onClick = { vm.setLanguage(lang) },
-                        label = { Text(lang) },
+                        onClick = {
+                            vm.setLanguage(lang)
+                            // Reload so the new language takes effect at once.
+                            (context as? android.app.Activity)?.recreate()
+                        },
+                        label = { Text(languageName(lang)) },
                     )
                 }
             }
 
-            ToggleRow("Notifications", state.notificationsEnabled, vm::setNotifications)
-            ToggleRow("Live result preview", state.livePreview, vm::setLivePreview)
-            ToggleRow("Degrees by default", state.degreesMode, vm::setDegreesMode)
-            Text("Number format", style = MaterialTheme.typography.bodyMedium)
+            ToggleRow(stringResource(R.string.notifications), state.notificationsEnabled, vm::setNotifications)
+            ToggleRow(stringResource(R.string.live_preview), state.livePreview, vm::setLivePreview)
+            ToggleRow(stringResource(R.string.degrees_default), state.degreesMode, vm::setDegreesMode)
+            Text(stringResource(R.string.number_format), style = MaterialTheme.typography.bodyMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Indian", "International", "European", "None").forEach { fmt ->
                     FilterChip(
@@ -169,7 +183,7 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Text("Decimal places", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.decimal_places), style = MaterialTheme.typography.bodyMedium)
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -188,7 +202,7 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Text("Measuring units", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.measuring_units), style = MaterialTheme.typography.bodyMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Metric", "Imperial").forEach { sys ->
                     FilterChip(
@@ -204,13 +218,13 @@ fun SettingsScreen(
                 else "Converters open on metric units (kilometres, kilograms, litres).",
                 style = MaterialTheme.typography.bodySmall,
             )
-            ToggleRow("Calculation history", state.historyEnabled, vm::setHistoryEnabled)
-            ToggleRow("Haptic feedback", state.hapticsEnabled, vm::setHapticsEnabled)
-            ToggleRow("Fractions in results", state.fractionsEnabled, vm::setFractionsEnabled)
-            ToggleRow("Keep screen on", state.keepScreenOn, vm::setKeepScreenOn)
-            ToggleRow("Save state on exit", state.saveState, vm::setSaveState)
+            ToggleRow(stringResource(R.string.calculation_history), state.historyEnabled, vm::setHistoryEnabled)
+            ToggleRow(stringResource(R.string.haptic_feedback), state.hapticsEnabled, vm::setHapticsEnabled)
+            ToggleRow(stringResource(R.string.fractions_in_results), state.fractionsEnabled, vm::setFractionsEnabled)
+            ToggleRow(stringResource(R.string.keep_screen_on), state.keepScreenOn, vm::setKeepScreenOn)
+            ToggleRow(stringResource(R.string.save_state), state.saveState, vm::setSaveState)
 
-            Text("Keypad layout", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.keypad_layout), style = MaterialTheme.typography.bodyMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Modern", "Classic").forEach { style ->
                     FilterChip(
@@ -227,14 +241,14 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Text("Home screen widget", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.home_screen_widget), style = MaterialTheme.typography.bodyMedium)
             Text(
                 "Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. " +
                     "While adding it you can pick a solid, dimmed or fully transparent background.",
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Section("AI assistant")
+            Section(stringResource(R.string.section_ai))
 
             Text(
                 "Ask AI is built in and ready to use. The API key is fixed on the " +
@@ -243,7 +257,7 @@ fun SettingsScreen(
             )
             ToggleRow("Enable Ask AI", state.aiEnabled, vm::setAiEnabled)
 
-            Section("Updates")
+            Section(stringResource(R.string.section_updates))
 
             val updateState = updater.state
             Text("Current version ${BuildConfig.VERSION_NAME}")
@@ -282,12 +296,12 @@ fun SettingsScreen(
                 onEnabledChange = vm::setDiagnosticsEnabled,
             )
 
-            Section("Reset")
+            Section(stringResource(R.string.section_reset))
             OutlinedButton(onClick = vm::reset, modifier = Modifier.fillMaxWidth()) {
                 Text("Reset to defaults")
             }
 
-            Section("Feedback")
+            Section(stringResource(R.string.section_feedback))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -72,6 +72,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
 import com.merry8989uk.universalcalculator.calc.Format
@@ -449,7 +451,7 @@ fun CalculatorScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("\u2726", color = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(8.dp))
-                        Text("AI explain", style = MaterialTheme.typography.titleLarge)
+                        Text(stringResource(R.string.ai_explain), style = MaterialTheme.typography.titleLarge)
                     }
                     if (text.isNotBlank()) {
                         Text(text, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.titleMedium,
@@ -467,16 +469,17 @@ fun CalculatorScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             CircularProgressIndicator(modifier = Modifier.size(18.dp))
-                            Text("Thinking\u2026")
+                            Text(stringResource(R.string.thinking))
                         }
                         aiText.isNotBlank() -> {
+                            val answerSpoken = stringResource(R.string.assistant_answer_a11y, aiText)
                             SelectionContainer {
                                 Text(aiText, style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier
                                         .padding(top = 16.dp)
                                         .semantics {
                                             liveRegion = LiveRegionMode.Polite
-                                            contentDescription = "assistant answer $aiText"
+                                            contentDescription = answerSpoken
                                         })
                             }
                             AnswerActions(aiText, onClear = { aiText = "" })
@@ -499,18 +502,17 @@ fun CalculatorScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
+                val historySpoken = stringResource(R.string.history_a11y)
+                val angleSpoken = stringResource(if (degrees) R.string.degrees_a11y else R.string.radians_a11y)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(
                         onClick = { showHistory = true },
-                        modifier = Modifier.semantics { contentDescription = "calculation history" },
-                    ) { Text("History") }
+                        modifier = Modifier.semantics { contentDescription = historySpoken },
+                    ) { Text(stringResource(R.string.history)) }
                     TextButton(
                         onClick = { degrees = !degrees },
-                        modifier = Modifier.semantics {
-                            contentDescription = if (degrees)
-                                "degrees mode, tap for radians" else "radians mode, tap for degrees"
-                        },
-                    ) { Text(if (degrees) "DEG" else "RAD") }
+                        modifier = Modifier.semantics { contentDescription = angleSpoken },
+                    ) { Text(stringResource(if (degrees) R.string.degrees_mode else R.string.radians_mode)) }
                 }
             }
 
@@ -565,6 +567,11 @@ fun CalculatorScreen(
                         textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth())
                 }
 
+                val calcSpoken = stringResource(
+                    R.string.calc_a11y,
+                    text.ifBlank { stringResource(R.string.calc_empty) },
+                )
+
                 // The expression itself is editable: tap anywhere to move the
                 // caret, then edit, select or delete just that part.
                 BasicTextField(
@@ -580,7 +587,7 @@ fun CalculatorScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
-                        .semantics { contentDescription = "calculation, ${text.ifBlank { "empty" }}" },
+                        .semantics { contentDescription = calcSpoken },
                     decorationBox = { inner ->
                         Box(contentAlignment = Alignment.CenterEnd) {
                             if (text.isEmpty()) {
@@ -592,6 +599,13 @@ fun CalculatorScreen(
                         }
                     },
                 )
+
+                val resultSpoken = if (preview.isNotEmpty())
+                    stringResource(
+                        R.string.result_a11y,
+                        pretty(preview, settings.numberFormat, settings.decimals),
+                    )
+                else ""
 
                 if (settings.livePreview) {
                     val asFraction = if (settings.fractionsEnabled && preview.isNotEmpty()) {
@@ -607,9 +621,7 @@ fun CalculatorScreen(
                         textAlign = TextAlign.End,
                         modifier = Modifier.fillMaxWidth().semantics {
                             liveRegion = LiveRegionMode.Polite
-                            contentDescription = if (preview.isNotEmpty())
-                                "result ${pretty(preview, settings.numberFormat, settings.decimals)}"
-                            else ""
+                            contentDescription = resultSpoken
                         },
                     )
                 }
@@ -618,16 +630,18 @@ fun CalculatorScreen(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    val speakSpoken = stringResource(R.string.speak_a11y)
+                    val photoSpoken = stringResource(R.string.photo_a11y)
                     TextButton(
                         onClick = { startVoice() },
-                        modifier = Modifier.semantics { contentDescription = "speak a calculation" },
-                    ) { Text("\uD83C\uDFA4 Speak") }
+                        modifier = Modifier.semantics { contentDescription = speakSpoken },
+                    ) { Text("\uD83C\uDFA4 " + stringResource(R.string.speak)) }
                     TextButton(
                         onClick = { startPhoto() },
                         enabled = !photoBusy,
-                        modifier = Modifier.semantics { contentDescription = "photograph a calculation" },
+                        modifier = Modifier.semantics { contentDescription = photoSpoken },
                     ) {
-                        Text(if (photoBusy) "Reading\u2026" else "\uD83D\uDCF7 Photo")
+                        Text(if (photoBusy) stringResource(R.string.reading) else "\uD83D\uDCF7 " + stringResource(R.string.photo))
                     }
                     TextButton(
                         onClick = {
@@ -635,7 +649,7 @@ fun CalculatorScreen(
                             onAskAi(q)
                         },
                         enabled = text.isNotBlank(),
-                    ) { Text("Ask AI about this") }
+                    ) { Text(stringResource(R.string.ask_ai_about_this)) }
                 }
             }
 
@@ -645,7 +659,7 @@ fun CalculatorScreen(
                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("x =", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.x_equals), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.width(10.dp))
                     OutlinedTextField(
                         value = xText,
@@ -655,7 +669,7 @@ fun CalculatorScreen(
                     )
                     Spacer(Modifier.width(10.dp))
                     Text(
-                        "used wherever x appears",
+                        stringResource(R.string.x_value_used),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -672,7 +686,7 @@ fun CalculatorScreen(
                 MagicButton(onClick = { explainNow() })
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    "Explain with AI",
+                    stringResource(R.string.explain_with_ai),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -704,7 +718,7 @@ fun CalculatorScreen(
                         modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 56.dp),
                         classic = classic,
                         haptic = settings.hapticsEnabled,
-                        spoken = if (showMore) "show fewer functions" else "show more functions",
+                        spoken = stringResource(if (showMore) R.string.show_fewer_functions else R.string.show_more_functions),
                         onPress = { showMore = !showMore },
                     )
                 }

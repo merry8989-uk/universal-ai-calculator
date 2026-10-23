@@ -33,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -124,7 +126,7 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
     } else emptyList()
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Calculators", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.calculators), style = MaterialTheme.typography.titleLarge)
         Text(
             "${FormulaLibrary.formulas.size} built-in calculators + ${TOOLS.size} tools",
             style = MaterialTheme.typography.bodySmall,
@@ -133,7 +135,7 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            label = { Text("Search calculators") },
+            label = { Text(stringResource(R.string.search_hint)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
@@ -145,7 +147,7 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
             FilterChip(
                 selected = category == "Tools",
                 onClick = { category = "Tools" },
-                label = { Text("Tools") },
+                label = { Text(stringResource(R.string.tools)) },
             )
             FormulaLibrary.categories.forEach { c ->
                 FilterChip(

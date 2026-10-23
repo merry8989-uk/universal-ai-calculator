@@ -41,10 +41,19 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.settings.SettingsScreen
 import com.merry8989uk.universalcalculator.settings.SettingsState
 
-private val TABS = listOf("Standard", "Scientific", "Convert", "Formulas", "Ask AI", "Settings")
+private val TAB_LABELS = listOf(
+    R.string.tab_standard, R.string.tab_scientific, R.string.tab_convert,
+    R.string.tab_formulas, R.string.tab_ask_ai, R.string.tab_settings,
+)
+private val TAB_A11Y = listOf(
+    R.string.tab_standard_a11y, R.string.tab_scientific_a11y, R.string.tab_convert_a11y,
+    R.string.tab_formulas_a11y, R.string.tab_ask_ai_a11y, R.string.tab_settings_a11y,
+)
 private val TAB_GLYPHS = listOf("=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699")
 
 /** Two tabs on each side of the assistant button, so it sits dead centre. */
@@ -73,6 +82,9 @@ private val SCIENTIFIC_KEYS = listOf(
  */
 @Composable
 fun AppRoot(settings: SettingsState) {
+    val labels = TAB_LABELS.map { stringResource(it) }
+    val a11y = TAB_A11Y.map { stringResource(it) }
+
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var aiContext by rememberSaveable { mutableStateOf("") }
     var aiAsk by rememberSaveable { mutableStateOf("") }
@@ -124,7 +136,7 @@ fun AppRoot(settings: SettingsState) {
                 Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
 
                 LEFT_TABS.forEach { i ->
-                    NavItem(i, tab, TAB_GLYPHS[i], TABS[i], TAB_WEIGHT) { selectTab(i) }
+                    NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                 }
 
                 // The assistant: centred, because the row is balanced either side.
@@ -132,7 +144,7 @@ fun AppRoot(settings: SettingsState) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.clearAndSetSemantics {
-                            contentDescription = "Ask AI tab"
+                            contentDescription = a11y[AI_TAB]
                             role = Role.Tab
                             selected = tab == AI_TAB
                         },
@@ -140,7 +152,7 @@ fun AppRoot(settings: SettingsState) {
                         MagicButton(onClick = { selectTab(AI_TAB) }, size = 56.dp)
                         Spacer(Modifier.width(2.dp))
                         Text(
-                            "Ask AI",
+                            labels[AI_TAB],
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
@@ -149,7 +161,7 @@ fun AppRoot(settings: SettingsState) {
                 }
 
                 RIGHT_TABS.forEach { i ->
-                    NavItem(i, tab, TAB_GLYPHS[i], TABS[i], TAB_WEIGHT) { selectTab(i) }
+                    NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                 }
 
                 // Settings is a gear at the end of the bar.
@@ -165,7 +177,7 @@ fun AppRoot(settings: SettingsState) {
                             else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            TABS[SETTINGS_TAB],
+                            labels[SETTINGS_TAB],
                             style = MaterialTheme.typography.labelSmall,
                             color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -179,7 +191,7 @@ fun AppRoot(settings: SettingsState) {
                             .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(14.dp))
                             .clickable { selectTab(SETTINGS_TAB) }
                             .clearAndSetSemantics {
-                                contentDescription = "Settings tab"
+                                contentDescription = a11y[SETTINGS_TAB]
                                 role = Role.Tab
                                 this.selected = tab == SETTINGS_TAB
                             },
@@ -233,6 +245,7 @@ private fun RowScope.NavItem(
     selectedTab: Int,
     glyph: String,
     label: String,
+    spoken: String,
     weight: Float,
     onClick: () -> Unit,
 ) {
@@ -253,7 +266,7 @@ private fun RowScope.NavItem(
             .padding(vertical = 6.dp)
             // Only the name is read out, never the glyph.
             .clearAndSetSemantics {
-                contentDescription = "$label tab"
+                contentDescription = spoken
                 role = Role.Tab
                 this.selected = selected
             },

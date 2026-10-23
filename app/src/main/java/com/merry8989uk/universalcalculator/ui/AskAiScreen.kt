@@ -33,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.merry8989uk.universalcalculator.R
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -156,11 +158,11 @@ fun AskAiScreen(
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
     ) {
-        Text("Ask AI", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.tab_ask_ai), style = MaterialTheme.typography.titleLarge)
 
         if (!enabled) {
             Text(
-                "Ask AI is turned off. Turn it back on in Settings \u2192 AI assistant.",
+                stringResource(R.string.ai_off),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 12.dp),
@@ -169,7 +171,7 @@ fun AskAiScreen(
         }
 
         Text(
-            "Ask anything, or attach a photo, an image, an audio clip or a text file.",
+            stringResource(R.string.ask_anything),
             style = MaterialTheme.typography.bodySmall,
         )
 
@@ -179,25 +181,26 @@ fun AskAiScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    "Context: $contextText",
+                    stringResource(R.string.context_label, contextText),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onClearContext) { Text("Clear") }
+                TextButton(onClick = onClearContext) { Text(stringResource(R.string.clear)) }
             }
         }
 
         OutlinedTextField(
             value = question,
             onValueChange = { question = it },
-            label = { Text("Your question") },
+            label = { Text(stringResource(R.string.your_question)) },
             // A tap on the cross empties the question box.
             trailingIcon = {
                 if (question.isNotEmpty()) {
+                    val clearSpoken = stringResource(R.string.clear_the_question_a11y)
                     IconButton(
                         onClick = { question = "" },
-                        modifier = Modifier.semantics { contentDescription = "clear the question" },
+                        modifier = Modifier.semantics { contentDescription = clearSpoken },
                     ) {
                         Text("\u2715", style = MaterialTheme.typography.titleMedium)
                     }
@@ -208,7 +211,7 @@ fun AskAiScreen(
 
         // ---- attach ----
         Text(
-            "Attach something",
+            stringResource(R.string.attach_something),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 14.dp),
         )
@@ -219,15 +222,14 @@ fun AskAiScreen(
             OutlinedButton(
                 onClick = { camera.launch(null) },
                 enabled = !attachBusy && !loading,
-            ) { Text("\uD83D\uDCF7 Photo") }
+            ) { Text("\uD83D\uDCF7 " + stringResource(R.string.photo)) }
             OutlinedButton(
                 onClick = { filePicker.launch(arrayOf("image/*", "audio/*", "text/*", "application/json")) },
                 enabled = !attachBusy && !loading,
-            ) { Text("\uD83D\uDCCE File") }
+            ) { Text("\uD83D\uDCCE " + stringResource(R.string.file)) }
         }
         Text(
-            "Photo takes a picture now. File opens your gallery, music or documents \u2014 " +
-                "images, audio clips and .txt/.md/.csv files are supported.",
+            stringResource(R.string.attach_help),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
         )
@@ -239,7 +241,7 @@ fun AskAiScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 CircularProgressIndicator(modifier = Modifier.size(18.dp))
-                Text("Reading the attachment\u2026")
+                Text(stringResource(R.string.attach_read))
             }
         }
         if (attachError.isNotBlank()) {
@@ -257,12 +259,12 @@ fun AskAiScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Attached: $attachLabel",
+                    stringResource(R.string.attached, attachLabel),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = { attachText = ""; attachLabel = "" }) { Text("Remove") }
+                TextButton(onClick = { attachText = ""; attachLabel = "" }) { Text(stringResource(R.string.remove)) }
             }
         }
 
@@ -272,7 +274,7 @@ fun AskAiScreen(
             modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
         ) {
             Text(
-                if (loading) "Thinking\u2026" else "Ask AI",
+                if (loading) stringResource(R.string.thinking) else stringResource(R.string.tab_ask_ai),
                 color = Color.White,
                 style = MaterialTheme.typography.titleMedium,
             )
@@ -285,21 +287,22 @@ fun AskAiScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 CircularProgressIndicator(modifier = Modifier.size(18.dp))
-                Text("Working it out\u2026")
+                Text(stringResource(R.string.working_it_out))
             }
         }
 
         if (answer.isNotBlank()) {
-            Text("Answer", style = MaterialTheme.typography.titleMedium,
+            Text(stringResource(R.string.answer), style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 16.dp))
             // Selectable, so it can be copied by hand as well.
+            val answerSpoken = stringResource(R.string.assistant_answer_a11y, answer)
             SelectionContainer {
                 Text(answer, style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
                         .padding(top = 4.dp)
                         .semantics {
                             liveRegion = LiveRegionMode.Polite
-                            contentDescription = "assistant answer $answer"
+                            contentDescription = answerSpoken
                         })
             }
             AnswerActions(answer, onClear = { answer = "" })

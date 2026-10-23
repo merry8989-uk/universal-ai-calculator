@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
+import com.merry8989uk.universalcalculator.locale.LocaleHelper
 import com.merry8989uk.universalcalculator.settings.SettingsRepository
 import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.settings.ThemeMode
@@ -30,6 +31,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    /** Applies the chosen language before the first view is built. */
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
