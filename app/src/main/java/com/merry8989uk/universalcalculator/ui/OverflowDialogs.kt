@@ -99,7 +99,7 @@ fun AppInfoDialog(onClose: () -> Unit) {
                     UpdateUiState.Downloading -> Text(stringResource(R.string.checking_updates))
                     is UpdateUiState.Failed -> Text(stringResource(R.string.update_failed))
                     is UpdateUiState.Available -> Button(onClick = { updater.install(state.info) }) {
-                        Text(stringResource(R.string.update_available, state.info.version))
+                        Text(stringResource(R.string.update_available, state.info.latestVersion))
                     }
                     UpdateUiState.Idle -> Unit
                 }

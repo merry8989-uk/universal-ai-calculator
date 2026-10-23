@@ -512,6 +512,7 @@ fun CalculatorScreen(
             ) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 val historySpoken = stringResource(R.string.history_a11y)
+                val menuSpoken = stringResource(R.string.more_options)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(
                         onClick = { showHistory = true },
@@ -520,9 +521,7 @@ fun CalculatorScreen(
                     Box {
                         IconButton(
                             onClick = { menuOpen = true },
-                            modifier = Modifier.semantics {
-                                contentDescription = stringResource(R.string.more_options)
-                            },
+                            modifier = Modifier.semantics { contentDescription = menuSpoken },
                         ) {
                             Text("\u22EE", style = MaterialTheme.typography.headlineSmall)
                         }
