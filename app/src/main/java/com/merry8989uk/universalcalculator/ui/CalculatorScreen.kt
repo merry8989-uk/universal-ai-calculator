@@ -361,7 +361,9 @@ fun CalculatorScreen(
                 if (settings.aiEnabled) {
                     onAskAiNow(
                         "I photographed a calculation and the text read from the photo is: " +
-                            "${r.expression}. Work it out in a few lines and give the final answer.",
+                            "${r.expression}" +
+                            (if (r.lowConfidence) " (read with low confidence)" else "") +
+                            ". Work it out in a few lines and give the final answer.",
                     )
                 } else {
                     aiText = "Read from the photo: ${r.expression}"

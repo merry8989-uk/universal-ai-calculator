@@ -45,7 +45,9 @@ const OCR_SYSTEM = [
   "Reply with ONLY a calculator expression made of digits and the characters",
   "+ - * / ^ ( ) % . and the names sqrt, cbrt, sin, cos, tan, ln, log, pi, e.",
   "Use * for multiplication and ^ for powers.",
-  "Read the digits carefully. Do not guess: if a character is unclear, leave it out.",
+  "Read the digits carefully, one at a time.",
+  "Never add a digit that is not clearly in the image. Do not complete a sum.",
+  "If a character is unclear, leave it out rather than guessing.",
   "If there is an equals sign, return only the part BEFORE it, never what follows.",
   "Ignore any question mark, box, tick or handwriting that is not a digit or operator.",
   "If you cannot read any arithmetic, reply with exactly: NONE",
@@ -158,16 +160,9 @@ function imageShapes(model, b64) {
     ];
   }
 
-  // llava-style: a flat object, and this one wants the image as raw bytes
-  let bytes;
-  try {
-    bytes = b64ToBytes(b64);
-  } catch (e) {
-    bytes = [];
-  }
+  // llava-style: a flat object with the image as a base64 string
   return [
-    { agree: false, body: { image: bytes, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
-    { agree: false, body: { image: url, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
+    { agree: false, body: { image: b64, prompt: `${OCR_SYSTEM} ${ask}`, max_tokens: 256 } },
   ];
 }
 
@@ -233,30 +228,50 @@ export default {
         const asked = typeof body?.model === "string" ? body.model : "";
         const models = VISION_ALLOWED.includes(asked) ? [asked] : VISION_MODELS;
 
+        // The vision model is not deterministic: the same photo can come back
+        // as "1250+3750" or "1250+37505000". So it is asked up to three times
+        // and the answer that appears most often wins.
         const problems = [];
         for (const model of models) {
+          const votes = new Map();
           let agreed = false;
+
           for (const shape of imageShapes(model, image)) {
-            try {
-              // Meta's vision model needs the licence accepted once per account.
-              if (shape.agree && !agreed) {
-                try {
-                  await env.AI.run(model, { prompt: "agree" });
-                } catch (e) {
-                  problems.push(`${model} agree: ${e}`);
+            for (let attempt = 0; attempt < 3; attempt++) {
+              try {
+                if (shape.agree && !agreed) {
+                  // Meta's vision model needs the licence accepted once.
+                  try {
+                    await env.AI.run(model, { prompt: "agree" });
+                  } catch (e) {
+                    problems.push(`${model} agree: ${e}`);
+                  }
+                  agreed = true;
                 }
-                agreed = true;
+                const out = await env.AI.run(model, shape.body);
+                const expression = tidyExpression(extractText(out));
+                if (!expression || expression.toUpperCase() === "NONE") break;
+                votes.set(expression, (votes.get(expression) || 0) + 1);
+                // two matching reads are enough
+                if (votes.get(expression) >= 2) {
+                  return json({ expression, model, reads: attempt + 1 });
+                }
+              } catch (e) {
+                problems.push(`${model}: ${e}`);
+                break;
               }
-              const out = await env.AI.run(model, shape.body);
-              const expression = tidyExpression(extractText(out));
-              if (expression && expression.toUpperCase() !== "NONE") {
-                return json({ expression, model });
-              }
-              problems.push(`${model}: nothing readable`);
-              break;
-            } catch (e) {
-              problems.push(`${model}: ${e}`);
             }
+            if (votes.size) break;
+          }
+
+          if (votes.size) {
+            // no two reads matched: give back the most common one, flagged
+            let best = "";
+            let bestCount = 0;
+            for (const [expr, count] of votes) {
+              if (count > bestCount) { best = expr; bestCount = count; }
+            }
+            return json({ expression: best, model, confidence: "low", reads: votes.size });
           }
         }
         return json(

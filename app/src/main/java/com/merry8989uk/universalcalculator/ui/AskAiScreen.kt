@@ -117,7 +117,12 @@ fun AskAiScreen(
             val r = AiClient.solveImage(bytes)
             handleRead(
                 if (r.expression != null) {
-                    Attachments.Read("image", "photo", "The photo shows this calculation: ${r.expression}")
+                    Attachments.Read(
+                        "image",
+                        if (r.lowConfidence) "photo (please check)" else "photo",
+                        "The photo shows this calculation: ${r.expression}" +
+                            if (r.lowConfidence) " (read with low confidence, please check it)" else "",
+                    )
                 } else {
                     Attachments.Read("image", "photo", "", r.error ?: "Could not read the photo.")
                 },

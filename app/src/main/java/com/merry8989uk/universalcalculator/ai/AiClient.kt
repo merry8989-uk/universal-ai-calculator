@@ -18,7 +18,12 @@ object AiClient {
     private const val ENDPOINT = "https://nexus-calc-ai.br19shc39.workers.dev"
 
     /** Either the expression read from a photo, or why it could not be read. */
-    data class PhotoResult(val expression: String? = null, val error: String? = null)
+    data class PhotoResult(
+        val expression: String? = null,
+        val error: String? = null,
+        /** True when the reads disagreed, so the text may be wrong. */
+        val lowConfidence: Boolean = false,
+    )
 
     /**
      * Sends a JPEG photo of some arithmetic and returns the expression read from
@@ -47,8 +52,9 @@ object AiClient {
             if (code in 200..299) {
                 val expr = json?.optString("expression")?.takeIf { it.isNotBlank() }
                 if (expr != null) {
-                    DiagnosticsLogger.log("AI", "Photo read as: $expr")
-                    PhotoResult(expression = expr)
+                    val low = json?.optString("confidence") == "low"
+                    DiagnosticsLogger.log("AI", "Photo read as: $expr (low=$low)")
+                    PhotoResult(expression = expr, lowConfidence = low)
                 } else {
                     PhotoResult(error = "Could not read maths in that photo.")
                 }
