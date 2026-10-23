@@ -1,0 +1,36 @@
+name: Worker check
+
+# Diagnoses the live AI Worker from a GitHub runner, which can reach the
+# internet. Run it from the Actions tab. Nothing is written back to the repo.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Text question
+        run: |
+          echo "--- text question ---"
+          curl -sS --max-time 60 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" -d '{"question":"What is 2+2? Answer on one line."}' | head -c 1500
+          echo
+
+      - name: Photo with 2+2 on it
+        run: |
+          echo "--- photo ---"
+          printf '{"image":"%s"}' "$(cat tools/worker_check/photo.b64)" > /tmp/body.json
+          curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/body.json | head -c 4000
+          echo
+
+      - name: Audio clip
+        run: |
+          echo "--- audio ---"
+          printf '{"audio":"%s"}' "$(cat tools/worker_check/audio.b64)" > /tmp/abody.json
+          curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/abody.json | head -c 4000
+          echo
