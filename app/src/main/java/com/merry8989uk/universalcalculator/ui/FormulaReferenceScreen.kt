@@ -47,7 +47,7 @@ fun FormulaReferenceScreen(onBack: () -> Unit) {
             TextButton(onClick = onBack) { Text("\u2190 Back") }
         }
         Text(
-            "${all.size} identities, rules and tables from the maths handbooks.",
+            "${all.size} formulas \u2014 identities, rules and tables, including the numbered formulas read from the maths handbooks.",
             style = MaterialTheme.typography.bodySmall,
         )
 

@@ -50,8 +50,8 @@ class Plot3DTest {
 
     @Test fun surfaceHandlesBadPoints() {
         val g = Plot3D.sampleSurface("x+y", -1.0, 1.0, -1.0, 1.0, 2)
-        assertEquals(4, g.size)
-        assertTrue(g.all { it.size == 4 })
+        assertEquals(3, g.size)                     // steps + 1
+        assertTrue(g.all { it.size == 3 })
         // sqrt of a negative x is not a number, and must not throw
         val bad = Plot3D.sampleSurface("sqrt(x)", -1.0, 1.0, -1.0, 1.0, 2)
         assertTrue(bad.any { row -> row.any { it.isNaN() } })

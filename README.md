@@ -34,9 +34,12 @@ Engineering, Construction and Math.
   number, quarter, day-of-year, add/subtract days, Unix timestamps.
 - **Fractions in results** — 0.75 is also shown as 3/4
 - **Haptic feedback**, keep screen on, save state, Modern/Classic keypad layout
-- **Formula reference** — 419 identities, rules and tables across 12 topics, searchable
+- **Formula reference** — 1509 formulas across 12 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
+- **Voice input** and a **photo solver** (reads arithmetic from a picture)
+- **3-D surface** and **parametric** graphing
+- **Complex numbers on the main keypad** — the `i` key works, and 2pi / 3(4+5) are accepted
 - **Symbolic algebra** — simplify, differentiate, integrate, factor and solve polynomials
 - **ANOVA** and **chi-square** tests, **QR decomposition**
 - **Distributions & tests** — normal/t/binomial/Poisson, t-tests, confidence intervals
