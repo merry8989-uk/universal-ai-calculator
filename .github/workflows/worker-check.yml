@@ -28,6 +28,15 @@ jobs:
           curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/body.json | head -c 4000
           echo
 
+      - name: Compare vision models
+        run: |
+          for M in "@cf/meta/llama-3.2-11b-vision-instruct" "@cf/meta/llama-3.2-90b-vision-instruct" "@cf/llava-hf/llava-1.5-7b-hf" "@cf/qwen/qwen2.5-vl-7b-instruct" "@cf/google/gemma-3-12b-it" "@cf/mistralai/mistral-small-3.1-24b-instruct"; do
+            echo "=== $M ==="
+            printf '{"image":"%s","model":"%s"}' "$(cat tools/worker_check/photo.b64)" "$M" > /tmp/m.json
+            curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/m.json | head -c 700
+            echo
+          done
+
       - name: Audio clip
         run: |
           echo "--- audio ---"

@@ -29,7 +29,19 @@ const WHISPER_MODELS = [
 // several are listed.
 const VISION_MODELS = [
   "@cf/meta/llama-3.2-11b-vision-instruct",
+  "@cf/meta/llama-3.2-90b-vision-instruct",
   "@cf/llava-hf/llava-1.5-7b-hf",
+];
+
+// A caller may name one of these to compare readers. Anything outside the list
+// is ignored, so the endpoint cannot be used as a general model proxy.
+const VISION_ALLOWED = [
+  "@cf/meta/llama-3.2-11b-vision-instruct",
+  "@cf/meta/llama-3.2-90b-vision-instruct",
+  "@cf/llava-hf/llava-1.5-7b-hf",
+  "@cf/qwen/qwen2.5-vl-7b-instruct",
+  "@cf/google/gemma-3-12b-it",
+  "@cf/mistralai/mistral-small-3.1-24b-instruct",
 ];
 
 // The photo prompt: we want a bare calculator expression back, nothing else.
@@ -217,8 +229,11 @@ export default {
         if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
         if (image.length > 8_000_000) return json({ error: "That photo is too large." }, 413);
 
+        const asked = typeof body?.model === "string" ? body.model : "";
+        const models = VISION_ALLOWED.includes(asked) ? [asked] : VISION_MODELS;
+
         const problems = [];
-        for (const model of VISION_MODELS) {
+        for (const model of models) {
           let agreed = false;
           for (const shape of imageShapes(model, image)) {
             try {
