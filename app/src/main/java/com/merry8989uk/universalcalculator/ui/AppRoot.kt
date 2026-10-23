@@ -34,6 +34,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.settings.SettingsScreen
@@ -124,7 +129,14 @@ fun AppRoot(settings: SettingsState) {
 
                 // The assistant: centred, because the row is balanced either side.
                 Box(modifier = Modifier.weight(AI_WEIGHT), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clearAndSetSemantics {
+                            contentDescription = "Ask AI tab"
+                            role = Role.Tab
+                            selected = tab == AI_TAB
+                        },
+                    ) {
                         MagicButton(onClick = { selectTab(AI_TAB) }, size = 56.dp)
                         Spacer(Modifier.width(2.dp))
                         Text(
@@ -165,7 +177,12 @@ fun AppRoot(settings: SettingsState) {
                             .matchParentSize()
                             .clip(RoundedCornerShape(14.dp))
                             .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(14.dp))
-                            .clickable { selectTab(SETTINGS_TAB) },
+                            .clickable { selectTab(SETTINGS_TAB) }
+                            .clearAndSetSemantics {
+                                contentDescription = "Settings tab"
+                                role = Role.Tab
+                                selected = tab == SETTINGS_TAB
+                            },
                     )
                 }
             }
@@ -233,7 +250,13 @@ private fun RowScope.NavItem(
             )
             .border(1.dp, Color.White.copy(alpha = 0.14f), shape)
             .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
+            .padding(vertical = 6.dp)
+            // Only the name is read out, never the glyph.
+            .clearAndSetSemantics {
+                contentDescription = "$label tab"
+                role = Role.Tab
+                selected = selected
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(glyph, style = MaterialTheme.typography.titleMedium, color = tint)

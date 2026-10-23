@@ -1,0 +1,88 @@
+package com.merry8989uk.universalcalculator.ui
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+/**
+ * Screen-reader labels. The important test is the first one: it walks the real
+ * keypad, so a key added later cannot ship without a spoken label.
+ */
+class SpokenTest {
+
+    @Test fun everyKeypadKeyHasASpokenLabel() {
+        val keys = PAD.flatten() + SCI_ROW_A + SCI_ROW_B
+        assertTrue("the keypad lists are empty, the test is not looking at anything", keys.size > 30)
+
+        val missing = keys.filterNot { Spoken.isSpoken(it) }
+        assertTrue(
+            "these keypad keys have no spoken label, so a screen reader would read " +
+                "the glyph or nothing at all: $missing",
+            missing.isEmpty(),
+        )
+    }
+
+    @Test fun theMemoryKeysHaveLabels() {
+        for (key in listOf("MC", "M+", "M\u2212", "MR")) {
+            assertTrue("$key has no spoken label", Spoken.isSpoken(key))
+        }
+    }
+
+    @Test fun operatorsAreSpelledOut() {
+        assertEquals("multiply", Spoken.key("*"))
+        assertEquals("divide", Spoken.key("/"))
+        assertEquals("minus", Spoken.key("-"))
+        assertEquals("plus", Spoken.key("+"))
+        assertEquals("percent", Spoken.key("%"))
+        assertEquals("equals", Spoken.key("="))
+        assertEquals("to the power of", Spoken.key("^"))
+    }
+
+    @Test fun glyphKeysAreSpelledOut() {
+        assertEquals("delete", Spoken.key("del"))
+        assertEquals("plus or minus", Spoken.key("neg"))
+        assertEquals("square root", Spoken.key("sqrt"))
+        assertEquals("cube root", Spoken.key("cbrt"))
+        assertEquals("x squared", Spoken.key("x^2"))
+        assertEquals("one over x", Spoken.key("1/x"))
+        assertEquals("factorial", Spoken.key("!"))
+        assertEquals("open bracket", Spoken.key("("))
+        assertEquals("close bracket", Spoken.key(")"))
+    }
+
+    @Test fun wordsNotLettersForFunctions() {
+        assertEquals("sine", Spoken.key("sin"))
+        assertEquals("cosine", Spoken.key("cos"))
+        assertEquals("tangent", Spoken.key("tan"))
+        assertEquals("natural logarithm", Spoken.key("ln"))
+        assertEquals("logarithm base ten", Spoken.key("log"))
+        assertEquals("combinations", Spoken.key("nCr"))
+        assertEquals("permutations", Spoken.key("nPr"))
+        assertEquals("imaginary unit", Spoken.key("i"))
+        assertEquals("previous answer", Spoken.key("ans"))
+        assertEquals("double zero", Spoken.key("00"))
+    }
+
+    @Test fun digitsSayThemselves() {
+        for (d in '0'..'9') {
+            assertEquals(d.toString(), Spoken.key(d.toString()))
+            assertTrue(Spoken.isSpoken(d.toString()))
+        }
+    }
+
+    @Test fun anUnknownKeyFallsBackToItself() {
+        assertEquals("somethingNew", Spoken.key("somethingNew"))
+    }
+
+    @Test fun noLabelIsBlankOrAGlyph() {
+        val glyphs = listOf("\u232B", "\u00B1", "\u221A", "\u221B", "\u00D7", "\u00F7", "\u2212", "\u03C0")
+        for (key in PAD.flatten() + SCI_ROW_A + SCI_ROW_B) {
+            val spoken = Spoken.key(key)
+            assertTrue("'$key' produced a blank label", spoken.isNotBlank())
+            assertTrue(
+                "'$key' was read as the glyph '$spoken' instead of a word",
+                glyphs.none { spoken == it },
+            )
+        }
+    }
+}

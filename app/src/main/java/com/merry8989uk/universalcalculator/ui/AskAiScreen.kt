@@ -33,6 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
@@ -191,7 +195,10 @@ fun AskAiScreen(
             // A tap on the cross empties the question box.
             trailingIcon = {
                 if (question.isNotEmpty()) {
-                    IconButton(onClick = { question = "" }) {
+                    IconButton(
+                        onClick = { question = "" },
+                        modifier = Modifier.semantics { contentDescription = "clear the question" },
+                    ) {
                         Text("\u2715", style = MaterialTheme.typography.titleMedium)
                     }
                 }
@@ -288,7 +295,12 @@ fun AskAiScreen(
             // Selectable, so it can be copied by hand as well.
             SelectionContainer {
                 Text(answer, style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 4.dp))
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .semantics {
+                            liveRegion = LiveRegionMode.Polite
+                            contentDescription = "assistant answer $answer"
+                        })
             }
             AnswerActions(answer, onClear = { answer = "" })
         }

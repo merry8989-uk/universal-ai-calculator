@@ -51,6 +51,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -89,7 +95,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-private val PAD = listOf(
+internal val PAD = listOf(
     listOf("C", "del", "%", "/", "^"),
     listOf("7", "8", "9", "*", "("),
     listOf("4", "5", "6", "-", ")"),
@@ -98,9 +104,9 @@ private val PAD = listOf(
 )
 
 /** First scientific row — always visible. */
-private val SCI_ROW_A = listOf("sin", "cos", "tan", "ln", "log", "sqrt", "x^2", "x^y", "pi", "e", "!")
+internal val SCI_ROW_A = listOf("sin", "cos", "tan", "ln", "log", "sqrt", "x^2", "x^y", "pi", "e", "!")
 /** Second scientific row — revealed by the one "more / less" button. */
-private val SCI_ROW_B = listOf(
+internal val SCI_ROW_B = listOf(
     "asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs",
     "nCr", "nPr", "round", "deg", "i", "x", "swap",
 )
@@ -153,6 +159,8 @@ private fun KeyButton(
     modifier: Modifier = Modifier,
     classic: Boolean = false,
     haptic: Boolean = false,
+    /** What a screen reader says. Falls back to the label. */
+    spoken: String = "",
     onPress: () -> Unit,
     onHold: (() -> Unit)? = null,
 ) {
@@ -193,7 +201,11 @@ private fun KeyButton(
                 if (classic) SolidColor(colors.last()) else Brush.linearGradient(colors),
             )
             .border(if (classic) 0.dp else 1.dp, Color.White.copy(alpha = 0.14f), shape)
-            .then(pressModifier),
+            .then(pressModifier)
+            .semantics {
+                contentDescription = spoken.ifBlank { label }
+                role = Role.Button
+            },
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -460,7 +472,12 @@ fun CalculatorScreen(
                         aiText.isNotBlank() -> {
                             SelectionContainer {
                                 Text(aiText, style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(top = 16.dp))
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .semantics {
+                                            liveRegion = LiveRegionMode.Polite
+                                            contentDescription = "assistant answer $aiText"
+                                        })
                             }
                             AnswerActions(aiText, onClear = { aiText = "" })
                         }
@@ -483,8 +500,17 @@ fun CalculatorScreen(
             ) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { showHistory = true }) { Text("History") }
-                    TextButton(onClick = { degrees = !degrees }) { Text(if (degrees) "DEG" else "RAD") }
+                    TextButton(
+                        onClick = { showHistory = true },
+                        modifier = Modifier.semantics { contentDescription = "calculation history" },
+                    ) { Text("History") }
+                    TextButton(
+                        onClick = { degrees = !degrees },
+                        modifier = Modifier.semantics {
+                            contentDescription = if (degrees)
+                                "degrees mode, tap for radians" else "radians mode, tap for degrees"
+                        },
+                    ) { Text(if (degrees) "DEG" else "RAD") }
                 }
             }
 
@@ -493,10 +519,22 @@ fun CalculatorScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                FilledTonalButton(onClick = { memory = 0.0 }, modifier = Modifier.weight(1f)) { Text("MC") }
-                FilledTonalButton(onClick = { memory += currentValue() }, modifier = Modifier.weight(1f)) { Text("M+") }
-                FilledTonalButton(onClick = { memory -= currentValue() }, modifier = Modifier.weight(1f)) { Text("M\u2212") }
-                FilledTonalButton(onClick = { insert(Format.number(memory)) }, modifier = Modifier.weight(1f)) { Text("MR") }
+                FilledTonalButton(
+                    onClick = { memory = 0.0 },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory clear" },
+                ) { Text("MC") }
+                FilledTonalButton(
+                    onClick = { memory += currentValue() },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory add" },
+                ) { Text("M+") }
+                FilledTonalButton(
+                    onClick = { memory -= currentValue() },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory subtract" },
+                ) { Text("M\u2212") }
+                FilledTonalButton(
+                    onClick = { insert(Format.number(memory)) },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory recall" },
+                ) { Text("MR") }
             }
             if (memory != 0.0) {
                 Text("M = ${Format.number(memory)}", style = MaterialTheme.typography.bodySmall,
@@ -539,7 +577,10 @@ fun CalculatorScreen(
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .semantics { contentDescription = "calculation, ${text.ifBlank { "empty" }}" },
                     decorationBox = { inner ->
                         Box(contentAlignment = Alignment.CenterEnd) {
                             if (text.isEmpty()) {
@@ -564,7 +605,12 @@ fun CalculatorScreen(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.End,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().semantics {
+                            liveRegion = LiveRegionMode.Polite
+                            contentDescription = if (preview.isNotEmpty())
+                                "result ${pretty(preview, settings.numberFormat, settings.decimals)}"
+                            else ""
+                        },
                     )
                 }
                 Row(
@@ -572,8 +618,15 @@ fun CalculatorScreen(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextButton(onClick = { startVoice() }) { Text("\uD83C\uDFA4 Speak") }
-                    TextButton(onClick = { startPhoto() }, enabled = !photoBusy) {
+                    TextButton(
+                        onClick = { startVoice() },
+                        modifier = Modifier.semantics { contentDescription = "speak a calculation" },
+                    ) { Text("\uD83C\uDFA4 Speak") }
+                    TextButton(
+                        onClick = { startPhoto() },
+                        enabled = !photoBusy,
+                        modifier = Modifier.semantics { contentDescription = "photograph a calculation" },
+                    ) {
                         Text(if (photoBusy) "Reading\u2026" else "\uD83D\uDCF7 Photo")
                     }
                     TextButton(
@@ -639,6 +692,7 @@ fun CalculatorScreen(
                             modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 64.dp),
                             classic = classic,
                             haptic = settings.hapticsEnabled,
+                            spoken = Spoken.key(k),
                             onPress = { insert(insertFor(k)) },
                         )
                     }
@@ -650,6 +704,7 @@ fun CalculatorScreen(
                         modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 56.dp),
                         classic = classic,
                         haptic = settings.hapticsEnabled,
+                        spoken = if (showMore) "show fewer functions" else "show more functions",
                         onPress = { showMore = !showMore },
                     )
                 }
@@ -667,6 +722,7 @@ fun CalculatorScreen(
                                 modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 64.dp),
                                 classic = classic,
                                 haptic = settings.hapticsEnabled,
+                                spoken = Spoken.key(k),
                                 onPress = { insert(insertFor(k)) },
                             )
                         }
@@ -701,6 +757,7 @@ fun CalculatorScreen(
                             modifier = Modifier.weight(1f).height(56.dp),
                             classic = classic,
                             haptic = settings.hapticsEnabled,
+                            spoken = Spoken.key(key),
                             onPress = {
                                 when (key) {
                                     "C" -> expr = TextFieldValue("")
