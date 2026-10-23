@@ -2,6 +2,7 @@ package com.merry8989uk.universalcalculator.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -18,49 +19,107 @@ val Emerald = Color(0xFF10B981)
 val Cyan = Color(0xFF06B6D4)
 val Orange = Color(0xFFF97316)
 
-private val LightColors = lightColorScheme(
-    primary = Violet,
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFE6DFFF),
-    onPrimaryContainer = Color(0xFF1D0A66),
-    secondary = Teal,
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFCFF5EF),
-    onSecondaryContainer = Color(0xFF00382F),
-    tertiary = Amber,
-    onTertiary = Color(0xFF3A2600),
-    tertiaryContainer = Color(0xFFFFE7B8),
-    onTertiaryContainer = Color(0xFF3A2600),
+/** The four dynamic themes from the design blueprint. */
+enum class AppTheme(val label: String, val blurb: String) {
+    CYBERPUNK("Cyberpunk Neon", "Cyan + magenta on a deep midnight base"),
+    EMERALD("Emerald Mint", "Mint greens with a soft aqua glow"),
+    SUNSET("Sunset Crimson", "Crimson, orange and warm gold"),
+    MIDNIGHT("Midnight Gold", "Gold accents on a near-black canvas");
+
+    companion object {
+        val labels: List<String> = entries.map { it.label }
+        fun byLabel(label: String?): AppTheme =
+            entries.firstOrNull { it.label.equals(label, ignoreCase = true) } ?: CYBERPUNK
+    }
+}
+
+private fun darkScheme(
+    primary: Color,
+    secondary: Color,
+    tertiary: Color,
+    background: Color,
+    surface: Color,
+    surfaceVariant: Color,
+): ColorScheme = darkColorScheme(
+    primary = primary,
+    onPrimary = Color(0xFF0A0C14),
+    primaryContainer = primary.copy(alpha = 0.22f),
+    onPrimaryContainer = primary,
+    secondary = secondary,
+    onSecondary = Color(0xFF0A0C14),
+    secondaryContainer = secondary.copy(alpha = 0.22f),
+    onSecondaryContainer = secondary,
+    tertiary = tertiary,
+    onTertiary = Color(0xFF0A0C14),
+    tertiaryContainer = tertiary.copy(alpha = 0.22f),
+    onTertiaryContainer = tertiary,
     error = Coral,
-    background = Color(0xFFF6F5FC),
-    onBackground = Color(0xFF1A1B22),
+    background = background,
+    onBackground = Color(0xFFE7E9F2),
+    surface = surface,
+    onSurface = Color(0xFFE7E9F2),
+    surfaceVariant = surfaceVariant,
+    onSurfaceVariant = Color(0xFFB6BACA),
+)
+
+private fun lightScheme(
+    primary: Color,
+    secondary: Color,
+    tertiary: Color,
+    background: Color,
+): ColorScheme = lightColorScheme(
+    primary = primary,
+    onPrimary = Color.White,
+    primaryContainer = primary.copy(alpha = 0.16f),
+    onPrimaryContainer = Color(0xFF14161F),
+    secondary = secondary,
+    onSecondary = Color.White,
+    secondaryContainer = secondary.copy(alpha = 0.16f),
+    onSecondaryContainer = Color(0xFF14161F),
+    tertiary = tertiary,
+    onTertiary = Color(0xFF14161F),
+    tertiaryContainer = tertiary.copy(alpha = 0.20f),
+    onTertiaryContainer = Color(0xFF14161F),
+    error = Coral,
+    background = background,
+    onBackground = Color(0xFF14161F),
     surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF1A1B22),
+    onSurface = Color(0xFF14161F),
     surfaceVariant = Color(0xFFEDEBF8),
     onSurfaceVariant = Color(0xFF4A4B57),
 )
 
-private val DarkColors = darkColorScheme(
-    primary = Color(0xFFB9A7FF),
-    onPrimary = Color(0xFF24126E),
-    primaryContainer = Color(0xFF3A2A8F),
-    onPrimaryContainer = Color(0xFFE6DFFF),
-    secondary = Color(0xFF5EEAD4),
-    onSecondary = Color(0xFF00382F),
-    secondaryContainer = Color(0xFF0F5F55),
-    onSecondaryContainer = Color(0xFFCFF5EF),
-    tertiary = Color(0xFFFCD34D),
-    onTertiary = Color(0xFF3A2600),
-    tertiaryContainer = Color(0xFF6B4E12),
-    onTertiaryContainer = Color(0xFFFFE7B8),
-    error = Color(0xFFFF8A80),
-    background = Color(0xFF0D0E15),
-    onBackground = Color(0xFFE7E8F0),
-    surface = Color(0xFF161824),
-    onSurface = Color(0xFFE7E8F0),
-    surfaceVariant = Color(0xFF232636),
-    onSurfaceVariant = Color(0xFFB6B8C8),
-)
+/** Returns the colour scheme for a theme in dark or light mode. */
+fun schemeFor(theme: AppTheme, dark: Boolean): ColorScheme = when (theme) {
+    AppTheme.CYBERPUNK -> if (dark) darkScheme(
+        primary = Color(0xFF00E5FF), secondary = Color(0xFFFF2E97), tertiary = Color(0xFFB14EFF),
+        background = Color(0xFF0A0C14), surface = Color(0xFF12141F), surfaceVariant = Color(0xFF1D2030),
+    ) else lightScheme(
+        primary = Color(0xFF0088A3), secondary = Color(0xFFC2007A), tertiary = Color(0xFF7B2CBF),
+        background = Color(0xFFF3F7FA),
+    )
+    AppTheme.EMERALD -> if (dark) darkScheme(
+        primary = Color(0xFF34D399), secondary = Color(0xFF2DD4BF), tertiary = Color(0xFFA7F3D0),
+        background = Color(0xFF06110D), surface = Color(0xFF0C1A15), surfaceVariant = Color(0xFF15271F),
+    ) else lightScheme(
+        primary = Color(0xFF0F8A5F), secondary = Color(0xFF0D9488), tertiary = Color(0xFF7CB342),
+        background = Color(0xFFF1FAF6),
+    )
+    AppTheme.SUNSET -> if (dark) darkScheme(
+        primary = Color(0xFFFF4D6D), secondary = Color(0xFFFF8A3D), tertiary = Color(0xFFFFD166),
+        background = Color(0xFF140A0C), surface = Color(0xFF1F1014), surfaceVariant = Color(0xFF2C1820),
+    ) else lightScheme(
+        primary = Color(0xFFD63355), secondary = Color(0xFFE06A15), tertiary = Color(0xFFB8860B),
+        background = Color(0xFFFDF4F2),
+    )
+    AppTheme.MIDNIGHT -> if (dark) darkScheme(
+        primary = Color(0xFFF5C542), secondary = Color(0xFFC9A227), tertiary = Color(0xFFE8D9A0),
+        background = Color(0xFF0A0A0C), surface = Color(0xFF15140F), surfaceVariant = Color(0xFF23211A),
+    ) else lightScheme(
+        primary = Color(0xFFB8860B), secondary = Color(0xFF8A6D1F), tertiary = Color(0xFF6B5A12),
+        background = Color(0xFFFAF8F2),
+    )
+}
 
 /** One accent colour per calculator category, so the hub reads at a glance. */
 object CategoryColors {
@@ -78,18 +137,14 @@ object CategoryColors {
 }
 
 /**
- * Theme wrapper driven by the stored theme mode and accent colour, so the
- * Settings screen actually changes the appearance.
+ * Theme wrapper driven by the stored colour theme and light/dark mode, so the
+ * Settings screen changes the whole appearance immediately.
  */
 @Composable
 fun UniversalCalculatorTheme(
+    theme: AppTheme = AppTheme.CYBERPUNK,
     darkTheme: Boolean = isSystemInDarkTheme(),
-    accent: Color? = null,
     content: @Composable () -> Unit,
 ) {
-    val scheme = if (darkTheme) DarkColors else LightColors
-    MaterialTheme(
-        colorScheme = if (accent != null) scheme.copy(primary = accent) else scheme,
-        content = content,
-    )
+    MaterialTheme(colorScheme = schemeFor(theme, darkTheme), content = content)
 }

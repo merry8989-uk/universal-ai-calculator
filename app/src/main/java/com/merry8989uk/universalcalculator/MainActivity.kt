@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.Density
@@ -25,6 +24,7 @@ import com.merry8989uk.universalcalculator.settings.SettingsRepository
 import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.settings.ThemeMode
 import com.merry8989uk.universalcalculator.ui.AppRoot
+import com.merry8989uk.universalcalculator.ui.theme.AppTheme
 import com.merry8989uk.universalcalculator.ui.theme.UniversalCalculatorTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -73,7 +73,7 @@ private fun App() {
     val base = LocalDensity.current
     val scaled = Density(base.density * state.density, base.fontScale * state.textScale)
 
-    UniversalCalculatorTheme(darkTheme = dark, accent = Color(state.accentColor)) {
+    UniversalCalculatorTheme(theme = AppTheme.byLabel(state.themeName), darkTheme = dark) {
         CompositionLocalProvider(LocalDensity provides scaled) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

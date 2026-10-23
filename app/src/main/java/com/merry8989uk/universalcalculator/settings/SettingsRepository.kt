@@ -22,7 +22,7 @@ class SettingsRepository(private val context: Context) {
 
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
-        val ACCENT_COLOR = longPreferencesKey("accent_color")
+        val THEME_NAME = stringPreferencesKey("theme_name")
         val TEXT_SCALE = floatPreferencesKey("text_scale")
         val DENSITY = floatPreferencesKey("density")
         val LANGUAGE = stringPreferencesKey("language")
@@ -41,7 +41,7 @@ class SettingsRepository(private val context: Context) {
             themeMode = p[Keys.THEME_MODE]
                 ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                 ?: ThemeMode.SYSTEM,
-            accentColor = p[Keys.ACCENT_COLOR] ?: 0xFF6C4CF1,
+            themeName = p[Keys.THEME_NAME] ?: "Cyberpunk Neon",
             textScale = p[Keys.TEXT_SCALE] ?: 1.0f,
             density = p[Keys.DENSITY] ?: 1.0f,
             language = p[Keys.LANGUAGE] ?: "system",
@@ -59,8 +59,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun setThemeMode(mode: ThemeMode) =
         context.dataStore.edit { it[Keys.THEME_MODE] = mode.name }
 
-    suspend fun setAccentColor(color: Long) =
-        context.dataStore.edit { it[Keys.ACCENT_COLOR] = color }
+    suspend fun setThemeName(name: String) =
+        context.dataStore.edit { it[Keys.THEME_NAME] = name }
 
     suspend fun setTextScale(scale: Float) =
         context.dataStore.edit { it[Keys.TEXT_SCALE] = scale }

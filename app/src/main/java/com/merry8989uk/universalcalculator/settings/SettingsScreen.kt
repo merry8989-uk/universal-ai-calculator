@@ -44,14 +44,7 @@ import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsSection
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
 
-private val ACCENTS = listOf(
-    "Violet" to 0xFF6C4CF1,
-    "Blue" to 0xFF3B82F6,
-    "Teal" to 0xFF14B8A6,
-    "Green" to 0xFF10B981,
-    "Amber" to 0xFFF59E0B,
-    "Pink" to 0xFFEC4899,
-)
+private val THEME_NAMES = com.merry8989uk.universalcalculator.ui.theme.AppTheme.labels
 
 private val LANGUAGES = listOf("system", "en", "hi")
 
@@ -102,16 +95,20 @@ fun SettingsScreen(
                 }
             }
 
-            Text("Accent colour")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ACCENTS.forEach { (name, argb) ->
+            Text("Colour theme")
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                THEME_NAMES.forEach { name ->
                     FilterChip(
-                        selected = state.accentColor == argb,
-                        onClick = { vm.setAccentColor(argb) },
+                        selected = state.themeName == name,
+                        onClick = { vm.setThemeName(name) },
                         label = { Text(name) },
                     )
                 }
             }
+            Text(
+                com.merry8989uk.universalcalculator.ui.theme.AppTheme.byLabel(state.themeName).blurb,
+                style = MaterialTheme.typography.bodySmall,
+            )
 
             Text("Text size (${"%.2f".format(state.textScale)}x)")
             Slider(

@@ -48,8 +48,8 @@ Engineering, Construction and Math.
   per-feature toggles including Enable Ask AI.
 - **In-app updates** — checks GitHub Releases and installs a new signed APK
   without leaving the app.
-- **Colourful UI** — gradient colour-coded keypad, vivid category accents and a
-  glassy display panel.
+- **4 dynamic themes** — Cyberpunk Neon, Emerald Mint, Sunset Crimson and
+  Midnight Gold, switchable live, with a gradient colour-coded keypad.
 - **Diagnostics** — log collection on by default, with a **real-time log box** in
   Settings showing every line as it is written (all on-device), plus share /
   export (.txt, .json, .md, .zip) and clear.
