@@ -147,4 +147,106 @@ object Matrix {
             throw Evaluator.EvalException("Matrices must be the same size")
         }
     }
+    // ================= eigenvalues =================
+
+    /** Eigenvalues of a square matrix (real ones exact, complex handled too). */
+    fun eigenvalues(a: Array<DoubleArray>): List<Complex> {
+        requireSquare(a)
+        val n = rows(a)
+        return when (n) {
+            0 -> throw Evaluator.EvalException("Matrix is empty")
+            1 -> listOf(Complex.of(a[0][0]))
+            2 -> {
+                val tr = a[0][0] + a[1][1]
+                val det = a[0][0] * a[1][1] - a[0][1] * a[1][0]
+                val disc = tr * tr - 4.0 * det
+                if (disc >= 0) {
+                    val r = kotlin.math.sqrt(disc)
+                    listOf(Complex.of((tr + r) / 2.0), Complex.of((tr - r) / 2.0))
+                } else {
+                    val r = kotlin.math.sqrt(-disc)
+                    listOf(Complex(tr / 2.0, r / 2.0), Complex(tr / 2.0, -r / 2.0))
+                }
+            }
+            else -> polyRoots(characteristicPolynomial(a))
+        }
+    }
+
+    /** Coefficients of lambda^n + c1 lambda^(n-1) + ... + cn (Leverrier-Faddeev). */
+    fun characteristicPolynomial(a: Array<DoubleArray>): DoubleArray {
+        requireSquare(a)
+        val n = rows(a)
+        var b = identity(n)
+        val coeffs = DoubleArray(n + 1)
+        coeffs[0] = 1.0
+        for (k in 1..n) {
+            val ab = mul(a, b)
+            val ck = -trace(ab) / k
+            coeffs[k] = ck
+            b = add(ab, scalar(identity(n), ck))
+        }
+        return coeffs
+    }
+
+    /** Durand-Kerner roots of a polynomial given highest power first. */
+    fun polyRoots(coeffs: DoubleArray): List<Complex> {
+        val lead = coeffs.firstOrNull() ?: 0.0
+        if (lead == 0.0) throw Evaluator.EvalException("Leading coefficient must not be zero")
+        val c = coeffs.map { it / lead }
+        val n = c.size - 1
+        if (n < 1) return emptyList()
+        fun evalAt(z: Complex): Complex {
+            var acc = Complex.of(c[0])
+            for (i in 1..n) acc = acc.times(z).plus(Complex.of(c[i]))
+            return acc
+        }
+        val roots = MutableList(n) { Complex.of(0.4, 0.9).pow(it + 1) }
+        repeat(2000) {
+            var moved = 0.0
+            for (i in 0 until n) {
+                var denom = Complex.of(1.0)
+                for (j in 0 until n) if (j != i) denom = denom.times(roots[i].minus(roots[j]))
+                if (denom.abs() < 1e-300) continue
+                val delta = evalAt(roots[i]).div(denom)
+                roots[i] = roots[i].minus(delta)
+                moved = maxOf(moved, delta.abs())
+            }
+            if (moved < 1e-13) return roots.sortedBy { it.re }
+        }
+        return roots.sortedBy { it.re }
+    }
+
+    // ================= LU =================
+
+    /** L, U and P with P*A = L*U (Doolittle, partial pivoting). */
+    fun lu(a: Array<DoubleArray>): Triple<Array<DoubleArray>, Array<DoubleArray>, Array<DoubleArray>> {
+        requireSquare(a)
+        val n = rows(a)
+        val u = Array(n) { a[it].copyOf() }
+        val l = identity(n)
+        val p = identity(n)
+        for (col in 0 until n) {
+            var pivot = col
+            for (r in col + 1 until n) if (kotlin.math.abs(u[r][col]) > kotlin.math.abs(u[pivot][col])) pivot = r
+            if (kotlin.math.abs(u[pivot][col]) < 1e-14) throw Evaluator.EvalException("Matrix is singular")
+            if (pivot != col) {
+                val tmp = u[col]; u[col] = u[pivot]; u[pivot] = tmp
+                val tmpP = p[col]; p[col] = p[pivot]; p[pivot] = tmpP
+                for (k in 0 until col) { val t = l[col][k]; l[col][k] = l[pivot][k]; l[pivot][k] = t }
+            }
+            for (r in col + 1 until n) {
+                val f = u[r][col] / u[col][col]
+                l[r][col] = f
+                for (k in col until n) u[r][k] -= f * u[col][k]
+            }
+        }
+        return Triple(l, u, p)
+    }
+
+    private fun requireSquare(a: Array<DoubleArray>) {
+        if (a.isEmpty()) throw Evaluator.EvalException("Matrix is empty")
+        val n = a[0].size
+        if (a.any { it.size != n }) throw Evaluator.EvalException("Matrix must be square")
+    }
+
 }
