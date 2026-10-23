@@ -52,6 +52,9 @@ private data class Tool(val id: String, val title: String, val subtitle: String)
 
 private val TOOLS = listOf(
     Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
+    Tool("distributions", "Distributions & tests", "Normal/t/binomial/Poisson, t-tests and confidence intervals."),
+    Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),
+    Tool("rpn", "RPN (stack) calculator", "Reverse-Polish entry: push numbers, then apply operations."),
     Tool("matrix", "Matrix calculator", "Add, subtract, multiply, transpose, determinant and inverse."),
     Tool("calculus", "Calculus", "Numerical derivative, second derivative, integral and summation."),
     Tool("graph", "Graphing", "Plot y = f(x) on a live canvas."),
@@ -69,6 +72,9 @@ fun FormulasScreen() {
     when {
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
         tool == "statistics" -> StatisticsScreen { tool = "" }
+        tool == "distributions" -> DistributionsScreen { tool = "" }
+        tool == "complex" -> ComplexScreen { tool = "" }
+        tool == "rpn" -> RpnScreen { tool = "" }
         tool == "matrix" -> MatrixScreen { tool = "" }
         tool == "calculus" -> CalculusScreen { tool = "" }
         tool == "graph" -> GraphScreen { tool = "" }

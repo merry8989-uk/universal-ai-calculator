@@ -34,6 +34,9 @@ Engineering, Construction and Math.
   number, quarter, day-of-year, add/subtract days, Unix timestamps.
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
+- **Distributions & tests** — normal/t/binomial/Poisson, t-tests, confidence intervals
+- **Complex numbers** — full arithmetic, polar form and roots
+- **RPN (stack) calculator** — reverse-Polish entry
 - **Matrix calculator** — add, subtract, multiply, transpose, determinant,
   trace and inverse.
 - **Calculus** — numerical derivative, second derivative, definite integral

@@ -23,6 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.merry8989uk.universalcalculator.calc.Complex
+import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Matrix
 
 @Composable
@@ -80,6 +82,34 @@ fun MatrixScreen(onBack: () -> Unit) {
                 }
             }) { Text("Inverse") }
             Button(onClick = { run { "A\u1D40 =\n" + Matrix.format(Matrix.transpose(Matrix.parse(aText))) } }) { Text("Transpose") }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Button(onClick = {
+                run {
+                    val e = Matrix.eigenvalues(Matrix.parse(aText))
+                    "Eigenvalues:\n" + e.joinToString("\n") { "\u03BB = " + Complex.text(it) }
+                }
+            }) { Text("Eigenvalues") }
+            Button(onClick = {
+                run {
+                    val (l, u, _) = Matrix.lu(Matrix.parse(aText))
+                    "L =\n" + Matrix.format(l) + "\nU =\n" + Matrix.format(u)
+                }
+            }) { Text("LU") }
+            Button(onClick = {
+                run {
+                    val c = Matrix.characteristicPolynomial(Matrix.parse(aText))
+                    "char poly: " + c.mapIndexed { i, v ->
+                        val p = c.size - 1 - i
+                        val sign = if (v < 0) " - " else if (i == 0) "" else " + "
+                        val mag = Format.number(kotlin.math.abs(v))
+                        sign + (if (p == 0) mag else if (p == 1) mag + "\u03BB" else mag + "\u03BB^" + p)
+                    }.joinToString("")
+                }
+            }) { Text("Char poly") }
         }
 
         Text(
