@@ -37,6 +37,13 @@ jobs:
             echo
           done
 
+      - name: Whole-page transcription (the PDF path)
+        run: |
+          echo "--- page, text mode ---"
+          printf '{"image":"%s","mode":"text"}' "$(cat tools/worker_check/page.b64)" > /tmp/p.json
+          curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/p.json | head -c 2000
+          echo
+
       - name: Audio clip
         run: |
           echo "--- audio ---"
