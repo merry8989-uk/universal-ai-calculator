@@ -83,7 +83,7 @@ class UnitsTest {
         assertEquals(3.7e10, conv("Radioactivity", 1.0, "Ci", "Bq"), 1.0)
         assertEquals(100.0, conv("Absorbed dose", 1.0, "Gy", "rad"), 1e-9)
         assertEquals(100.0, conv("Equivalent dose", 1.0, "Sv", "rem"), 1e-9)
-        assertEquals(5.0, conv("Equivalent dose", 50.0, "mSv", "mrem"), 1e-6)
+        assertEquals(5000.0, conv("Equivalent dose", 50.0, "mSv", "mrem"), 1e-6)
     }
 
     @Test fun levelsAndAngles() {
