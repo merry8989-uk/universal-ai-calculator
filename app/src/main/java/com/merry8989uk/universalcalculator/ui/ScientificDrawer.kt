@@ -130,7 +130,7 @@ fun ScientificDrawer(
                                 contentColor = Color(0xFF3A2600),
                                 modifier = Modifier.weight(1f).height(50.dp),
                                 classic = classic,
-                                spoken = Spoken.key(key),
+                                spoken = spokenKey(key),
                                 onPress = { onKey(key) },
                             )
                         }

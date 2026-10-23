@@ -600,21 +600,25 @@ fun CalculatorScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                val memClearSpoken = stringResource(R.string.key_memory_clear)
+                val memAddSpoken = stringResource(R.string.key_memory_add)
+                val memSubSpoken = stringResource(R.string.key_memory_subtract)
+                val memRecallSpoken = stringResource(R.string.key_memory_recall)
                 FilledTonalButton(
                     onClick = { memory = 0.0 },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory clear" },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = memClearSpoken },
                 ) { Text("MC") }
                 FilledTonalButton(
                     onClick = { memory += currentValue() },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory add" },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = memAddSpoken },
                 ) { Text("M+") }
                 FilledTonalButton(
                     onClick = { memory -= currentValue() },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory subtract" },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = memSubSpoken },
                 ) { Text("M\u2212") }
                 FilledTonalButton(
                     onClick = { insert(Format.number(memory)) },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = "memory recall" },
+                    modifier = Modifier.weight(1f).semantics { contentDescription = memRecallSpoken },
                 ) { Text("MR") }
             }
             if (memory != 0.0) {
@@ -861,7 +865,7 @@ fun CalculatorScreen(
                             modifier = Modifier.weight(1f).height(56.dp),
                             classic = classic,
                             haptic = settings.hapticsEnabled,
-                            spoken = Spoken.key(key),
+                            spoken = spokenKey(key),
                             onPress = {
                                 when (key) {
                                     "C" -> expr = TextFieldValue("")

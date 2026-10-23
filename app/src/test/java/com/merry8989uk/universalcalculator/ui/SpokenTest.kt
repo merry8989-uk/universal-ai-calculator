@@ -77,6 +77,42 @@ class SpokenTest {
         }
     }
 
+    // ---- the localised labels ----
+
+    @Test fun everySpokenWordHasATranslatableResource() {
+        val missing = Spoken.WORDS.keys.filterNot { it in Spoken.SPOKEN_RES }
+        assertTrue(
+            "these keys have an English label but no string resource, so TalkBack " +
+                "would fall back to English in Hindi: $missing",
+            missing.isEmpty(),
+        )
+    }
+
+    @Test fun theResourceMapHasNoStaleEntries() {
+        val extra = Spoken.SPOKEN_RES.keys.filterNot { it in Spoken.WORDS }
+        assertTrue(
+            "these resource ids are not keys any more: $extra",
+            extra.isEmpty(),
+        )
+    }
+
+    @Test fun theResourceMapCoversTheWholeKeypad() {
+        val keys = (PAD.flatten() + SCI_ROW_A + SCI_ROW_B + SCIENTIFIC_KEYS).distinct()
+        val missing = keys.filterNot { key ->
+            key in Spoken.SPOKEN_RES || key.all { it.isDigit() }
+        }
+        assertTrue("these keypad keys have no localised label: $missing", missing.isEmpty())
+    }
+
+    @Test fun theTwoMapsHaveTheSameSize() {
+        assertEquals(
+            "the English map and the resource map have drifted apart",
+            Spoken.WORDS.size,
+            Spoken.SPOKEN_RES.size,
+        )
+        assertTrue("the label maps look empty", Spoken.WORDS.size > 40)
+    }
+
     @Test fun anUnknownKeyFallsBackToItself() {
         assertEquals("somethingNew", Spoken.key("somethingNew"))
     }
