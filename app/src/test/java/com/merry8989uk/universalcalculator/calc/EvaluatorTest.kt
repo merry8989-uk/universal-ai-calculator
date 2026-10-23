@@ -53,6 +53,13 @@ class EvaluatorTest {
         assertEquals(5.0, ev("hypot(3, 4)"), 1e-9)
     }
 
+    @Test fun implicitMultiplication() {
+        assertEquals(2 * Math.PI, ev("2pi"), 1e-9)
+        assertEquals(3 * Math.E, ev("3e"), 1e-9)
+        assertEquals(27.0, ev("3(4+5)"), 1e-9)
+        assertEquals(6.0, ev("(2)(3)"), 1e-9)
+    }
+
     @Test fun constants() {
         assertEquals(Math.PI, ev("pi"), 1e-9)
         assertEquals(Math.E, ev("e"), 1e-9)

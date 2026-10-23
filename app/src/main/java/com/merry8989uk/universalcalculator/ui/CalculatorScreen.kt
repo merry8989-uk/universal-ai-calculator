@@ -61,6 +61,8 @@ import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.Format
+import com.merry8989uk.universalcalculator.calc.Complex
+import com.merry8989uk.universalcalculator.calc.ComplexEvaluator
 import com.merry8989uk.universalcalculator.calc.Fractions
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
@@ -88,7 +90,7 @@ private val PAD = listOf(
 /** First scientific row — always visible. */
 private val SCI_ROW_A = listOf("sin", "cos", "tan", "ln", "log", "sqrt", "x^2", "x^y", "pi", "e", "!")
 /** Second scientific row — revealed by the one "more / less" button. */
-private val SCI_ROW_B = listOf("asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs", "nCr", "nPr", "round", "deg")
+private val SCI_ROW_B = listOf("asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs", "nCr", "nPr", "round", "deg", "i")
 
 private val LABELS = mapOf(
     "del" to "\u232B", "/" to "\u00F7", "*" to "\u00D7", "-" to "\u2212",
@@ -120,6 +122,7 @@ private fun insertFor(key: String): String = when (key) {
     "nPr" -> "nPr("
     "round" -> "round("
     "deg" -> "\u00B0"
+    "i" -> "i"
     else -> key
 }
 
@@ -232,7 +235,12 @@ fun CalculatorScreen(
     val classic = settings.layoutStyle == "Classic"
 
     val preview: String = if (text.isBlank()) "" else try {
-        Format.number(Evaluator.evaluate(text, degrees, mapOf("ans" to ans)))
+        if (ComplexEvaluator.hasImaginary(text)) {
+            val r = ComplexEvaluator.evaluate(text, degrees, mapOf("ans" to Complex(ans, 0.0)))
+            if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
+        } else {
+            Format.number(Evaluator.evaluate(text, degrees, mapOf("ans" to ans)))
+        }
     } catch (e: Exception) {
         ""
     }
@@ -257,7 +265,12 @@ fun CalculatorScreen(
     }
 
     fun currentValue(): Double = try {
-        if (text.isBlank()) ans else Evaluator.evaluate(text, degrees, mapOf("ans" to ans))
+        when {
+            text.isBlank() -> ans
+            ComplexEvaluator.hasImaginary(text) ->
+                ComplexEvaluator.evaluate(text, degrees, mapOf("ans" to Complex(ans, 0.0))).abs()
+            else -> Evaluator.evaluate(text, degrees, mapOf("ans" to ans))
+        }
     } catch (e: Exception) {
         ans
     }
@@ -521,9 +534,19 @@ fun CalculatorScreen(
                                     "del" -> backspace()
                                     "=" -> {
                                         val shown = try {
-                                            val value = Evaluator.evaluate(text, degrees, mapOf("ans" to ans))
-                                            ans = value
-                                            Format.number(value)
+                                            if (ComplexEvaluator.hasImaginary(text)) {
+                                                val r = ComplexEvaluator.evaluate(text, degrees, mapOf("ans" to Complex(ans, 0.0)))
+                                                if (r.isReal(1e-10)) {
+                                                    ans = r.re
+                                                    Format.number(r.re)
+                                                } else {
+                                                    Complex.text(r)
+                                                }
+                                            } else {
+                                                val value = Evaluator.evaluate(text, degrees, mapOf("ans" to ans))
+                                                ans = value
+                                                Format.number(value)
+                                            }
                                         } catch (e: Exception) {
                                             "error"
                                         }

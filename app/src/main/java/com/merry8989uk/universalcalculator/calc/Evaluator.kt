@@ -112,7 +112,14 @@ object Evaluator {
                         if (r.value == 0.0) throw EvalException("Division by zero")
                         acc = Operand(acc.value / r.value, false)
                     }
-                    else -> return acc
+                    // Implicit multiplication: 2pi, 3(4+5), (2)(3)
+                    null -> return acc
+                    else -> {
+                        if (peek()!!.isLetter() || peek() == '(') {
+                            val r = parseUnary()
+                            acc = Operand(acc.value * r.value, false)
+                        } else return acc
+                    }
                 }
             }
         }
