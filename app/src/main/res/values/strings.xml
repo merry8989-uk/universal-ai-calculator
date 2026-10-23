@@ -145,4 +145,10 @@
     <string name="diag_logs_cleared">Logs cleared</string>
     <string name="diag_counters_reset">Counters reset</string>
     <string name="diag_anr">App not responding (ANR): %1$d</string>
+    <string name="theme_cyberpunk">Cyberpunk Neon</string>
+    <string name="theme_emerald">Emerald Mint</string>
+    <string name="theme_sunset">Sunset Crimson</string>
+    <string name="theme_midnight">Midnight Gold</string>
+    <string name="theme_dynamic">Material You</string>
+    <string name="theme_dynamic_note">Material You takes its colours from your wallpaper. It needs Android 12 or newer; older devices fall back to Cyberpunk Neon.</string>
 </resources>

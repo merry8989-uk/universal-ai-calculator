@@ -1,6 +1,10 @@
 package com.merry8989uk.universalcalculator.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
@@ -24,7 +28,8 @@ enum class AppTheme(val label: String, val blurb: String) {
     CYBERPUNK("Cyberpunk Neon", "Cyan + magenta on a deep midnight base"),
     EMERALD("Emerald Mint", "Mint greens with a soft aqua glow"),
     SUNSET("Sunset Crimson", "Crimson, orange and warm gold"),
-    MIDNIGHT("Midnight Gold", "Gold accents on a near-black canvas");
+    MIDNIGHT("Midnight Gold", "Gold accents on a near-black canvas"),
+    DYNAMIC("Material You", "Colours taken from your wallpaper (Android 12 and newer)");
 
     companion object {
         val labels: List<String> = entries.map { it.label }
@@ -146,5 +151,15 @@ fun UniversalCalculatorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    MaterialTheme(colorScheme = schemeFor(theme, darkTheme), content = content)
+    val scheme = if (theme == AppTheme.DYNAMIC && dynamicColoursAvailable()) {
+        val context = LocalContext.current
+        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else {
+        // Material You needs Android 12; older devices keep the Cyberpunk look.
+        schemeFor(if (theme == AppTheme.DYNAMIC) AppTheme.CYBERPUNK else theme, darkTheme)
+    }
+    MaterialTheme(colorScheme = scheme, content = content)
 }
+
+/** Wallpaper colours exist from Android 12 (API 31). */
+fun dynamicColoursAvailable(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

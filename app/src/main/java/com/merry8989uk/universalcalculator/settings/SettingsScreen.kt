@@ -49,7 +49,16 @@ import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
 
-private val THEME_NAMES = com.merry8989uk.universalcalculator.ui.theme.AppTheme.labels
+/** Display names, localised. The stored value stays the enum's own label. */
+@Composable
+private fun themeName(theme: com.merry8989uk.universalcalculator.ui.theme.AppTheme): String =
+    when (theme) {
+        com.merry8989uk.universalcalculator.ui.theme.AppTheme.CYBERPUNK -> stringResource(R.string.theme_cyberpunk)
+        com.merry8989uk.universalcalculator.ui.theme.AppTheme.EMERALD -> stringResource(R.string.theme_emerald)
+        com.merry8989uk.universalcalculator.ui.theme.AppTheme.SUNSET -> stringResource(R.string.theme_sunset)
+        com.merry8989uk.universalcalculator.ui.theme.AppTheme.MIDNIGHT -> stringResource(R.string.theme_midnight)
+        com.merry8989uk.universalcalculator.ui.theme.AppTheme.DYNAMIC -> stringResource(R.string.theme_dynamic)
+    }
 
 private val LANGUAGES = listOf("system", "en", "hi")
 
@@ -115,13 +124,13 @@ fun SettingsScreen(
                 }
             }
 
-            Text("Colour theme")
+            Text(stringResource(R.string.theme_label))
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                THEME_NAMES.forEach { name ->
+                com.merry8989uk.universalcalculator.ui.theme.AppTheme.entries.forEach { theme ->
                     FilterChip(
-                        selected = state.themeName == name,
-                        onClick = { vm.setThemeName(name) },
-                        label = { Text(name) },
+                        selected = state.themeName == theme.label,
+                        onClick = { vm.setThemeName(theme.label) },
+                        label = { Text(themeName(theme)) },
                     )
                 }
             }
@@ -129,6 +138,12 @@ fun SettingsScreen(
                 com.merry8989uk.universalcalculator.ui.theme.AppTheme.byLabel(state.themeName).blurb,
                 style = MaterialTheme.typography.bodySmall,
             )
+            if (state.themeName == com.merry8989uk.universalcalculator.ui.theme.AppTheme.DYNAMIC.label) {
+                Text(
+                    stringResource(R.string.theme_dynamic_note),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
 
             Text("Text size (${"%.2f".format(state.textScale)}x)")
             Slider(

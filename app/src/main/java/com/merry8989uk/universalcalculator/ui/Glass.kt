@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,9 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.merry8989uk.universalcalculator.ui.theme.Cyan
-import com.merry8989uk.universalcalculator.ui.theme.Pink
-import com.merry8989uk.universalcalculator.ui.theme.Violet
 
 /**
  * The glassmorphism look from the design blueprint: a barely-there white film,
@@ -43,7 +41,11 @@ fun Modifier.glassSurface(
  */
 @Composable
 fun AmbientGlow(modifier: Modifier = Modifier) {
-    val base = Color(0xFF0A0C14)
+    // Taken from the theme, so Material You drags the glow to the wallpaper's colours.
+    val base = MaterialTheme.colorScheme.background
+    val glowA = MaterialTheme.colorScheme.primary
+    val glowB = MaterialTheme.colorScheme.secondary
+    val glowC = MaterialTheme.colorScheme.tertiary
     Box(modifier = modifier.fillMaxSize().background(base)) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val w = size.width
@@ -59,10 +61,10 @@ fun AmbientGlow(modifier: Modifier = Modifier) {
                     center = at,
                 )
             }
-            pool(Violet, Offset(w * 0.15f, h * 0.10f), w * 0.75f, 0.22f)
-            pool(Cyan, Offset(w * 0.95f, h * 0.28f), w * 0.70f, 0.16f)
-            pool(Pink, Offset(w * 0.30f, h * 0.92f), w * 0.85f, 0.14f)
-            pool(Violet, Offset(w * 0.85f, h * 0.80f), w * 0.55f, 0.12f)
+            pool(glowA, Offset(w * 0.15f, h * 0.10f), w * 0.75f, 0.22f)
+            pool(glowB, Offset(w * 0.95f, h * 0.28f), w * 0.70f, 0.16f)
+            pool(glowC, Offset(w * 0.30f, h * 0.92f), w * 0.85f, 0.14f)
+            pool(glowA, Offset(w * 0.85f, h * 0.80f), w * 0.55f, 0.12f)
         }
     }
 }
