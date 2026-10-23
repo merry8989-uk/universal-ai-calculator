@@ -124,6 +124,9 @@ fun schemeFor(theme: AppTheme, dark: Boolean): ColorScheme = when (theme) {
         primary = Color(0xFFB8860B), secondary = Color(0xFF8A6D1F), tertiary = Color(0xFF6B5A12),
         background = Color(0xFFFAF8F2),
     )
+    // Material You is built from the wallpaper in UniversalCalculatorTheme; if it
+    // ever reaches here (Android 11 and older), Cyberpunk is the fallback.
+    AppTheme.DYNAMIC -> schemeFor(AppTheme.CYBERPUNK, dark)
 }
 
 /** One accent colour per calculator category, so the hub reads at a glance. */
