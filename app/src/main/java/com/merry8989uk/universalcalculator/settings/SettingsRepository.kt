@@ -98,16 +98,13 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { it[Keys.DEGREES] = enabled }
 
     suspend fun setNumberFormat(value: String) =
-        edit { it[Keys.NUMBER_FORMAT] = value }
+        context.dataStore.edit { it[Keys.NUMBER_FORMAT] = value }
 
     suspend fun setDecimals(value: Int) =
-        edit { it[Keys.DECIMALS] = value }
+        context.dataStore.edit { it[Keys.DECIMALS] = value }
 
     suspend fun setUnitSystem(value: String) =
-        edit { it[Keys.UNIT_SYSTEM] = value }
-
-    suspend fun setGroupDigits(enabled: Boolean) =
-        context.dataStore.edit { it[Keys.GROUP_DIGITS] = enabled }
+        context.dataStore.edit { it[Keys.UNIT_SYSTEM] = value }
 
     suspend fun setHistoryEnabled(enabled: Boolean) =
         context.dataStore.edit { it[Keys.HISTORY] = enabled }
