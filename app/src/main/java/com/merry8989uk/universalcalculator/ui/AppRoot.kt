@@ -42,11 +42,19 @@ import com.merry8989uk.universalcalculator.settings.SettingsState
 private val TABS = listOf("Standard", "Scientific", "Convert", "Formulas", "Ask AI", "Settings")
 private val TAB_GLYPHS = listOf("=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699")
 
-/** The tabs shown on the left of the assistant button, in order. */
-private val LEFT_TABS = listOf(0, 1, 2)
-/** The tabs shown on the right of the assistant button, in order. */
-private val RIGHT_TABS = listOf(3, 5)
+/** Two tabs on each side of the assistant button, so it sits dead centre. */
+private val LEFT_TABS = listOf(0, 1)
+private val RIGHT_TABS = listOf(2, 3)
 private const val AI_TAB = 4
+private const val SETTINGS_TAB = 5
+
+/**
+ * Slot weights. The leading spacer matches the settings gear on the right, so
+ * the assistant lands exactly in the middle of the bar.
+ */
+private const val SIDE_WEIGHT = 0.7f
+private const val TAB_WEIGHT = 1f
+private const val AI_WEIGHT = 1.6f
 
 private val SCIENTIFIC_KEYS = listOf(
     "sin", "cos", "tan", "asin", "acos", "atan",
@@ -107,10 +115,15 @@ fun AppRoot(settings: SettingsState) {
                     .padding(horizontal = 6.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                LEFT_TABS.forEach { i -> NavItem(i, tab, TAB_GLYPHS[i], TABS[i]) { selectTab(i) } }
+                // Balances the settings gear at the other end.
+                Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
 
-                // The assistant: centred because one spare slot balances the row.
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                LEFT_TABS.forEach { i ->
+                    NavItem(i, tab, TAB_GLYPHS[i], TABS[i], TAB_WEIGHT) { selectTab(i) }
+                }
+
+                // The assistant: centred, because the row is balanced either side.
+                Box(modifier = Modifier.weight(AI_WEIGHT), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         MagicButton(onClick = { selectTab(AI_TAB) }, size = 56.dp)
                         Spacer(Modifier.width(2.dp))
@@ -123,10 +136,38 @@ fun AppRoot(settings: SettingsState) {
                     }
                 }
 
-                RIGHT_TABS.forEach { i -> NavItem(i, tab, TAB_GLYPHS[i], TABS[i]) { selectTab(i) } }
+                RIGHT_TABS.forEach { i ->
+                    NavItem(i, tab, TAB_GLYPHS[i], TABS[i], TAB_WEIGHT) { selectTab(i) }
+                }
 
-                // Balances the three tabs on the left, so the assistant is centred.
-                Spacer(modifier = Modifier.weight(1f))
+                // Settings is a gear at the end of the bar.
+                Box(
+                    modifier = Modifier.weight(SIDE_WEIGHT),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            TAB_GLYPHS[SETTINGS_TAB],
+                            style = MaterialTheme.typography.titleLarge,
+                            color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            TABS[SETTINGS_TAB],
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clip(RoundedCornerShape(14.dp))
+                            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(14.dp))
+                            .clickable { selectTab(SETTINGS_TAB) },
+                    )
+                }
             }
         },
     ) { padding ->
@@ -175,6 +216,7 @@ private fun RowScope.NavItem(
     selectedTab: Int,
     glyph: String,
     label: String,
+    weight: Float,
     onClick: () -> Unit,
 ) {
     val selected = selectedTab == index
@@ -183,7 +225,7 @@ private fun RowScope.NavItem(
     else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         modifier = Modifier
-            .weight(1f)
+            .weight(weight)
             .clip(shape)
             .background(
                 if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)

@@ -227,6 +227,13 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
+            Text("Home screen widget", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. " +
+                    "While adding it you can pick a solid, dimmed or fully transparent background.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+
             Section("AI assistant")
 
             Text(

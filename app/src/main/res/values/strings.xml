@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nexus Calc</string>
+    <string name="widget_label">Nexus Calc</string>
+    <string name="widget_description">A standard calculator on your home screen, in solid, dimmed or fully transparent style.</string>
 </resources>

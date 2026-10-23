@@ -36,6 +36,29 @@
             </intent-filter>
         </activity>
 
+        <!-- Home-screen standard calculator (solid / dimmed / transparent). -->
+        <receiver
+            android:name=".widget.CalculatorWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_calculator_info" />
+        </receiver>
+
+        <activity
+            android:name=".widget.WidgetConfigActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.UniversalCalculator">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <!-- Shares the downloaded APK with the system installer (Rule 6). -->
         <provider
             android:name="androidx.core.content.FileProvider"

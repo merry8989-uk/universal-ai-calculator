@@ -42,6 +42,7 @@ Engineering, Construction and Math.
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **x variable key** (with an inline value field) and a **⇄ swap** key
 - **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
+- **Home-screen widget** (solid / dimmed / transparent)
 - **Copy / select / share** on every assistant answer
 - **Attach a photo, image, audio clip or text file** to Ask AI and get it solved
 - **3-D surface** and **parametric** graphing
