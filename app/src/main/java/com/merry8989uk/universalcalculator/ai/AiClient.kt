@@ -8,21 +8,13 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Talks to the app's own AI backend. The Gemini key lives on the server — the
- * app only ever calls this endpoint, and the user never enters or sees a key.
+ * Talks to the app's own AI backend — a Cloudflare Worker that holds the Gemini
+ * key server-side. The app never holds the key and the user never enters one.
  */
 object AiClient {
 
-    /** Fixed assistant endpoint (Supabase Edge Function). Not user-editable. */
-    private const val ENDPOINT =
-        "https://naimlzavtlytnrqixffm.supabase.co/functions/v1/ask-ai"
-
-    /**
-     * Publishable (anon) key. This is a client-side key by design — it only
-     * authorises a call to the function; the Gemini key stays server-side.
-     */
-    private const val PUBLISHABLE_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5haW1semF2dGx5dG5ycWl4ZmZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MDY5MjUsImV4cCI6MjEwNzQ4MjkyNX0.SYTvTDvH7SCJ73kgKXhPEGSkU6zsG9oVOyjRcOFXUPE"
+    /** Fixed assistant endpoint (Cloudflare Worker). Not user-editable. */
+    private const val ENDPOINT = "https://nexus-calc-ai.br19shc39.workers.dev"
 
     /** Sends a question (with optional app context) and returns the answer text. */
     suspend fun ask(question: String, context: String = ""): String = withContext(Dispatchers.IO) {
@@ -38,8 +30,6 @@ object AiClient {
                 connectTimeout = 20_000
                 readTimeout = 45_000
                 setRequestProperty("Content-Type", "application/json")
-                setRequestProperty("Authorization", "Bearer $PUBLISHABLE_KEY")
-                setRequestProperty("apikey", PUBLISHABLE_KEY)
             }
             DiagnosticsLogger.log("AI", "Ask: ${question.take(140)}")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
@@ -54,10 +44,12 @@ object AiClient {
                 DiagnosticsLogger.log("AI", "Answer received (${ans?.length ?: 0} chars)")
                 ans ?: "The assistant returned no answer."
             } else {
+                DiagnosticsLogger.log("AI", "Error $code")
                 "Could not reach the assistant: " +
                     (json?.optString("error")?.takeIf { it.isNotBlank() } ?: "request failed ($code)")
             }
         } catch (e: Exception) {
+            DiagnosticsLogger.log("AI", "Network error")
             "Could not reach the assistant. Check your internet connection and try again."
         } finally {
             conn?.disconnect()

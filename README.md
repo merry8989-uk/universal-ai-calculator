@@ -15,8 +15,8 @@ Engineering, Construction and Math.
 ## Features
 
 - **Ask AI** — ask anything in plain language and get an answer with the working.
-  The assistant key is fixed on the server (a Supabase Edge Function); the app
-  never holds it and the user never enters one.
+  The assistant runs on a Cloudflare Worker; the app
+  never holds the key and the user never enters one.
 - **Standard calculator** — live result preview, `ans` memory, percentage, sign
   toggle, thousands separators.
 - **Scientific calculator** — trig (DEG/RAD), inverse trig, logs, powers, roots,
@@ -74,8 +74,8 @@ docs/               the public GitHub Pages site
 The app never holds the Gemini API key. It calls a small proxy that does; two
 ready-to-deploy versions live in `backend/`:
 
-- `backend/cloudflare/` — Cloudflare Worker (`wrangler deploy`)
-- `backend/gcloud/` — Google Cloud Function (`gcloud functions deploy`)
+- `backend/cloudflare/` — Cloudflare Worker (deployed, live)
+- `backend/gcloud/` — Google Cloud Function (alternative)
 
 Both read the key from a secret named `GEMINI_API_KEY`. After deploying, put the
 URL into `ai/AiClient.kt` and rebuild.
