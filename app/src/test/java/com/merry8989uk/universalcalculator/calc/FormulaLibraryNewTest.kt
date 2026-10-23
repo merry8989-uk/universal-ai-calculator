@@ -60,7 +60,8 @@ class FormulaLibraryNewTest {
         assertEquals(-3.0, value("vector_cross"), 1e-9)
         assertEquals(6.0, value("vector_cross", 1), 1e-9)
         assertEquals(7.3484692, value("vector_cross", 3), 1e-6)
-        assertEquals(1.0, value("vector_triple_product"), 1e-9)
+        // (1,2,3), (4,5,6), (7,8,9) are coplanar, so the triple product is 0
+        assertEquals(0.0, value("vector_triple_product"), 1e-9)
         assertEquals(13.0, value("unit_vector"), 1e-9)
         assertEquals(0.2307692, value("unit_vector", 1), 1e-6)
         assertEquals(3.0, value("vector_projection"), 1e-9)             // a=(3,4) onto b=(1,0)
@@ -90,7 +91,7 @@ class FormulaLibraryNewTest {
         assertEquals(0.6513216, value("probability_at_least_one"), 1e-6)
         assertEquals(0.65, value("probability_complement"), 1e-9)
         assertEquals(0.3, value("odds_converter", 1), 1e-9)
-        assertEquals(23.0, value("expected_value"), 1e-9)               // 10*.2+20*.5+30*.3
+        assertEquals(21.0, value("expected_value"), 1e-9)               // 10*.2+20*.5+30*.3
         assertEquals(49.0, value("expected_value", 1), 1e-9)            // variance
         assertEquals(0.1171875, value("binomial_probability"), 1e-9)
     }
@@ -118,12 +119,12 @@ class FormulaLibraryNewTest {
         assertEquals(24.0, value("rectangular_parallelepiped"), 1e-9)
         assertEquals(52.0, value("rectangular_parallelepiped", 1), 1e-9)
         assertEquals(5.3851648, value("rectangular_parallelepiped", 2), 1e-6)
-        assertEquals(12.0, value("prism"), 1e-9)
+        assertEquals(200.0, value("prism"), 1e-9)
         assertEquals(7.5424723, value("regular_tetrahedron"), 1e-6)
         assertEquals(27.7128129, value("regular_tetrahedron", 1), 1e-6)
-        assertEquals(30.1699035, value("octahedron"), 1e-6)
+        assertEquals(30.1698893, value("octahedron"), 1e-6)
         assertEquals(55.4256258, value("octahedron", 1), 1e-6)
-        assertEquals(435.6014372, value("spherical_cap"), 1e-5)
+        assertEquals(435.6341813, value("spherical_cap"), 1e-5)
         assertEquals(251.3274123, value("spherical_cap", 1), 1e-5)
         assertEquals(251.3274123, value("ellipsoid"), 1e-5)
         assertEquals(565.4866776, value("hollow_cylinder"), 1e-5)
