@@ -154,4 +154,6 @@
     <string name="history_empty">अभी कुछ नहीं। आपकी गणनाएँ यहाँ दिखेंगी।</string>
     <string name="history_grabber_a11y">इतिहास टेप खोलने या बंद करने के लिए खींचें</string>
     <string name="history_tape_a11y">इतिहास टेप</string>
+    <string name="functions">फ़ंक्शन</string>
+    <string name="functions_drawer_a11y">वैज्ञानिक फ़ंक्शन खोलें</string>
 </resources>

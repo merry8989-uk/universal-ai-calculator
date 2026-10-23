@@ -42,6 +42,7 @@ Engineering, Construction and Math.
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **x variable key** (with an inline value field) and a **⇄ swap** key
 - **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
+- **Scientific slide-out drawer** (grid, slides from the left)
 - **Drag-down history tape** over the keypad
 - **Material You** dynamic colour (Android 12+)
 - **ANR capture** alongside crash reports

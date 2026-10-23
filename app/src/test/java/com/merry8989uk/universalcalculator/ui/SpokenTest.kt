@@ -22,6 +22,13 @@ class SpokenTest {
         )
     }
 
+    @Test fun everyScientificDrawerKeyHasASpokenLabel() {
+        // The drawer renders SCIENTIFIC_KEYS, so those keys matter just as much.
+        val missing = SCIENTIFIC_KEYS.filterNot { Spoken.isSpoken(it) }
+        assertTrue("these scientific keys have no spoken label: $missing", missing.isEmpty())
+        assertTrue("SCIENTIFIC_KEYS is empty", SCIENTIFIC_KEYS.size > 15)
+    }
+
     @Test fun theMemoryKeysHaveLabels() {
         for (key in listOf("MC", "M+", "M\u2212", "MR")) {
             assertTrue("$key has no spoken label", Spoken.isSpoken(key))

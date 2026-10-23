@@ -135,7 +135,7 @@ private val LABELS = mapOf(
     "swap" to "\u21C4", "x" to "x",
 )
 
-private fun label(k: String) = LABELS[k] ?: k
+internal fun label(k: String) = LABELS[k] ?: k
 private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
 private fun isClear(k: String) = k == "C" || k == "del"
 
@@ -169,7 +169,7 @@ private val exprSaver = listSaver<TextFieldValue, Any>(
 )
 
 @Composable
-private fun KeyButton(
+internal fun KeyButton(
     label: String,
     colors: List<Color>,
     contentColor: Color,
@@ -280,7 +280,7 @@ fun CalculatorScreen(
     val xValue = xText.toDoubleOrNull() ?: 0.0
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var historyOpen by rememberSaveable { mutableStateOf(false) }
-    var showMore by rememberSaveable { mutableStateOf(false) }
+    var sciOpen by rememberSaveable { mutableStateOf(false) }
 
     val historyVm: HistoryViewModel = viewModel()
     val history by historyVm.entries.collectAsState()
@@ -808,54 +808,29 @@ fun CalculatorScreen(
             }
 
             if (functionKeys.isNotEmpty()) {
+                // One handle instead of two scrolling rows: it slides the whole
+                // scientific keypad out from the left edge.
+                val handleSpoken = stringResource(R.string.functions_drawer_a11y)
                 Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.16f))
+                        .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(14.dp))
+                        .clickable { sciOpen = true }
+                        .semantics { contentDescription = handleSpoken }
+                        .padding(horizontal = 14.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    SCI_ROW_A.forEach { k ->
-                        KeyButton(
-                            label = label(k),
-                            colors = listOf(Color(0xFFFFD54F), Amber),
-                            contentColor = Color(0xFF3A2600),
-                            modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 64.dp),
-                            classic = classic,
-                            haptic = settings.hapticsEnabled,
-                            spoken = Spoken.key(k),
-                            onPress = { insert(insertFor(k)) },
-                        )
-                    }
-                    // One button toggles the second row (more / less).
-                    KeyButton(
-                        label = if (showMore) "\u25B4" else "\u25BE",
-                        colors = listOf(Violet, Indigo),
-                        contentColor = Color.White,
-                        modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 56.dp),
-                        classic = classic,
-                        haptic = settings.hapticsEnabled,
-                        spoken = stringResource(if (showMore) R.string.show_fewer_functions else R.string.show_more_functions),
-                        onPress = { showMore = !showMore },
+                    Text("\u0192", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        stringResource(R.string.functions),
+                        style = MaterialTheme.typography.titleMedium,
                     )
-                }
-                if (showMore) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                            .padding(top = 6.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        SCI_ROW_B.forEach { k ->
-                            KeyButton(
-                                label = label(k),
-                                colors = listOf(Color(0xFFFFD54F), Amber),
-                                contentColor = Color(0xFF3A2600),
-                                modifier = Modifier.height(48.dp).defaultMinSize(minWidth = 64.dp),
-                                classic = classic,
-                                haptic = settings.hapticsEnabled,
-                                spoken = Spoken.key(k),
-                                onPress = { insert(insertFor(k)) },
-                            )
-                        }
-                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text("\u25B8", style = MaterialTheme.typography.titleMedium)
                 }
             }
 
@@ -945,6 +920,15 @@ fun CalculatorScreen(
                 }
             }
         }
+
+        // The scientific keypad slides in from the left.
+        ScientificDrawer(
+            keys = functionKeys,
+            open = sciOpen,
+            onOpenChange = { sciOpen = it },
+            onKey = { insert(insertFor(it)) },
+            classic = classic,
+        )
 
         // The tape rides over the keypad, pulled up by its grabber.
         HistoryTape(

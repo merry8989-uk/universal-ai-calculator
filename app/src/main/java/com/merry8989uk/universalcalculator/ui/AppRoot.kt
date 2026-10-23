@@ -74,7 +74,7 @@ private const val SIDE_WEIGHT = 0.3f
 private const val TAB_WEIGHT = 1f
 private const val AI_WEIGHT = 1.5f
 
-private val SCIENTIFIC_KEYS = listOf(
+internal val SCIENTIFIC_KEYS = listOf(
     "sin", "cos", "tan", "asin", "acos", "atan",
     "ln", "log", "sqrt", "cbrt", "x^2", "x^y", "pi", "e", "!",
     "(", ")", "1/x", "abs", "nCr", "nPr", "round",
@@ -178,39 +178,9 @@ fun AppRoot(settings: SettingsState) {
                     NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                 }
 
-                // Settings is a gear at the end of the bar.
-                Box(
-                    modifier = Modifier.weight(SIDE_WEIGHT),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            TAB_GLYPHS[SETTINGS_TAB],
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            labels[SETTINGS_TAB],
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (tab == SETTINGS_TAB) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clip(RoundedCornerShape(14.dp))
-                            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(14.dp))
-                            .clickable { selectTab(SETTINGS_TAB) }
-                            .clearAndSetSemantics {
-                                contentDescription = a11y[SETTINGS_TAB]
-                                role = Role.Tab
-                                this.selected = tab == SETTINGS_TAB
-                            },
-                    )
-                }
+                // Settings lives in the overflow menu now, so this end of the
+                // bar is an empty spacer that keeps the assistant centred.
+                Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
             }
         },
     ) { padding ->

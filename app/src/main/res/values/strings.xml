@@ -156,4 +156,6 @@
     <string name="history_empty">Nothing yet. Your calculations appear here.</string>
     <string name="history_grabber_a11y">drag to open or close the history tape</string>
     <string name="history_tape_a11y">history tape</string>
+    <string name="functions">Functions</string>
+    <string name="functions_drawer_a11y">open the scientific functions</string>
 </resources>
