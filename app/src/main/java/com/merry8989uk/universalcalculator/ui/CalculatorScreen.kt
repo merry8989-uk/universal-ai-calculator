@@ -279,6 +279,7 @@ fun CalculatorScreen(
     var rippleTick by remember { mutableIntStateOf(0) }
     val xValue = xText.toDoubleOrNull() ?: 0.0
     var showHistory by rememberSaveable { mutableStateOf(false) }
+    var historyOpen by rememberSaveable { mutableStateOf(false) }
     var showMore by rememberSaveable { mutableStateOf(false) }
 
     val historyVm: HistoryViewModel = viewModel()
@@ -538,6 +539,7 @@ fun CalculatorScreen(
             }
         },
     ) {
+        Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -549,7 +551,7 @@ fun CalculatorScreen(
                 val menuSpoken = stringResource(R.string.more_options)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(
-                        onClick = { showHistory = true },
+                        onClick = { historyOpen = true },
                         modifier = Modifier.semantics { contentDescription = historySpoken },
                     ) { Text(stringResource(R.string.history)) }
                     Box {
@@ -942,6 +944,21 @@ fun CalculatorScreen(
                     }
                 }
             }
+        }
+
+        // The tape rides over the keypad, pulled up by its grabber.
+        HistoryTape(
+            history = history,
+            open = historyOpen,
+            onOpenChange = { historyOpen = it },
+            onPick = { entry ->
+                val e = entry.substringBeforeLast(" = ").trim()
+                expr = TextFieldValue(e, TextRange(e.length))
+                historyOpen = false
+            },
+            onClear = { historyVm.clear() },
+            onSeeAll = { historyOpen = false; showHistory = true },
+        )
         }
     }
 

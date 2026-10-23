@@ -149,4 +149,9 @@
     <string name="theme_midnight">मिडनाइट गोल्ड</string>
     <string name="theme_dynamic">Material You</string>
     <string name="theme_dynamic_note">Material You रंग आपके वॉलपेपर से लेता है। इसके लिए Android 12 या नया चाहिए; पुराने डिवाइस पर साइबरपंक नियॉन चलता है।</string>
+    <string name="history_recent">हाल की गणनाएँ</string>
+    <string name="history_see_all">सब देखें</string>
+    <string name="history_empty">अभी कुछ नहीं। आपकी गणनाएँ यहाँ दिखेंगी।</string>
+    <string name="history_grabber_a11y">इतिहास टेप खोलने या बंद करने के लिए खींचें</string>
+    <string name="history_tape_a11y">इतिहास टेप</string>
 </resources>

@@ -151,4 +151,9 @@
     <string name="theme_midnight">Midnight Gold</string>
     <string name="theme_dynamic">Material You</string>
     <string name="theme_dynamic_note">Material You takes its colours from your wallpaper. It needs Android 12 or newer; older devices fall back to Cyberpunk Neon.</string>
+    <string name="history_recent">Recent calculations</string>
+    <string name="history_see_all">See all</string>
+    <string name="history_empty">Nothing yet. Your calculations appear here.</string>
+    <string name="history_grabber_a11y">drag to open or close the history tape</string>
+    <string name="history_tape_a11y">history tape</string>
 </resources>
