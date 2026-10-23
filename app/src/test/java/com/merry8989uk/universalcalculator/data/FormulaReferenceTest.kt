@@ -33,7 +33,7 @@ class FormulaReferenceTest {
         .replace("\u2212", "-").replace("\u00D7", "*").replace("\u00F7", "/").replace("\u00B7", "*")
 
     @Test fun referenceIsPresentAndSubstantial() {
-        assertTrue("expected 400+ reference formulas, found ${entries.size}", entries.size >= 400)
+        assertTrue("expected 1500+ reference formulas, found ${entries.size}", entries.size >= 1500)
     }
 
     @Test fun everyEntryIsComplete() {
@@ -52,17 +52,17 @@ class FormulaReferenceTest {
         assertTrue("duplicate formulas:\n" + duplicates.joinToString("\n"), duplicates.isEmpty())
     }
 
-    @Test fun coversAllTwelveTopics() {
+    @Test fun coversEveryTopic() {
         val cats = entries.map { it.first }.toSet()
         for (expected in listOf(
             "Sets & Numbers", "Algebra", "Geometry", "Trigonometry",
             "Matrices & Determinants", "Vectors", "Analytic Geometry",
             "Differential Calculus", "Integral Calculus", "Differential Equations",
-            "Series", "Probability & Combinatorics",
+            "Series", "Probability & Combinatorics", "Finance & Economics",
         )) {
             assertTrue("missing category '$expected'", expected in cats)
         }
-        assertEquals(12, cats.size)
+        assertEquals(13, cats.size)
     }
 
     @Test fun searchFindsThings() {

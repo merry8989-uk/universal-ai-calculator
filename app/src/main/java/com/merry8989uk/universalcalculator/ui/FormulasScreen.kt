@@ -51,7 +51,7 @@ import com.merry8989uk.universalcalculator.ui.theme.Violet
 private data class Tool(val id: String, val title: String, val subtitle: String)
 
 private val TOOLS = listOf(
-    Tool("reference", "Formula reference", "1509 formulas \u2014 identities, rules, tables and the numbered formulas from the maths handbooks."),
+    Tool("reference", "Formula reference", "1663 formulas \u2014 identities, rules, tables and the numbered formulas from the maths handbooks."),
     Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
     Tool("distributions", "Distributions & tests", "Normal/t/binomial/Poisson, t-tests and confidence intervals."),
     Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),

@@ -34,7 +34,7 @@ Engineering, Construction and Math.
   number, quarter, day-of-year, add/subtract days, Unix timestamps.
 - **Fractions in results** — 0.75 is also shown as 3/4
 - **Haptic feedback**, keep screen on, save state, Modern/Classic keypad layout
-- **Formula reference** — 1509 formulas across 12 topics, searchable
+- **Formula reference** — 1663 formulas across 13 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
 - **Handwriting pad** — write a calculation with a finger
@@ -44,6 +44,7 @@ Engineering, Construction and Math.
 - **Attach a photo, image, audio clip or text file** to Ask AI and get it solved
 - **3-D surface** and **parametric** graphing
 - **Complex numbers on the main keypad** — the `i` key works, and 2pi / 3(4+5) are accepted
+- **Black-Scholes, option Greeks, WACC, annuities, index numbers, Sharpe ratio** and more
 - **Symbolic algebra** — simplify, differentiate, integrate, factor and solve polynomials
 - **ANOVA** and **chi-square** tests, **QR decomposition**
 - **Distributions & tests** — normal/t/binomial/Poisson, t-tests, confidence intervals

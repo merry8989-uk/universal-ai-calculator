@@ -11,7 +11,8 @@
   "Integral Calculus",
   "Differential Equations",
   "Series",
-  "Probability & Combinatorics"
+  "Probability & Combinatorics",
+  "Finance & Economics"
  ],
  "formulas": [
   {
@@ -7558,6 +7559,776 @@
    "c": "Probability & Combinatorics",
    "t": "Correlation",
    "f": "p(x,y)= _cov(x,y) √v(x)v(x) where V(X) is the variance of X, V(Y) is the variance of Y"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Subset test",
+   "f": "A = B  ⇔  A ⊆ B and B ⊆ A"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Empty set subset",
+   "f": "∅ ⊆ A for every set A"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Union with empty",
+   "f": "A ∪ ∅ = A"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Intersection with empty",
+   "f": "A ∩ ∅ = ∅"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Idempotent laws",
+   "f": "A ∪ A = A,  A ∩ A = A"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Double complement",
+   "f": "(A′)′ = A"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Complement of the universe",
+   "f": "U′ = ∅,  ∅′ = U"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Union with the universe",
+   "f": "A ∪ U = U"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Intersection with the universe",
+   "f": "A ∩ U = A"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Complement laws",
+   "f": "A ∪ A′ = U,  A ∩ A′ = ∅"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Difference as an intersection",
+   "f": "A − B = A ∩ B′"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Symmetric difference",
+   "f": "A △ B = (A − B) ∪ (B − A)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: De Morgan (or)",
+   "f": "¬(p ∨ q) ⇔ (¬p ∧ ¬q)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: De Morgan (and)",
+   "f": "¬(p ∧ q) ⇔ (¬p ∨ ¬q)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: contrapositive",
+   "f": "p → q  ⇔  ¬q → ¬p"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: equivalence",
+   "f": "p ↔ q  ⇔  (p → q) ∧ (q → p)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: excluded middle",
+   "f": "p ∨ ¬p is always true"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: contradiction",
+   "f": "p ∧ ¬p is always false"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: double negation",
+   "f": "¬(¬p) ⇔ p"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: distributivity",
+   "f": "p ∧ (q ∨ r) ⇔ (p ∧ q) ∨ (p ∧ r)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: implication as or",
+   "f": "p → q  ⇔  ¬p ∨ q"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Logic: exportation",
+   "f": "(p ∧ q) → r  ⇔  p → (q → r)"
+  },
+  {
+   "c": "Algebra",
+   "t": "De Moivre's theorem",
+   "f": "(cos θ + i sin θ)ⁿ = cos nθ + i sin nθ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Euler's formula",
+   "f": "e^(iθ) = cos θ + i sin θ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Complex modulus",
+   "f": "|z| = √(a² + b²) for z = a + ib"
+  },
+  {
+   "c": "Algebra",
+   "t": "Complex conjugate product",
+   "f": "z · z̄ = |z|²"
+  },
+  {
+   "c": "Algebra",
+   "t": "Complex conjugate sum",
+   "f": "z + z̄ = 2 Re(z)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Complex conjugate difference",
+   "f": "z − z̄ = 2i Im(z)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Complex argument",
+   "f": "arg(z) = atan2(b, a) for z = a + ib"
+  },
+  {
+   "c": "Algebra",
+   "t": "Polar multiplication",
+   "f": "r₁e^(iθ₁) · r₂e^(iθ₂) = r₁r₂ e^(i(θ₁+θ₂))"
+  },
+  {
+   "c": "Algebra",
+   "t": "Polar division",
+   "f": "r₁e^(iθ₁) ÷ r₂e^(iθ₂) = (r₁/r₂) e^(i(θ₁−θ₂))"
+  },
+  {
+   "c": "Algebra",
+   "t": "Roots of unity",
+   "f": "The n roots of 1 are e^(2πik/n) for k = 0, 1, …, n−1"
+  },
+  {
+   "c": "Algebra",
+   "t": "Modulus is multiplicative",
+   "f": "|z₁ z₂| = |z₁| · |z₂|"
+  },
+  {
+   "c": "Algebra",
+   "t": "Triangle inequality (complex)",
+   "f": "|z₁ + z₂| ≤ |z₁| + |z₂|"
+  },
+  {
+   "c": "Algebra",
+   "t": "Product of sums of squares",
+   "f": "(a² + b²)(c² + d²) = (ac − bd)² + (ad + bc)²"
+  },
+  {
+   "c": "Vectors",
+   "t": "Equation of a plane",
+   "f": "a(x − x₀) + b(y − y₀) + c(z − z₀) = 0 with normal n = (a, b, c)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Angle between two planes",
+   "f": "cos θ = |n₁ · n₂| / (|n₁| |n₂|)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Angle between a line and a plane",
+   "f": "sin θ = |d · n| / (|d| |n|)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Symmetric form of a line",
+   "f": "(x − x₀)/a = (y − y₀)/b = (z − z₀)/c"
+  },
+  {
+   "c": "Vectors",
+   "t": "Coplanar vectors",
+   "f": "a, b, c are coplanar ⇔ a · (b × c) = 0"
+  },
+  {
+   "c": "Vectors",
+   "t": "Parallelepiped volume",
+   "f": "V = |a · (b × c)|"
+  },
+  {
+   "c": "Vectors",
+   "t": "Coplanarity of four points",
+   "f": "Four points are coplanar when the scalar triple product is zero"
+  },
+  {
+   "c": "Vectors",
+   "t": "Projection on an axis",
+   "f": "The projection of a on b is (a · b) / |b|"
+  },
+  {
+   "c": "Vectors",
+   "t": "Cross product is a normal",
+   "f": "a × b is perpendicular to both a and b"
+  },
+  {
+   "c": "Vectors",
+   "t": "Lagrange's identity",
+   "f": "|a × b|² = |a|² |b|² − (a · b)²"
+  },
+  {
+   "c": "Vectors",
+   "t": "Scalar triple product is cyclic",
+   "f": "a · (b × c) = b · (c × a) = c · (a × b)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of sin x / x",
+   "f": "lim (x → 0) sin x / x = 1"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of tan x / x",
+   "f": "lim (x → 0) tan x / x = 1"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of (1 − cos x) / x",
+   "f": "lim (x → 0) (1 − cos x) / x = 0"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of (eˣ − 1) / x",
+   "f": "lim (x → 0) (eˣ − 1) / x = 1"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of ln(1 + x) / x",
+   "f": "lim (x → 0) ln(1 + x) / x = 1"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of (aˣ − 1) / x",
+   "f": "lim (x → 0) (aˣ − 1) / x = ln a"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "The number e as a limit",
+   "f": "lim (x → ∞) (1 + 1/x)ˣ = e"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of (1 + a/x)ˣ",
+   "f": "lim (x → ∞) (1 + a/x)ˣ = eᵃ"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of (1 + x)^(1/x)",
+   "f": "lim (x → 0) (1 + x)^(1/x) = e"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of x^(1/x)",
+   "f": "lim (x → ∞) x^(1/x) = 1"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of x ln x",
+   "f": "lim (x → 0⁺) x ln x = 0"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of (1 + 1/n)ⁿ",
+   "f": "lim (n → ∞) (1 + 1/n)ⁿ = e"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Squeeze theorem",
+   "f": "If g(x) ≤ f(x) ≤ h(x) and lim g = lim h = L then lim f = L"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of a determinant",
+   "f": "d/dx det(A(x)) = det(A) · tr(A⁻¹ A′)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Logarithmic differentiation",
+   "f": "d/dx f(x) = f(x) · d/dx ln f(x)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of an inverse function",
+   "f": "(f⁻¹)′(y) = 1 / f′(x) where y = f(x)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Parametric derivative",
+   "f": "dy/dx = (dy/dt) / (dx/dt)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Second parametric derivative",
+   "f": "d²y/dx² = [(dx/dt)(d²y/dt²) − (dy/dt)(d²x/dt²)] / (dx/dt)³"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Leibniz rule for a product",
+   "f": "(fg)⁽ⁿ⁾ = Σ nCr f⁽ʳ⁾ g⁽ⁿ⁻ʳ⁾"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of x eˣ",
+   "f": "∫ x eˣ dx = (x − 1) eˣ + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of x ln x",
+   "f": "∫ x ln x dx = (x²/2) ln x − x²/4 + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of ln x squared",
+   "f": "∫ (ln x)² dx = x(ln x)² − 2x ln x + 2x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of eᵃˣ sin bx",
+   "f": "∫ eᵃˣ sin bx dx = eᵃˣ (a sin bx − b cos bx) / (a² + b²) + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of eᵃˣ cos bx",
+   "f": "∫ eᵃˣ cos bx dx = eᵃˣ (a cos bx + b sin bx) / (a² + b²) + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of sec cubed",
+   "f": "∫ sec³x dx = ½ sec x tan x + ½ ln|sec x + tan x| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of tan squared",
+   "f": "∫ tan²x dx = tan x − x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of x²/(a² + x²)",
+   "f": "∫ x² / (a² + x²) dx = x − a tan⁻¹(x/a) + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of √(a² − x²)",
+   "f": "∫ √(a² − x²) dx = ½[x√(a² − x²) + a² sin⁻¹(x/a)] + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integral of √(x² + a²)",
+   "f": "∫ √(x² + a²) dx = ½[x√(x² + a²) + a² ln|x + √(x² + a²)|] + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Reduction for sinⁿ",
+   "f": "∫ sinⁿx dx = −(sinⁿ⁻¹x cos x)/n + ((n−1)/n) ∫ sinⁿ⁻²x dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Reduction for cosⁿ",
+   "f": "∫ cosⁿx dx = (cosⁿ⁻¹x sin x)/n + ((n−1)/n) ∫ cosⁿ⁻²x dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Wallis' formula",
+   "f": "∫₀^(π/2) sinⁿx dx = ∫₀^(π/2) cosⁿx dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Differentiating under the integral",
+   "f": "d/dx ∫ f(x, t) dt = ∫ ∂f/∂x dt"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Arc length in polar coordinates",
+   "f": "L = ∫ √(r² + (dr/dθ)²) dθ"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Centroid of a plane area",
+   "f": "x̄ = (1/A) ∫ x dA,  ȳ = (1/A) ∫ y dA"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Pappus' theorem",
+   "f": "Volume = 2π · (distance of the centroid) · (area)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Bernoulli equation",
+   "f": "y′ + P(x) y = Q(x) yⁿ; substitute v = y^(1−n)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Riccati equation",
+   "f": "y′ = P(x) + Q(x) y + R(x) y²"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Clairaut's equation",
+   "f": "y = x y′ + f(y′); the general solution is y = Cx + f(C)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Linear second order (general)",
+   "f": "y″ + P(x) y′ + Q(x) y = R(x)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Variation of parameters",
+   "f": "yₚ = −y₁ ∫ y₂ R / W dx + y₂ ∫ y₁ R / W dx"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Auxiliary equation (equal roots)",
+   "f": "When r₁ = r₂ = r, y = (A + Bx) e^(rx)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Undetermined coefficients",
+   "f": "For R(x) = eᵃˣ try yₚ = A eᵃˣ; for sin bx try A cos bx + B sin bx"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace of 1",
+   "f": "L{1} = 1 / s"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace of t",
+   "f": "L{t} = 1 / s²"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace of tⁿ",
+   "f": "L{tⁿ} = n! / s^(n+1)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace of a second derivative",
+   "f": "L{y″} = s² Y(s) − s y(0) − y′(0)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace of t sin at",
+   "f": "L{t sin at} = 2as / (s² + a²)²"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace of t cos at",
+   "f": "L{t cos at} = (s² − a²) / (s² + a²)²"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "First shift theorem",
+   "f": "L{e^(at) f(t)} = F(s − a)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Second shift theorem",
+   "f": "L{f(t − a) u(t − a)} = e^(−as) F(s)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Convolution theorem",
+   "f": "L{f ∗ g} = F(s) · G(s)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Damped harmonic oscillator",
+   "f": "m x″ + c x′ + k x = F(t)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Logistic equation",
+   "f": "dP/dt = kP(1 − P/L)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Newton's law of cooling (solution)",
+   "f": "T(t) = Tₐ + (T₀ − Tₐ) e^(−kt)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Radioactive decay (solution)",
+   "f": "N(t) = N₀ e^(−λt)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Half-life from the decay constant",
+   "f": "t½ = ln 2 / λ"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Heun's method",
+   "f": "yₙ₊₁ = yₙ + (h/2)[f(xₙ, yₙ) + f(xₙ₊₁, y*ₙ₊₁)]"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Forward price",
+   "f": "F(t, T) = S_t · e^(r(T−t)) − FV(dividends)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Forward price with a yield",
+   "f": "F(t, T) = S_t · e^((r − δ)(T−t))"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Prepaid forward price",
+   "f": "Fᴾ(t, T) = S_t or S_t e^(−δ(T−t))"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Put-call parity (European)",
+   "f": "c(S, K, t, T) − p(S, K, t, T) = Fᴾ(t, T) − K e^(−r(T−t))"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Call price bounds",
+   "f": "max(0, Fᴾ − K e^(−rT)) ≤ c ≤ Fᴾ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Put price bounds",
+   "f": "max(0, K e^(−rT) − Fᴾ) ≤ p ≤ K e^(−rT)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Strike monotonicity",
+   "f": "0 ≤ c(K₁) − c(K₂) ≤ (K₂ − K₁) e^(−rT) for K₁ < K₂"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Convexity of option prices",
+   "f": "[c(K₁) − c(K₂)] / (K₂ − K₁) ≥ [c(K₂) − c(K₃)] / (K₃ − K₂)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Arbitrage weights",
+   "f": "K₂ = λK₁ + (1 − λ)K₃ with λ = (K₃ − K₂)/(K₃ − K₁)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Black-Scholes call",
+   "f": "c = S N(d₁) − K e^(−rT) N(d₂)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Black-Scholes put",
+   "f": "p = K e^(−rT) N(−d₂) − S N(−d₁)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Black-Scholes d₁",
+   "f": "d₁ = [ln(S/K) + (r + σ²/2)T] / (σ√T)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Black-Scholes d₂",
+   "f": "d₂ = d₁ − σ√T"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Option delta",
+   "f": "Δ = ∂c/∂S = N(d₁)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Option gamma",
+   "f": "Γ = ∂²c/∂S² = φ(d₁) / (S σ √T)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Option vega",
+   "f": "vega = ∂c/∂σ = S φ(d₁) √T"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Option theta",
+   "f": "θ = −S φ(d₁) σ / (2√T) − r K e^(−rT) N(d₂)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Option rho",
+   "f": "ρ = ∂c/∂r = K T e^(−rT) N(d₂)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Risk-neutral probability",
+   "f": "p* = (e^(rΔt) − d) / (u − d)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Binomial up and down factors",
+   "f": "u = e^(σ√Δt),  d = 1/u"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Binomial price",
+   "f": "c = e^(−rT)[p* c_u + (1 − p*) c_d]"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Sharpe ratio",
+   "f": "Sharpe = (E[R] − r) / σ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Geometric Brownian motion",
+   "f": "dS = μ S dt + σ S dZ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Ito's lemma",
+   "f": "df = (f_t + μ S f_S + ½ σ² S² f_SS) dt + σ S f_S dZ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Solution of geometric Brownian motion",
+   "f": "S_t = S₀ e^((μ − σ²/2)t + σ Z_t)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Lognormal mean",
+   "f": "E[S_t] = S₀ e^(μt)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Lognormal variance",
+   "f": "Var[S_t] = S₀² e^(2μt)(e^(σ²t) − 1)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Sharpe ratio estimate",
+   "f": "Estimated Sharpe = (α̂ − r) / σ̂"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Volatility estimate",
+   "f": "σ̂ = √(Σ (rᵢ − r̄)² / (n − 1))"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Rendleman-Bartter model",
+   "f": "dr = a r dt + σ r dZ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Vasicek model",
+   "f": "dr = a(b − r) dt + σ dZ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Cox-Ingersoll-Ross model",
+   "f": "dr = a(b − r) dt + σ √r dZ"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Zero-coupon bond price",
+   "f": "P(t, T) = E[e^(−∫ r(s) ds)]"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Annuity due present value",
+   "f": "PV = P · (1 + i) · (1 − (1 + i)^(−n)) / i"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Growing annuity present value",
+   "f": "PV = P / (i − g) · [1 − ((1 + g)/(1 + i))ⁿ]"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Growing perpetuity",
+   "f": "PV = P / (i − g) with i > g"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Continuous present value",
+   "f": "PV = FV · e^(−rt)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Doubling time (exact)",
+   "f": "t = ln 2 / ln(1 + r)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Real interest rate (Fisher)",
+   "f": "(1 + r) = (1 + i) / (1 + π)"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Internal rate of return definition",
+   "f": "Σ CFₜ / (1 + IRR)ᵗ = 0"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Net present value",
+   "f": "NPV = Σ CFₜ / (1 + r)ᵗ − C₀"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Profitability index",
+   "f": "PI = PV(future cash flows) / initial investment"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Payback period",
+   "f": "The time for cumulative cash flow to reach zero"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Bond duration (Macaulay)",
+   "f": "D = Σ t · PV(CFₜ) / price"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Modified duration",
+   "f": "D* = D / (1 + y) and ΔP/P ≈ −D* Δy"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Convexity adjustment",
+   "f": "ΔP/P ≈ −D* Δy + ½ · convexity · (Δy)²"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Current yield",
+   "f": "Current yield = annual coupon / market price"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Index number (Laspeyres)",
+   "f": "L = (Σ p₁q₀ / Σ p₀q₀) × 100"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Index number (Paasche)",
+   "f": "P = (Σ p₁q₁ / Σ p₀q₁) × 100"
+  },
+  {
+   "c": "Finance & Economics",
+   "t": "Real value index",
+   "f": "Real value index = (nominal value / price index) × 100"
   }
  ]
 }

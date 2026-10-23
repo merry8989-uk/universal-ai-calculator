@@ -51,6 +51,9 @@ object FormulaLibrary {
         "Probability", "Series", "Number Theory", "Math",
     )
 
+    /** Standard normal CDF, used by the Black-Scholes formulas. */
+    private fun N(x: Double) = Distributions.normalCdf(x, 0.0, 1.0)
+
     private fun d2r(x: Double) = x * PI / 180.0
     private fun r2d(x: Double) = x * 180.0 / PI
 
@@ -2933,6 +2936,267 @@ object FormulaLibrary {
             listOf(out("Volume", PI * (R * R - r * r) * h),
                 out("Curved surface (outer+inner)", 2 * PI * (R + r) * h),
                 out("Total surface", 2 * PI * (R + r) * h + 2 * PI * (R * R - r * r)))
+        },
+
+        // ================= FINANCE & ECONOMICS (from the formulae handbooks) =================
+        Formula("effective_apr", "Effective interest rate (APR)", "Finance",
+            "A nominal rate turned into the real yearly rate, discrete and continuous.",
+            listOf(InputSpec("nominal", "Nominal annual rate (%)", 12.0), InputSpec("n", "Compounds per year", 12.0)),
+        ) { m ->
+            val i = v(m, "nominal") / 100.0
+            val n = v(m, "n")
+            val discrete = if (n <= 0.0) i else (1 + i / n).pow(n) - 1
+            listOf(out("Effective annual rate", discrete * 100.0, "%"),
+                out("Continuous (e^i - 1)", (exp(i) - 1) * 100.0, "%"),
+                out("Monthly rate", i / 12.0 * 100.0, "%"))
+        },
+
+        Formula("wacc", "WACC (weighted average cost of capital)", "Finance",
+            "The blended cost of equity and debt, with the tax shield on debt.",
+            listOf(InputSpec("equity", "Market value of equity", 600.0), InputSpec("debt", "Market value of debt", 400.0),
+                InputSpec("costEquity", "Cost of equity (%)", 12.0), InputSpec("costDebt", "Cost of debt (%)", 8.0),
+                InputSpec("tax", "Tax rate (%)", 25.0)),
+        ) { m ->
+            val e = v(m, "equity"); val d = v(m, "debt")
+            val total = e + d
+            if (total <= 0.0) listOf(out("WACC", 0.0, note = "Enter the equity and debt values"))
+            else {
+                val w = e / total * v(m, "costEquity") + d / total * v(m, "costDebt") * (1 - v(m, "tax") / 100.0)
+                listOf(out("WACC", w, "%"), out("Equity weight", e / total * 100.0, "%"),
+                    out("Debt weight", d / total * 100.0, "%"))
+            }
+        },
+
+        Formula("dividend_discount", "Dividend discount model", "Finance",
+            "Gordon growth: the value of a share from its next dividend.",
+            listOf(InputSpec("d1", "Next dividend D1", 5.0), InputSpec("r", "Required return (%)", 10.0),
+                InputSpec("g", "Growth rate (%)", 4.0)),
+        ) { m ->
+            val r = v(m, "r") / 100.0; val g = v(m, "g") / 100.0
+            if (r <= g) listOf(out("Share value", 0.0, note = "The required return must exceed the growth rate"))
+            else listOf(out("Share value", v(m, "d1") / (r - g)),
+                out("Capital gain yield", g * 100.0, "%"), out("Dividend yield", (r - g) * 100.0, "%"))
+        },
+
+        Formula("sinking_fund", "Sinking fund payment", "Finance",
+            "The regular deposit needed to reach a target amount.",
+            listOf(InputSpec("target", "Target amount", 100000.0), InputSpec("rate", "Rate per period (%)", 6.0),
+                InputSpec("n", "Number of periods", 10.0)),
+        ) { m ->
+            val i = v(m, "rate") / 100.0; val n = v(m, "n")
+            val pay = if (i == 0.0) v(m, "target") / n else v(m, "target") * i / ((1 + i).pow(n) - 1)
+            listOf(out("Payment each period", pay), out("Total paid", pay * n),
+                out("Interest earned", v(m, "target") - pay * n))
+        },
+
+        Formula("annuity_pv", "Present value of an annuity", "Finance",
+            "What a series of equal payments is worth today.",
+            listOf(InputSpec("payment", "Payment per period", 1000.0), InputSpec("rate", "Rate per period (%)", 5.0),
+                InputSpec("n", "Number of periods", 10.0)),
+        ) { m ->
+            val i = v(m, "rate") / 100.0; val n = v(m, "n")
+            val pv = if (i == 0.0) v(m, "payment") * n else v(m, "payment") * (1 - (1 + i).pow(-n)) / i
+            listOf(out("Present value", pv), out("Total paid", v(m, "payment") * n),
+                out("Interest saved", v(m, "payment") * n - pv))
+        },
+
+        Formula("annuity_fv", "Future value of an annuity", "Finance",
+            "What a series of equal payments grows to.",
+            listOf(InputSpec("payment", "Payment per period", 1000.0), InputSpec("rate", "Rate per period (%)", 5.0),
+                InputSpec("n", "Number of periods", 10.0)),
+        ) { m ->
+            val i = v(m, "rate") / 100.0; val n = v(m, "n")
+            val fv = if (i == 0.0) v(m, "payment") * n else v(m, "payment") * ((1 + i).pow(n) - 1) / i
+            listOf(out("Future value", fv), out("Total paid", v(m, "payment") * n),
+                out("Interest earned", fv - v(m, "payment") * n))
+        },
+
+        Formula("perpetuity_pv", "Present value of a perpetuity", "Finance",
+            "A payment that never ends, valued today.",
+            listOf(InputSpec("payment", "Payment per period", 1000.0), InputSpec("rate", "Rate per period (%)", 5.0)),
+        ) { m ->
+            val i = v(m, "rate") / 100.0
+            if (i <= 0.0) listOf(out("Present value", 0.0, note = "The rate must be positive"))
+            else listOf(out("Present value", v(m, "payment") / i))
+        },
+
+        Formula("price_index", "Price relative index", "Finance",
+            "A price in a later period against the base period.",
+            listOf(InputSpec("p0", "Price at base time", 100.0), InputSpec("pn", "Price later", 125.0)),
+        ) { m ->
+            val p0 = v(m, "p0")
+            if (p0 == 0.0) listOf(out("Index", 0.0, note = "The base price must not be zero"))
+            else listOf(out("Price index", v(m, "pn") / p0 * 100.0), out("Change", (v(m, "pn") / p0 - 1) * 100.0, "%"))
+        },
+
+        Formula("quantity_index", "Quantity relative index", "Finance",
+            "A quantity in a later period against the base period.",
+            listOf(InputSpec("q0", "Quantity at base time", 200.0), InputSpec("qn", "Quantity later", 250.0)),
+        ) { m ->
+            val q0 = v(m, "q0")
+            if (q0 == 0.0) listOf(out("Index", 0.0, note = "The base quantity must not be zero"))
+            else listOf(out("Quantity index", v(m, "qn") / q0 * 100.0), out("Change", (v(m, "qn") / q0 - 1) * 100.0, "%"))
+        },
+
+        Formula("real_value_index", "Real value index", "Finance",
+            "Strip inflation out of a nominal value.",
+            listOf(InputSpec("nominal", "Nominal value", 5000.0), InputSpec("priceIndex", "Price index", 125.0)),
+        ) { m ->
+            val pi = v(m, "priceIndex")
+            if (pi == 0.0) listOf(out("Real value", 0.0, note = "The price index must not be zero"))
+            else listOf(out("Real value", v(m, "nominal") / pi * 100.0),
+                out("Purchasing power change", (100.0 / pi - 1) * 100.0, "%"))
+        },
+
+        Formula("laspeyres_index", "Laspeyres price index", "Finance",
+            "A weighted price index using base-period quantities (three goods).",
+            listOf(InputSpec("p01", "Price 1 (base)", 10.0), InputSpec("p11", "Price 1 (now)", 12.0), InputSpec("q01", "Quantity 1 (base)", 5.0),
+                InputSpec("p02", "Price 2 (base)", 20.0), InputSpec("p12", "Price 2 (now)", 22.0), InputSpec("q02", "Quantity 2 (base)", 3.0),
+                InputSpec("p03", "Price 3 (base)", 8.0), InputSpec("p13", "Price 3 (now)", 9.0), InputSpec("q03", "Quantity 3 (base)", 10.0)),
+        ) { m ->
+            val base = v(m, "p01") * v(m, "q01") + v(m, "p02") * v(m, "q02") + v(m, "p03") * v(m, "q03")
+            val now = v(m, "p11") * v(m, "q01") + v(m, "p12") * v(m, "q02") + v(m, "p13") * v(m, "q03")
+            if (base == 0.0) listOf(out("Index", 0.0, note = "The base basket must not be zero"))
+            else listOf(out("Laspeyres index", now / base * 100.0),
+                out("Basket cost (base)", base), out("Basket cost (now)", now),
+                out("Inflation over the period", (now / base - 1) * 100.0, "%"))
+        },
+
+        Formula("consumption_function", "Consumption function", "Economics",
+            "C = a + bY, with the saving that follows from it.",
+            listOf(InputSpec("a", "Autonomous consumption a", 2000.0), InputSpec("b", "Marginal propensity to consume b", 0.8),
+                InputSpec("y", "Income Y", 50000.0)),
+        ) { m ->
+            val c = v(m, "a") + v(m, "b") * v(m, "y")
+            listOf(out("Consumption C", c), out("Saving S", v(m, "y") - c),
+                out("Average propensity to consume", c / v(m, "y")),
+                out("Marginal propensity to save", 1 - v(m, "b")))
+        },
+
+        Formula("gnp_gni", "GNP and GNI from GDP", "Economics",
+            "GDP plus net factor income, then plus net transfers.",
+            listOf(InputSpec("gdp", "GDP", 3000000.0), InputSpec("netFactorIncome", "Net factor income from abroad", -20000.0),
+                InputSpec("netTransfers", "Net transfers from abroad", 15000.0)),
+        ) { m ->
+            val gnp = v(m, "gdp") + v(m, "netFactorIncome")
+            listOf(out("GNP", gnp), out("GNI", gnp + v(m, "netTransfers")),
+                out("GDP", v(m, "gdp")))
+        },
+
+        Formula("sharpe_ratio", "Sharpe ratio", "Finance",
+            "Return earned per unit of risk taken.",
+            listOf(InputSpec("portfolioReturn", "Portfolio return (%)", 14.0), InputSpec("riskFree", "Risk-free rate (%)", 6.0),
+                InputSpec("volatility", "Standard deviation (%)", 16.0)),
+        ) { m ->
+            val sd = v(m, "volatility")
+            if (sd == 0.0) listOf(out("Sharpe ratio", 0.0, note = "The volatility must not be zero"))
+            else listOf(out("Sharpe ratio", (v(m, "portfolioReturn") - v(m, "riskFree")) / sd),
+                out("Excess return", v(m, "portfolioReturn") - v(m, "riskFree"), "%"))
+        },
+
+        Formula("black_scholes", "Black-Scholes option price", "Finance",
+            "European call and put prices, with d1 and d2.",
+            listOf(InputSpec("S", "Spot price S", 100.0), InputSpec("K", "Strike price K", 100.0),
+                InputSpec("r", "Risk-free rate (%)", 5.0), InputSpec("sigma", "Volatility (%)", 20.0),
+                InputSpec("T", "Time to expiry (years)", 1.0)),
+        ) { m ->
+            val S = v(m, "S"); val K = v(m, "K")
+            val r = v(m, "r") / 100.0; val sig = v(m, "sigma") / 100.0; val T = v(m, "T")
+            if (S <= 0.0 || K <= 0.0 || sig <= 0.0 || T <= 0.0) {
+                listOf(out("Call", 0.0, note = "S, K, volatility and time must all be positive"))
+            } else {
+                val d1 = (ln(S / K) + (r + sig * sig / 2) * T) / (sig * sqrt(T))
+                val d2 = d1 - sig * sqrt(T)
+                val call = S * N(d1) - K * exp(-r * T) * N(d2)
+                val put = K * exp(-r * T) * N(-d2) - S * N(-d1)
+                listOf(out("Call price", call), out("Put price", put),
+                    out("d1", d1), out("d2", d2),
+                    out("Put-call parity check", call - put - (S - K * exp(-r * T))))
+            }
+        },
+
+        Formula("option_greeks", "Option Greeks", "Finance",
+            "Delta, gamma, vega, theta and rho of a European call.",
+            listOf(InputSpec("S", "Spot price S", 100.0), InputSpec("K", "Strike price K", 100.0),
+                InputSpec("r", "Risk-free rate (%)", 5.0), InputSpec("sigma", "Volatility (%)", 20.0),
+                InputSpec("T", "Time to expiry (years)", 1.0)),
+        ) { m ->
+            val S = v(m, "S"); val K = v(m, "K")
+            val r = v(m, "r") / 100.0; val sig = v(m, "sigma") / 100.0; val T = v(m, "T")
+            if (S <= 0.0 || K <= 0.0 || sig <= 0.0 || T <= 0.0) {
+                listOf(out("Delta", 0.0, note = "S, K, volatility and time must all be positive"))
+            } else {
+                val d1 = (ln(S / K) + (r + sig * sig / 2) * T) / (sig * sqrt(T))
+                val d2 = d1 - sig * sqrt(T)
+                val pdf = exp(-d1 * d1 / 2) / sqrt(2 * PI)
+                listOf(out("Delta", N(d1)), out("Gamma", pdf / (S * sig * sqrt(T))),
+                    out("Vega (per 1.0 of vol)", S * pdf * sqrt(T)),
+                    out("Theta (per year)", -(S * pdf * sig) / (2 * sqrt(T)) - r * K * exp(-r * T) * N(d2)),
+                    out("Rho (per 1.0 of rate)", K * T * exp(-r * T) * N(d2)))
+            }
+        },
+
+        Formula("put_call_parity", "Put-call parity", "Finance",
+            "The put price implied by a call price, and the check.",
+            listOf(InputSpec("call", "Call price c", 10.45), InputSpec("S", "Spot price S", 100.0),
+                InputSpec("K", "Strike price K", 100.0), InputSpec("r", "Risk-free rate (%)", 5.0),
+                InputSpec("T", "Time to expiry (years)", 1.0)),
+        ) { m ->
+            val pv = v(m, "K") * exp(-v(m, "r") / 100.0 * v(m, "T"))
+            val put = v(m, "call") - v(m, "S") + pv
+            listOf(out("Implied put price", put), out("Present value of the strike", pv),
+                out("Difference from the parity line", put - (v(m, "call") - v(m, "S") + pv)))
+        },
+
+        Formula("binomial_option", "Binomial option price (one period)", "Finance",
+            "The risk-neutral price of a European call on a one-step tree.",
+            listOf(InputSpec("S", "Spot price S", 100.0), InputSpec("K", "Strike price K", 100.0),
+                InputSpec("r", "Risk-free rate (%)", 5.0), InputSpec("sigma", "Volatility (%)", 20.0),
+                InputSpec("T", "Time to expiry (years)", 1.0)),
+        ) { m ->
+            val S = v(m, "S"); val K = v(m, "K")
+            val r = v(m, "r") / 100.0; val sig = v(m, "sigma") / 100.0; val T = v(m, "T")
+            if (sig <= 0.0 || T <= 0.0) {
+                listOf(out("Call", 0.0, note = "Volatility and time must be positive"))
+            } else {
+                val u = exp(sig * sqrt(T))
+                val d = 1.0 / u
+                val p = (exp(r * T) - d) / (u - d)
+                val up = maxOf(S * u - K, 0.0)
+                val down = maxOf(S * d - K, 0.0)
+                listOf(out("Up factor u", u), out("Down factor d", d),
+                    out("Risk-neutral probability p", p),
+                    out("Call price", exp(-r * T) * (p * up + (1 - p) * down)))
+            }
+        },
+
+        Formula("forward_price", "Forward and futures price", "Finance",
+            "The no-arbitrage forward price, with an optional dividend yield.",
+            listOf(InputSpec("S", "Spot price S", 100.0), InputSpec("r", "Risk-free rate (%)", 5.0),
+                InputSpec("T", "Time to maturity (years)", 1.0), InputSpec("dividendYield", "Dividend yield (%)", 2.0)),
+        ) { m ->
+            val r = v(m, "r") / 100.0; val d = v(m, "dividendYield") / 100.0; val T = v(m, "T")
+            val f = v(m, "S") * exp((r - d) * T)
+            listOf(out("Forward price", f), out("Cost of carry (r - q)", (r - d) * 100.0, "%"),
+                out("Carry-only price (no dividend)", v(m, "S") * exp(r * T)))
+        },
+
+        Formula("bond_price", "Bond price", "Finance",
+            "Price from the coupon, yield and maturity (semi-annual by default).",
+            listOf(InputSpec("face", "Face value", 1000.0), InputSpec("couponRate", "Coupon rate (%)", 6.0),
+                InputSpec("ytm", "Yield to maturity (%)", 5.0), InputSpec("years", "Years to maturity", 10.0),
+                InputSpec("perYear", "Coupons per year", 2.0)),
+        ) { m ->
+            val f = v(m, "face"); val per = maxOf(v(m, "perYear"), 1.0)
+            val periods = (v(m, "years") * per).toInt().coerceAtLeast(1)
+            val coupon = f * v(m, "couponRate") / 100.0 / per
+            val y = v(m, "ytm") / 100.0 / per
+            var price = 0.0
+            for (t in 1..periods) price += coupon / (1 + y).pow(t.toDouble())
+            price += f / (1 + y).pow(periods.toDouble())
+            listOf(out("Bond price", price), out("Coupon per period", coupon),
+                out("Periods", periods.toDouble()),
+                out("Premium or discount", price - f))
         },
 
     )
