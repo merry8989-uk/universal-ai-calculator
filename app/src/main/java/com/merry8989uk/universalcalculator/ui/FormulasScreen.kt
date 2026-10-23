@@ -51,6 +51,7 @@ import com.merry8989uk.universalcalculator.ui.theme.Violet
 private data class Tool(val id: String, val title: String, val subtitle: String)
 
 private val TOOLS = listOf(
+    Tool("reference", "Formula reference", "419 identities, rules and tables that are not calculators \u2014 searchable."),
     Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
     Tool("distributions", "Distributions & tests", "Normal/t/binomial/Poisson, t-tests and confidence intervals."),
     Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),
@@ -71,6 +72,7 @@ fun FormulasScreen() {
 
     when {
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
+        tool == "reference" -> FormulaReferenceScreen { tool = "" }
         tool == "statistics" -> StatisticsScreen { tool = "" }
         tool == "distributions" -> DistributionsScreen { tool = "" }
         tool == "complex" -> ComplexScreen { tool = "" }

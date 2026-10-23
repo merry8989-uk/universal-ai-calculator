@@ -1,0 +1,2113 @@
+{
+ "categories": [
+  "Sets & Numbers",
+  "Algebra",
+  "Geometry",
+  "Trigonometry",
+  "Matrices & Determinants",
+  "Vectors",
+  "Analytic Geometry",
+  "Differential Calculus",
+  "Integral Calculus",
+  "Differential Equations",
+  "Series",
+  "Probability & Combinatorics"
+ ],
+ "formulas": [
+  {
+   "c": "Sets & Numbers",
+   "t": "Union",
+   "f": "A ∪ B = { x : x ∈ A or x ∈ B }"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Intersection",
+   "f": "A ∩ B = { x : x ∈ A and x ∈ B }"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Difference",
+   "f": "A \\ B = { x : x ∈ A and x ∉ B }"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Complement",
+   "f": "A′ = { x : x ∈ U and x ∉ A }"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "De Morgan (union)",
+   "f": "(A ∪ B)′ = A′ ∩ B′"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "De Morgan (intersection)",
+   "f": "(A ∩ B)′ = A′ ∪ B′"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Distributive (union)",
+   "f": "A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Distributive (intersection)",
+   "f": "A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Cardinality of a union",
+   "f": "n(A ∪ B) = n(A) + n(B) − n(A ∩ B)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Cardinality of three sets",
+   "f": "n(A ∪ B ∪ C) = n(A) + n(B) + n(C) − n(A ∩ B) − n(B ∩ C) − n(C ∩ A) + n(A ∩ B ∩ C)"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Number of subsets",
+   "f": "A set with n elements has 2ⁿ subsets"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Number of proper subsets",
+   "f": "2ⁿ − 1 proper subsets, 2ⁿ − 2 non-trivial subsets"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Number of relations",
+   "f": "A set with n elements has 2^(n²) relations"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Number sets",
+   "f": "ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Absolute value (product)",
+   "f": "|a · b| = |a| · |b|"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Absolute value (quotient)",
+   "f": "|a / b| = |a| / |b|, b ≠ 0"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Triangle inequality",
+   "f": "|a + b| ≤ |a| + |b|"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Reverse triangle inequality",
+   "f": "|a − b| ≥ |a| − |b|"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Intervals",
+   "f": "(a, b), [a, b], [a, b), (a, b] with a < b"
+  },
+  {
+   "c": "Sets & Numbers",
+   "t": "Binomial theorem",
+   "f": "(a + b)ⁿ = Σ (nCr) aⁿ⁻ʳ bʳ for r = 0 … n"
+  },
+  {
+   "c": "Algebra",
+   "t": "Difference of squares",
+   "f": "a² − b² = (a − b)(a + b)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Difference of cubes",
+   "f": "a³ − b³ = (a − b)(a² + ab + b²)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Sum of cubes",
+   "f": "a³ + b³ = (a + b)(a² − ab + b²)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Difference of nth powers",
+   "f": "aⁿ − bⁿ = (a − b)(aⁿ⁻¹ + aⁿ⁻²b + … + bⁿ⁻¹)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Sum of nth powers (odd n)",
+   "f": "aⁿ + bⁿ = (a + b)(aⁿ⁻¹ − aⁿ⁻²b + … + bⁿ⁻¹) for odd n"
+  },
+  {
+   "c": "Algebra",
+   "t": "Square of a sum",
+   "f": "(a + b)² = a² + 2ab + b²"
+  },
+  {
+   "c": "Algebra",
+   "t": "Square of a difference",
+   "f": "(a − b)² = a² − 2ab + b²"
+  },
+  {
+   "c": "Algebra",
+   "t": "Cube of a sum",
+   "f": "(a + b)³ = a³ + 3a²b + 3ab² + b³"
+  },
+  {
+   "c": "Algebra",
+   "t": "Cube of a difference",
+   "f": "(a − b)³ = a³ − 3a²b + 3ab² − b³"
+  },
+  {
+   "c": "Algebra",
+   "t": "Sum of cubes identity",
+   "f": "a³ + b³ + c³ − 3abc = (a + b + c)(a² + b² + c² − ab − bc − ca)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Trinomial square",
+   "f": "(a + b + c)² = a² + b² + c² + 2ab + 2bc + 2ca"
+  },
+  {
+   "c": "Algebra",
+   "t": "Product rule for powers",
+   "f": "aᵐ · aⁿ = aᵐ⁺ⁿ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Quotient rule for powers",
+   "f": "aᵐ ÷ aⁿ = aᵐ⁻ⁿ, a ≠ 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Power of a power",
+   "f": "(aᵐ)ⁿ = aᵐⁿ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Power of a product",
+   "f": "(ab)ⁿ = aⁿ bⁿ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Power of a quotient",
+   "f": "(a / b)ⁿ = aⁿ / bⁿ, b ≠ 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Zero exponent",
+   "f": "a⁰ = 1, a ≠ 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Negative exponent",
+   "f": "a⁻ⁿ = 1 / aⁿ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Fractional exponent",
+   "f": "a^(m/n) = ⁿ√(aᵐ)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Root of a product",
+   "f": "ⁿ√(ab) = ⁿ√a · ⁿ√b"
+  },
+  {
+   "c": "Algebra",
+   "t": "Root of a quotient",
+   "f": "ⁿ√(a / b) = ⁿ√a / ⁿ√b"
+  },
+  {
+   "c": "Algebra",
+   "t": "Changing base of a power",
+   "f": "aˣ = e^(x ln a)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Product of logarithms",
+   "f": "logₐ(xy) = logₐx + logₐy"
+  },
+  {
+   "c": "Algebra",
+   "t": "Quotient of logarithms",
+   "f": "logₐ(x / y) = logₐx − logₐy"
+  },
+  {
+   "c": "Algebra",
+   "t": "Power in a logarithm",
+   "f": "logₐ(xⁿ) = n logₐx"
+  },
+  {
+   "c": "Algebra",
+   "t": "Logarithm of 1",
+   "f": "logₐ1 = 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Logarithm of the base",
+   "f": "logₐa = 1"
+  },
+  {
+   "c": "Algebra",
+   "t": "Change of base",
+   "f": "logₐb = ln b / ln a"
+  },
+  {
+   "c": "Algebra",
+   "t": "Reciprocal of a logarithm",
+   "f": "logₐb = 1 / log_b a"
+  },
+  {
+   "c": "Algebra",
+   "t": "Logarithm as an inverse",
+   "f": "a^(logₐx) = x"
+  },
+  {
+   "c": "Algebra",
+   "t": "Common logarithms",
+   "f": "ln x = log_e x,  log x = log₁₀ x"
+  },
+  {
+   "c": "Algebra",
+   "t": "Linear equation",
+   "f": "ax + b = 0  →  x = −b / a, a ≠ 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Quadratic formula",
+   "f": "x = (−b ± √(b² − 4ac)) / (2a)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Discriminant",
+   "f": "D = b² − 4ac: two real roots if D > 0, one if D = 0, complex if D < 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Sum and product of roots",
+   "f": "x₁ + x₂ = −b / a,  x₁x₂ = c / a"
+  },
+  {
+   "c": "Algebra",
+   "t": "Vieta for a cubic",
+   "f": "x₁ + x₂ + x₃ = −b/a, Σxᵢxⱼ = c/a, x₁x₂x₃ = −d/a"
+  },
+  {
+   "c": "Algebra",
+   "t": "Completing the square",
+   "f": "ax² + bx + c = a(x + b/2a)² + (c − b²/4a)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Absolute value equation",
+   "f": "|x| = a  →  x = a or x = −a, a ≥ 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Absolute value inequality (less)",
+   "f": "|x| < a  →  −a < x < a"
+  },
+  {
+   "c": "Algebra",
+   "t": "Absolute value inequality (greater)",
+   "f": "|x| > a  →  x < −a or x > a"
+  },
+  {
+   "c": "Algebra",
+   "t": "Adding to an inequality",
+   "f": "a < b  →  a + c < b + c"
+  },
+  {
+   "c": "Algebra",
+   "t": "Multiplying an inequality (positive)",
+   "f": "a < b, c > 0  →  ac < bc"
+  },
+  {
+   "c": "Algebra",
+   "t": "Multiplying an inequality (negative)",
+   "f": "a < b, c < 0  →  ac > bc"
+  },
+  {
+   "c": "Algebra",
+   "t": "Arithmetic–geometric mean",
+   "f": "(a + b) / 2 ≥ √(ab) for a, b ≥ 0"
+  },
+  {
+   "c": "Algebra",
+   "t": "Cauchy–Schwarz",
+   "f": "(a₁b₁ + a₂b₂)² ≤ (a₁² + a₂²)(b₁² + b₂²)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Bernoulli's inequality",
+   "f": "(1 + x)ⁿ ≥ 1 + nx for x ≥ −1, n ≥ 1"
+  },
+  {
+   "c": "Algebra",
+   "t": "Simple inequality",
+   "f": "a² + b² ≥ 2ab"
+  },
+  {
+   "c": "Algebra",
+   "t": "Compound interest (periodic)",
+   "f": "A = P(1 + r/n)^(nt)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Compound interest (continuous)",
+   "f": "A = P e^(rt)"
+  },
+  {
+   "c": "Algebra",
+   "t": "Compound interest (annual)",
+   "f": "A = P(1 + r)ᵗ"
+  },
+  {
+   "c": "Algebra",
+   "t": "Effective annual rate",
+   "f": "EAR = (1 + r/n)ⁿ − 1"
+  },
+  {
+   "c": "Algebra",
+   "t": "Present value",
+   "f": "PV = FV / (1 + r)ᵗ"
+  },
+  {
+   "c": "Geometry",
+   "t": "Pythagoras",
+   "f": "a² + b² = c²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Triangle area (base × height)",
+   "f": "A = ½ b h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Heron's formula",
+   "f": "A = √(s(s − a)(s − b)(s − c)),  s = (a + b + c) / 2"
+  },
+  {
+   "c": "Geometry",
+   "t": "Triangle area (two sides, angle)",
+   "f": "A = ½ a b sin C"
+  },
+  {
+   "c": "Geometry",
+   "t": "Sine rule",
+   "f": "a / sin A = b / sin B = c / sin C = 2R"
+  },
+  {
+   "c": "Geometry",
+   "t": "Cosine rule",
+   "f": "c² = a² + b² − 2ab cos C"
+  },
+  {
+   "c": "Geometry",
+   "t": "Median of a triangle",
+   "f": "mₐ = ½√(2b² + 2c² − a²)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Angle bisector length",
+   "f": "lₐ = √(bc[1 − a²/(b + c)²])"
+  },
+  {
+   "c": "Geometry",
+   "t": "Inradius",
+   "f": "r = A / s"
+  },
+  {
+   "c": "Geometry",
+   "t": "Circumradius",
+   "f": "R = abc / (4A)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Angle sum of a polygon",
+   "f": "Sum of interior angles = (n − 2) · 180°"
+  },
+  {
+   "c": "Geometry",
+   "t": "Exterior angles of a polygon",
+   "f": "Sum of exterior angles = 360°"
+  },
+  {
+   "c": "Geometry",
+   "t": "Interior angle of a regular polygon",
+   "f": "θ = (n − 2) · 180° / n"
+  },
+  {
+   "c": "Geometry",
+   "t": "Circle area",
+   "f": "A = π r²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Circle circumference",
+   "f": "C = 2 π r = π d"
+  },
+  {
+   "c": "Geometry",
+   "t": "Arc length",
+   "f": "L = r θ  (θ in radians)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Sector area",
+   "f": "A = ½ r² θ"
+  },
+  {
+   "c": "Geometry",
+   "t": "Chord length",
+   "f": "c = 2 r sin(θ / 2)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Circle equation",
+   "f": "(x − h)² + (y − k)² = r²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Rectangle",
+   "f": "A = l w,  P = 2(l + w)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Square",
+   "f": "A = a²,  P = 4a,  diagonal = a√2"
+  },
+  {
+   "c": "Geometry",
+   "t": "Parallelogram",
+   "f": "A = b h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Rhombus",
+   "f": "A = ½ d₁ d₂"
+  },
+  {
+   "c": "Geometry",
+   "t": "Trapezoid",
+   "f": "A = ½ (a + b) h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Regular polygon area",
+   "f": "A = ½ n R² sin(2π / n)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Regular polygon perimeter",
+   "f": "P = 2 n R sin(π / n)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Ellipse area",
+   "f": "A = π a b"
+  },
+  {
+   "c": "Geometry",
+   "t": "Ellipse circumference (approx.)",
+   "f": "C ≈ π[3(a + b) − √((3a + b)(a + 3b))]"
+  },
+  {
+   "c": "Geometry",
+   "t": "Cyclic quadrilateral area",
+   "f": "A = √((s − a)(s − b)(s − c)(s − d))  (Brahmagupta)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Cube",
+   "f": "V = a³,  S = 6a²,  diagonal = a√3"
+  },
+  {
+   "c": "Geometry",
+   "t": "Rectangular box",
+   "f": "V = l w h,  S = 2(lw + lh + wh),  diagonal = √(l² + w² + h²)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Cylinder",
+   "f": "V = π r² h,  S = 2 π r (r + h)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Hollow cylinder",
+   "f": "V = π (R² − r²) h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Cone",
+   "f": "V = ⅓ π r² h,  S = π r (r + l),  l = √(r² + h²)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Frustum of a cone",
+   "f": "V = (π h / 3)(R² + R r + r²)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Sphere",
+   "f": "V = (4/3) π r³,  S = 4 π r²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Hemisphere",
+   "f": "V = (2/3) π r³,  S = 3 π r²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Spherical cap",
+   "f": "V = (π h² / 3)(3R − h),  curved S = 2 π R h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Spherical segment",
+   "f": "V = (π h / 6)(3a² + 3b² + h²)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Spherical sector",
+   "f": "V = (2/3) π R² h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Torus",
+   "f": "V = 2 π² R r²,  S = 4 π² R r"
+  },
+  {
+   "c": "Geometry",
+   "t": "Ellipsoid",
+   "f": "V = (4/3) π a b c"
+  },
+  {
+   "c": "Geometry",
+   "t": "Prism",
+   "f": "V = B h,  lateral S = P h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Pyramid",
+   "f": "V = ⅓ B h"
+  },
+  {
+   "c": "Geometry",
+   "t": "Frustum of a pyramid",
+   "f": "V = (h / 3)(B₁ + B₂ + √(B₁B₂))"
+  },
+  {
+   "c": "Geometry",
+   "t": "Regular tetrahedron",
+   "f": "V = a³ / (6√2),  S = √3 a²,  h = a√(2/3)"
+  },
+  {
+   "c": "Geometry",
+   "t": "Regular octahedron",
+   "f": "V = (√2 / 3) a³,  S = 2√3 a²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Regular dodecahedron",
+   "f": "V = ((15 + 7√5) / 4) a³,  S = 3√(25 + 10√5) a²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Regular icosahedron",
+   "f": "V = (5(3 + √5) / 12) a³,  S = 5√3 a²"
+  },
+  {
+   "c": "Geometry",
+   "t": "Similar figures",
+   "f": "Areas scale as k², volumes as k³"
+  },
+  {
+   "c": "Geometry",
+   "t": "Euler's polyhedron formula",
+   "f": "V − E + F = 2"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Pythagorean identity",
+   "f": "sin²θ + cos²θ = 1"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Secant identity",
+   "f": "1 + tan²θ = sec²θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Cosecant identity",
+   "f": "1 + cot²θ = csc²θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Tangent as a ratio",
+   "f": "tan θ = sin θ / cos θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Cotangent as a ratio",
+   "f": "cot θ = cos θ / sin θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Secant and cosecant",
+   "f": "sec θ = 1 / cos θ,  csc θ = 1 / sin θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Sine of a sum",
+   "f": "sin(A + B) = sin A cos B + cos A sin B"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Sine of a difference",
+   "f": "sin(A − B) = sin A cos B − cos A sin B"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Cosine of a sum",
+   "f": "cos(A + B) = cos A cos B − sin A sin B"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Cosine of a difference",
+   "f": "cos(A − B) = cos A cos B + sin A sin B"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Tangent of a sum",
+   "f": "tan(A + B) = (tan A + tan B) / (1 − tan A tan B)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Tangent of a difference",
+   "f": "tan(A − B) = (tan A − tan B) / (1 + tan A tan B)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Double angle (sine)",
+   "f": "sin 2θ = 2 sin θ cos θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Double angle (cosine)",
+   "f": "cos 2θ = cos²θ − sin²θ = 1 − 2sin²θ = 2cos²θ − 1"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Double angle (tangent)",
+   "f": "tan 2θ = 2 tan θ / (1 − tan²θ)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Triple angle (sine)",
+   "f": "sin 3θ = 3 sin θ − 4 sin³θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Triple angle (cosine)",
+   "f": "cos 3θ = 4 cos³θ − 3 cos θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Triple angle (tangent)",
+   "f": "tan 3θ = (3 tan θ − tan³θ) / (1 − 3 tan²θ)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Half angle (sine)",
+   "f": "sin(θ/2) = ±√((1 − cos θ) / 2)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Half angle (cosine)",
+   "f": "cos(θ/2) = ±√((1 + cos θ) / 2)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Half angle (tangent)",
+   "f": "tan(θ/2) = sin θ / (1 + cos θ) = (1 − cos θ) / sin θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Sum to product (sine)",
+   "f": "sin A + sin B = 2 sin((A + B)/2) cos((A − B)/2)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Difference to product (sine)",
+   "f": "sin A − sin B = 2 cos((A + B)/2) sin((A − B)/2)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Sum to product (cosine)",
+   "f": "cos A + cos B = 2 cos((A + B)/2) cos((A − B)/2)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Difference to product (cosine)",
+   "f": "cos A − cos B = −2 sin((A + B)/2) sin((A − B)/2)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Product to sum (sin cos)",
+   "f": "sin A cos B = ½[sin(A + B) + sin(A − B)]"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Product to sum (cos cos)",
+   "f": "cos A cos B = ½[cos(A + B) + cos(A − B)]"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Product to sum (sin sin)",
+   "f": "sin A sin B = ½[cos(A − B) − cos(A + B)]"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Square of sine",
+   "f": "sin²θ = (1 − cos 2θ) / 2"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Square of cosine",
+   "f": "cos²θ = (1 + cos 2θ) / 2"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Square of tangent",
+   "f": "tan²θ = (1 − cos 2θ) / (1 + cos 2θ)"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Reduction (negative angle)",
+   "f": "sin(−θ) = −sin θ,  cos(−θ) = cos θ,  tan(−θ) = −tan θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Reduction (90° − θ)",
+   "f": "sin(90° − θ) = cos θ,  cos(90° − θ) = sin θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Reduction (90° + θ)",
+   "f": "sin(90° + θ) = cos θ,  cos(90° + θ) = −sin θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Reduction (180° − θ)",
+   "f": "sin(180° − θ) = sin θ,  cos(180° − θ) = −cos θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Reduction (180° + θ)",
+   "f": "sin(180° + θ) = −sin θ,  cos(180° + θ) = −cos θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Periodicity",
+   "f": "sin(θ + 2π) = sin θ,  cos(θ + 2π) = cos θ,  tan(θ + π) = tan θ"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Values at 0°",
+   "f": "sin 0 = 0,  cos 0 = 1,  tan 0 = 0"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Values at 30° and 60°",
+   "f": "sin 30° = ½,  cos 30° = √3/2,  sin 60° = √3/2,  cos 60° = ½"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Values at 45°",
+   "f": "sin 45° = cos 45° = √2/2,  tan 45° = 1"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Inverse sine plus inverse cosine",
+   "f": "sin⁻¹x + cos⁻¹x = π/2"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Inverse tangent plus inverse cotangent",
+   "f": "tan⁻¹x + cot⁻¹x = π/2"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Odd inverse sine",
+   "f": "sin⁻¹(−x) = −sin⁻¹x"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Inverse tangent addition",
+   "f": "tan⁻¹x + tan⁻¹y = tan⁻¹((x + y) / (1 − xy))"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Law of sines",
+   "f": "a / sin A = b / sin B = c / sin C"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Hyperbolic identity",
+   "f": "cosh²x − sinh²x = 1"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Hyperbolic addition",
+   "f": "sinh(x ± y) = sinh x cosh y ± cosh x sinh y"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Hyperbolic addition (cosh)",
+   "f": "cosh(x ± y) = cosh x cosh y ± sinh x sinh y"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Hyperbolic double angle",
+   "f": "sinh 2x = 2 sinh x cosh x,  cosh 2x = cosh²x + sinh²x"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Hyperbolic to exponential",
+   "f": "sinh x = (eˣ − e⁻ˣ)/2,  cosh x = (eˣ + e⁻ˣ)/2"
+  },
+  {
+   "c": "Trigonometry",
+   "t": "Radian and degree",
+   "f": "π radians = 180°,  1 rad = 180°/π ≈ 57.2958°"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Transpose of a product",
+   "f": "(AB)ᵀ = Bᵀ Aᵀ"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Double transpose",
+   "f": "(Aᵀ)ᵀ = A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Transpose of a sum",
+   "f": "(A + B)ᵀ = Aᵀ + Bᵀ"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Inverse of a product",
+   "f": "(AB)⁻¹ = B⁻¹ A⁻¹"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Inverse of a transpose",
+   "f": "(Aᵀ)⁻¹ = (A⁻¹)ᵀ"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Inverse of an inverse",
+   "f": "(A⁻¹)⁻¹ = A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant of a product",
+   "f": "det(AB) = det A · det B"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant of a transpose",
+   "f": "det(Aᵀ) = det A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant of an inverse",
+   "f": "det(A⁻¹) = 1 / det A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant of a scaled matrix",
+   "f": "det(kA) = kⁿ det A for an n × n matrix"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant of a 2×2 matrix",
+   "f": "det [[a, b], [c, d]] = ad − bc"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant of a 3×3 matrix",
+   "f": "det = a(ei − fh) − b(di − fg) + c(dh − eg)"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Cramer's rule",
+   "f": "xᵢ = det(Aᵢ) / det(A)"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Inverse of a 2×2 matrix",
+   "f": "A⁻¹ = (1 / det A) [[d, −b], [−c, a]]"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Inverse from the adjugate",
+   "f": "A⁻¹ = adj(A) / det A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Singular matrix",
+   "f": "A is singular ⇔ det A = 0 ⇔ A⁻¹ does not exist"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Trace of a sum",
+   "f": "tr(A + B) = tr(A) + tr(B)"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Trace of a product",
+   "f": "tr(AB) = tr(BA)"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Trace and eigenvalues",
+   "f": "tr(A) = λ₁ + λ₂ + … + λₙ"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Determinant and eigenvalues",
+   "f": "det(A) = λ₁ λ₂ … λₙ"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Characteristic equation",
+   "f": "det(A − λI) = 0"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Identity matrix",
+   "f": "AI = IA = A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Symmetric matrix",
+   "f": "Aᵀ = A"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Skew-symmetric matrix",
+   "f": "Aᵀ = −A, diagonal entries are 0"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Orthogonal matrix",
+   "f": "AᵀA = I, so A⁻¹ = Aᵀ"
+  },
+  {
+   "c": "Matrices & Determinants",
+   "t": "Rank and nullity",
+   "f": "rank(A) + nullity(A) = number of columns"
+  },
+  {
+   "c": "Vectors",
+   "t": "Magnitude",
+   "f": "|a| = √(a₁² + a₂² + a₃²)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Unit vector",
+   "f": "â = a / |a|"
+  },
+  {
+   "c": "Vectors",
+   "t": "Dot product (geometric)",
+   "f": "a · b = |a| |b| cos θ"
+  },
+  {
+   "c": "Vectors",
+   "t": "Dot product (components)",
+   "f": "a · b = a₁b₁ + a₂b₂ + a₃b₃"
+  },
+  {
+   "c": "Vectors",
+   "t": "Dot product is commutative",
+   "f": "a · b = b · a"
+  },
+  {
+   "c": "Vectors",
+   "t": "Dot product is distributive",
+   "f": "a · (b + c) = a · b + a · c"
+  },
+  {
+   "c": "Vectors",
+   "t": "Self dot product",
+   "f": "a · a = |a|²"
+  },
+  {
+   "c": "Vectors",
+   "t": "Perpendicular vectors",
+   "f": "a · b = 0 ⇔ a ⊥ b"
+  },
+  {
+   "c": "Vectors",
+   "t": "Angle between vectors",
+   "f": "cos θ = (a · b) / (|a| |b|)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Scalar projection",
+   "f": "proj = (a · b) / |b|"
+  },
+  {
+   "c": "Vectors",
+   "t": "Vector projection",
+   "f": "proj_b a = ((a · b) / |b|²) b"
+  },
+  {
+   "c": "Vectors",
+   "t": "Cross product (magnitude)",
+   "f": "|a × b| = |a| |b| sin θ"
+  },
+  {
+   "c": "Vectors",
+   "t": "Cross product (determinant form)",
+   "f": "a × b = (a₂b₃ − a₃b₂, a₃b₁ − a₁b₃, a₁b₂ − a₂b₁)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Cross product is anti-commutative",
+   "f": "a × b = −(b × a)"
+  },
+  {
+   "c": "Vectors",
+   "t": "Cross product of parallel vectors",
+   "f": "a × a = 0"
+  },
+  {
+   "c": "Vectors",
+   "t": "Unit vectors",
+   "f": "i × j = k,  j × k = i,  k × i = j"
+  },
+  {
+   "c": "Vectors",
+   "t": "Scalar triple product",
+   "f": "a · (b × c) = volume of the parallelepiped"
+  },
+  {
+   "c": "Vectors",
+   "t": "Vector triple product",
+   "f": "a × (b × c) = (a · c) b − (a · b) c"
+  },
+  {
+   "c": "Vectors",
+   "t": "Area of a triangle",
+   "f": "A = ½ |a × b|"
+  },
+  {
+   "c": "Vectors",
+   "t": "Section formula",
+   "f": "P divides AB in m : n at ((m x₂ + n x₁)/(m + n), (m y₂ + n y₁)/(m + n))"
+  },
+  {
+   "c": "Vectors",
+   "t": "Direction cosines",
+   "f": "cos²α + cos²β + cos²γ = 1"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Distance between two points",
+   "f": "d = √((x₂ − x₁)² + (y₂ − y₁)²)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Distance in 3-D",
+   "f": "d = √((x₂ − x₁)² + (y₂ − y₁)² + (z₂ − z₁)²)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Midpoint",
+   "f": "M = ((x₁ + x₂)/2, (y₁ + y₂)/2)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Slope",
+   "f": "m = (y₂ − y₁) / (x₂ − x₁)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Slope–intercept form",
+   "f": "y = m x + c"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Point–slope form",
+   "f": "y − y₁ = m (x − x₁)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Two-point form",
+   "f": "(y − y₁) / (y₂ − y₁) = (x − x₁) / (x₂ − x₁)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Intercept form",
+   "f": "x / a + y / b = 1"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "General form of a line",
+   "f": "A x + B y + C = 0"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Normal form of a line",
+   "f": "x cos α + y sin α = p"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Parallel lines",
+   "f": "m₁ = m₂"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Perpendicular lines",
+   "f": "m₁ m₂ = −1"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Angle between two lines",
+   "f": "tan θ = |(m₁ − m₂) / (1 + m₁ m₂)|"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Distance from a point to a line",
+   "f": "d = |A x₀ + B y₀ + C| / √(A² + B²)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Distance between parallel lines",
+   "f": "d = |C₁ − C₂| / √(A² + B²)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Circle (general form)",
+   "f": "x² + y² + 2gx + 2fy + c = 0, centre (−g, −f), radius √(g² + f² − c)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Ellipse",
+   "f": "x² / a² + y² / b² = 1,  c² = a² − b²"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Ellipse eccentricity",
+   "f": "e = c / a < 1"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Ellipse latus rectum",
+   "f": "L = 2 b² / a"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Hyperbola",
+   "f": "x² / a² − y² / b² = 1,  c² = a² + b²"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Hyperbola eccentricity",
+   "f": "e = c / a > 1"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Hyperbola asymptotes",
+   "f": "y = ± (b / a) x"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Parabola (standard)",
+   "f": "y² = 4 p x, focus (p, 0), directrix x = −p"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Parabola latus rectum",
+   "f": "L = 4p"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "General conic",
+   "f": "A x² + B xy + C y² + D x + E y + F = 0"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Conic classification",
+   "f": "B² − 4AC < 0 ellipse, = 0 parabola, > 0 hyperbola"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Plane in 3-D",
+   "f": "A x + B y + C z + D = 0"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Distance from a point to a plane",
+   "f": "d = |A x₀ + B y₀ + C z₀ + D| / √(A² + B² + C²)"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Sphere",
+   "f": "(x − a)² + (y − b)² + (z − c)² = r²"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Direction ratios of a line",
+   "f": "x = x₁ + a t,  y = y₁ + b t,  z = z₁ + c t"
+  },
+  {
+   "c": "Analytic Geometry",
+   "t": "Angle between two lines (3-D)",
+   "f": "cos θ = (a₁a₂ + b₁b₂ + c₁c₂) / (√(a₁²+b₁²+c₁²) √(a₂²+b₂²+c₂²))"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of a sum",
+   "f": "lim (f + g) = lim f + lim g"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Limit of a product",
+   "f": "lim (f · g) = lim f · lim g"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "L'Hôpital's rule",
+   "f": "lim f/g = lim f′/g′ for the forms 0/0 and ∞/∞"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Power rule",
+   "f": "d/dx xⁿ = n xⁿ⁻¹"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Constant rule",
+   "f": "d/dx c = 0"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Constant multiple",
+   "f": "d/dx (c f) = c f′"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Sum rule",
+   "f": "d/dx (f + g) = f′ + g′"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Product rule",
+   "f": "d/dx (f g) = f′g + f g′"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Quotient rule",
+   "f": "d/dx (f / g) = (f′g − f g′) / g²"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Chain rule",
+   "f": "d/dx f(g(x)) = f′(g(x)) · g′(x)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of sine",
+   "f": "d/dx sin x = cos x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of cosine",
+   "f": "d/dx cos x = −sin x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of tangent",
+   "f": "d/dx tan x = sec²x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of cotangent",
+   "f": "d/dx cot x = −csc²x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of secant",
+   "f": "d/dx sec x = sec x tan x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of cosecant",
+   "f": "d/dx csc x = −csc x cot x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of exponential",
+   "f": "d/dx eˣ = eˣ"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of aˣ",
+   "f": "d/dx aˣ = aˣ ln a"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of natural log",
+   "f": "d/dx ln x = 1 / x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of log base a",
+   "f": "d/dx logₐx = 1 / (x ln a)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of a general power",
+   "f": "d/dx xˣ = xˣ (1 + ln x)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of inverse sine",
+   "f": "d/dx sin⁻¹x = 1 / √(1 − x²)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of inverse cosine",
+   "f": "d/dx cos⁻¹x = −1 / √(1 − x²)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of inverse tangent",
+   "f": "d/dx tan⁻¹x = 1 / (1 + x²)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of inverse cotangent",
+   "f": "d/dx cot⁻¹x = −1 / (1 + x²)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of inverse secant",
+   "f": "d/dx sec⁻¹x = 1 / (|x| √(x² − 1))"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of sinh",
+   "f": "d/dx sinh x = cosh x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of cosh",
+   "f": "d/dx cosh x = sinh x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Derivative of tanh",
+   "f": "d/dx tanh x = sech²x"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Second derivative test",
+   "f": "f′(c) = 0 and f″(c) > 0 → local minimum; f″(c) < 0 → local maximum"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Rolle's theorem",
+   "f": "If f(a) = f(b) then f′(c) = 0 for some c in (a, b)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Mean value theorem",
+   "f": "f′(c) = (f(b) − f(a)) / (b − a) for some c in (a, b)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Taylor's theorem",
+   "f": "f(x) = Σ f⁽ⁿ⁾(a) (x − a)ⁿ / n! + remainder"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Linear approximation",
+   "f": "f(x) ≈ f(a) + f′(a)(x − a)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Curvature",
+   "f": "κ = |y″| / (1 + y′²)^(3/2)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Partial derivative",
+   "f": "∂f/∂x treated with the other variables held constant"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Total differential",
+   "f": "df = (∂f/∂x) dx + (∂f/∂y) dy"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Gradient",
+   "f": "∇f = (∂f/∂x, ∂f/∂y, ∂f/∂z)"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Divergence",
+   "f": "∇ · F = ∂P/∂x + ∂Q/∂y + ∂R/∂z"
+  },
+  {
+   "c": "Differential Calculus",
+   "t": "Curl",
+   "f": "∇ × F = ((∂R/∂y − ∂Q/∂z), (∂P/∂z − ∂R/∂x), (∂Q/∂x − ∂P/∂y))"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Power rule",
+   "f": "∫ xⁿ dx = xⁿ⁺¹ / (n + 1) + C, n ≠ −1"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Reciprocal",
+   "f": "∫ (1 / x) dx = ln|x| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Exponential",
+   "f": "∫ eˣ dx = eˣ + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "General exponential",
+   "f": "∫ aˣ dx = aˣ / ln a + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Sine",
+   "f": "∫ sin x dx = −cos x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Cosine",
+   "f": "∫ cos x dx = sin x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Tangent",
+   "f": "∫ tan x dx = ln|sec x| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Cotangent",
+   "f": "∫ cot x dx = ln|sin x| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Secant",
+   "f": "∫ sec x dx = ln|sec x + tan x| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Cosecant",
+   "f": "∫ csc x dx = ln|csc x − cot x| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Secant squared",
+   "f": "∫ sec²x dx = tan x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Cosecant squared",
+   "f": "∫ csc²x dx = −cot x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Arc tangent",
+   "f": "∫ dx / (1 + x²) = tan⁻¹x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Arc sine",
+   "f": "∫ dx / √(1 − x²) = sin⁻¹x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "With a squared denominator",
+   "f": "∫ dx / (x² + a²) = (1/a) tan⁻¹(x/a) + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "With a squared root",
+   "f": "∫ dx / √(x² ± a²) = ln|x + √(x² ± a²)| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "With a difference of squares",
+   "f": "∫ dx / (x² − a²) = (1/2a) ln|(x − a)/(x + a)| + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Logarithm",
+   "f": "∫ ln x dx = x ln x − x + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Sine squared",
+   "f": "∫ sin²x dx = x/2 − sin 2x / 4 + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Cosine squared",
+   "f": "∫ cos²x dx = x/2 + sin 2x / 4 + C"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integration by parts",
+   "f": "∫ u dv = u v − ∫ v du"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Integration by substitution",
+   "f": "∫ f(g(x)) g′(x) dx = ∫ f(u) du"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Partial fractions",
+   "f": "Rational functions split into simple fractions before integrating"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Definite integral",
+   "f": "∫ₐᵇ f(x) dx = F(b) − F(a)"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Reversing limits",
+   "f": "∫ₐᵇ f = −∫_bᵃ f"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Zero-width integral",
+   "f": "∫ₐᵃ f(x) dx = 0"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Splitting the interval",
+   "f": "∫ₐᶜ f = ∫ₐᵇ f + ∫_bᶜ f"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Mean value of a function",
+   "f": "f̄ = (1/(b − a)) ∫ₐᵇ f(x) dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Area under a curve",
+   "f": "A = ∫ₐᵇ f(x) dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Area between two curves",
+   "f": "A = ∫ₐᵇ (f(x) − g(x)) dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Volume of revolution (disc)",
+   "f": "V = π ∫ₐᵇ y² dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Volume of revolution (shell)",
+   "f": "V = 2π ∫ₐᵇ x y dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Arc length",
+   "f": "L = ∫ₐᵇ √(1 + (dy/dx)²) dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Surface of revolution",
+   "f": "S = 2π ∫ₐᵇ y √(1 + (dy/dx)²) dx"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Trapezoid rule",
+   "f": "∫ ≈ (h/2)[f₀ + 2(f₁ + … + f_{n−1}) + f_n]"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Simpson's rule",
+   "f": "∫ ≈ (h/3)[f₀ + 4f₁ + 2f₂ + 4f₃ + … + f_n]"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Double integral",
+   "f": "∫∫ f(x, y) dA over a region R"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Polar area",
+   "f": "A = ½ ∫ r² dθ"
+  },
+  {
+   "c": "Integral Calculus",
+   "t": "Improper integral",
+   "f": "∫ₐ^∞ f = lim (b → ∞) ∫ₐᵇ f"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Order and degree",
+   "f": "The order is the highest derivative; the degree is its power"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Separable equation",
+   "f": "dy/dx = f(x) g(y)  →  ∫ dy / g(y) = ∫ f(x) dx"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Linear first order",
+   "f": "y′ + P(x) y = Q(x)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Integrating factor",
+   "f": "μ = e^∫P(x) dx"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Solution of a linear first order equation",
+   "f": "y μ = ∫ μ Q(x) dx + C"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Homogeneous equation",
+   "f": "dy/dx = f(y/x); substitute y = v x"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Exact equation",
+   "f": "M dx + N dy = 0 is exact when ∂M/∂y = ∂N/∂x"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Second order with constant coefficients",
+   "f": "a y″ + b y′ + c y = 0"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Characteristic equation",
+   "f": "a r² + b r + c = 0"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Distinct real roots",
+   "f": "y = C₁ e^(r₁x) + C₂ e^(r₂x)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Repeated root",
+   "f": "y = (C₁ + C₂ x) e^(rx)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Complex roots",
+   "f": "y = e^(αx)(C₁ cos βx + C₂ sin βx) for r = α ± iβ"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Wronskian",
+   "f": "W = y₁ y₂′ − y₂ y₁′; non-zero means independent solutions"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace transform of a derivative",
+   "f": "L{y′} = s Y(s) − y(0)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace transform of e^(at)",
+   "f": "L{e^(at)} = 1 / (s − a)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Laplace transform of sin and cos",
+   "f": "L{sin at} = a / (s² + a²),  L{cos at} = s / (s² + a²)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Euler's method",
+   "f": "yₙ₊₁ = yₙ + h f(xₙ, yₙ)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Runge–Kutta (RK4)",
+   "f": "yₙ₊₁ = yₙ + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Population growth",
+   "f": "dP/dt = k P  →  P = P₀ e^(kt)"
+  },
+  {
+   "c": "Differential Equations",
+   "t": "Newton's law of cooling",
+   "f": "dT/dt = −k (T − Tₐ)"
+  },
+  {
+   "c": "Series",
+   "t": "Arithmetic progression (nth term)",
+   "f": "aₙ = a + (n − 1) d"
+  },
+  {
+   "c": "Series",
+   "t": "Arithmetic progression (sum)",
+   "f": "Sₙ = (n / 2)[2a + (n − 1)d]"
+  },
+  {
+   "c": "Series",
+   "t": "Arithmetic mean",
+   "f": "A = (a + b) / 2"
+  },
+  {
+   "c": "Series",
+   "t": "Geometric progression (nth term)",
+   "f": "aₙ = a rⁿ⁻¹"
+  },
+  {
+   "c": "Series",
+   "t": "Geometric progression (sum)",
+   "f": "Sₙ = a (1 − rⁿ) / (1 − r),  r ≠ 1"
+  },
+  {
+   "c": "Series",
+   "t": "Geometric series (infinite)",
+   "f": "S∞ = a / (1 − r) for |r| < 1"
+  },
+  {
+   "c": "Series",
+   "t": "Geometric mean",
+   "f": "G = √(ab)"
+  },
+  {
+   "c": "Series",
+   "t": "Harmonic mean",
+   "f": "H = 2ab / (a + b)"
+  },
+  {
+   "c": "Series",
+   "t": "Sum of first n integers",
+   "f": "Σ k = n(n + 1) / 2"
+  },
+  {
+   "c": "Series",
+   "t": "Sum of squares",
+   "f": "Σ k² = n(n + 1)(2n + 1) / 6"
+  },
+  {
+   "c": "Series",
+   "t": "Sum of cubes",
+   "f": "Σ k³ = [n(n + 1) / 2]²"
+  },
+  {
+   "c": "Series",
+   "t": "Sum of the first n odd numbers",
+   "f": "1 + 3 + 5 + … + (2n − 1) = n²"
+  },
+  {
+   "c": "Series",
+   "t": "Sum of a constant",
+   "f": "Σ c = n c"
+  },
+  {
+   "c": "Series",
+   "t": "Harmonic series",
+   "f": "Σ 1/k diverges"
+  },
+  {
+   "c": "Series",
+   "t": "p-series",
+   "f": "Σ 1/kᵖ converges iff p > 1"
+  },
+  {
+   "c": "Series",
+   "t": "Geometric series test",
+   "f": "Σ rᵏ converges iff |r| < 1"
+  },
+  {
+   "c": "Series",
+   "t": "Ratio test",
+   "f": "L = lim |aₙ₊₁ / aₙ|: converges if L < 1, diverges if L > 1"
+  },
+  {
+   "c": "Series",
+   "t": "Root test",
+   "f": "L = lim |aₙ|^(1/n): converges if L < 1, diverges if L > 1"
+  },
+  {
+   "c": "Series",
+   "t": "Comparison test",
+   "f": "If 0 ≤ aₙ ≤ bₙ and Σbₙ converges, so does Σaₙ"
+  },
+  {
+   "c": "Series",
+   "t": "Integral test",
+   "f": "Σ f(n) and ∫ f(x) dx converge or diverge together"
+  },
+  {
+   "c": "Series",
+   "t": "Alternating series test",
+   "f": "If aₙ decreases to 0 then Σ(−1)ⁿaₙ converges"
+  },
+  {
+   "c": "Series",
+   "t": "Radius of convergence",
+   "f": "1 / R = lim |aₙ₊₁ / aₙ| for Σ aₙ xⁿ"
+  },
+  {
+   "c": "Series",
+   "t": "Taylor series",
+   "f": "f(x) = Σ f⁽ⁿ⁾(a) (x − a)ⁿ / n!"
+  },
+  {
+   "c": "Series",
+   "t": "Maclaurin series",
+   "f": "f(x) = Σ f⁽ⁿ⁾(0) xⁿ / n!"
+  },
+  {
+   "c": "Series",
+   "t": "Exponential series",
+   "f": "eˣ = 1 + x + x²/2! + x³/3! + …"
+  },
+  {
+   "c": "Series",
+   "t": "Sine series",
+   "f": "sin x = x − x³/3! + x⁵/5! − …"
+  },
+  {
+   "c": "Series",
+   "t": "Cosine series",
+   "f": "cos x = 1 − x²/2! + x⁴/4! − …"
+  },
+  {
+   "c": "Series",
+   "t": "Logarithm series",
+   "f": "ln(1 + x) = x − x²/2 + x³/3 − … for −1 < x ≤ 1"
+  },
+  {
+   "c": "Series",
+   "t": "Geometric series expansion",
+   "f": "1 / (1 − x) = 1 + x + x² + x³ + … for |x| < 1"
+  },
+  {
+   "c": "Series",
+   "t": "Binomial series",
+   "f": "(1 + x)ᵏ = 1 + kx + k(k−1)x²/2! + …"
+  },
+  {
+   "c": "Series",
+   "t": "Arctangent series",
+   "f": "tan⁻¹x = x − x³/3 + x⁵/5 − … for |x| ≤ 1"
+  },
+  {
+   "c": "Series",
+   "t": "Fourier series",
+   "f": "f(x) = a₀/2 + Σ [aₙ cos(nx) + bₙ sin(nx)]"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Factorial",
+   "f": "n! = n(n − 1)(n − 2) … 1,  0! = 1"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Permutations",
+   "f": "nPr = n! / (n − r)!"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Combinations",
+   "f": "nCr = n! / (r! (n − r)!)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Symmetry of combinations",
+   "f": "nCr = nC(n − r)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Ends of a row of Pascal's triangle",
+   "f": "nC0 = nCn = 1"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Pascal's rule",
+   "f": "nCr + nC(r − 1) = (n + 1)Cr"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Permutations with repetition",
+   "f": "nʳ arrangements of r items from n types"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Circular permutations",
+   "f": "(n − 1)! arrangements around a circle"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Derangements",
+   "f": "!n = n! Σ (−1)ᵏ / k! for k = 0 … n"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Inclusion–exclusion",
+   "f": "|A ∪ B ∪ C| = Σ|A| − Σ|A ∩ B| + |A ∩ B ∩ C|"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Probability range",
+   "f": "0 ≤ P(A) ≤ 1"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Probability of the sample space",
+   "f": "P(S) = 1"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Complement",
+   "f": "P(A′) = 1 − P(A)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Addition rule",
+   "f": "P(A ∪ B) = P(A) + P(B) − P(A ∩ B)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Mutually exclusive events",
+   "f": "P(A ∪ B) = P(A) + P(B)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Independent events",
+   "f": "P(A ∩ B) = P(A) P(B)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Conditional probability",
+   "f": "P(A | B) = P(A ∩ B) / P(B)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Multiplication rule",
+   "f": "P(A ∩ B) = P(A) P(B | A)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Total probability",
+   "f": "P(B) = Σ P(Aᵢ) P(B | Aᵢ)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Bayes' theorem",
+   "f": "P(A | B) = P(A) P(B | A) / P(B)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Odds",
+   "f": "odds = P / (1 − P)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Expected value",
+   "f": "E(X) = Σ x P(x)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Expected value of a function",
+   "f": "E(g(X)) = Σ g(x) P(x)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Variance",
+   "f": "Var(X) = E(X²) − [E(X)]²"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Standard deviation",
+   "f": "σ = √Var(X)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Variance of a sum",
+   "f": "Var(X + Y) = Var(X) + Var(Y) + 2Cov(X, Y)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Covariance",
+   "f": "Cov(X, Y) = E(XY) − E(X)E(Y)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Binomial distribution",
+   "f": "P(X = k) = nCk pᵏ (1 − p)ⁿ⁻ᵏ"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Binomial mean and variance",
+   "f": "μ = np,  σ² = np(1 − p)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Poisson distribution",
+   "f": "P(X = k) = λᵏ e^(−λ) / k!"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Poisson mean and variance",
+   "f": "μ = σ² = λ"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Normal density",
+   "f": "f(x) = (1 / (σ√(2π))) e^(−(x − μ)² / 2σ²)"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Standard normal",
+   "f": "z = (x − μ) / σ"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Chebyshev's inequality",
+   "f": "P(|X − μ| ≥ kσ) ≤ 1 / k²"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Empirical rule",
+   "f": "About 68% within 1σ, 95% within 2σ, 99.7% within 3σ"
+  },
+  {
+   "c": "Probability & Combinatorics",
+   "t": "Geometric distribution",
+   "f": "P(X = k) = (1 − p)ᵏ⁻¹ p"
+  }
+ ]
+}
