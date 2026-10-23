@@ -181,7 +181,7 @@ fun AppRoot(settings: SettingsState) {
                             .clearAndSetSemantics {
                                 contentDescription = "Settings tab"
                                 role = Role.Tab
-                                selected = tab == SETTINGS_TAB
+                                this.selected = tab == SETTINGS_TAB
                             },
                     )
                 }
@@ -255,7 +255,7 @@ private fun RowScope.NavItem(
             .clearAndSetSemantics {
                 contentDescription = "$label tab"
                 role = Role.Tab
-                selected = selected
+                this.selected = selected
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
