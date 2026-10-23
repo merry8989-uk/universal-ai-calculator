@@ -36,6 +36,13 @@ object Converters {
             val v = map[ch] ?: throw Evaluator.EvalException("'$ch' is not a Roman numeral")
             if (v < prev) total -= v else { total += v; prev = v }
         }
+        if (total <= 0 || total > 3999) {
+            throw Evaluator.EvalException("Roman numerals must be between I and MMMCMXCIX")
+        }
+        // Only the canonical form is accepted, so "IIIIII" or "VV" are rejected.
+        if (toRoman(total) != s) {
+            throw Evaluator.EvalException("'$s' is not a valid Roman numeral")
+        }
         return total
     }
 

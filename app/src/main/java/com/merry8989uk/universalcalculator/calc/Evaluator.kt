@@ -123,7 +123,7 @@ object Evaluator {
                 '-' -> { i++; val v = parseUnary(); return Operand(-v.value, v.isPercent) }
                 '+' -> { i++; return parseUnary() }
             }
-            return parsePostfix()
+            return parsePower()
         }
 
         private fun parsePostfix(): Operand {
@@ -143,13 +143,13 @@ object Evaluator {
             return Operand(if (percent) v / 100.0 else v, percent)
         }
 
-        private fun parsePower(): Double {
-            val base = parsePostfix().value
+        private fun parsePower(): Operand {
+            val base = parsePostfix()
             skipSpaces()
             if (peek() == '^') {
                 i++
-                val exponent = parseUnary().value
-                return base.pow(exponent)
+                val exponent = parseUnary()
+                return Operand(base.value.pow(exponent.value), false)
             }
             return base
         }

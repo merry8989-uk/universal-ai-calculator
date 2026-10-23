@@ -50,7 +50,7 @@ class EvaluatorTest {
         assertEquals(36.0, ev("lcm(12, 18)"), 1e-9)
         assertEquals(1.0, ev("mod(10, 3)"), 1e-9)
         assertEquals(5.0, ev("abs(-5)"), 1e-9)
-        assertEquals(3.0, ev("hypot(3, 4)"), 1e-9)
+        assertEquals(5.0, ev("hypot(3, 4)"), 1e-9)
     }
 
     @Test fun constants() {

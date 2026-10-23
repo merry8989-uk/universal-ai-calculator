@@ -32,7 +32,7 @@ class ProgrammerTest {
         assertEquals(16L, Programmer.shl(1, 4))
         assertEquals(1L, Programmer.shr(16, 4))
         assertEquals(8, Programmer.popcount(255))
-        assertEquals(64, Programmer.leadingZeros(1))
+        assertEquals(63, Programmer.leadingZeros(1))
     }
 
     @Test fun badInputIsRejected() {
