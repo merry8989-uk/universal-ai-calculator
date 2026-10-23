@@ -5,14 +5,19 @@
  * no third-party API key anywhere — not in the app, not in this repo, and no
  * secret to rotate.
  *
- * Deploy:
- *   cd backend/cloudflare
- *   npm install -g wrangler
- *   wrangler login
- *   wrangler deploy
+ * Cloudflare retires Workers AI models regularly, so this Worker tries a list
+ * of current models and uses the first one that answers. Set AI_MODEL in
+ * wrangler.toml (or as a Worker variable) to pin a specific one.
  */
 
-const DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct";
+// Tried in order. The first one that answers wins.
+const FALLBACK_MODELS = [
+  "@cf/google/gemma-4-26b-a4b-it",
+  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "@cf/meta/llama-3.1-8b-instruct-fp8",
+  "@cf/qwen/qwen3-30b-a3b-fp8",
+  "@cf/ibm-granite/granite-4.0-h-micro",
+];
 
 const SYSTEM = [
   "You are the built-in assistant of the Nexus Calc Android app.",
@@ -40,6 +45,18 @@ function json(obj, status = 200) {
   });
 }
 
+/** Pulls the text out of whichever shape the model returned. */
+function extractText(out) {
+  if (out == null) return "";
+  if (typeof out === "string") return out;
+  if (typeof out.response === "string") return out.response;
+  if (typeof out.result?.response === "string") return out.result.response;
+  const choice = out.choices?.[0];
+  if (choice && typeof choice.message?.content === "string") return choice.message.content;
+  if (choice && typeof choice.text === "string") return choice.text;
+  return "";
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -53,7 +70,6 @@ export default {
       if (question.length > 4000) return json({ error: "Question is too long." }, 400);
 
       if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
-      const model = env.AI_MODEL || DEFAULT_MODEL;
 
       const messages = [
         { role: "system", content: SYSTEM },
@@ -65,12 +81,27 @@ export default {
         },
       ];
 
-      const out = await env.AI.run(model, { messages, max_tokens: 512 });
-      const answer =
-        typeof out === "string" ? out : (out?.response ?? out?.result?.response ?? "");
-      if (!answer) return json({ error: "The model returned no answer." }, 502);
+      // A pinned model (if configured) goes first, then the fallbacks.
+      const candidates = [];
+      if (env.AI_MODEL) candidates.push(env.AI_MODEL);
+      for (const m of FALLBACK_MODELS) if (!candidates.includes(m)) candidates.push(m);
 
-      return json({ answer, model });
+      const problems = [];
+      for (const model of candidates) {
+        try {
+          const out = await env.AI.run(model, { messages, max_tokens: 512 });
+          const answer = extractText(out);
+          if (answer.trim()) return json({ answer: answer.trim(), model });
+          problems.push(`${model}: empty response`);
+        } catch (e) {
+          problems.push(`${model}: ${e}`);
+        }
+      }
+
+      return json(
+        { error: "No Workers AI model could answer.", detail: problems.join(" | ") },
+        502,
+      );
     } catch (e) {
       return json({ error: String(e) }, 500);
     }

@@ -57,6 +57,7 @@ jobs:
           echo
           if grep -qi '"answer"' /tmp/answer.json; then
             echo "SMOKE TEST: PASS"
+            python3 -c "import json;d=json.load(open('/tmp/answer.json'));print('model used:', d.get('model'));print('answer:', d.get('answer'))"
           else
             echo "SMOKE TEST: FAIL (no answer field)" >&2
             exit 1

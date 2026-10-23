@@ -7,4 +7,6 @@ compatibility_date = "2026-01-01"
 binding = "AI"
 
 [vars]
-AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+# Preferred model. If Cloudflare retires it, the Worker automatically falls back
+# to the other current models listed in worker.js.
+AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
