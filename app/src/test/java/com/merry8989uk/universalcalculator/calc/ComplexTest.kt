@@ -31,7 +31,9 @@ class ComplexTest {
         assertEquals(c(-1.0, 2.0), c(3.0, 4.0).div(c(1.0, -2.0)))
         assertEquals(c(0.0, 2.0), c(1.0, 1.0).pow(2))
         assertEquals(c(0.0, 2.0), c(-4.0, 0.0).sqrt())
-        assertEquals(c(2.0, 0.0), c(2.0, 0.0).sqrt())
+        val root2 = c(2.0, 0.0).sqrt()
+        assertEquals(1.41421356, root2.re, 1e-8)
+        assertEquals(0.0, root2.im, 1e-9)
     }
 
     @Test fun properties() {

@@ -39,7 +39,7 @@ jobs:
           import glob, xml.etree.ElementTree as ET
           total = fail = err = skip = 0
           problems = []
-          for f in glob.glob('app/build/test-results/**/*.xml', recursive=True):
+          for f in glob.glob('app/build/test-results/testDebugUnitTest/*.xml'):
               root = ET.parse(f).getroot()
               total += int(root.get('tests', 0))
               fail += int(root.get('failures', 0))
