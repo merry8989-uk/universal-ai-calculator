@@ -30,9 +30,13 @@ import kotlin.math.tanh
 /**
  * A small, dependency-free recursive-descent expression evaluator.
  *
- * Supports + - * / % ^, parentheses, unary minus, postfix factorial (!),
- * a rich function library and the constants pi, e, tau, phi and ans.
- * It is the numeric core behind Standard, Scientific and the formula engine.
+ * Supports + - * / ^, parentheses, unary minus, postfix factorial (!) and a
+ * proper percentage key (%):
+ *   - `200 + 10%` = 220      (10% of 200, added)
+ *   - `200 - 10%` = 180
+ *   - `200 * 10%` = 20
+ *   - `50%`       = 0.5
+ * Use `mod(a, b)` for a remainder.
  */
 object Evaluator {
 
@@ -59,6 +63,9 @@ object Evaluator {
     ) {
         private var i = 0
 
+        /** A value plus whether it was written with a trailing percent sign. */
+        private data class Operand(val value: Double, val isPercent: Boolean)
+
         private fun peek(): Char? = if (i < s.length) s[i] else null
         private fun skipSpaces() { while (i < s.length && s[i].isWhitespace()) i++ }
 
@@ -68,69 +75,83 @@ object Evaluator {
         }
 
         fun parseExpression(): Double {
-            var value = parseTerm()
+            var acc = parseTerm()
             while (true) {
                 skipSpaces()
                 when (peek()) {
-                    '+' -> { i++; value += parseTerm() }
-                    '-' -> { i++; value -= parseTerm() }
-                    else -> return value
+                    '+' -> {
+                        i++
+                        val r = parseTerm()
+                        acc = Operand(
+                            if (r.isPercent) acc.value + acc.value * r.value else acc.value + r.value,
+                            false,
+                        )
+                    }
+                    '-' -> {
+                        i++
+                        val r = parseTerm()
+                        acc = Operand(
+                            if (r.isPercent) acc.value - acc.value * r.value else acc.value - r.value,
+                            false,
+                        )
+                    }
+                    else -> return acc.value
                 }
             }
         }
 
-        private fun parseTerm(): Double {
-            var value = parseUnary()
+        private fun parseTerm(): Operand {
+            var acc = parseUnary()
             while (true) {
                 skipSpaces()
                 when (peek()) {
-                    '*' -> { i++; value *= parseUnary() }
+                    '*' -> { i++; val r = parseUnary(); acc = Operand(acc.value * r.value, false) }
                     '/' -> {
                         i++
-                        val d = parseUnary()
-                        if (d == 0.0) throw EvalException("Division by zero")
-                        value /= d
+                        val r = parseUnary()
+                        if (r.value == 0.0) throw EvalException("Division by zero")
+                        acc = Operand(acc.value / r.value, false)
                     }
-                    '%' -> {
-                        i++
-                        val d = parseUnary()
-                        if (d == 0.0) throw EvalException("Modulo by zero")
-                        value %= d
-                    }
-                    else -> return value
+                    else -> return acc
                 }
             }
         }
 
-        private fun parseUnary(): Double {
+        private fun parseUnary(): Operand {
             skipSpaces()
             when (peek()) {
-                '-' -> { i++; return -parseUnary() }
+                '-' -> { i++; val v = parseUnary(); return Operand(-v.value, v.isPercent) }
                 '+' -> { i++; return parseUnary() }
             }
-            return parsePower()
+            return parsePostfix()
         }
 
-        private fun parsePower(): Double {
-            val base = parsePostfix()
-            skipSpaces()
-            if (peek() == '^') {
-                i++
-                val exponent = parseUnary()
-                return base.pow(exponent)
-            }
-            return base
-        }
-
-        private fun parsePostfix(): Double {
+        private fun parsePostfix(): Operand {
             var v = parseAtom()
+            var percent = false
             skipSpaces()
+            while (peek() == '%') {
+                i++
+                percent = true
+                skipSpaces()
+            }
             while (peek() == '!') {
                 i++
                 v = factorial(v)
                 skipSpaces()
             }
-            return v
+            return Operand(if (percent) v / 100.0 else v, percent)
+        }
+
+        private fun parsePower(): Double {
+            val base = parsePostfix().value
+            skipSpaces()
+            if (peek() == '^') {
+                i++
+                val exponent = parseUnary().value
+                return base.pow(exponent)
+            }
+            return base
         }
 
         private fun parseAtom(): Double {
@@ -232,6 +253,11 @@ object Evaluator {
                 "npr" -> permutations(a[0], a[1])
                 "gcd" -> gcd(a[0].toLong(), a[1].toLong()).toDouble()
                 "lcm" -> lcm(a[0].toLong(), a[1].toLong()).toDouble()
+                "mod" -> {
+                    if (a.size < 2) throw EvalException("mod() needs two arguments")
+                    if (a[1] == 0.0) throw EvalException("Modulo by zero")
+                    a[0] % a[1]
+                }
                 "pct" -> one() / 100.0
                 else -> throw EvalException("Unknown function '$name'")
             }

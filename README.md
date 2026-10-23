@@ -19,8 +19,9 @@ Engineering, Construction and Math.
 - **Ask AI** — ask anything in plain language and get an answer with the working.
   The assistant runs on a Cloudflare Worker; the app
   never holds the key and the user never enters one.
-- **Standard calculator** — live result preview, `ans` memory, percentage, sign
-  toggle, thousands separators.
+- **Standard calculator** — live result preview, `ans` memory, a real percent
+  key (200 + 10% = 220), sign toggle, thousands separators.
+- **Persistent history** — stored on the device and kept until you clear it.
 - **Scientific calculator** — trig (DEG/RAD), inverse trig, logs, powers, roots,
   factorial, nCr/nPr, gcd/lcm, constants (pi, e, tau, phi).
 - **Unit converter** — 26 categories and 304 units (length, mass, temperature,

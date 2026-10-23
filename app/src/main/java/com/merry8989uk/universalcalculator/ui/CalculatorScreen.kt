@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import com.merry8989uk.universalcalculator.calc.Evaluator
@@ -135,8 +138,9 @@ fun CalculatorScreen(
     var expr by rememberSaveable { mutableStateOf("") }
     var ans by rememberSaveable { mutableStateOf(0.0) }
     var degrees by rememberSaveable { mutableStateOf(settings.degreesMode) }
-    var history by rememberSaveable { mutableStateOf("") }
     var memory by rememberSaveable { mutableStateOf(0.0) }
+    val historyVm: HistoryViewModel = viewModel()
+    val history by historyVm.entries.collectAsState()
     var showHistory by rememberSaveable { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -176,7 +180,7 @@ fun CalculatorScreen(
         HistoryScreen(
             history = history,
             onBack = { showHistory = false },
-            onClear = { history = ""; showHistory = false },
+            onClear = { historyVm.clear(); showHistory = false },
         )
         return
     }
@@ -387,8 +391,7 @@ fun CalculatorScreen(
                                         }
                                         DiagnosticsLogger.log("Calc", "${expr.ifBlank { "0" }} = $shown")
                                         if (settings.historyEnabled) {
-                                            history = (history + "\n${expr.ifBlank { "0" }} = $shown")
-                                                .trim().split("\n").takeLast(200).joinToString("\n")
+                                            historyVm.append("${expr.ifBlank { "0" }} = $shown")
                                         }
                                         expr = shown
                                     }
