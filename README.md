@@ -32,6 +32,8 @@ Engineering, Construction and Math.
   rotate-free bitwise helpers and popcount.
 - **Date calculator** — difference, age, weeks/months/years, working days, week
   number, quarter, day-of-year, add/subtract days, Unix timestamps.
+- **Fractions in results** — 0.75 is also shown as 3/4
+- **Haptic feedback**, keep screen on, save state, Modern/Classic keypad layout
 - **Formula reference** — 419 identities, rules and tables across 12 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
