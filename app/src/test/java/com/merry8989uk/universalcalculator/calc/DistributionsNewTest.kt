@@ -22,8 +22,8 @@ class DistributionsNewTest {
     }
 
     @Test fun fCriticalValues() {
-        assertEquals(0.05, Distributions.fUpperTail(5.14, 2.0, 6.0), 1e-3)
-        assertEquals(0.05, Distributions.fUpperTail(4.26, 3.0, 20.0), 3e-3)
+        assertEquals(0.05, Distributions.fUpperTail(5.1433, 2.0, 6.0), 1e-3)
+        assertEquals(0.05, Distributions.fUpperTail(3.0984, 3.0, 20.0), 1e-3)
         assertEquals(0.5, Distributions.betai(0.5, 0.5, 0.5), 1e-9)
     }
 

@@ -29,7 +29,7 @@ class SymbolicTest {
         assertArrayEquals(p(-5.0, 0.0, 6.0), Symbolic.derivative(p(1.0, -5.0, 0.0, 2.0)), 1e-12)
         assertArrayEquals(p(0.0, 1.0, -2.5, 0.0, 0.5), Symbolic.integral(p(1.0, -5.0, 0.0, 2.0)), 1e-12)
         assertEquals(7.0, Symbolic.evaluate(p(1.0, -5.0, 0.0, 2.0), 2.0), 1e-12)
-        assertEquals(0.0, Symbolic.evaluate(p(1.0, -5.0, 0.0, 2.0), 0.0), 1e-12)
+        assertEquals(1.0, Symbolic.evaluate(p(1.0, -5.0, 0.0, 2.0), 0.0), 1e-12)  // the constant term
     }
 
     @Test fun arithmetic() {
