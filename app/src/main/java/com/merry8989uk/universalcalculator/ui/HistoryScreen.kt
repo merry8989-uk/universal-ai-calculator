@@ -1,5 +1,6 @@
 package com.merry8989uk.universalcalculator.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,12 @@ import androidx.compose.ui.unit.dp
 
 /** Full calculation history, newest first. */
 @Composable
-fun HistoryScreen(history: String, onBack: () -> Unit, onClear: () -> Unit) {
+fun HistoryScreen(
+    history: String,
+    onBack: () -> Unit,
+    onClear: () -> Unit,
+    onPick: (String) -> Unit = {},
+) {
     val entries = history.split("\n").filter { it.isNotBlank() }.reversed()
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -31,6 +37,11 @@ fun HistoryScreen(history: String, onBack: () -> Unit, onClear: () -> Unit) {
             if (entries.isNotEmpty()) TextButton(onClick = onClear) { Text("Clear") }
         }
         Text("History", style = MaterialTheme.typography.titleLarge)
+        Text(
+            "Tap any calculation to put it back on the board.",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 2.dp),
+        )
 
         if (entries.isEmpty()) {
             Text(
@@ -44,7 +55,7 @@ fun HistoryScreen(history: String, onBack: () -> Unit, onClear: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 entries.forEach { e ->
-                    Card(modifier = Modifier.fillMaxWidth()) {
+                    Card(modifier = Modifier.fillMaxWidth().clickable { onPick(e) }) {
                         Text(
                             e,
                             style = MaterialTheme.typography.bodyLarge,

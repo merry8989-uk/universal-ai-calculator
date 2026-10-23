@@ -44,9 +44,14 @@ object FormulaLibrary {
         OutputSpec(label, value, unit, note)
 
     val categories = listOf(
-        "Everyday", "Finance", "Economics", "Health", "Geometry", "Physics",
-        "Engineering", "Construction", "Math",
+        "Everyday", "Finance", "Economics", "Health",
+        "Geometry", "Trigonometry", "Analytic Geometry", "Vectors",
+        "Physics", "Engineering", "Construction",
+        "Probability", "Series", "Number Theory", "Math",
     )
+
+    private fun d2r(x: Double) = x * PI / 180.0
+    private fun r2d(x: Double) = x * 180.0 / PI
 
     val formulas: List<Formula> = listOf(
 
@@ -2232,6 +2237,703 @@ object FormulaLibrary {
             val r = (1.0 + v(m, "nominal") / 100.0) / (1.0 + v(m, "inflation") / 100.0) - 1.0
             listOf(out("Real return", r * 100.0, "%"))
         },
+        // ================= TRIGONOMETRY =================
+        Formula("law_of_cosines", "Law of cosines", "Trigonometry",
+            "Find the third side and the other angles from two sides and the included angle.",
+            listOf(InputSpec("a", "Side a", 8.0), InputSpec("b", "Side b", 6.0), InputSpec("cAngle", "Included angle C (deg)", 60.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b"); val c = d2r(v(m, "cAngle"))
+            val side = sqrt(a * a + b * b - 2 * a * b * cos(c))
+            val angA = r2d(kotlin.math.acos(((b * b + side * side - a * a) / (2 * b * side)).coerceIn(-1.0, 1.0)))
+            val angB = 180.0 - v(m, "cAngle") - angA
+            listOf(out("Side c", side), out("Angle A", angA, "\u00B0"), out("Angle B", angB, "\u00B0"),
+                out("Area", 0.5 * a * b * sin(c)))
+        },
+
+        Formula("law_of_sines", "Law of sines", "Trigonometry",
+            "Find another side from one side and two angles.",
+            listOf(InputSpec("a", "Side a", 10.0), InputSpec("aAngle", "Angle A (deg)", 40.0), InputSpec("bAngle", "Angle B (deg)", 60.0)),
+        ) { m ->
+            val a = v(m, "a"); val A = d2r(v(m, "aAngle")); val B = d2r(v(m, "bAngle"))
+            val b = a * sin(B) / sin(A)
+            val C = 180.0 - v(m, "aAngle") - v(m, "bAngle")
+            val c = a * sin(d2r(C)) / sin(A)
+            listOf(out("Side b", b), out("Angle C", C, "\u00B0"), out("Side c", c),
+                out("Area", 0.5 * a * b * sin(d2r(C))))
+        },
+
+        Formula("triangle_sas", "Triangle (two sides + angle)", "Trigonometry",
+            "Area and third side from two sides and the included angle.",
+            listOf(InputSpec("a", "Side a", 7.0), InputSpec("b", "Side b", 9.0), InputSpec("angle", "Included angle (deg)", 45.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b"); val t = d2r(v(m, "angle"))
+            listOf(out("Area", 0.5 * a * b * sin(t)),
+                out("Third side", sqrt(a * a + b * b - 2 * a * b * cos(t))),
+                out("Perimeter", a + b + sqrt(a * a + b * b - 2 * a * b * cos(t))))
+        },
+
+        Formula("triangle_inscribed_circumscribed", "Inradius and circumradius", "Trigonometry",
+            "Circle inside and circle around a triangle.",
+            listOf(InputSpec("a", "Side a", 3.0), InputSpec("b", "Side b", 4.0), InputSpec("c", "Side c", 5.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b"); val c = v(m, "c")
+            val sp = (a + b + c) / 2.0
+            val area = sqrt((sp * (sp - a) * (sp - b) * (sp - c)).coerceAtLeast(0.0))
+            listOf(out("Area", area), out("Inradius", if (sp == 0.0) 0.0 else area / sp),
+                out("Circumradius", if (area == 0.0) 0.0 else a * b * c / (4 * area)))
+        },
+
+        Formula("right_triangle_solver", "Right triangle", "Trigonometry",
+            "From the two legs get the hypotenuse and both angles.",
+            listOf(InputSpec("opposite", "Opposite leg", 3.0), InputSpec("adjacent", "Adjacent leg", 4.0)),
+        ) { m ->
+            val o = v(m, "opposite"); val adj = v(m, "adjacent")
+            val hyp = kotlin.math.hypot(o, adj)
+            listOf(out("Hypotenuse", hyp), out("Angle A", r2d(kotlin.math.atan(o / adj)), "\u00B0"),
+                out("Angle B", r2d(kotlin.math.atan(adj / o)), "\u00B0"), out("Area", 0.5 * o * adj))
+        },
+
+        Formula("arc_and_chord", "Arc, chord and sector", "Trigonometry",
+            "From the radius and the central angle.",
+            listOf(InputSpec("r", "Radius", 10.0), InputSpec("angle", "Central angle (deg)", 60.0)),
+        ) { m ->
+            val r = v(m, "r"); val t = d2r(v(m, "angle"))
+            listOf(out("Arc length", r * t), out("Chord", 2 * r * sin(t / 2)),
+                out("Sector area", 0.5 * r * r * t), out("Segment area", 0.5 * r * r * (t - sin(t))))
+        },
+
+        Formula("angle_converter", "Degrees and radians", "Trigonometry",
+            "Convert both ways, and see the angle in turns and gradians.",
+            listOf(InputSpec("angle", "Angle (deg)", 45.0)),
+        ) { m ->
+            val a = v(m, "angle")
+            listOf(out("Radians", d2r(a)), out("Turns", a / 360.0),
+                out("Gradians", a / 0.9), out("Arcminutes", a * 60.0))
+        },
+
+        Formula("inverse_trig_values", "Inverse trig (principal values)", "Trigonometry",
+            "asin, acos and atan of a value, in degrees.",
+            listOf(InputSpec("x", "Value", 0.5)),
+        ) { m ->
+            val x = v(m, "x").coerceIn(-1.0, 1.0)
+            listOf(out("asin", r2d(kotlin.math.asin(x)), "\u00B0"),
+                out("acos", r2d(kotlin.math.acos(x)), "\u00B0"),
+                out("atan", r2d(kotlin.math.atan(v(m, "x"))), "\u00B0"))
+        },
+
+        Formula("hyperbolic_values", "Hyperbolic functions", "Trigonometry",
+            "sinh, cosh and tanh of a value.",
+            listOf(InputSpec("x", "Value", 1.0)),
+        ) { m ->
+            val x = v(m, "x")
+            listOf(out("sinh", kotlin.math.sinh(x)), out("cosh", kotlin.math.cosh(x)),
+                out("tanh", kotlin.math.tanh(x)))
+        },
+
+        Formula("height_by_elevation", "Height from an elevation angle", "Trigonometry",
+            "Distance and the angle of elevation to the top.",
+            listOf(InputSpec("distance", "Distance", 50.0), InputSpec("angle", "Angle of elevation (deg)", 30.0)),
+        ) { m ->
+            val d = v(m, "distance"); val t = d2r(v(m, "angle"))
+            listOf(out("Height", d * tan(t)), out("Slant distance", d / cos(t)))
+        },
+
+        Formula("angle_between_lines", "Angle between two lines", "Trigonometry",
+            "From the two slopes.",
+            listOf(InputSpec("m1", "Slope 1", 1.0), InputSpec("m2", "Slope 2", -1.0)),
+        ) { m ->
+            val m1 = v(m, "m1"); val m2 = v(m, "m2")
+            val t = kotlin.math.atan(abs((m1 - m2) / (1 + m1 * m2)))
+            listOf(out("Angle", r2d(t), "\u00B0"), out("Angle (rad)", t))
+        },
+
+        // ================= ANALYTIC GEOMETRY =================
+        Formula("line_from_two_points", "Line through two points", "Analytic Geometry",
+            "Slope, intercept and the line equation.",
+            listOf(InputSpec("x1", "x1", 1.0), InputSpec("y1", "y1", 2.0), InputSpec("x2", "x2", 4.0), InputSpec("y2", "y2", 8.0)),
+        ) { m ->
+            val x1 = v(m, "x1"); val y1 = v(m, "y1"); val x2 = v(m, "x2"); val y2 = v(m, "y2")
+            if (x2 == x1) listOf(out("Slope", 0.0, note = "Vertical line"))
+            else {
+                val sl = (y2 - y1) / (x2 - x1)
+                listOf(out("Slope", sl), out("y-intercept", y1 - sl * x1),
+                    out("Distance", kotlin.math.hypot(x2 - x1, y2 - y1)))
+            }
+        },
+
+        Formula("point_line_distance", "Distance from a point to a line", "Analytic Geometry",
+            "For the line Ax + By + C = 0.",
+            listOf(InputSpec("A", "A", 3.0), InputSpec("B", "B", 4.0), InputSpec("C", "C", -10.0),
+                InputSpec("x0", "x0", 0.0), InputSpec("y0", "y0", 0.0)),
+        ) { m ->
+            val A = v(m, "A"); val B = v(m, "B"); val C = v(m, "C")
+            val den = kotlin.math.hypot(A, B)
+            listOf(out("Distance", if (den == 0.0) 0.0 else abs(A * v(m, "x0") + B * v(m, "y0") + C) / den))
+        },
+
+        Formula("ellipse_properties", "Ellipse", "Analytic Geometry",
+            "Focal distance, eccentricity, latus rectum and area from the semi-axes.",
+            listOf(InputSpec("a", "Semi-major a", 5.0), InputSpec("b", "Semi-minor b", 3.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b")
+            val c = sqrt(abs(a * a - b * b))
+            listOf(out("Focal distance c", c), out("Eccentricity", if (a == 0.0) 0.0 else c / a),
+                out("Latus rectum", if (a == 0.0) 0.0 else 2 * b * b / a), out("Area", PI * a * b))
+        },
+
+        Formula("hyperbola_properties", "Hyperbola", "Analytic Geometry",
+            "Focal distance, eccentricity, asymptote slope and latus rectum.",
+            listOf(InputSpec("a", "Transverse semi-axis a", 3.0), InputSpec("b", "Conjugate semi-axis b", 4.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b")
+            val c = sqrt(a * a + b * b)
+            listOf(out("Focal distance c", c), out("Eccentricity", if (a == 0.0) 0.0 else c / a),
+                out("Asymptote slope", if (a == 0.0) 0.0 else b / a),
+                out("Latus rectum", if (a == 0.0) 0.0 else 2 * b * b / a))
+        },
+
+        Formula("parabola_properties", "Parabola", "Analytic Geometry",
+            "For y\u00B2 = 4px: focus, directrix and latus rectum.",
+            listOf(InputSpec("p", "p", 2.0)),
+        ) { m ->
+            val p = v(m, "p")
+            listOf(out("Focus (p)", p), out("Directrix (x)", -p), out("Latus rectum", 4 * abs(p)))
+        },
+
+        Formula("circle_from_centre", "Circle from centre and radius", "Analytic Geometry",
+            "Area, circumference and the general equation constants.",
+            listOf(InputSpec("h", "Centre x", 2.0), InputSpec("k", "Centre y", -3.0), InputSpec("r", "Radius", 5.0)),
+        ) { m ->
+            val h = v(m, "h"); val k = v(m, "k"); val r = v(m, "r")
+            listOf(out("Area", PI * r * r), out("Circumference", 2 * PI * r),
+                out("Equation D", -2 * h), out("Equation E", -2 * k),
+                out("Equation F", h * h + k * k - r * r))
+        },
+
+        Formula("distance_3d", "Distance in 3-D", "Analytic Geometry",
+            "Between two points in space.",
+            listOf(InputSpec("x1", "x1", 1.0), InputSpec("y1", "y1", 2.0), InputSpec("z1", "z1", 3.0),
+                InputSpec("x2", "x2", 4.0), InputSpec("y2", "y2", 6.0), InputSpec("z2", "z2", 8.0)),
+        ) { m ->
+            val dx = v(m, "x2") - v(m, "x1"); val dy = v(m, "y2") - v(m, "y1"); val dz = v(m, "z2") - v(m, "z1")
+            listOf(out("Distance", sqrt(dx * dx + dy * dy + dz * dz)),
+                out("Midpoint x", (v(m, "x1") + v(m, "x2")) / 2),
+                out("Midpoint y", (v(m, "y1") + v(m, "y2")) / 2),
+                out("Midpoint z", (v(m, "z1") + v(m, "z2")) / 2))
+        },
+
+        Formula("direction_cosines", "Direction cosines", "Analytic Geometry",
+            "Magnitude and the three direction cosines of a vector.",
+            listOf(InputSpec("x", "x", 2.0), InputSpec("y", "y", 3.0), InputSpec("z", "z", 6.0)),
+        ) { m ->
+            val x = v(m, "x"); val y = v(m, "y"); val z = v(m, "z")
+            val r = sqrt(x * x + y * y + z * z)
+            listOf(out("Magnitude", r), out("cos \u03B1", if (r == 0.0) 0.0 else x / r),
+                out("cos \u03B2", if (r == 0.0) 0.0 else y / r), out("cos \u03B3", if (r == 0.0) 0.0 else z / r))
+        },
+
+        Formula("point_plane_distance", "Distance from a point to a plane", "Analytic Geometry",
+            "For the plane Ax + By + Cz + D = 0.",
+            listOf(InputSpec("A", "A", 1.0), InputSpec("B", "B", 2.0), InputSpec("C", "C", 2.0),
+                InputSpec("D", "D", -3.0), InputSpec("x0", "x0", 0.0), InputSpec("y0", "y0", 0.0),
+                InputSpec("z0", "z0", 0.0)),
+        ) { m ->
+            val A = v(m, "A"); val B = v(m, "B"); val C = v(m, "C"); val D = v(m, "D")
+            val den = sqrt(A * A + B * B + C * C)
+            listOf(out("Distance", if (den == 0.0) 0.0 else abs(A * v(m, "x0") + B * v(m, "y0") + C * v(m, "z0") + D) / den))
+        },
+
+        // ================= VECTORS =================
+        Formula("vector_dot", "Dot product", "Vectors",
+            "Two 3-D vectors: dot product, magnitudes and the angle between them.",
+            listOf(InputSpec("ax", "a\u2093", 1.0), InputSpec("ay", "a\u1D67", 2.0), InputSpec("az", "a\u1D69", 3.0),
+                InputSpec("bx", "b\u2093", 4.0), InputSpec("by", "b\u1D67", 5.0), InputSpec("bz", "b\u1D69", 6.0)),
+        ) { m ->
+            val ax = v(m, "ax"); val ay = v(m, "ay"); val az = v(m, "az")
+            val bx = v(m, "bx"); val by = v(m, "by"); val bz = v(m, "bz")
+            val dot = ax * bx + ay * by + az * bz
+            val ma = sqrt(ax * ax + ay * ay + az * az)
+            val mb = sqrt(bx * bx + by * by + bz * bz)
+            val cosT = if (ma * mb == 0.0) 0.0 else (dot / (ma * mb)).coerceIn(-1.0, 1.0)
+            listOf(out("Dot product", dot), out("|a|", ma), out("|b|", mb),
+                out("Angle", r2d(kotlin.math.acos(cosT)), "\u00B0"))
+        },
+
+        Formula("vector_cross", "Cross product", "Vectors",
+            "The cross product and its magnitude.",
+            listOf(InputSpec("ax", "a\u2093", 1.0), InputSpec("ay", "a\u1D67", 2.0), InputSpec("az", "a\u1D69", 3.0),
+                InputSpec("bx", "b\u2093", 4.0), InputSpec("by", "b\u1D67", 5.0), InputSpec("bz", "b\u1D69", 6.0)),
+        ) { m ->
+            val ax = v(m, "ax"); val ay = v(m, "ay"); val az = v(m, "az")
+            val bx = v(m, "bx"); val by = v(m, "by"); val bz = v(m, "bz")
+            val cx = ay * bz - az * by
+            val cy = az * bx - ax * bz
+            val cz = ax * by - ay * bx
+            listOf(out("c\u2093", cx), out("c\u1D67", cy), out("c\u1D69", cz),
+                out("|c|", sqrt(cx * cx + cy * cy + cz * cz)))
+        },
+
+        Formula("vector_triple_product", "Scalar triple product", "Vectors",
+            "a \u00B7 (b \u00D7 c) — the volume of the parallelepiped.",
+            listOf(InputSpec("ax", "a\u2093", 1.0), InputSpec("ay", "a\u1D67", 2.0), InputSpec("az", "a\u1D69", 3.0),
+                InputSpec("bx", "b\u2093", 4.0), InputSpec("by", "b\u1D67", 5.0), InputSpec("bz", "b\u1D69", 6.0),
+                InputSpec("cx", "c\u2093", 7.0), InputSpec("cy", "c\u1D67", 8.0), InputSpec("cz", "c\u1D69", 9.0)),
+        ) { m ->
+            val ax = v(m, "ax"); val ay = v(m, "ay"); val az = v(m, "az")
+            val bx = v(m, "bx"); val by = v(m, "by"); val bz = v(m, "bz")
+            val cx = v(m, "cx"); val cy = v(m, "cy"); val cz = v(m, "cz")
+            val t = ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)
+            listOf(out("a \u00B7 (b \u00D7 c)", t), out("Volume", abs(t)))
+        },
+
+        Formula("vector_projection", "Vector projection", "Vectors",
+            "Scalar and vector projection of a onto b (2-D).",
+            listOf(InputSpec("ax", "a\u2093", 3.0), InputSpec("ay", "a\u1D67", 4.0),
+                InputSpec("bx", "b\u2093", 1.0), InputSpec("by", "b\u1D67", 0.0)),
+        ) { m ->
+            val ax = v(m, "ax"); val ay = v(m, "ay")
+            val bx = v(m, "bx"); val by = v(m, "by")
+            val bb = bx * bx + by * by
+            val scalar = if (bb == 0.0) 0.0 else (ax * bx + ay * by) / sqrt(bb)
+            listOf(out("Scalar projection", scalar),
+                out("Projection x", if (bb == 0.0) 0.0 else scalar * bx / sqrt(bb)),
+                out("Projection y", if (bb == 0.0) 0.0 else scalar * by / sqrt(bb)))
+        },
+
+        Formula("unit_vector", "Unit vector", "Vectors",
+            "Normalise a 3-D vector.",
+            listOf(InputSpec("x", "x", 3.0), InputSpec("y", "y", 4.0), InputSpec("z", "z", 12.0)),
+        ) { m ->
+            val x = v(m, "x"); val y = v(m, "y"); val z = v(m, "z")
+            val r = sqrt(x * x + y * y + z * z)
+            listOf(out("Magnitude", r), out("x\u0302", if (r == 0.0) 0.0 else x / r),
+                out("y\u0302", if (r == 0.0) 0.0 else y / r), out("z\u0302", if (r == 0.0) 0.0 else z / r))
+        },
+
+        // ================= NUMBER THEORY =================
+        Formula("divisors_sum", "Sum of divisors", "Number Theory",
+            "The divisor count and their sum.",
+            listOf(InputSpec("n", "Number", 28.0)),
+        ) { m ->
+            val n = v(m, "n").toLong()
+            if (n < 1) listOf(out("Sum of divisors", 0.0, note = "Use a positive whole number"))
+            else {
+                var count = 0L; var sum = 0L; var d = 1L
+                while (d * d <= n) {
+                    if (n % d == 0L) {
+                        sum += d; count += 1
+                        val other = n / d
+                        if (other != d) { sum += other; count += 1 }
+                    }
+                    d++
+                }
+                listOf(out("Number of divisors", count.toDouble()), out("Sum of divisors", sum.toDouble()),
+                    out("Is perfect", if (sum - n == n) 1.0 else 0.0, "", if (sum - n == n) "Yes" else "No"))
+            }
+        },
+
+        Formula("euler_phi", "Euler's totient", "Number Theory",
+            "How many numbers below n share no factor with n.",
+            listOf(InputSpec("n", "Number", 36.0)),
+        ) { m ->
+            var n = v(m, "n").toLong()
+            if (n < 1) listOf(out("Totient", 0.0, note = "Use a positive whole number"))
+            else {
+                var result = n; var p = 2L
+                while (p * p <= n) {
+                    if (n % p == 0L) { while (n % p == 0L) n /= p; result -= result / p }
+                    p++
+                }
+                if (n > 1) result -= result / n
+                listOf(out("Totient", result.toDouble()))
+            }
+        },
+
+        Formula("modular_power", "Modular exponentiation", "Number Theory",
+            "base^exp mod m, without overflowing.",
+            listOf(InputSpec("base", "Base", 7.0), InputSpec("exp", "Exponent", 128.0), InputSpec("m", "Modulus", 13.0)),
+        ) { m ->
+            var result = 1L
+            var b = v(m, "base").toLong() % v(m, "m").toLong()
+            var e = v(m, "exp").toLong()
+            val mod = v(m, "m").toLong()
+            if (mod == 0L) listOf(out("Result", 0.0, note = "Modulus must not be zero"))
+            else {
+                while (e > 0) {
+                    if (e and 1L == 1L) result = (result * b) % mod
+                    b = (b * b) % mod
+                    e = e shr 1
+                }
+                listOf(out("Result", result.toDouble()))
+            }
+        },
+
+        Formula("digit_properties", "Digits of a number", "Number Theory",
+            "Digit sum, digit count and the reversed number.",
+            listOf(InputSpec("n", "Number", 12345.0)),
+        ) { m ->
+            val n = v(m, "n").toLong()
+            val s = abs(n).toString()
+            listOf(out("Digits", s.length.toDouble()),
+                out("Digit sum", s.sumOf { it - '0' }.toDouble()),
+                out("Reversed", s.reversed().toLongOrNull()?.toDouble() ?: 0.0),
+                out("Is palindrome", if (s == s.reversed()) 1.0 else 0.0, "", if (s == s.reversed()) "Yes" else "No"))
+        },
+
+        Formula("perfect_square_cube", "Square and cube check", "Number Theory",
+            "Is it a perfect square or cube, and what are the roots?",
+            listOf(InputSpec("n", "Number", 144.0)),
+        ) { m ->
+            val n = v(m, "n")
+            val r = sqrt(abs(n))
+            val c = kotlin.math.cbrt(abs(n))
+            listOf(out("Square root", if (n < 0) 0.0 else r),
+                out("Cube root", if (n < 0) -c else c),
+                out("Is perfect square", if (n >= 0 && abs(r - kotlin.math.round(r)) < 1e-9) 1.0 else 0.0,
+                    "", if (n >= 0 && abs(r - kotlin.math.round(r)) < 1e-9) "Yes" else "No"))
+        },
+
+        Formula("triangular_number", "Triangular number", "Number Theory",
+            "The n-th triangular number and the sum 1..n.",
+            listOf(InputSpec("n", "n", 10.0)),
+        ) { m ->
+            val n = v(m, "n")
+            listOf(out("Triangular number", n * (n + 1) / 2), out("Sum 1..n", n * (n + 1) / 2))
+        },
+
+        Formula("collatz_steps", "Collatz steps", "Number Theory",
+            "How many steps to reach 1.",
+            listOf(InputSpec("n", "Number", 27.0)),
+        ) { m ->
+            var n = v(m, "n").toLong()
+            if (n < 1) listOf(out("Steps", 0.0, note = "Use a positive whole number"))
+            else {
+                var steps = 0L
+                while (n != 1L && steps < 100000) {
+                    n = if (n % 2L == 0L) n / 2 else 3 * n + 1
+                    steps++
+                }
+                listOf(out("Steps to reach 1", steps.toDouble()))
+            }
+        },
+
+        // ================= PROBABILITY =================
+        Formula("probability_union", "Probability of A or B", "Probability",
+            "P(A \u222A B) = P(A) + P(B) \u2212 P(A \u2229 B).",
+            listOf(InputSpec("pA", "P(A)", 0.5), InputSpec("pB", "P(B)", 0.4), InputSpec("pAB", "P(A \u2229 B)", 0.2)),
+        ) { m ->
+            val r = (v(m, "pA") + v(m, "pB") - v(m, "pAB")).coerceIn(0.0, 1.0)
+            listOf(out("P(A \u222A B)", r), out("As a percentage", r * 100.0, "%"))
+        },
+
+        Formula("probability_independent", "Both of two independent events", "Probability",
+            "P(A \u2229 B) = P(A) \u00D7 P(B).",
+            listOf(InputSpec("pA", "P(A)", 0.5), InputSpec("pB", "P(B)", 0.3)),
+        ) { m ->
+            val r = v(m, "pA") * v(m, "pB")
+            listOf(out("P(A and B)", r), out("P(at least one)", (1 - (1 - v(m, "pA")) * (1 - v(m, "pB"))).coerceIn(0.0, 1.0)))
+        },
+
+        Formula("probability_conditional", "Conditional probability", "Probability",
+            "P(A | B) = P(A \u2229 B) / P(B).",
+            listOf(InputSpec("pAB", "P(A \u2229 B)", 0.2), InputSpec("pB", "P(B)", 0.5)),
+        ) { m ->
+            val pB = v(m, "pB")
+            if (pB == 0.0) listOf(out("P(A | B)", 0.0, note = "P(B) must not be zero"))
+            else listOf(out("P(A | B)", (v(m, "pAB") / pB).coerceIn(0.0, 1.0)))
+        },
+
+        Formula("bayes_theorem", "Bayes' theorem", "Probability",
+            "P(A | B) from the prior, the likelihood and the evidence.",
+            listOf(InputSpec("pA", "Prior P(A)", 0.01), InputSpec("pBGivenA", "P(B | A)", 0.9),
+                InputSpec("pB", "Evidence P(B)", 0.05)),
+        ) { m ->
+            val pB = v(m, "pB")
+            if (pB == 0.0) listOf(out("Posterior", 0.0, note = "P(B) must not be zero"))
+            else listOf(out("Posterior P(A | B)", (v(m, "pA") * v(m, "pBGivenA") / pB).coerceIn(0.0, 1.0)))
+        },
+
+        Formula("probability_at_least_one", "At least one in n tries", "Probability",
+            "1 \u2212 (1 \u2212 p)\u207F.",
+            listOf(InputSpec("p", "Chance per try", 0.1), InputSpec("n", "Number of tries", 10.0)),
+        ) { m ->
+            val r = (1 - (1 - v(m, "p")).pow(v(m, "n"))).coerceIn(0.0, 1.0)
+            listOf(out("P(at least one)", r), out("As a percentage", r * 100.0, "%"))
+        },
+
+        Formula("probability_complement", "Complement", "Probability",
+            "1 \u2212 P(A).",
+            listOf(InputSpec("p", "P(A)", 0.35)),
+        ) { m ->
+            val r = (1 - v(m, "p")).coerceIn(0.0, 1.0)
+            listOf(out("P(not A)", r), out("Odds against", if (v(m, "p") == 0.0) 0.0 else (1 - v(m, "p")) / v(m, "p")))
+        },
+
+        Formula("odds_converter", "Odds and probability", "Probability",
+            "Convert between odds and probability.",
+            listOf(InputSpec("favourable", "Favourable outcomes", 3.0), InputSpec("unfavourable", "Unfavourable outcomes", 7.0)),
+        ) { m ->
+            val f = v(m, "favourable"); val u = v(m, "unfavourable")
+            val total = f + u
+            listOf(out("Odds in favour", if (u == 0.0) 0.0 else f / u),
+                out("Probability", if (total == 0.0) 0.0 else f / total),
+                out("Percentage", if (total == 0.0) 0.0 else f / total * 100.0, "%"))
+        },
+
+        Formula("expected_value", "Expected value (3 outcomes)", "Probability",
+            "E[X] and the variance of a three-outcome distribution.",
+            listOf(InputSpec("x1", "Value 1", 10.0), InputSpec("p1", "P(1)", 0.2),
+                InputSpec("x2", "Value 2", 20.0), InputSpec("p2", "P(2)", 0.5),
+                InputSpec("x3", "Value 3", 30.0), InputSpec("p3", "P(3)", 0.3)),
+        ) { m ->
+            val xs = listOf(v(m, "x1"), v(m, "x2"), v(m, "x3"))
+            val ps = listOf(v(m, "p1"), v(m, "p2"), v(m, "p3"))
+            val mean = xs.indices.sumOf { xs[it] * ps[it] }
+            val variance = xs.indices.sumOf { ps[it] * (xs[it] - mean).pow(2.0) }
+            val total = ps.sum()
+            listOf(out("E[X]", mean), out("Variance", variance),
+                out("Std deviation", sqrt(variance)),
+                out("Probabilities sum", total, "", if (abs(total - 1.0) < 1e-9) "Correct" else "Should be 1"))
+        },
+
+        Formula("binomial_probability", "Binomial probability", "Probability",
+            "P(X = k) and P(X \u2264 k) for n trials with probability p.",
+            listOf(InputSpec("n", "Trials n", 10.0), InputSpec("k", "Successes k", 3.0), InputSpec("p", "Probability p", 0.5)),
+        ) { m ->
+            val n = v(m, "n").toInt(); val k = v(m, "k").toInt(); val p = v(m, "p")
+            listOf(out("P(X = k)", Distributions.binomialPmf(k, n, p)),
+                out("P(X \u2264 k)", Distributions.binomialCdf(k, n, p)),
+                out("Mean np", n * p), out("Variance np(1-p)", n * p * (1 - p)))
+        },
+
+        // ================= SERIES =================
+        Formula("sum_of_squares", "Sum of squares 1\u00B2+2\u00B2+\u2026+n\u00B2", "Series",
+            "n(n+1)(2n+1)/6.",
+            listOf(InputSpec("n", "n", 10.0)),
+        ) { m ->
+            val n = v(m, "n")
+            listOf(out("Sum", n * (n + 1) * (2 * n + 1) / 6))
+        },
+
+        Formula("sum_of_cubes", "Sum of cubes 1\u00B3+2\u00B3+\u2026+n\u00B3", "Series",
+            "(n(n+1)/2)\u00B2.",
+            listOf(InputSpec("n", "n", 10.0)),
+        ) { m ->
+            val n = v(m, "n")
+            listOf(out("Sum", (n * (n + 1) / 2).pow(2.0)))
+        },
+
+        Formula("sum_of_odds", "Sum of odd numbers", "Series",
+            "1 + 3 + 5 + \u2026 + (2n\u22121) = n\u00B2.",
+            listOf(InputSpec("n", "n", 10.0)),
+        ) { m -> listOf(out("Sum", v(m, "n").pow(2.0))) },
+
+        Formula("infinite_gp_sum", "Infinite geometric series", "Series",
+            "a/(1\u2212r), valid when |r| < 1.",
+            listOf(InputSpec("a", "First term a", 1.0), InputSpec("r", "Ratio r", 0.5)),
+        ) { m ->
+            val r = v(m, "r")
+            if (abs(r) >= 1.0) listOf(out("Sum", 0.0, note = "The series diverges when |r| \u2265 1"))
+            else listOf(out("Sum", v(m, "a") / (1 - r)))
+        },
+
+        Formula("harmonic_number", "Harmonic sum", "Series",
+            "1 + 1/2 + 1/3 + \u2026 + 1/n.",
+            listOf(InputSpec("n", "n", 10.0)),
+        ) { m ->
+            val n = v(m, "n").toInt()
+            var s = 0.0
+            for (i in 1..n) s += 1.0 / i
+            listOf(out("Sum", s), out("ln(n) + \u03B3", if (n > 0) ln(n.toDouble()) + 0.5772156649 else 0.0))
+        },
+
+        Formula("binomial_series_term", "Binomial series term", "Series",
+            "The k-th term C(n,k)\u00B7x\u1D4F of the binomial expansion.",
+            listOf(InputSpec("n", "n", 5.0), InputSpec("k", "k", 2.0), InputSpec("x", "x", 1.0)),
+        ) { m ->
+            val n = v(m, "n"); val k = v(m, "k"); val x = v(m, "x")
+            listOf(out("Term", Evaluator.combinations(n, k) * x.pow(k)),
+                out("Coefficient C(n,k)", Evaluator.combinations(n, k)))
+        },
+
+        Formula("exponential_series", "e\u02E3 by series", "Series",
+            "Sum of x\u1D4F/k! — check it against the built-in exp.",
+            listOf(InputSpec("x", "x", 1.0), InputSpec("terms", "Terms", 12.0)),
+        ) { m ->
+            val x = v(m, "x"); val n = v(m, "terms").toInt()
+            var s = 0.0
+            for (k in 0..n) s += x.pow(k.toDouble()) / Evaluator.factorial(k.toDouble())
+            listOf(out("Series sum", s), out("exp(x)", exp(x)))
+        },
+
+        Formula("sine_series", "sin x by series", "Series",
+            "Sum of (\u22121)\u1D4Fx^(2k+1)/(2k+1)!.",
+            listOf(InputSpec("x", "x (radians)", 0.5), InputSpec("terms", "Terms", 8.0)),
+        ) { m ->
+            val x = v(m, "x"); val n = v(m, "terms").toInt()
+            var s = 0.0
+            for (k in 0..n) s += (if (k % 2 == 0) 1.0 else -1.0) * x.pow(2.0 * k + 1) / Evaluator.factorial(2.0 * k + 1)
+            listOf(out("Series sum", s), out("sin(x)", sin(x)))
+        },
+
+        Formula("cosine_series", "cos x by series", "Series",
+            "Sum of (\u22121)\u1D4Fx^(2k)/(2k)!.",
+            listOf(InputSpec("x", "x (radians)", 0.5), InputSpec("terms", "Terms", 8.0)),
+        ) { m ->
+            val x = v(m, "x"); val n = v(m, "terms").toInt()
+            var s = 0.0
+            for (k in 0..n) s += (if (k % 2 == 0) 1.0 else -1.0) * x.pow(2.0 * k) / Evaluator.factorial(2.0 * k)
+            listOf(out("Series sum", s), out("cos(x)", cos(x)))
+        },
+
+        Formula("alternating_harmonic", "Alternating harmonic sum", "Series",
+            "1 \u2212 1/2 + 1/3 \u2212 \u2026 \u00B1 1/n (tends to ln 2).",
+            listOf(InputSpec("n", "n", 100.0)),
+        ) { m ->
+            val n = v(m, "n").toInt()
+            var s = 0.0
+            for (i in 1..n) s += (if (i % 2 == 1) 1.0 else -1.0) / i
+            listOf(out("Sum", s), out("ln 2", ln(2.0)))
+        },
+
+        // ================= GEOMETRY (from the handbooks) =================
+        Formula("equilateral_triangle", "Equilateral triangle", "Geometry",
+            "Area, height, inradius and circumradius from the side.",
+            listOf(InputSpec("side", "Side", 6.0)),
+        ) { m ->
+            val a = v(m, "side")
+            listOf(out("Area", sqrt(3.0) / 4.0 * a * a), out("Height", sqrt(3.0) / 2.0 * a),
+                out("Perimeter", 3 * a), out("Inradius", a * sqrt(3.0) / 6.0),
+                out("Circumradius", a * sqrt(3.0) / 3.0))
+        },
+
+        Formula("isosceles_triangle", "Isosceles triangle", "Geometry",
+            "Height, area and perimeter from the base and one leg.",
+            listOf(InputSpec("base", "Base", 8.0), InputSpec("leg", "Equal side", 5.0)),
+        ) { m ->
+            val b = v(m, "base"); val a = v(m, "leg")
+            val h = sqrt((a * a - b * b / 4.0).coerceAtLeast(0.0))
+            listOf(out("Height", h), out("Area", b * h / 2.0), out("Perimeter", b + 2 * a),
+                out("Apex angle", r2d(2 * kotlin.math.asin((b / (2 * a)).coerceIn(-1.0, 1.0))), "\u00B0"))
+        },
+
+        Formula("kite", "Kite", "Geometry",
+            "Area from the two diagonals.",
+            listOf(InputSpec("d1", "Diagonal 1", 10.0), InputSpec("d2", "Diagonal 2", 6.0)),
+        ) { m -> listOf(out("Area", v(m, "d1") * v(m, "d2") / 2.0)) },
+
+        Formula("cyclic_quadrilateral", "Cyclic quadrilateral", "Geometry",
+            "Brahmagupta's area formula.",
+            listOf(InputSpec("a", "Side a", 5.0), InputSpec("b", "Side b", 6.0),
+                InputSpec("c", "Side c", 7.0), InputSpec("d", "Side d", 8.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b"); val c = v(m, "c"); val d = v(m, "d")
+            val sp = (a + b + c + d) / 2.0
+            listOf(out("Area", sqrt(((sp - a) * (sp - b) * (sp - c) * (sp - d)).coerceAtLeast(0.0))),
+                out("Perimeter", a + b + c + d), out("Semiperimeter", sp))
+        },
+
+        Formula("regular_hexagon", "Regular hexagon", "Geometry",
+            "Area, perimeter and apothem from the side.",
+            listOf(InputSpec("side", "Side", 5.0)),
+        ) { m ->
+            val a = v(m, "side")
+            listOf(out("Area", 3.0 * sqrt(3.0) / 2.0 * a * a), out("Perimeter", 6 * a),
+                out("Apothem", sqrt(3.0) / 2.0 * a))
+        },
+
+        Formula("rectangular_parallelepiped", "Rectangular box", "Geometry",
+            "Volume, surface area and space diagonal.",
+            listOf(InputSpec("l", "Length", 4.0), InputSpec("w", "Width", 3.0), InputSpec("h", "Height", 2.0)),
+        ) { m ->
+            val l = v(m, "l"); val w = v(m, "w"); val h = v(m, "h")
+            listOf(out("Volume", l * w * h), out("Surface area", 2 * (l * w + l * h + w * h)),
+                out("Space diagonal", sqrt(l * l + w * w + h * h)))
+        },
+
+        Formula("general_prism", "General prism", "Geometry",
+            "Volume and surface from the base area, perimeter and height.",
+            listOf(InputSpec("baseArea", "Base area", 12.0), InputSpec("perimeter", "Base perimeter", 14.0),
+                InputSpec("height", "Height", 9.0)),
+        ) { m ->
+            val b = v(m, "baseArea"); val p = v(m, "perimeter"); val h = v(m, "height")
+            listOf(out("Volume", b * h), out("Lateral surface", p * h), out("Total surface", p * h + 2 * b))
+        },
+
+        Formula("regular_tetrahedron", "Regular tetrahedron", "Geometry",
+            "Volume, surface and height from the edge.",
+            listOf(InputSpec("edge", "Edge", 4.0)),
+        ) { m ->
+            val a = v(m, "edge")
+            listOf(out("Volume", a * a * a / (6.0 * sqrt(2.0))), out("Surface area", sqrt(3.0) * a * a),
+                out("Height", a * sqrt(2.0 / 3.0)))
+        },
+
+        Formula("octahedron", "Regular octahedron", "Geometry",
+            "Volume and surface from the edge.",
+            listOf(InputSpec("edge", "Edge", 4.0)),
+        ) { m ->
+            val a = v(m, "edge")
+            listOf(out("Volume", sqrt(2.0) / 3.0 * a * a * a), out("Surface area", 2 * sqrt(3.0) * a * a))
+        },
+
+        Formula("dodecahedron", "Regular dodecahedron", "Geometry",
+            "Volume and surface from the edge.",
+            listOf(InputSpec("edge", "Edge", 4.0)),
+        ) { m ->
+            val a = v(m, "edge")
+            listOf(out("Volume", (15.0 + 7.0 * sqrt(5.0)) / 4.0 * a * a * a),
+                out("Surface area", 3.0 * sqrt(25.0 + 10.0 * sqrt(5.0)) * a * a))
+        },
+
+        Formula("icosahedron", "Regular icosahedron", "Geometry",
+            "Volume and surface from the edge.",
+            listOf(InputSpec("edge", "Edge", 4.0)),
+        ) { m ->
+            val a = v(m, "edge")
+            listOf(out("Volume", 5.0 * (3.0 + sqrt(5.0)) / 12.0 * a * a * a),
+                out("Surface area", 5.0 * sqrt(3.0) * a * a))
+        },
+
+        Formula("spherical_cap", "Spherical cap", "Geometry",
+            "Volume and surfaces of a cap of height h on a sphere of radius R.",
+            listOf(InputSpec("R", "Sphere radius", 10.0), InputSpec("h", "Cap height", 4.0)),
+        ) { m ->
+            val r = v(m, "R"); val h = v(m, "h")
+            val baseR = sqrt((2 * r * h - h * h).coerceAtLeast(0.0))
+            listOf(out("Volume", PI * h * h * (3 * r - h) / 3.0), out("Curved surface", 2 * PI * r * h),
+                out("Base radius", baseR), out("Total surface", 2 * PI * r * h + PI * baseR * baseR))
+        },
+
+        Formula("spherical_wedge", "Spherical wedge", "Geometry",
+            "Volume and surface of a wedge of angle \u03B8.",
+            listOf(InputSpec("R", "Sphere radius", 10.0), InputSpec("angle", "Angle (deg)", 60.0)),
+        ) { m ->
+            val r = v(m, "R"); val t = d2r(v(m, "angle"))
+            listOf(out("Volume", 2.0 / 3.0 * r * r * r * t), out("Curved surface", 2 * r * r * t),
+                out("Total surface", 2 * r * r * t + PI * r * r))
+        },
+
+        Formula("ellipsoid", "Ellipsoid", "Geometry",
+            "Volume and approximate surface from the three semi-axes.",
+            listOf(InputSpec("a", "Semi-axis a", 3.0), InputSpec("b", "Semi-axis b", 4.0), InputSpec("c", "Semi-axis c", 5.0)),
+        ) { m ->
+            val a = v(m, "a"); val b = v(m, "b"); val c = v(m, "c")
+            val p = 1.6075
+            val surf = 4 * PI * ((a.pow(p) * b.pow(p) + a.pow(p) * c.pow(p) + b.pow(p) * c.pow(p)) / 3.0).pow(1.0 / p)
+            listOf(out("Volume", 4.0 / 3.0 * PI * a * b * c), out("Surface (approx)", surf))
+        },
+
+        Formula("hollow_cylinder", "Hollow cylinder", "Geometry",
+            "Volume and surface of a pipe with outer radius R and inner radius r.",
+            listOf(InputSpec("R", "Outer radius", 5.0), InputSpec("r", "Inner radius", 4.0), InputSpec("h", "Height", 20.0)),
+        ) { m ->
+            val R = v(m, "R"); val r = v(m, "r"); val h = v(m, "h")
+            listOf(out("Volume", PI * (R * R - r * r) * h),
+                out("Curved surface (outer+inner)", 2 * PI * (R + r) * h),
+                out("Total surface", 2 * PI * (R + r) * h + 2 * PI * (R * R - r * r)))
+        },
+
     )
 
     fun byCategory(category: String): List<Formula> = formulas.filter { it.category == category }

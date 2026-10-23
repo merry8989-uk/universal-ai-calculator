@@ -140,6 +140,13 @@ object Evaluator {
                 v = factorial(v)
                 skipSpaces()
             }
+            // A degree sign marks the number as an angle: in DEG mode it is left
+            // alone (trig already reads degrees), in RAD mode it becomes radians.
+            while (peek() == '\u00B0') {
+                i++
+                v = if (degrees) v else v * PI / 180.0
+                skipSpaces()
+            }
             return Operand(if (percent) v / 100.0 else v, percent)
         }
 
