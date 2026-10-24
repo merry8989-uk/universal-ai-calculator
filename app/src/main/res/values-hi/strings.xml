@@ -202,4 +202,25 @@
     <string name="key_memory_add">मेमोरी में जोड़ें</string>
     <string name="key_memory_subtract">मेमोरी से घटाएँ</string>
     <string name="key_memory_recall">मेमोरी याद करें</string>
+    <string name="my_calculators">मेरे कैलकुलेटर</string>
+    <string name="create_calculator">कैलकुलेटर बनाएँ</string>
+    <string name="create_calculator_blurb">अपना सूत्र लिखें, इनपुट के नाम दें, और यह यहाँ किसी भी बने-बनाए कैलकुलेटर की तरह दिखेगा। यह इसी डिवाइस पर रहता है।</string>
+    <string name="edit_calculator">कैलकुलेटर संपादित करें</string>
+    <string name="calc_name">नाम</string>
+    <string name="calc_description">विवरण (वैकल्पिक)</string>
+    <string name="calc_inputs">इनपुट</string>
+    <string name="calc_inputs_help">हर इनपुट एक नाम है जिसे आपका सूत्र इस्तेमाल कर सकता है, दिखाने के लिए एक लेबल, और एक शुरुआती मान।</string>
+    <string name="calc_input_name">नाम</string>
+    <string name="calc_input_label">लेबल</string>
+    <string name="calc_default">डिफ़ॉल्ट</string>
+    <string name="calc_add_input">इनपुट जोड़ें</string>
+    <string name="calc_remove_input">यह इनपुट हटाएँ</string>
+    <string name="calc_formula">सूत्र</string>
+    <string name="calc_unit">इकाई (वैकल्पिक)</string>
+    <string name="calc_preview">डिफ़ॉल्ट मानों के साथ झलक</string>
+    <string name="calc_save">सहेजें</string>
+    <string name="calc_delete">यह कैलकुलेटर हटाएँ</string>
+    <string name="calc_delete_confirm">"%1$s" हटाएँ? इसे वापस नहीं लाया जा सकता।</string>
+    <string name="no_custom_yet">आपने अभी तक कोई नहीं बनाया।</string>
+    <string name="calculator_count">%1$d बने-बनाए कैलकुलेटर, %2$d आपके अपने, %3$d औज़ार</string>
 </resources>

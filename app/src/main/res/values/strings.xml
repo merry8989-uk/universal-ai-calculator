@@ -204,4 +204,25 @@
     <string name="key_memory_add">memory add</string>
     <string name="key_memory_subtract">memory subtract</string>
     <string name="key_memory_recall">memory recall</string>
+    <string name="my_calculators">My calculators</string>
+    <string name="create_calculator">Create a calculator</string>
+    <string name="create_calculator_blurb">Write your own formula, name the inputs, and it appears here like any built-in calculator. It stays on this device.</string>
+    <string name="edit_calculator">Edit calculator</string>
+    <string name="calc_name">Name</string>
+    <string name="calc_description">Description (optional)</string>
+    <string name="calc_inputs">Inputs</string>
+    <string name="calc_inputs_help">Each input is a name your formula can use, a label to show, and a starting value.</string>
+    <string name="calc_input_name">Name</string>
+    <string name="calc_input_label">Label</string>
+    <string name="calc_default">Default</string>
+    <string name="calc_add_input">Add an input</string>
+    <string name="calc_remove_input">remove this input</string>
+    <string name="calc_formula">Formula</string>
+    <string name="calc_unit">Unit (optional)</string>
+    <string name="calc_preview">Preview with the defaults</string>
+    <string name="calc_save">Save</string>
+    <string name="calc_delete">Delete this calculator</string>
+    <string name="calc_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
+    <string name="no_custom_yet">You have not made any yet.</string>
+    <string name="calculator_count">%1$d built-in calculators, %2$d of your own, %3$d tools</string>
 </resources>

@@ -35,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.calc.CustomCalculator
+import com.merry8989uk.universalcalculator.data.CustomCalcStore
 import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -96,7 +98,31 @@ fun FormulasScreen(
     LaunchedEffect(selected, tool) { onInnerChange(selected != null || tool.isNotEmpty()) }
     DisposableEffect(Unit) { onDispose { onInnerChange(false) } }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var custom by remember { mutableStateOf(CustomCalcStore.load(context)) }
+    var editing by remember { mutableStateOf<CustomCalculator?>(null) }
+    var creating by remember { mutableStateOf(false) }
+
+    fun persist(next: List<CustomCalculator>) {
+        custom = next
+        CustomCalcStore.save(context, next)
+    }
+
     when {
+        creating || editing != null -> CustomCalcEditor(
+            existing = editing,
+            onSave = { saved ->
+                val next = custom.filterNot { it.id == saved.id } + saved
+                persist(next)
+                creating = false
+                editing = null
+            },
+            onDelete = { gone ->
+                persist(custom.filterNot { it.id == gone.id })
+                editing = null
+            },
+            onBack = { creating = false; editing = null },
+        )
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
         tool == "reference" -> FormulaReferenceScreen { tool = "" }
         tool == "statistics" -> StatisticsScreen { tool = "" }
@@ -113,6 +139,9 @@ fun FormulasScreen(
         tool == "programmer" -> ProgrammerScreen { tool = "" }
         tool == "currency" -> CurrencyScreen { tool = "" }
         else -> FormulaList(
+            custom = custom,
+            onCreate = { creating = true },
+            onEdit = { editing = it },
             onOpen = {
                 selected = it
                 analytics(it.id)
@@ -126,13 +155,23 @@ fun FormulasScreen(
 }
 
 @Composable
-private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
+private fun FormulaList(
+    custom: List<CustomCalculator>,
+    onCreate: () -> Unit,
+    onEdit: (CustomCalculator) -> Unit,
+    onOpen: (Formula) -> Unit,
+    onTool: (String) -> Unit,
+) {
     var category by remember { mutableStateOf("Tools") }
     var query by remember { mutableStateOf("") }
     val searching = query.isNotBlank()
-    val list = FormulaLibrary.byCategory(category)
+    // The user's own calculators behave exactly like the built-in ones.
+    val customFormulas = remember(custom) { custom.map { it.toFormula() } }
+    val everything = FormulaLibrary.formulas + customFormulas
+    val list = if (category == CustomCalculator.CATEGORY) customFormulas
+    else FormulaLibrary.byCategory(category)
     val results = if (searching) {
-        FormulaLibrary.formulas.filter {
+        everything.filter {
             it.title.contains(query, ignoreCase = true) ||
                 it.description.contains(query, ignoreCase = true)
         }
@@ -141,7 +180,12 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(stringResource(R.string.calculators), style = MaterialTheme.typography.titleLarge)
         Text(
-            "${FormulaLibrary.formulas.size} built-in calculators + ${TOOLS.size} tools",
+            stringResource(
+                R.string.calculator_count,
+                FormulaLibrary.formulas.size,
+                custom.size,
+                TOOLS.size,
+            ),
             style = MaterialTheme.typography.bodySmall,
         )
 
@@ -161,6 +205,11 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
                 selected = category == "Tools",
                 onClick = { category = "Tools" },
                 label = { Text(stringResource(R.string.tools)) },
+            )
+            FilterChip(
+                selected = category == CustomCalculator.CATEGORY,
+                onClick = { category = CustomCalculator.CATEGORY },
+                label = { Text(stringResource(R.string.my_calculators)) },
             )
             FormulaLibrary.categories.forEach { c ->
                 FilterChip(
@@ -192,7 +241,33 @@ private fun FormulaList(onOpen: (Formula) -> Unit, onTool: (String) -> Unit) {
                         ) { onTool(t.id) }
                     }
                 }
+                if (category == CustomCalculator.CATEGORY) {
+                    item {
+                        ToolCard(
+                            title = stringResource(R.string.create_calculator),
+                            subtitle = stringResource(R.string.create_calculator_blurb),
+                            accent = TOOL_COLORS.first(),
+                        ) { onCreate() }
+                    }
+                    if (custom.isEmpty()) {
+                        item {
+                            Text(
+                                stringResource(R.string.no_custom_yet),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                }
                 items(list) { f -> FormulaCard(f, onOpen) }
+                if (category == CustomCalculator.CATEGORY) {
+                    items(custom) { c ->
+                        ToolCard(
+                            title = c.name,
+                            subtitle = c.expression,
+                            accent = TOOL_COLORS.last(),
+                        ) { onEdit(c) }
+                    }
+                }
             }
         }
     }
