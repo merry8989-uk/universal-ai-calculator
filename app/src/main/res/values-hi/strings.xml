@@ -223,4 +223,24 @@
     <string name="calc_delete_confirm">"%1$s" हटाएँ? इसे वापस नहीं लाया जा सकता।</string>
     <string name="no_custom_yet">आपने अभी तक कोई नहीं बनाया।</string>
     <string name="calculator_count">%1$d बने-बनाए कैलकुलेटर, %2$d आपके अपने, %3$d औज़ार</string>
+    <string name="limits_title">सीमाएँ</string>
+    <string name="limits_help">संख्यात्मक रूप से हल: व्यंजक को बिंदु के और करीब-करीब जाँचा जाता है और फिर अनुमान लगाया जाता है। चर के लिए x लिखें, और sin, exp, ln, sqrt, abs जैसे फ़ंक्शन इस्तेमाल करें।</string>
+    <string name="limits_expression">x में व्यंजक</string>
+    <string name="limits_point">जब x निकट पहुँचे</string>
+    <string name="limits_side">किस ओर से</string>
+    <string name="limits_both">दोनों ओर से</string>
+    <string name="limits_left">बाईं ओर से</string>
+    <string name="limits_right">दाईं ओर से</string>
+    <string name="limits_at_infinity">इसके बजाय अनंत पर</string>
+    <string name="limits_work_out">सीमा निकालें</string>
+    <string name="partial_title">आंशिक भिन्न</string>
+    <string name="partial_help">ऊपर और नीचे को x में बहुपद की तरह लिखें, जैसे x + 5 बटा x^2 + 3x + 2। नीचे वाला वास्तविक रैखिक गुणनखंडों में टूटना चाहिए।</string>
+    <string name="partial_numerator">अंश (ऊपर)</string>
+    <string name="partial_denominator">हर (नीचे)</string>
+    <string name="partial_split">तोड़ें</string>
+    <string name="limits_bad_point">बिंदु के लिए संख्या डालें, या अनंत चुनें।</string>
+    <string name="limits_none">सीमा निकाली नहीं जा सकी। व्यंजक जाँचें।</string>
+    <string name="limits_diverge_pos">सीमा एक संख्या के रूप में मौजूद नहीं है: यह +\u221E की ओर भागती है।</string>
+    <string name="limits_diverge_neg">सीमा एक संख्या के रूप में मौजूद नहीं है: यह \u2212\u221E की ओर भागती है।</string>
+    <string name="limits_equals">= </string>
 </resources>

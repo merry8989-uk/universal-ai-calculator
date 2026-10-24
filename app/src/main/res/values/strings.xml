@@ -225,4 +225,24 @@
     <string name="calc_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
     <string name="no_custom_yet">You have not made any yet.</string>
     <string name="calculator_count">%1$d built-in calculators, %2$d of your own, %3$d tools</string>
+    <string name="limits_title">Limits</string>
+    <string name="limits_help">Worked out numerically: the expression is sampled closer and closer to the point and extrapolated. Write x for the variable, and use functions like sin, exp, ln, sqrt and abs.</string>
+    <string name="limits_expression">Expression in x</string>
+    <string name="limits_point">As x approaches</string>
+    <string name="limits_side">Approach from</string>
+    <string name="limits_both">Both sides</string>
+    <string name="limits_left">The left</string>
+    <string name="limits_right">The right</string>
+    <string name="limits_at_infinity">At infinity instead</string>
+    <string name="limits_work_out">Work out the limit</string>
+    <string name="partial_title">Partial fractions</string>
+    <string name="partial_help">Write the top and bottom as polynomials in x, like x + 5 over x^2 + 3x + 2. The bottom must split into real linear factors.</string>
+    <string name="partial_numerator">Numerator (top)</string>
+    <string name="partial_denominator">Denominator (bottom)</string>
+    <string name="partial_split">Split it</string>
+    <string name="limits_bad_point">Enter a number for the point, or tick infinity.</string>
+    <string name="limits_none">The limit could not be worked out. Check the expression.</string>
+    <string name="limits_diverge_pos">The limit does not exist as a number: it runs away to +\u221E.</string>
+    <string name="limits_diverge_neg">The limit does not exist as a number: it runs away to \u2212\u221E.</string>
+    <string name="limits_equals">= </string>
 </resources>
