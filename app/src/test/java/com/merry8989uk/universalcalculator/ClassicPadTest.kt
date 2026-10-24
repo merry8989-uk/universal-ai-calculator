@@ -39,6 +39,23 @@ class ClassicPadTest {
         "rand" to 0,
     )
 
+    /**
+     * A probe value for the functions that dislike 1.
+     *
+     * zeta has a pole there, atanh and asech need a value inside (-1, 1), and
+     * acosh needs one at or above 1.
+     */
+    private val PROBE = mapOf(
+        "zeta" to 2.0,
+        "atanh" to 0.5,
+        "asech" to 0.5,
+        "acosh" to 2.0,
+        "acoth" to 2.0,
+    )
+
+    /** Functions the engine understands that the modern keypad has no key for. */
+    private val engineOnly = setOf("rand", "sinc")
+
     private fun everyKey(): List<ClassicKey> = CLASSIC_PAGE_ONE.flatten() + CLASSIC_PAGE_TWO.flatten()
 
     /** A key that opens a screen rather than typing anything. */
@@ -119,7 +136,7 @@ class ClassicPadTest {
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "e",
             "+", "-", "*", "/", "%", "^", "(", ")",
         )
-        val known = plain + special + FUNCTION_KEYS + SCIENTIFIC_KEYS.toSet() + "rand"
+        val known = plain + special + FUNCTION_KEYS + SCIENTIFIC_KEYS.toSet() + engineOnly
         val unknown = ArrayList<String>()
         everyKey().forEach { key ->
             val actions = listOfNotNull(
@@ -146,9 +163,11 @@ class ClassicPadTest {
                     failures.add("${key.label} -> '$action' inserts nothing"); continue
                 }
                 if (action in FUNCTION_KEYS) {
-                    val args = when (val n = ARITY[action] ?: 1) {
+                    val n = ARITY[action] ?: 1
+                    val probeValue = PROBE[action] ?: 1.0
+                    val args = when (n) {
                         0 -> ""
-                        else -> (1..n).joinToString(",") { "1" }
+                        else -> (1..n).joinToString(",") { probeValue.toString() }
                     }
                     val probe = snippet + args + ")".repeat(snippet.count { it == '(' })
                     val value = runCatching { Evaluator.evaluate(probe, degrees = true) }.getOrNull()
@@ -179,7 +198,7 @@ class ClassicPadTest {
         val classicTyped = everyKey()
             .filterNot { isToolOnly(it) }
             .flatMap { listOfNotNull(it.action, it.shiftAction, it.alphaAction) }
-            .filter { !isPadLocal(it) && it !in special && it !in setOf("e", "rand") }
+            .filter { !isPadLocal(it) && it !in special && it !in engineOnly && it != "e" }
             .toSet()
         val onlyClassic = classicTyped - modern
         assertTrue("the classic pad offers keys the modern pad does not: $onlyClassic", onlyClassic.isEmpty())
