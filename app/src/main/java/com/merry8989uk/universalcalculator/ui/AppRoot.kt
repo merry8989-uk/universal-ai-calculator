@@ -53,15 +53,30 @@ import com.merry8989uk.universalcalculator.settings.SettingsState
 private val TAB_LABELS = listOf(
     R.string.tab_standard, R.string.tab_scientific, R.string.tab_convert,
     R.string.tab_formulas, R.string.tab_ask_ai, R.string.tab_settings,
+    R.string.tab_sci_classic,
 )
 private val TAB_A11Y = listOf(
     R.string.tab_standard_a11y, R.string.tab_scientific_a11y, R.string.tab_convert_a11y,
     R.string.tab_formulas_a11y, R.string.tab_ask_ai_a11y, R.string.tab_settings_a11y,
+    R.string.tab_sci_classic_a11y,
 )
-private val TAB_GLYPHS = listOf("=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699")
+private val TAB_GLYPHS = listOf(
+    "=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699", "\u2211",
+)
 
-private const val FORMULAS_TAB = 3
+private const val STANDARD_TAB = 0
 private const val SCIENTIFIC_TAB = 1
+private const val CONVERT_TAB = 2
+private const val FORMULAS_TAB = 3
+/** The classic scientific pad. It is its own tab only in minimal mode. */
+private const val SCI_CLASSIC_TAB = 6
+
+/**
+ * The five the minimal bar shows, in order, with no assistant anywhere.
+ */
+private val MINIMAL_TABS = listOf(
+    STANDARD_TAB, SCIENTIFIC_TAB, SCI_CLASSIC_TAB, CONVERT_TAB, FORMULAS_TAB,
+)
 
 /** Two tabs on each side of the assistant button, so it sits dead centre. */
 private val LEFT_TABS = listOf(0, 1)
@@ -108,12 +123,19 @@ internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
 /**
  * Which pad a tab shows.
  *
- * "Classic Scientific" swaps the modern scientific pad for the classic one, on
- * the Scientific tab only. The Standard tab always keeps the plain number pad —
- * the layout setting must never reach it.
+ * With "Classic Scientific" chosen, the classic pad takes the Scientific tab's
+ * place — the Standard tab always keeps the plain number pad, so the layout
+ * setting must never reach it.
+ *
+ * In minimal mode it does not replace anything: there the Scientific tab stays
+ * as it is and the classic pad gets a tab of its own, so all the calculators are
+ * reachable side by side.
  */
-internal fun usesClassicPad(layout: String, isScientificTab: Boolean): Boolean =
-    isScientificTab && layout == "Classic Scientific"
+internal fun usesClassicPad(
+    layout: String,
+    isScientificTab: Boolean,
+    minimal: Boolean = false,
+): Boolean = !minimal && isScientificTab && layout == "Classic Scientific"
 
 /** The flat list, for tests and for anything that just wants every key. */
 internal val SCIENTIFIC_KEYS: List<String> = SCIENTIFIC_GROUPS.flatMap { it.second }
@@ -133,10 +155,11 @@ fun AppRoot(settings: SettingsState) {
     val minimal = settings.minimalMode
     // One switch, one meaning: the classic pad replaces the modern one on the
     // Scientific tab. It never reaches the Standard tab.
-    val classicScientific = usesClassicPad(settings.layoutStyle, isScientificTab = true)
+    val classicScientific =
+        usesClassicPad(settings.layoutStyle, isScientificTab = true, minimal = minimal)
     // Leaving minimal mode must not strand the user on a tab that is gone.
     LaunchedEffect(minimal) {
-        if (minimal && tab !in listOf(0, SCIENTIFIC_TAB, SETTINGS_TAB)) tab = 0
+        if (minimal && tab !in MINIMAL_TABS && tab != SETTINGS_TAB) tab = STANDARD_TAB
     }
     var aiContext by rememberSaveable { mutableStateOf("") }
     var aiAsk by rememberSaveable { mutableStateOf("") }
@@ -195,8 +218,10 @@ fun AppRoot(settings: SettingsState) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (minimal) {
-                    // Three calculators and the settings that turn this off.
-                    listOf(0, SCIENTIFIC_TAB, SETTINGS_TAB).forEach { i ->
+                    // Five things and no assistant: the three calculators, the
+                    // converters and the formula reference. Settings is still in
+                    // the overflow menu, so minimal can be switched off again.
+                    MINIMAL_TABS.forEach { i ->
                         NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                     }
                 } else {
@@ -262,8 +287,20 @@ fun AppRoot(settings: SettingsState) {
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                 )
-                2 -> ConvertScreen()
-                3 -> FormulasScreen(
+                SCI_CLASSIC_TAB -> CalculatorScreen(
+                    // Only reachable in minimal mode, where the classic pad sits
+                    // beside the modern one instead of replacing it.
+                    title = "Sci Classic",
+                    functionKeys = SCIENTIFIC_KEYS,
+                    settings = settings,
+                    classicScientific = true,
+                    onAskAi = { q -> aiContext = q; tab = AI_TAB },
+                    onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
+                    onOpenSettings = { selectTab(SETTINGS_TAB) },
+                    onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
+                )
+                CONVERT_TAB -> ConvertScreen()
+                FORMULAS_TAB -> FormulasScreen(
                     resetSignal = resetTick,
                     requestedTool = requestedTool,
                     onToolRequestUsed = { requestedTool = "" },

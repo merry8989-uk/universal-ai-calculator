@@ -836,7 +836,9 @@ when (key) {
                         },
                     )
                 }
-                Row(
+                // Voice, photo and "ask about this" are all the assistant, so
+                // minimal mode takes them away with the rest of it.
+                if (!settings.minimalMode) Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -909,8 +911,9 @@ when (key) {
             }
 
             // The magic button sits on the left, above the yellow rows and the
-            // Clear key, so it is within reach of the thumb.
-            Row(
+            // Clear key, so it is within reach of the thumb. Minimal mode hides
+            // the assistant everywhere, this included.
+            if (!settings.minimalMode) Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
