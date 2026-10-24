@@ -262,7 +262,7 @@
   },
   {
    "c": "Algebra",
-   "t": "Discriminant",
+   "t": "Discriminant: the discriminant",
    "f": "D = b² − 4ac: two real roots if D > 0, one if D = 0, complex if D < 0"
   },
   {
@@ -372,7 +372,7 @@
   },
   {
    "c": "Geometry",
-   "t": "Square",
+   "t": "Square: geometric formula",
    "f": "A = a²,  P = 4a,  diagonal = a√2"
   },
   {
@@ -1647,7 +1647,7 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Set Identities",
+   "t": "Set Identities: equality of sets",
    "f": "A=B if AcB and B c A"
   },
   {
@@ -1657,12 +1657,12 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Associativity",
+   "t": "Associativity: union is associative",
    "f": "AU(BUC)=(AUB)UC Intersection of Sets C= AUB={x|x∈ A and x ε B} A"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Associativity",
+   "t": "Associativity: intersection is associative",
    "f": "A(BC)=(AB)C 2"
   },
   {
@@ -1702,27 +1702,27 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Set Identities",
+   "t": "Set Identities: difference of sets",
    "f": "B\\A=B\\(AB)"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Set Identities",
+   "t": "Set Identities: difference of sets (2)",
    "f": "B\\A=BA'"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Set Identities",
+   "t": "Set Identities: difference of sets (3)",
    "f": "A\\A="
   },
   {
    "c": "Sets & Numbers",
-   "t": "Set Identities",
+   "t": "Set Identities: difference is distributive",
    "f": "(A\\B)C=(AC)\\(BC)"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Set Identities",
+   "t": "Set Identities: complement",
    "f": "A'=I\\A"
   },
   {
@@ -1742,7 +1742,7 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: set identity",
    "f": "C={x+iy|xeR and y∈R}, where i is the imaginary unit"
   },
   {
@@ -1802,32 +1802,32 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: powers of i",
    "f": "i'=i i²=i 4n1 =1 i²=-1 i°=-1"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: rectangular form",
    "f": "Z=a+bi"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: addition",
    "f": "(a+bi)+(c+di)=(a+c)+(b+d)i"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: subtraction",
    "f": "(a+bi)-(c+di)=(a-c)+(b-d)i"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: multiplication",
    "f": "(a + bi)(c+di)=(ac-bd)+(ad+ bc)i"
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: division",
    "f": "a +bi i_ac+bdbc-ad c+di c²+d² c²+d²"
   },
   {
@@ -1837,7 +1837,7 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers",
+   "t": "Complex Numbers: polar form",
    "f": "a=rcosΦ,b=rsinp 9"
   },
   {
@@ -1887,27 +1887,27 @@
   },
   {
    "c": "Algebra",
-   "t": "Factoring Formulas",
+   "t": "Factoring Formulas: difference of squares",
    "f": "a²-b²=(a-b)(a²+ab+b²)"
   },
   {
    "c": "Algebra",
-   "t": "Factoring Formulas",
+   "t": "Factoring Formulas: sum of squares",
    "f": "a²+b²=(a+b)(a²-ab+b²)"
   },
   {
    "c": "Algebra",
-   "t": "Factoring Formulas",
+   "t": "Factoring Formulas: difference of squares (2)",
    "f": "a*-b²=(a²-b²(a²+b²)=(a-b)(a+b)a²+b²)"
   },
   {
    "c": "Algebra",
-   "t": "Factoring Formulas",
+   "t": "Factoring Formulas: difference of squares (3)",
    "f": "a² -b² =(a-b)(a*+a²b+a²b²+ab²+b*)"
   },
   {
    "c": "Algebra",
-   "t": "Factoring Formulas",
+   "t": "Factoring Formulas: sum of squares (2)",
    "f": "a²+b²=(a+b)(a²-a²b+a²b²-ab²+b)"
   },
   {
@@ -1922,22 +1922,22 @@
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas",
+   "t": "Product Formulas: cube of a difference",
    "f": "(a-b) =a² -3a²b+3ab² -b3"
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas",
+   "t": "Product Formulas: square of a sum",
    "f": "(a + b)² =a² + 3a²b+ 3ab² + b3"
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas",
+   "t": "Product Formulas: quartic of a difference",
    "f": "(a-b)=a*-4a²b+6a²b²-4ab²+bd"
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas",
+   "t": "Product Formulas: quartic of a sum",
    "f": "(a + b)* = aa + 4a²b+ 6a²b² + 4ab² + b4"
   },
   {
@@ -1947,82 +1947,82 @@
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas",
+   "t": "Product Formulas: square of three terms",
    "f": "(a+b+c)²=a²+b²+c²+ 2ab+ 2ac+ 2bc"
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas",
+   "t": "Product Formulas: square of three terms (2)",
    "f": "(a+b+c+...+u+v)² =a² +b²+c² +...+u²+ v² + + 2(ab+ ac +.+ au + av + bc +..+ bu + bv +..+ uv) 13"
   },
   {
    "c": "Algebra",
-   "t": "Powers",
+   "t": "Powers: product of powers",
    "f": "a\"a” =am+n"
   },
   {
    "c": "Algebra",
-   "t": "Powers",
+   "t": "Powers: power of a product",
    "f": "(ab)\" =a\"b\""
   },
   {
    "c": "Algebra",
-   "t": "Powers",
+   "t": "Powers: power of a power",
    "f": "(a) =an"
   },
   {
    "c": "Algebra",
-   "t": "Powers",
+   "t": "Powers: power of zero exponent",
    "f": "a=1, a≠0"
   },
   {
    "c": "Algebra",
-   "t": "Powers",
+   "t": "Powers: anything to the zero",
    "f": "a'=1"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root of a product",
    "f": "ab=Va/"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root of a product (2)",
    "f": "ab=\"a\"b\" #"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root as a power",
    "f": "(a)=/a"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: square of a root",
    "f": "(/a)²=a"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root as a power (2)",
    "f": "/a=a"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root as a power (3)",
    "f": "/a =a '66 a=a"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root rule",
    "f": "(a)=Va 15"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: root rule (2)",
    "f": "2 1 √a+√b"
   },
   {
    "c": "Algebra",
-   "t": "Roots",
+   "t": "Roots: sum of two roots",
    "f": "√a±√b"
   },
   {
@@ -2057,7 +2057,7 @@
   },
   {
    "c": "Algebra",
-   "t": "Discriminant",
+   "t": "Discriminant: the discriminant (2)",
    "f": "D=b²-4ac"
   },
   {
@@ -2077,52 +2077,52 @@
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: difference and sign",
    "f": "If a>b,then a-b>0 or b-a<0"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: adding the same number",
    "f": "If a>b,then a+c>b+c"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: subtracting the same number",
    "f": "If a>b,then a-c>b-c"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: adding two inequalities",
    "f": "If a>b and c>d,then a+c>b+d"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: subtracting two inequalities",
    "f": "If a>b and c>d,then a-d>b-c"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: square roots keep the order",
    "f": "If 0<a<b,then Va</b"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: mean is at least the geometric mean",
    "f": "2 where a >0, b > 0; an equality is valid only if a = b"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: absolute value below a",
    "f": "If |x|<a,then -a<x<a, where a>0"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: absolute value above a",
    "f": "If x|>a, then x<-a and x >a, where a >0"
   },
   {
    "c": "Algebra",
-   "t": "Inequalities",
+   "t": "Inequalities: square below a",
    "f": "If x²<a,then |x|<√a, where a >0"
   },
   {
@@ -2132,87 +2132,87 @@
   },
   {
    "c": "Geometry",
-   "t": "Scalene Triangle",
+   "t": "Scalene Triangle: angle sum",
    "f": "α+β+=180°"
   },
   {
    "c": "Geometry",
-   "t": "Scalene Triangle",
+   "t": "Scalene Triangle: triangle inequality",
    "f": "a+b>c, b+c>a, a+c>b"
   },
   {
    "c": "Geometry",
-   "t": "Scalene Triangle",
+   "t": "Scalene Triangle: triangle inequality (2)",
    "f": "|a-b<c, |b-c<a, la-d<b"
   },
   {
    "c": "Geometry",
-   "t": "Scalene Triangle",
+   "t": "Scalene Triangle: altitudes",
    "f": "h,=bsin y=csinβ, h,=asin=csin α, h, =asin β= bsin α"
   },
   {
    "c": "Geometry",
-   "t": "Square",
+   "t": "Square: perimeter",
    "f": "L=4a"
   },
   {
    "c": "Geometry",
-   "t": "Square",
+   "t": "Square: area",
    "f": "S=a²"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid",
+   "t": "Isosceles Trapezoid: midline",
    "f": "q= a+b"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid",
+   "t": "Isosceles Trapezoid: diagonal",
    "f": "d=√ab+c²"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid",
+   "t": "Isosceles Trapezoid: geometric formula",
    "f": "c√ab+ c2"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid",
+   "t": "Isosceles Trapezoid: circumradius",
    "f": "R= √(2c-a+b)(2c+a-b)"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid",
+   "t": "Isosceles Trapezoid: semiperimeter",
    "f": "s=a+b. .h=qh 2 39"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid with",
+   "t": "Isosceles Trapezoid with: equal legs",
    "f": "a+b=2c"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid with",
+   "t": "Isosceles Trapezoid with: diagonal",
    "f": "d²=h²+c² 40"
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid with",
+   "t": "Isosceles Trapezoid with: perimeter",
    "f": "L=2(a+b)=4c a +b (a+b)/ab"
   },
   {
    "c": "Geometry",
-   "t": "Trapezoid with Inscribed Circle",
+   "t": "Trapezoid with Inscribed Circle: inscribed circle",
    "f": "a+b=c+d"
   },
   {
    "c": "Geometry",
-   "t": "Trapezoid with Inscribed Circle",
+   "t": "Trapezoid with Inscribed Circle: geometric formula",
    "f": "a+b_c+d 2"
   },
   {
    "c": "Geometry",
-   "t": "Trapezoid with Inscribed Circle",
+   "t": "Trapezoid with Inscribed Circle: geometric formula (2)",
    "f": "L=2(a+b)=2(c+d)"
   },
   {
@@ -2222,72 +2222,72 @@
   },
   {
    "c": "Geometry",
-   "t": "Tangential Quadrilateral",
+   "t": "Tangential Quadrilateral: tangential",
    "f": "a+c=b+d"
   },
   {
    "c": "Geometry",
-   "t": "Tangential Quadrilateral",
+   "t": "Tangential Quadrilateral: perimeter",
    "f": "L=a+b+c+d=2(a+c)=2(b+d) √d²d²-(a-b)(a+b-p)²"
   },
   {
    "c": "Geometry",
-   "t": "General Quadrilateral",
+   "t": "General Quadrilateral: angle sum",
    "f": "α+β++=360°"
   },
   {
    "c": "Geometry",
-   "t": "General Quadrilateral",
+   "t": "General Quadrilateral: perimeter",
    "f": "L=a+b+c+d 46"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle",
+   "t": "Sectorofa Circle: arc length",
    "f": "s=Rx"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle",
+   "t": "Sectorofa Circle: geometric formula",
    "f": "πRa 180°"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle",
+   "t": "Sectorofa Circle: perimeter",
    "f": "L=s+2R Rs_R²x_πR²α"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle",
+   "t": "Sectorofa Circle: geometric formula (2)",
    "f": "2 360° 53"
   },
   {
    "c": "Geometry",
-   "t": "Segment of a Circle",
+   "t": "Segment of a Circle: chord",
    "f": "a=2√2hR-h²"
   },
   {
    "c": "Geometry",
-   "t": "Segment of a Circle",
+   "t": "Segment of a Circle: height",
    "f": "h=R-→√4R²-a²,h<R 2"
   },
   {
    "c": "Geometry",
-   "t": "Segment of a Circle",
+   "t": "Segment of a Circle: geometric formula",
    "f": "L=s+a 54"
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Parallelepiped",
+   "t": "Rectangular Parallelepiped: diagonal",
    "f": "d=√a²+b²+c²"
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Parallelepiped",
+   "t": "Rectangular Parallelepiped: surface area",
    "f": "S=2(ab+ac+bc)"
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Parallelepiped",
+   "t": "Rectangular Parallelepiped: volume",
    "f": "V=abc 56"
   },
   {
@@ -2302,12 +2302,12 @@
   },
   {
    "c": "Geometry",
-   "t": "Regular Pyramid",
+   "t": "Regular Pyramid: base area",
    "f": "Ss=pr"
   },
   {
    "c": "Geometry",
-   "t": "Regular Pyramid",
+   "t": "Regular Pyramid: total surface",
    "f": "S=Ss +S"
   },
   {
@@ -2317,147 +2317,147 @@
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Right Wedge",
+   "t": "Rectangular Right Wedge: surface area",
    "f": "S=(a+c)/4h²+b²+b√h²+(a-c) 2"
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Right Wedge",
+   "t": "Rectangular Right Wedge: geometric formula",
    "f": "Ss=ab"
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Right Wedge",
+   "t": "Rectangular Right Wedge: surface area (2)",
    "f": "S=SB+SL"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: edge from the radius",
    "f": "a√6 6"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: edge from the radius (2)",
    "f": "a√2 2 64"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: surface area",
    "f": "S=2a²√3 a²√2"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: inradius",
    "f": "r=av√3(3+√5) 12"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: circumradius",
    "f": "R=√2(5+√5)"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: surface area (2)",
    "f": "S=5a²3"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: volume",
    "f": "v=5a(3+v5) 12 65"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: inradius (2)",
    "f": "r=a√10(25+11√5) 2 av√3(1+√5)"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: circumradius (2)",
    "f": "R= 4"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: surface area (3)",
    "f": "S=3a²√5(5+2√5)"
   },
   {
    "c": "Geometry",
-   "t": "Platonic Solids",
+   "t": "Platonic Solids: volume (2)",
    "f": "v=a(15+7√5) 4"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder",
+   "t": "Right Circular Cylinder: lateral surface",
    "f": "S=2πRH"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder",
+   "t": "Right Circular Cylinder: total surface",
    "f": "S=S+2SB=2πR(H+R)=πd"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder",
+   "t": "Right Circular Cylinder: volume",
    "f": "V=SsH=πR²H 67"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder with",
+   "t": "Right Circular Cylinder with: geometric formula",
    "f": "S, =πR(h, +h)"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder with",
+   "t": "Right Circular Cylinder with: geometric formula (2)",
    "f": "Sg=πR²+πR、R² 68"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder with",
+   "t": "Right Circular Cylinder with: surface area",
    "f": "S=S+Ss=πRh,+h+R+"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder with",
+   "t": "Right Circular Cylinder with: volume",
    "f": "V= πR² (h, + h,) 2"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cone",
+   "t": "Right Circular Cone: height of a frustum",
    "f": "H=√m²-R²"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cone",
+   "t": "Right Circular Cone: base area",
    "f": "Ss=πR²"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cone",
+   "t": "Right Circular Cone: surface area",
    "f": "S=S+Ss=πR(m+R)="
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cone",
+   "t": "Right Circular Cone: geometric formula",
    "f": "1 SH= πRH 1 3"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone",
+   "t": "Frustum ofa Right Circular Cone: height of a frustum",
    "f": "H=√m²-(R-r)² R=k"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone",
+   "t": "Frustum ofa Right Circular Cone: surface area",
    "f": "S =πm(R+r)"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone",
+   "t": "Frustum ofa Right Circular Cone: surface area (2)",
    "f": "S=S,+S+S=π[R²+r²+m(R+r)]"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone",
+   "t": "Frustum ofa Right Circular Cone: geometric formula",
    "f": "(S, + S,S + S2)"
   },
   {
@@ -2472,17 +2472,17 @@
   },
   {
    "c": "Geometry",
-   "t": "Spherical Segment",
+   "t": "Spherical Segment: curved surface",
    "f": "Ss=2πRh"
   },
   {
    "c": "Geometry",
-   "t": "Spherical Segment",
+   "t": "Spherical Segment: total surface",
    "f": "S=Ss+S+S=π(2Rh+r²+r²)"
   },
   {
    "c": "Geometry",
-   "t": "Spherical Segment",
+   "t": "Spherical Segment: volume",
    "f": "V= πh(3r²+3r²+h²) 6"
   },
   {
@@ -2492,22 +2492,22 @@
   },
   {
    "c": "Geometry",
-   "t": "Circular Torus",
+   "t": "Circular Torus: surface area",
    "f": "S=4π²Rr"
   },
   {
    "c": "Geometry",
-   "t": "Circular Torus",
+   "t": "Circular Torus: volume",
    "f": "V=2nπ²Rr² 79"
   },
   {
    "c": "Trigonometry",
-   "t": "Radian and Degree Measures of Angles",
+   "t": "Radian and Degree Measures of Angles: minute in radians",
    "f": "1'= π rad =0.000291 rad 180·60"
   },
   {
    "c": "Trigonometry",
-   "t": "Radian and Degree Measures of Angles",
+   "t": "Radian and Degree Measures of Angles: minute in radians (2)",
    "f": "1\"= π rad=0.000005rad 180-3600"
   },
   {
@@ -2532,7 +2532,7 @@
   },
   {
    "c": "Trigonometry",
-   "t": "COS OL",
+   "t": "COS OL: tangent in terms of sine and cosine",
    "f": "tan . sina seco cosecα"
   },
   {
@@ -2542,17 +2542,17 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Most Important Formulas",
+   "t": "Most Important Formulas: sine of a sum",
    "f": "sin²α+cosα=1"
   },
   {
    "c": "Trigonometry",
-   "t": "Most Important Formulas",
+   "t": "Most Important Formulas: secant of a difference",
    "f": "secα-tan²α=1"
   },
   {
    "c": "Trigonometry",
-   "t": "Most Important Formulas",
+   "t": "Most Important Formulas: cosecant of a difference",
    "f": "csc²α-cot²α=1"
   },
   {
@@ -2562,7 +2562,7 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Most Important Formulas",
+   "t": "Most Important Formulas: tangent identity",
    "f": "tan α·cot α =1"
   },
   {
@@ -2572,7 +2572,7 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Most Important Formulas",
+   "t": "Most Important Formulas: cosecant",
    "f": "1 cosec α = sin α"
   },
   {
@@ -2582,32 +2582,32 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Periodicity of Trigonometric Functions",
+   "t": "Periodicity of Trigonometric Functions: sine identity",
    "f": "sin(α±2πn)=sin α,period 2π or 360°"
   },
   {
    "c": "Trigonometry",
-   "t": "Periodicity of Trigonometric Functions",
+   "t": "Periodicity of Trigonometric Functions: cosine identity",
    "f": "cos(α±2rn)=cos α,period 2π or 360°"
   },
   {
    "c": "Trigonometry",
-   "t": "Periodicity of Trigonometric Functions",
+   "t": "Periodicity of Trigonometric Functions: tangent identity",
    "f": "tan(a±πn)=tan α, period or 180°"
   },
   {
    "c": "Trigonometry",
-   "t": "Periodicity of Trigonometric Functions",
+   "t": "Periodicity of Trigonometric Functions: cotangent identity",
    "f": "cot(a±πn)=cotα,periodπ or 180°"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Trigonometric",
+   "t": "Relationsbetween Trigonometric: sine identity",
    "f": "sinα=±√1-cos²α=±√ (1-cos2α)=2cos² 2 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Trigonometric",
+   "t": "Relationsbetween Trigonometric: cosine identity",
    "f": "cosα=±√1-sin²α=± (1+cos2α)=2cos² 1-tan² 2 2"
   },
   {
@@ -2617,122 +2617,122 @@
   },
   {
    "c": "Trigonometry",
-   "t": "COS OL",
+   "t": "COS OL: secant identity",
    "f": "sec α= =±√1+ tan²α = 2 2"
   },
   {
    "c": "Trigonometry",
-   "t": "2tan",
+   "t": "2tan: cosecant identity",
    "f": "cscO= ±√1+cot²α= 2 sin α. 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: sine of a sum",
    "f": "sin(αx +β)= sinα.cosβ + sinβcoso"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: sine of a difference",
    "f": "sin(α -y)= sinαx cosβ -sinβcosα"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: cosine of a sum",
    "f": "cos(α +β)= cosα cosβ-sinα.sinβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: cosine of a difference",
    "f": "cos(α -β)= cosox.cosβ+ sinα sinβ 91"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: tangent of a sum",
    "f": "tan(αx+β)= tan α + tanβ 1- tanα tanβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: tangent of a difference",
    "f": "tan(α-β)= tanα-tanβ 1+ tanα tanβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: cotangent of a sum",
    "f": "cot(α+β)=1-tanαtanβ tan α + tanβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Additionand Subtraction Formulas",
+   "t": "Additionand Subtraction Formulas: cotangent of a difference",
    "f": "cot(α-β)=1+tanoxtanβ tanα -tanβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Double Angle Formulas",
+   "t": "Double Angle Formulas: sine of a multiple angle",
    "f": "sin 2α =2sin α·cos α"
   },
   {
    "c": "Trigonometry",
-   "t": "Double Angle Formulas",
+   "t": "Double Angle Formulas: cosine of a multiple angle",
    "f": "cos 2c=cos²αsin²α=1-2sin²α=2cos²α1 2tanα 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Double Angle Formulas",
+   "t": "Double Angle Formulas: cotangent of a multiple angle",
    "f": "cot 2a= 2cotα. 2 92"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: sine of a multiple angle",
    "f": "sin3α =3sin α -4sin²α =3cos²α·sin α -sin²α"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: sine of a multiple angle (2)",
    "f": "sin 4c =4sin αx ·cos α -8sin²α·cos α"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: sine of a multiple angle (3)",
    "f": "sin 5α =5sin α -20sinα +16sinα"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: cosine of a multiple angle",
    "f": "cos 3α =4cos²α3cos α=cos²α3cos α·sin²α"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: cosine of a multiple angle (2)",
    "f": "cos 4α.=8cosα-8cos²α+1"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: cosine of a multiple angle (3)",
    "f": "cos 5α=16cos²α-20cos²α+5cosα 3tan α-tan²α"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: tangent of a multiple angle",
    "f": "tan 3α = 1-3tan²α"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: tangent of a multiple angle (2)",
    "f": "tan 50= 1-10tanα+5tan*α cot²α-3cot α"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: cotangent of a multiple angle",
    "f": "cot 3α= 3cot²α-1 1-6tan²α+tanα"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: cotangent of a multiple angle (2)",
    "f": "cot4α= 4tan α-4tan²α 93"
   },
   {
    "c": "Trigonometry",
-   "t": "Multiple Angle Formulas",
+   "t": "Multiple Angle Formulas: cotangent of a multiple angle (3)",
    "f": "cot5α= 1-10tan²α+5tan²α tan²α-10tan²α+5tan α"
   },
   {
@@ -2747,132 +2747,132 @@
   },
   {
    "c": "Trigonometry",
-   "t": "2tan",
+   "t": "2tan: trigonometric identity",
    "f": "COSL= 2 1+ tan² 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: sine of a sum",
    "f": "sin α+sinβ=2sin- α+β α-β 2 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: tangent of a sum",
    "f": "tan α +tanβ=- cOS O ·cos β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: tangent of a difference",
    "f": "tanα-tanβ= sin(α-β) cOS Q ·cos β sin(β+α)"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: cotangent of a sum",
    "f": "cot α+cotβ= sin α ·sin β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: cotangent of a difference",
    "f": "cotα-cotβ= sin(β -α) sin o. · sin β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: cosine of a sum",
    "f": "cos α+ sin α =√2co"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: trigonometric identity",
    "f": "COs O. sin α = cOs Q · sin β cos(α +β)"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: tangent of a difference (2)",
    "f": "tan α -cotβ=- cOS OL · sin β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: one plus cosine",
    "f": "1+cosα=2cos 2 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: one minus cosine",
    "f": "1-cosα=2sin² 2 96"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: one plus sine",
    "f": "1+sin α =2c"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: one minus sine",
    "f": "1- sin α = 2sin"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: cosine identity",
    "f": "cosα·cosβ= 2 sin(α -β)+ sin(α +β)"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: sine identity",
    "f": "sinα·cosβ= 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: tangent identity",
    "f": "tanα·tanβ= tan α + tan β cot α + cotβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: cotangent identity",
    "f": "cotα·cotβ= cot α+cotβ tan α + tan β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
+   "t": "Transforming of Trigonometric: tangent identity (2)",
    "f": "tanα·cotβ= tan α + cot β cot α + tan β 97"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: sine of a multiple angle",
    "f": "sin²α= 3sin α sin30. 4"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: sine identity",
    "f": "sinα= cos 4o 4cos 2o + 3 8"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: sine squared",
    "f": "sin²α 10 sin α. 5sin 3α + sin 50 16"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: sine to the fourth",
    "f": "sin°α 1015cos 2o + 6cos 4α cos 6α 32 cos²α 1+ cos 2α"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: cosine squared in terms of cos 3α",
    "f": "cos²α 3cos α + cos 3α 4"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: trigonometric identity",
    "f": "cos 4c + 4cos 2α + 3 8 10cos α + 5sin 3o + cos 50"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: cosine squared",
    "f": "cos²α 16"
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions",
+   "t": "Powers of Trigonometric Functions: cosine identity",
    "f": "cos\"α= 10+15cos 2α + 6cos 4α + cos 6α 32 98"
   },
   {
@@ -2892,47 +2892,47 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse sine",
    "f": "arcsin(-x)=-arcsinx"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse sine (2)",
    "f": "arcsinx =arccos √1-x², 0≤x≤1"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse sine (3)",
    "f": "arcsin x= =-arccos√1-x²,-1≤x≤0"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse cosine",
    "f": "arccos(-x)=π-arccosx 103"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse cosine (2)",
    "f": "arccosx=arcsin√1-x²,0≤x≤1"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse tangent",
    "f": "arctan(-x)=-arctanx"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse tangent (2)",
    "f": "arctanx = arcsin √1+x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse tangent (3)",
    "f": "arctanx=arccos- 1 x≥0. √1+ x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse tangent (4)",
    "f": "arctanx=-arccos x≤0 104"
   },
   {
@@ -2942,52 +2942,52 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
+   "t": "Relationsbetween Inverse: inverse cotangent",
    "f": "arccotx=π-arcsin 1+x"
   },
   {
    "c": "Trigonometry",
-   "t": "Trigonometric Equations",
+   "t": "Trigonometric Equations: sine identity",
    "f": "sinx=a,x=(-1)arcsina+πn"
   },
   {
    "c": "Trigonometry",
-   "t": "Trigonometric Equations",
+   "t": "Trigonometric Equations: cosine identity",
    "f": "cosx=a,x=±arccosa+2πn"
   },
   {
    "c": "Trigonometry",
-   "t": "Trigonometric Equations",
+   "t": "Trigonometric Equations: tangent identity",
    "f": "tanx=a,x=arctana+πn"
   },
   {
    "c": "Trigonometry",
-   "t": "Trigonometric Equations",
+   "t": "Trigonometric Equations: cotangent identity",
    "f": "cotx=a,x=arccota+πn"
   },
   {
    "c": "Trigonometry",
-   "t": "Relations to Hyperbolic Functions",
+   "t": "Relations to Hyperbolic Functions: sine identity",
    "f": "sin(ix)=isinh x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relations to Hyperbolic Functions",
+   "t": "Relations to Hyperbolic Functions: tangent identity",
    "f": "tan(ix)=itanh x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relations to Hyperbolic Functions",
+   "t": "Relations to Hyperbolic Functions: cotangent identity",
    "f": "cot(ix)=-icothx"
   },
   {
    "c": "Trigonometry",
-   "t": "Relations to Hyperbolic Functions",
+   "t": "Relations to Hyperbolic Functions: secant identity",
    "f": "sec(ix)=sech x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relations to Hyperbolic Functions",
+   "t": "Relations to Hyperbolic Functions: cosecant identity",
    "f": "csc(ix)= -i csch x 106"
   },
   {
@@ -3032,7 +3032,7 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "If the matrix product AB is defined, then",
+   "t": "If the matrix product AB is defined, then: transpose of a product",
    "f": "(AB)= B'AT. 113"
   },
   {
@@ -3052,7 +3052,7 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "If the matrix product AB is defined, then",
+   "t": "If the matrix product AB is defined, then: inverse of a product",
    "f": "(AB) = B-′A-"
   },
   {
@@ -3062,17 +3062,17 @@
   },
   {
    "c": "Vectors",
-   "t": "Vector Coordinates",
+   "t": "Vector Coordinates: direction of a vector",
    "f": "If AB=r,then BA=-r"
   },
   {
    "c": "Vectors",
-   "t": "Vector Coordinates",
+   "t": "Vector Coordinates: direction cosines",
    "f": "X=cosα, Y=|ilcosβ, Z=|Flcosy. 119"
   },
   {
    "c": "Vectors",
-   "t": "Vector Coordinates",
+   "t": "Vector Coordinates: equality of vectors",
    "f": "If r(x, Y,Z)=,(X, Y,Z,),then X=X, Y=Y,Z=Z"
   },
   {
@@ -3092,47 +3092,47 @@
   },
   {
    "c": "Vectors",
-   "t": "Vector Subtraction",
+   "t": "Vector Subtraction: difference",
    "f": "w=u-vifv+w=u"
   },
   {
    "c": "Vectors",
-   "t": "Vector Subtraction",
+   "t": "Vector Subtraction: subtraction",
    "f": "-v=u+(-v)"
   },
   {
    "c": "Vectors",
-   "t": "Vector Subtraction",
+   "t": "Vector Subtraction: the zero vector",
    "f": "-=0=(0,0,0)"
   },
   {
    "c": "Vectors",
-   "t": "Vector Subtraction",
+   "t": "Vector Subtraction: component subtraction",
    "f": "u-v=(x,-X,Y-Y,Z-Z)"
   },
   {
    "c": "Vectors",
-   "t": "Scaling Vectors",
+   "t": "Scaling Vectors: scalar multiple",
    "f": "w=入u 122"
   },
   {
    "c": "Vectors",
-   "t": "Scaling Vectors",
+   "t": "Scaling Vectors: components",
    "f": "=(X,Y,)"
   },
   {
    "c": "Vectors",
-   "t": "Scaling Vectors",
+   "t": "Scaling Vectors: distributivity over scalars",
    "f": "(+μ)=u+μu"
   },
   {
    "c": "Vectors",
-   "t": "Scaling Vectors",
+   "t": "Scaling Vectors: scalar multiplication",
    "f": "(μu)=μ(u)=(μ)"
   },
   {
    "c": "Vectors",
-   "t": "Scaling Vectors",
+   "t": "Scaling Vectors: associativity",
    "f": "(+v)=+"
   },
   {
@@ -3162,27 +3162,27 @@
   },
   {
    "c": "Vectors",
-   "t": "Scalar Product",
+   "t": "Scalar Product: vector rule",
    "f": "u·v=l if u,V are parallel (0=0)"
   },
   {
    "c": "Vectors",
-   "t": "Scalar Product",
+   "t": "Scalar Product: vector rule (2)",
    "f": "If u=(X,Y,Z),then u·u=u²=|l²=X²+Y²+Z²"
   },
   {
    "c": "Vectors",
-   "t": "Scalar Product",
+   "t": "Scalar Product: vector rule (3)",
    "f": "i.i=j·j=k.k=1"
   },
   {
    "c": "Vectors",
-   "t": "Scalar Product",
+   "t": "Scalar Product: unit vector products",
    "f": "i.j=j-k=k·i=0"
   },
   {
    "c": "Vectors",
-   "t": "Vector Product",
+   "t": "Vector Product: cross product",
    "f": "S=uxv=|·sinθ (Fig.83)"
   },
   {
@@ -3197,27 +3197,27 @@
   },
   {
    "c": "Vectors",
-   "t": "Vector Product",
+   "t": "Vector Product: parallel vectors",
    "f": "uxv=0 if u and v are parallel(0=0)"
   },
   {
    "c": "Vectors",
-   "t": "Vector Product",
+   "t": "Vector Product: unit vector cross products",
    "f": "ixi=jxj=kxk=0"
   },
   {
    "c": "Vectors",
-   "t": "Vector Product",
+   "t": "Vector Product: unit vector cross products (2)",
    "f": "ixj=k,jxk=i,kxi=j"
   },
   {
    "c": "Vectors",
-   "t": "Triple Product",
+   "t": "Triple Product: triple product identities",
    "f": "[uvw]=[wuv]=[<wu]=-[vuw]=-[wvu]=-[uwv]"
   },
   {
    "c": "Vectors",
-   "t": "Triple Product",
+   "t": "Triple Product: triple product identities (2)",
    "f": "kui·(vxw)=k[uvw]"
   },
   {
@@ -3232,7 +3232,7 @@
   },
   {
    "c": "Vectors",
-   "t": "Triple Product",
+   "t": "Triple Product: vector rule",
    "f": "If u·(vxw)=0,then the vectors u,V,and w are linearly dependent, so w =u+ μv for some scalars 入 and μ"
   },
   {
@@ -3292,17 +3292,17 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Intercept Form",
+   "t": "Intercept Form: intercept form",
    "f": "x+y=1 a b"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Normal Form",
+   "t": "Normal Form: normal form in the plane",
    "f": "xcosβ+ysinβ-p=0"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Point Direction Form",
+   "t": "Point Direction Form: point-direction form",
    "f": "x-x_y-y Y where (X, Y) is the direction of the line and P(x,y,) lies on the line. 143"
   },
   {
@@ -3322,12 +3322,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Perpendicular Lines",
+   "t": "Perpendicular Lines: perpendicular lines",
    "f": "Two lines y =k,x + b, and y = k,x +b, are perpendicular if 1 or, equivalently, k,k, =-1. k Two lines Ax+By+C,=0 and A,x+By+C=0 are"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Intersection of Two Lines",
+   "t": "Intersection of Two Lines: the intersection point",
    "f": "If two lines A,x+ B,y+C =0 and A,x+ By+C,=0 inter- sect, the intersection point has coordinates -C,B+C,B -A,C,+A,C X。="
   },
   {
@@ -3337,7 +3337,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form",
+   "t": "General Form: circle form",
    "f": "Ax² + Ay² + Dx + Ey + F =0 (A nonzero, D² + E² >4AF ). The center of the circle has coordinates (a,b), where D E 2A"
   },
   {
@@ -3352,12 +3352,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form",
+   "t": "General Form: ellipse form",
    "f": "Ax² + Bxy + Cy² + Dx + Ey + F = 0, where B²-4AC<0"
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form with Axes Parallel to the Coordinate Axes",
+   "t": "General Form with Axes Parallel to the Coordinate Axes: ellipse form",
    "f": "Ax²+ Cy²+ Dx + Ey + F=0, where AC>0"
   },
   {
@@ -3377,12 +3377,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form",
+   "t": "General Form: hyperbola form",
    "f": "Ax² + Bxy + Cy² + Dx + Ey + F = 0, where B²-4AC>0"
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form with Axes Parallel to the Coordinate Axes",
+   "t": "General Form with Axes Parallel to the Coordinate Axes: hyperbola form",
    "f": "Ax² + Cy² + Dx + Ey+ F=0, where AC<0"
   },
   {
@@ -3397,7 +3397,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form",
+   "t": "General Form: parabola form",
    "f": "Ax² + Bxy + Cy² + Dx+ Ey + F = 0, where B²-4AC=0"
   },
   {
@@ -3422,12 +3422,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Point Direction Form",
+   "t": "Point Direction Form: point-direction form in space",
    "f": "A(x-x。)+B(y-y。)+C(z-z。)=0, where the point P(x。Yz。) lies in the plane, and the vec- tor (A, B, C) is normal to the plane. (A,B,C) M(x,y,z)"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Intercept Form",
+   "t": "Intercept Form: intercept form (2)",
    "f": "x+y+ B 167"
   },
   {
@@ -3437,7 +3437,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Normal Form",
+   "t": "Normal Form: normal form in space",
    "f": "xcoso+ycosβ+zcos-p=0, where p is the perpendicular distance from the origin to the plane,and cosα, cosβ,cos are the direction cosines of any line normal to the plane. 169"
   },
   {
@@ -3472,12 +3472,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Perpendicular Lines",
+   "t": "Perpendicular Lines: parallel lines",
    "f": "Two lines are parallel if s,·s=0, 10 aa +b,b+cc=0"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Intersection of Two Lines",
+   "t": "Intersection of Two Lines: the intersection point (2)",
    "f": "Two lines X -X y-y and a"
   },
   {
@@ -3552,7 +3552,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Form",
+   "t": "General Form: sphere form",
    "f": "Ax² + Ay² + Az² + Dx + Ey + Fz + M = 0 (A is nonzero). The center of the sphere has coordinates (a,b,c), where D E F"
   },
   {
@@ -3652,12 +3652,12 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions",
+   "t": "Limitsof Functions: limit of a sum",
    "f": "lim[f(x)+ g(x)]=limf(x)+ limg(x)"
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions",
+   "t": "Limitsof Functions: limit of a difference",
    "f": "lim[f(x)-g(x)]=limf(x)-limg(x)"
   },
   {
@@ -3667,17 +3667,17 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions",
+   "t": "Limitsof Functions: limit of a constant multiple",
    "f": "lim[kf(x)]=klim f(x)"
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions",
+   "t": "Limitsof Functions: the limit equals the value",
    "f": "limf(x)=f(a), if the function f(x) is continuous at x =a"
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions",
+   "t": "Limitsof Functions: a standard limit",
    "f": "lima²=1 X-0"
   },
   {
@@ -3692,7 +3692,7 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
+   "t": "Higher Order Derivatives: nth derivative of a difference",
    "f": "(u-v)(n)=u(n)_(n)"
   },
   {
@@ -3702,17 +3702,17 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
+   "t": "Higher Order Derivatives: nth derivative of x to the n",
    "f": "( (x))=n!"
   },
   {
    "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
+   "t": "Higher Order Derivatives: nth derivative of the exponential",
    "f": "(ex)=ex"
   },
   {
    "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
+   "t": "Higher Order Derivatives: nth derivative of an exponential",
    "f": "(ax)=m\"a* In\"a"
   },
   {
@@ -3757,22 +3757,22 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Differential",
+   "t": "Differential: the differential",
    "f": "dy=y'dx"
   },
   {
    "c": "Differential Calculus",
-   "t": "Differential",
+   "t": "Differential: sum of differentials",
    "f": "d(u+v)=du+dv"
   },
   {
    "c": "Differential Calculus",
-   "t": "Differential",
+   "t": "Differential: difference of differentials",
    "f": "d(u-v)=du-dv"
   },
   {
    "c": "Differential Calculus",
-   "t": "Differential",
+   "t": "Differential: constant multiple of a differential",
    "f": "d(Cu)=Cdu"
   },
   {
@@ -3837,77 +3837,77 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Differential Operators",
+   "t": "Differential Operators: divergence of a curl",
    "f": "div(curl F)=V.(v×F)=0"
   },
   {
    "c": "Differential Calculus",
-   "t": "Differential Operators",
+   "t": "Differential Operators: curl of a curl",
    "f": "curl(curl F)=grad(div F)-v²F=V(v·F)-v²F 226"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: definition",
    "f": "∫f(x)dx= F(x)+ C if F\"(x)=f(x)"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: the derivative of an integral",
    "f": "(f(x)dx)=(x)"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: constant multiple",
    "f": "{kf(x)dx=k{f(x)dx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: sum",
    "f": "[E(x)+g(x)]dx={f(x)dx+ {g(x)dx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: difference",
    "f": "xP(x)8{-xp(x){=xp[(x)8-(x)3]"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: scaled argument",
    "f": "∫f(ax)dx=F(ax)+C 227"
   },
   {
    "c": "Integral Calculus",
-   "t": "Indefinite Integral",
+   "t": "Indefinite Integral: power rule",
    "f": "Jf(x)r(x)dx=→f²(x)+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integration by Parts",
+   "t": "Integration by Parts: integration by parts",
    "f": "∫udv=uv- ∫vdu, where u(x), v(x) are differentiable functions"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Rational Functions",
+   "t": "Integrals of Rational Functions: integral of a constant",
    "f": "∫adx =ax+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Rational Functions",
+   "t": "Integrals of Rational Functions: one over a linear",
    "f": "=1mx+C dx=-Inlax+b+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Rational Functions",
+   "t": "Integrals of Rational Functions: integral of a linear",
    "f": "ax+ba"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: root of a linear",
    "f": "√ax+bdx= (ax +b)+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: integral of an irrational",
    "f": "P + x3 c√ac"
   },
   {
@@ -3917,12 +3917,12 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: integral of x over a root",
    "f": "x√a+ bx +C,a>0. VaVa+bx+√a 232"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: integral of a root of a linear",
    "f": "Va+b + C 1+x"
   },
   {
@@ -3932,47 +3932,47 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: integral of a root of x squared plus a squared",
    "f": "√x²+a²dx=√x²+a² 2 233"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: form",
    "f": "√x²+a² 2"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: integral of a root of x squared minus a squared",
    "f": "{(x²-a²)dx=-(2x²-5a²)x²-a²+ 3a* 8"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
+   "t": "Integrals of Irrational Functions: form (2)",
    "f": "x√a²-x²dx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: integral of a trig product",
    "f": "∫cos xdx = sin x + C 237"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: cosine of a multiple angle",
    "f": "cos²xdx= x+1 sin2x+C 24"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: integral of a trig product (2)",
    "f": "∫cos²x dx = sin x 1 sin3x+ 3 sinx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: cosecant of a multiple angle",
    "f": "csc²x dx=-cotx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: sine identity",
    "f": "sin x cosx dx = cos2x+C 4 238"
   },
   {
@@ -3982,12 +3982,12 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: tangent of a multiple angle",
    "f": "tan²x dx= tan x-x+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: cotangent identity",
    "f": "cot xdx = In|sin x|+ C"
   },
   {
@@ -3997,172 +3997,172 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: integral of cotangent squared",
    "f": "∫cot²x dx=-cotx-x+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: cosine of a sum",
    "f": "cos(m+n)x cos(m-n)x sin mxcosnx dx = +C 2(m+n)"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: secant identity",
    "f": "secxtan xdx = secx +C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: cosecant identity",
    "f": "cscxcotxdx=-cscx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: sine identity (2)",
    "f": "sin\" xcosx dx = sin+1 x +C n +1 240"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
+   "t": "Integrals of Trigonometric Functions: integral of arcsine",
    "f": "∫arcsinx dx=xarcsinx+√1-x²+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic sine",
    "f": "∫sinh xdx =coshx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic sine (2)",
    "f": "∫cosh xdx= sinhx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic cosine",
    "f": "Jtanhx dx=lncoshx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic sine (3)",
    "f": "∫cothx dx=Inlsinhx|+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic tangent",
    "f": "Jsech²xdx=tanhx+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic cotangent",
    "f": "Jcsch²xdx=-cothx +C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic tangent (2)",
    "f": "Jsechx tanh xdx =-sechx+C 241"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Hyperbolic Functions",
+   "t": "Integrals of Hyperbolic Functions: integral of hyperbolic cotangent (2)",
    "f": "∫ cschx coth xdx =-cschx +C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Exponential and Logarithmic",
+   "t": "Integrals of Exponential and Logarithmic: integral of the exponential",
    "f": "∫e*dx=e*+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Exponential and Logarithmic",
+   "t": "Integrals of Exponential and Logarithmic: x times an exponential",
    "f": "xe dx = (ax -1)+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Exponential and Logarithmic",
+   "t": "Integrals of Exponential and Logarithmic: integral of the natural log",
    "f": "∫Inx dx=xlnx-x+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Exponential and Logarithmic",
+   "t": "Integrals of Exponential and Logarithmic: exponential times cosine",
    "f": "ecosbx dx= acosbx+bsinbx +C a² + b²"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: integral of hyperbolic sine",
    "f": "Jsinh\"xcosh\" xdx= sinh\"l xcosh-- x n+m m-1 sinh\" x cosh\"-2 xdx n+m‘ n+m"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: integral of hyperbolic tangent",
    "f": "∫tanh\" xdx=- tanh- x+tanh\"-² xdx, n≠1. n-1"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: integral of hyperbolic tangent (2)",
    "f": "Jsech\"xdx=sech\"-xtanhx sech-²xdx, n≠1. n-1"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: integral of a trig product",
    "f": "Jsin”xcos\"xdx=_sin\"-xcosx n + m 244"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: integral form",
    "f": "Jtan\"xdx= -tan\"-'x-∫ tan\"-²xdx, n≠1. n-1"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: reduction for log squared",
    "f": "∫1n² xdx=xln\" x-n∫ In\"- xdx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: x to the n times sinh",
    "f": "x\" sinhxdx=x\" coshx-nJx- cosh xdx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: x to the n times cosh",
    "f": "x\" coshxdx=x\" sinhx-n∫x\"- sinh xdx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: x to the n times sin",
    "f": "x\" sin xdx=-x\" cosx + n∫x\"- cosxdx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas",
+   "t": "Reduction Formulas: x to the n times cos",
    "f": "x\" cosxdx=x” sinx-nx\"-1 sinxdx 245"
   },
   {
    "c": "Integral Calculus",
-   "t": "Definite Integral",
+   "t": "Definite Integral: integral of one",
    "f": "{1dx=b-a"
   },
   {
    "c": "Integral Calculus",
-   "t": "Definite Integral",
+   "t": "Definite Integral: sum of two functions",
    "f": "xP(x)8 +xP(x)3{=xp[(x)8+(x)]"
   },
   {
    "c": "Integral Calculus",
-   "t": "Definite Integral",
+   "t": "Definite Integral: difference",
    "f": "{[E(x)-g(x)]dx={f(x)dx-{g(x)dx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Definite Integral",
+   "t": "Definite Integral: zero width",
    "f": "Jf(x)dx =0"
   },
   {
    "c": "Integral Calculus",
-   "t": "Definite Integral",
+   "t": "Definite Integral: reversing the limits",
    "f": "Jf(x)dx=-Jf(x)dx"
   },
   {
    "c": "Integral Calculus",
-   "t": "Definite Integral",
+   "t": "Definite Integral: sign of the integral",
    "f": "jf(x)dx≥0 if f(x)≥0 on [a,b]"
   },
   {
@@ -4172,7 +4172,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integration by Parts",
+   "t": "Integration by Parts: integration by parts (2)",
    "f": "udv=(uv)"
   },
   {
@@ -4192,12 +4192,12 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Double Integral",
+   "t": "Double Integral: integral form",
    "f": "{{[f(x,y)-g(x,y)]aA={f(x,y)dA-g(x,y)dA"
   },
   {
    "c": "Integral Calculus",
-   "t": "Double Integral",
+   "t": "Double Integral: positivity over a region",
    "f": "If f(x,y)≥0 on R and Sc R, then 259"
   },
   {
@@ -4212,7 +4212,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Volume ofa Solid",
+   "t": "Volume ofa Solid: volume under a surface",
    "f": "V=J∫f(x,y)dA. z = f(x,y) R"
   },
   {
@@ -4242,7 +4242,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Volume ofa Solid",
+   "t": "Volume ofa Solid: volume by slices",
    "f": "V= zpApxp"
   },
   {
@@ -4452,82 +4452,82 @@
   },
   {
    "c": "Series",
-   "t": "Arithmetic Series",
+   "t": "Arithmetic Series: nth term",
    "f": "a =an- +d=an- +2d= ..=a, +(n-1)d"
   },
   {
    "c": "Series",
-   "t": "Arithmetic Series",
+   "t": "Arithmetic Series: series formula",
    "f": "a, +a。=a, +an- =..=a +an+1-i"
   },
   {
    "c": "Series",
-   "t": "Arithmetic Series",
+   "t": "Arithmetic Series: arithmetic mean",
    "f": "a= ai-+ai1 2"
   },
   {
    "c": "Series",
-   "t": "Geometric Series",
+   "t": "Geometric Series: nth term",
    "f": "a = qa- =a,q-"
   },
   {
    "c": "Series",
-   "t": "Geometric Series",
+   "t": "Geometric Series: series formula",
    "f": "a·a =a·a-=...=a;·an+1-i"
   },
   {
    "c": "Series",
-   "t": "Geometric Series",
+   "t": "Geometric Series: geometric mean of neighbours",
    "f": "a;=√a;-·ai1"
   },
   {
    "c": "Series",
-   "t": "Geometric Series",
+   "t": "Geometric Series: sum of a geometric series",
    "f": "s, =a.q-a = q-1"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: finite sum",
    "f": "1+2+3+...+n= 2"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: sum of even numbers",
    "f": "2+4+6+...+2n=n(n+1)"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: finite sum (2)",
    "f": "1+3+5+...+(2n-1)=n²"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: sum from k",
    "f": "k+(k+ 1)+(k+2)++ (k+n1)= n(2k +n-1)"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: sum of cubes",
    "f": "1* +23+3*+..+n3 n(n +1)"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: sum of odd squares",
    "f": "1° +3² + 5² +..+(2n-1) =n²(2n²1)"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: finite sum (3)",
    "f": "1+ 248 2\""
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: series formula",
    "f": "2 2·3 3·4 n(n +1)"
   },
   {
    "c": "Series",
-   "t": "Some Finite Series",
+   "t": "Some Finite Series: finite sum (4)",
    "f": "1+ 1 1! 3! 306"
   },
   {
@@ -4552,12 +4552,12 @@
   },
   {
    "c": "Series",
-   "t": "Properties of Convergent Series",
+   "t": "Properties of Convergent Series: sum of a sum",
    "f": "∑(a+b)=∑a+∑b=A+B"
   },
   {
    "c": "Series",
-   "t": "Properties of Convergent Series",
+   "t": "Properties of Convergent Series: constant multiple",
    "f": "ca=c>a =cA"
   },
   {
@@ -4632,37 +4632,37 @@
   },
   {
    "c": "Series",
-   "t": "Power Series Expansions for Some",
+   "t": "Power Series Expansions for Some: sine series",
    "f": "sinx=x- (1)”x2n+1 3! 5! 7! (2n +1)!"
   },
   {
    "c": "Series",
-   "t": "[x<1",
+   "t": "[x<1: series formula",
    "f": "3. .(2n -1)x2+1 2·32·4·5 2 .4 ·6...(2n)(2n +1)"
   },
   {
    "c": "Series",
-   "t": "[x<1",
+   "t": "[x<1: series formula (2)",
    "f": "4· 6..(2n)(2n +1) x x” (1)”x2n+1"
   },
   {
    "c": "Series",
-   "t": "Power Series Expansions for Some",
+   "t": "Power Series Expansions for Some: arctangent series",
    "f": "arctanx=x ±..,|x|≤1. 3 5 7 2n + 1"
   },
   {
    "c": "Series",
-   "t": "Power Series Expansions for Some",
+   "t": "Power Series Expansions for Some: hyperbolic sine series",
    "f": "sinhx=x+ x* 3! 5! 7! (2n + 1)!"
   },
   {
    "c": "Series",
-   "t": "Binomial Series",
+   "t": "Binomial Series: binomial expansion",
    "f": "(1+x)² =1+ \"C,x+ °C,x²+..+ \"Cx n(n-1)..[n-(m-1)]"
   },
   {
    "c": "Series",
-   "t": "Binomial Series",
+   "t": "Binomial Series: geometric expansion",
    "f": "1 =1-x+x²-x²+..,｜x<1. 1+ X"
   },
   {
@@ -4672,22 +4672,22 @@
   },
   {
    "c": "Series",
-   "t": "Fourier Series",
+   "t": "Fourier Series: the Fourier series",
    "f": "f(x)=+(a cosnx+b sinnx)"
   },
   {
    "c": "Series",
-   "t": "Fourier Series",
+   "t": "Fourier Series: Fourier cosine coefficient",
    "f": "a。 = f(x)cosnxdx"
   },
   {
    "c": "Series",
-   "t": "Fourier Series",
+   "t": "Fourier Series: Fourier sine coefficient",
    "f": "b。= Jf(x)sinx dx 317"
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Permutations and Combinations",
+   "t": "Permutations and Combinations: permutations of everything",
    "f": "\"P, =n!"
   },
   {
@@ -4697,17 +4697,17 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Permutations and Combinations",
+   "t": "Permutations and Combinations: symmetry of combinations",
    "f": "\"Cm=\"Cn-m"
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Permutations and Combinations",
+   "t": "Permutations and Combinations: Pascal's rule",
    "f": "Cm +² Cm+I ==+1 Cm+ 318"
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Permutations and Combinations",
+   "t": "Permutations and Combinations: the sum of a row",
    "f": "\"C。+\" C, +C+"
   },
   {
@@ -4747,7 +4747,7 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Probability Formulas",
+   "t": "Probability Formulas: the multiplication rule",
    "f": "P(AB)=P(B)·P(A/B)=P(A)·P(B/A) 320"
   },
   {
@@ -4767,7 +4767,7 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Probability Formulas",
+   "t": "Probability Formulas: probability of the sample space",
    "f": "3 0=1"
   },
   {
