@@ -407,6 +407,12 @@ fun CalculatorScreen(
      * What every key does, shared by the modern pad and the classic scientific
      * pad, so the two can never behave differently.
      */
+    fun swapOperands() {
+        val t = expr.text
+        val swapped = ExpressionEdit.swapOperands(t)
+        if (swapped != t) expr = TextFieldValue(swapped, TextRange(swapped.length))
+    }
+
     fun pressKey(key: String) {
 when (key) {
                                     "C" -> { exactResult = null; expr = TextFieldValue("") }
@@ -550,11 +556,6 @@ when (key) {
         }
     }
 
-    fun swapOperands() {
-        val t = expr.text
-        val swapped = ExpressionEdit.swapOperands(t)
-        if (swapped != t) expr = TextFieldValue(swapped, TextRange(swapped.length))
-    }
 
     /** Asks the assistant and shows the answer in the side drawer. */
     fun explainText(question: String) {
