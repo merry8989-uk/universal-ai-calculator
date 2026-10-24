@@ -130,7 +130,7 @@ internal val SCI_ROW_B = listOf(
 
 private val LABELS = mapOf(
     "del" to "\u232B", "/" to "\u00F7", "*" to "\u00D7", "-" to "\u2212",
-    "neg" to "\u00B1", "x^2" to "x\u00B2", "x^y" to "x\u02B8", "pi" to "\u03C0",
+    "neg" to "\u00B1", "x^2" to "x\u00B2", "x^3" to "x\u00B3", "x^y" to "x\u02B8", "pi" to "\u03C0",
     "sqrt" to "\u221A", "deg" to "\u00B0", "cbrt" to "\u221B",
     "swap" to "\u21C4", "x" to "x",
 )
@@ -139,29 +139,37 @@ internal fun label(k: String) = LABELS[k] ?: k
 private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
 private fun isClear(k: String) = k == "C" || k == "del"
 
-private fun insertFor(key: String): String = when (key) {
-    "sin", "cos", "tan", "asin", "acos", "atan" -> "$key("
-    "sinh", "cosh", "tanh" -> "$key("
-    "ln" -> "ln("
-    "log" -> "log("
-    "sqrt" -> "sqrt("
-    "cbrt" -> "cbrt("
+/**
+ * What a key puts on the board.
+ *
+ * Anything that names a function opens its bracket, so tapping `csc` gives you
+ * `csc(` ready for an argument. Everything else inserts itself.
+ */
+internal fun insertFor(key: String): String = when (key) {
+    in FUNCTION_KEYS -> "$key("
     "x^2" -> "^2"
+    "x^3" -> "^3"
     "x^y" -> "^"
-    "pi" -> "pi"
-    "e" -> "e"
-    "!" -> "!"
-    "(" -> "("
-    ")" -> ")"
     "1/x" -> "1/("
-    "abs" -> "abs("
-    "nCr" -> "nCr("
-    "nPr" -> "nPr("
-    "round" -> "round("
     "deg" -> "\u00B0"
-    "i" -> "i"
     else -> key
 }
+
+/** Keys that stand for a function of one or more arguments. */
+private val FUNCTION_KEYS: Set<String> = setOf(
+    "sin", "cos", "tan", "csc", "sec", "cot",
+    "asin", "acos", "atan", "acot", "asec", "acsc", "atan2",
+    "sinh", "cosh", "tanh", "coth", "sech", "csch",
+    "asinh", "acosh", "atanh", "acoth", "asech", "acsch",
+    "ln", "log", "log2", "log10", "exp", "exp2", "log1p", "expm1",
+    "sqrt", "cbrt", "nthroot", "hypot",
+    "round", "floor", "ceil", "trunc", "frac", "sign", "rint", "mround",
+    "abs", "gcd", "lcm", "mod", "isprime", "nextprime", "totient", "isqrt",
+    "fib", "catalan", "nCr", "nPr",
+    "sum", "prod", "mean", "median", "mode", "var", "sd",
+    "min", "max", "range", "geomean", "harmmean",
+    "gamma", "lgamma", "beta", "erf", "erfc", "zeta", "lambertw", "digamma",
+)
 
 private val exprSaver = listSaver<TextFieldValue, Any>(
     save = { listOf(it.text, it.selection.start, it.selection.end) },
@@ -927,7 +935,7 @@ fun CalculatorScreen(
 
         // The scientific keypad slides in from the left.
         ScientificDrawer(
-            keys = functionKeys,
+            groups = SCIENTIFIC_GROUPS,
             open = sciOpen,
             onOpenChange = { sciOpen = it },
             onKey = { insert(insertFor(it)) },

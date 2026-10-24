@@ -54,14 +54,14 @@ private const val COLUMNS = 4
  */
 @Composable
 fun ScientificDrawer(
-    keys: List<String>,
+    groups: List<Pair<Int, List<String>>>,
     open: Boolean,
     onOpenChange: (Boolean) -> Unit,
     onKey: (String) -> Unit,
     modifier: Modifier = Modifier,
     classic: Boolean = false,
 ) {
-    if (keys.isEmpty()) return
+    if (groups.isEmpty()) return
 
     val density = LocalDensity.current
     val drawerWidth = 292.dp
@@ -118,25 +118,34 @@ fun ScientificDrawer(
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                keys.chunked(COLUMNS).forEach { chunk ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        chunk.forEach { key ->
-                            KeyButton(
-                                label = label(key),
-                                colors = listOf(Color(0xFFFFD54F), Amber),
-                                contentColor = Color(0xFF3A2600),
-                                modifier = Modifier.weight(1f).height(50.dp),
-                                classic = classic,
-                                spoken = spokenKey(key),
-                                onPress = { onKey(key) },
-                            )
-                        }
-                        // keep the last row's keys the same width as the rest
-                        repeat(COLUMNS - chunk.size) {
-                            Spacer(modifier = Modifier.weight(1f))
+                // Grouped, so a long list can be found rather than hunted through.
+                groups.forEach { (titleRes, keys) ->
+                    Text(
+                        stringResource(titleRes),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 6.dp, start = 2.dp),
+                    )
+                    keys.chunked(COLUMNS).forEach { chunk ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            chunk.forEach { key ->
+                                KeyButton(
+                                    label = label(key),
+                                    colors = listOf(Color(0xFFFFD54F), Amber),
+                                    contentColor = Color(0xFF3A2600),
+                                    modifier = Modifier.weight(1f).height(50.dp),
+                                    classic = classic,
+                                    spoken = spokenKey(key),
+                                    onPress = { onKey(key) },
+                                )
+                            }
+                            // keep the last row's keys the same width as the rest
+                            repeat(COLUMNS - chunk.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }

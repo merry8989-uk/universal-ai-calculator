@@ -11,7 +11,7 @@ import org.junit.Test
 class SpokenTest {
 
     @Test fun everyKeypadKeyHasASpokenLabel() {
-        val keys = PAD.flatten() + SCI_ROW_A + SCI_ROW_B
+        val keys = PAD.flatten() + SCI_ROW_A + SCI_ROW_B + SCIENTIFIC_KEYS
         assertTrue("the keypad lists are empty, the test is not looking at anything", keys.size > 30)
 
         val missing = keys.filterNot { Spoken.isSpoken(it) }
@@ -119,7 +119,7 @@ class SpokenTest {
 
     @Test fun noLabelIsBlankOrAGlyph() {
         val glyphs = listOf("\u232B", "\u00B1", "\u221A", "\u221B", "\u00D7", "\u00F7", "\u2212", "\u03C0")
-        for (key in PAD.flatten() + SCI_ROW_A + SCI_ROW_B) {
+        for (key in PAD.flatten() + SCI_ROW_A + SCI_ROW_B + SCIENTIFIC_KEYS) {
             val spoken = Spoken.key(key)
             assertTrue("'$key' produced a blank label", spoken.isNotBlank())
             assertTrue(

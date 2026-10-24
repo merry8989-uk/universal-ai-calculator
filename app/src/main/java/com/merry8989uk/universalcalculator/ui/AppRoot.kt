@@ -74,11 +74,36 @@ private const val SIDE_WEIGHT = 0.3f
 private const val TAB_WEIGHT = 1f
 private const val AI_WEIGHT = 1.5f
 
-internal val SCIENTIFIC_KEYS = listOf(
-    "sin", "cos", "tan", "asin", "acos", "atan",
-    "ln", "log", "sqrt", "cbrt", "x^2", "x^y", "pi", "e", "!",
-    "(", ")", "1/x", "abs", "nCr", "nPr", "round",
+/**
+ * Every function the drawer offers, grouped so a long list stays navigable.
+ *
+ * The keys are the names the evaluator understands, so a key always inserts
+ * something that actually works. Nothing appears twice.
+ */
+internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
+    R.string.fn_group_trig to listOf("sin", "cos", "tan", "csc", "sec", "cot"),
+    R.string.fn_group_invtrig to listOf("asin", "acos", "atan", "acot", "asec", "acsc", "atan2"),
+    R.string.fn_group_hyper to listOf("sinh", "cosh", "tanh", "coth", "sech", "csch"),
+    R.string.fn_group_invhyper to listOf("asinh", "acosh", "atanh", "acoth", "asech", "acsch"),
+    R.string.fn_group_log to listOf("ln", "log", "log2", "log10", "exp", "exp2", "log1p", "expm1"),
+    R.string.fn_group_power to listOf("x^2", "x^3", "x^y", "sqrt", "cbrt", "nthroot", "1/x", "hypot"),
+    R.string.fn_group_round to listOf("round", "floor", "ceil", "trunc", "frac", "sign", "rint", "mround"),
+    R.string.fn_group_number to listOf(
+        "abs", "gcd", "lcm", "mod", "isprime", "nextprime", "totient", "isqrt", "fib", "catalan",
+    ),
+    R.string.fn_group_comb to listOf("!", "nCr", "nPr"),
+    R.string.fn_group_stats to listOf(
+        "sum", "prod", "mean", "median", "mode", "var", "sd",
+        "min", "max", "range", "geomean", "harmmean",
+    ),
+    R.string.fn_group_special to listOf(
+        "gamma", "lgamma", "beta", "erf", "erfc", "zeta", "lambertw", "digamma",
+    ),
+    R.string.fn_group_const to listOf("pi", "e", "tau", "phi", "i", "x", "deg", "(", ")", "swap"),
 )
+
+/** The flat list, for tests and for anything that just wants every key. */
+internal val SCIENTIFIC_KEYS: List<String> = SCIENTIFIC_GROUPS.flatMap { it.second }
 
 /**
  * Root composable: the six main modes. The assistant sits in the middle of the
