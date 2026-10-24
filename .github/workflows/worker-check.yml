@@ -37,6 +37,11 @@ jobs:
             echo
           done
 
+      - name: Encrypted sync round trip
+        run: |
+          python3 -m pip install --quiet cryptography
+          python3 tools/sync_roundtrip.py "${{ env.WORKER_URL }}"
+
       - name: Whole-page transcription (the PDF path)
         run: |
           echo "--- page, text mode ---"
