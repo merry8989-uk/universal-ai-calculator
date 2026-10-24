@@ -80,6 +80,12 @@ jobs:
             -d '{"question":"What is 15 percent of 2400? Reply with one short line."}' \
             | tee /tmp/answer.json
           echo
+          echo "--- ping (the app measures its round trip with this) ---"
+          curl -sS --max-time 30 -X POST "$WORKER_URL" -H 'Content-Type: application/json' \
+            -d '{"ping":true}' | tee /tmp/ping.json
+          echo
+          grep -q '"pong":true' /tmp/ping.json && echo "PING: PASS" || { echo "PING: FAIL" >&2; exit 1; }
+
           echo "--- sync storage ---"
           SLOT="$(python3 -c "import hashlib;print(hashlib.sha256(b'nexuscalc-sync-v1|'+b'ci-smoke-code').hexdigest())")"
           curl -sS --max-time 30 -X POST "$WORKER_URL" -H 'Content-Type: application/json' \
