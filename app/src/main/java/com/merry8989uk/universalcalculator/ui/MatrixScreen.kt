@@ -96,7 +96,13 @@ fun MatrixScreen(onBack: () -> Unit) {
             Button(onClick = {
                 run {
                     val e = Matrix.eigenvalues(Matrix.parse(aText))
-                    "Eigenvalues:\n" + e.joinToString("\n") { "\u03BB = " + Complex.text(it) }
+                    if (e.isEmpty()) {
+                        "No eigenvalues could be resolved. Above about a dozen rows the " +
+                            "characteristic polynomial is too ill-conditioned for double " +
+                            "precision, and a wrong answer would be worse than none."
+                    } else {
+                        "Eigenvalues:\n" + e.joinToString("\n") { "\u03BB = " + Complex.text(it) }
+                    }
                 }
             }) { Text("Eigenvalues") }
             Button(onClick = {
