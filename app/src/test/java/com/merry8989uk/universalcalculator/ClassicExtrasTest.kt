@@ -55,7 +55,9 @@ class ClassicExtrasTest {
     }
 
     @Test fun aTrailingOperatorCanBeKept() {
-        assertEquals("5+", ExpressionFix.balance("5+"))
+        // by default it is dropped, so 3+4+ is still worked out
+        assertEquals("5", ExpressionFix.balance("5+"))
+        // with the switch off it is kept, and the evaluator then says so
         assertEquals("5+", ExpressionFix.balance("5+", dropTrailingOperator = false))
     }
 
