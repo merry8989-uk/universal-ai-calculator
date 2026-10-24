@@ -215,8 +215,12 @@ class StressTest {
     // ---- conversions ----
 
     @Test fun tenThousandConversionsStayConsistent() {
-        val metre = Units.unit("m")
-        val foot = Units.unit("ft")
+        // unit() lives on a category, not on Units itself
+        val length = Units.categories.first { it.name == "Length" }
+        val metre = length.unit("m")
+        val foot = length.unit("ft")
+        assertEquals("m", metre.symbol)
+        assertEquals("ft", foot.symbol)
         repeat(10_000) { i ->
             val value = i.toDouble() / 7.0
             val there = Units.convert(value, metre, foot)
