@@ -202,6 +202,9 @@ export default {
     try {
       const body = await request.json().catch(() => ({}));
 
+      // --- ping: answer at once, so the app can measure a true round trip ---
+      if (body?.ping) return json({ pong: true, at: Date.now() });
+
       // --- sync mode: store or fetch an encrypted blob ---
       // The blob is already encrypted on the device, so the Worker only ever
       // holds unreadable bytes under an opaque slot id.

@@ -369,4 +369,10 @@
     <string name="classic_ms">स्मृति में रखें</string>
     <string name="classic_e_const">e</string>
     <string name="classic_deg">अंश</string>
+    <string name="diag_connection">कनेक्शन</string>
+    <string name="diag_connection_help">इस ऐप के अपने सर्वर तक असली राउंड ट्रिप नापता है। सर्वर पिंग का जवाब तुरंत देता है, इसलिए यह संख्या नेटवर्क की है, किसी मॉडल के सोचने की नहीं।</string>
+    <string name="diag_ping">जाँचें</string>
+    <string name="diag_pinging">जाँच हो रही है…</string>
+    <string name="diag_ping_result">सबसे अच्छा %1$d ms · औसत %2$d ms · सबसे खराब %3$d ms</string>
+    <string name="diag_ping_failed">सर्वर से कोई जवाब नहीं आया।</string>
 </resources>

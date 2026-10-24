@@ -25,6 +25,7 @@ object DiagnosticsLogger {
 
     private val lock = Any()
     private val timeFmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
+    private val MILLIS = Regex("\\.\\d{3} ")
 
     private var logFile: File? = null
     private var appContext: Context? = null
@@ -83,6 +84,15 @@ object DiagnosticsLogger {
         runCatching { logFile?.writeText("") }
         Unit
     }
+
+    /**
+     * The log line as it should be shown on screen.
+     *
+     * The stored line carries milliseconds, which is what you want in a file you
+     * are reading later. On screen they only confuse: "14:32:05.847" reads like a
+     * slow response time rather than a clock.
+     */
+    fun displayLine(line: String): String = MILLIS.replaceFirst(line, " ")
 
     /** Wipes the log, the crash reports and the usage counters. */
     fun clearEverything(context: Context) {

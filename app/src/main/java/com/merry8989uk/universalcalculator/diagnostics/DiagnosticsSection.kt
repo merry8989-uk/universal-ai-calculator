@@ -24,6 +24,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -32,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
 import com.merry8989uk.universalcalculator.R
@@ -64,6 +67,10 @@ fun DiagnosticsSection(
     val context = LocalContext.current
     var groups by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
     var top by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    // The round trip to the app's own server, measured only when asked.
+    var pingBusy by remember { mutableStateOf(false) }
+    var pingReport by remember { mutableStateOf<ConnectionCheck.Report?>(null) }
+    val pingScope = rememberCoroutineScope()
     var crashCount by remember { mutableIntStateOf(0) }
     var anrCount by remember { mutableIntStateOf(0) }
     var showCrashes by remember { mutableStateOf(false) }
@@ -89,6 +96,39 @@ fun DiagnosticsSection(
         stringResource(R.string.diag_collect_help, humanSize(vm.logBytes)),
         style = MaterialTheme.typography.bodySmall,
     )
+
+    // ---- connection ----
+    Text(stringResource(R.string.diag_connection), style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.diag_connection_help), style = MaterialTheme.typography.bodySmall)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Button(
+            onClick = {
+                if (pingBusy) return@Button
+                pingBusy = true
+                pingScope.launch {
+                    pingReport = ConnectionCheck.run()
+                    pingBusy = false
+                }
+            },
+            enabled = !pingBusy,
+        ) {
+            Text(stringResource(if (pingBusy) R.string.diag_pinging else R.string.diag_ping))
+        }
+        pingReport?.let { report ->
+            Text(
+                if (report.reachable) {
+                    stringResource(R.string.diag_ping_result, report.best, report.average, report.worst)
+                } else {
+                    stringResource(R.string.diag_ping_failed)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = FontFamily.Monospace,
+            )
+        }
+    }
+    pingReport?.let { report ->
+        Text(report.verdict, style = MaterialTheme.typography.bodySmall)
+    }
 
     Text(stringResource(R.string.diag_export_format))
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -209,7 +249,10 @@ fun DiagnosticsSection(
             )
         } else {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                live.takeLast(120).forEach { line ->
+                live.takeLast(120).forEach { raw ->
+                    // The file keeps milliseconds; showing them here made the
+                    // timestamp look like a slow response time.
+                    val line = DiagnosticsLogger.displayLine(raw)
                     Text(
                         line,
                         style = MaterialTheme.typography.bodySmall,
