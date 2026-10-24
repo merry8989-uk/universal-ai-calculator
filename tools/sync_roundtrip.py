@@ -44,7 +44,13 @@ def decrypt(packed: str, code: str) -> str:
 
 def post(url: str, payload: dict) -> dict:
     request = urllib.request.Request(
-        url, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}
+        url,
+        data=json.dumps(payload).encode(),
+        headers={
+            "Content-Type": "application/json",
+            # Cloudflare turns away the default urllib agent
+            "User-Agent": "nexus-calc-sync-check/1.0",
+        },
     )
     with urllib.request.urlopen(request, timeout=60) as response:
         return json.loads(response.read().decode())
