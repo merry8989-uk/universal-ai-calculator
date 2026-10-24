@@ -6,8 +6,6 @@ import kotlin.math.acosh
 import kotlin.math.asinh
 import kotlin.math.atan2
 import kotlin.math.atanh
-import kotlin.math.gcd
-import kotlin.math.lcm
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.asin

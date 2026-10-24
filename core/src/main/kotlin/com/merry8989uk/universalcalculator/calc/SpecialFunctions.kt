@@ -112,7 +112,7 @@ object SpecialFunctions {
     fun zeta(s: Double, terms: Int = 24): Double {
         if (s <= 1.0) return if (s == 1.0) Double.POSITIVE_INFINITY else Double.NaN
         var total = 0.0
-        for (n in 1 until terms) total += n.pow(-s)
+        for (n in 1 until terms) total += n.toDouble().pow(-s)
         val n = terms.toDouble()
         total += n.pow(1.0 - s) / (s - 1.0)
         total += 0.5 * n.pow(-s)
