@@ -79,3 +79,12 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
 }
+
+// So a failing test can say which calculator it was, not just a line number.
+tasks.withType<Test>().configureEach {
+    testLogging {
+        showStandardStreams = true
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
