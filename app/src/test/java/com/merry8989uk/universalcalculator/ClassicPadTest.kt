@@ -35,8 +35,8 @@ class ClassicPadTest {
     private fun isToolOnly(key: com.merry8989uk.universalcalculator.ui.ClassicKey) =
         key.tool != null && (key.action.isEmpty() || key.action.startsWith("@"))
 
-    @Test fun thePadIsEightRowsOfSix() {
-        assertEquals(8, CLASSIC_ROWS.size)
+    @Test fun thePadIsNineRowsOfSix() {
+        assertEquals(9, CLASSIC_ROWS.size)
         CLASSIC_ROWS.forEachIndexed { i, row ->
             assertEquals("row $i does not have six keys", 6, row.size)
         }
@@ -77,7 +77,7 @@ class ClassicPadTest {
         val known = plain + special + FUNCTION_KEYS + SCIENTIFIC_KEYS.toSet() + "rand"
         val unknown = ArrayList<String>()
         everyKey().forEach { key ->
-            for (action in listOfNotNull(key.action, key.shiftedAction)) {
+            for (action in listOfNotNull(key.action, key.secondAction)) {
                 if (action.isEmpty() || action.startsWith("@")) continue
                 if (action !in known) unknown.add("${key.label} -> $action")
             }
@@ -89,7 +89,7 @@ class ClassicPadTest {
         // "Typed" means it inserts text rather than opening a screen.
         val failures = ArrayList<String>()
         everyKey().forEach { key ->
-            for (action in listOfNotNull(key.action, key.shiftedAction)) {
+            for (action in listOfNotNull(key.action, key.secondAction)) {
                 if (action.isEmpty() || action.startsWith("@")) continue
                 if (action in special) continue          // C, del, =, ans … are actions, not text
                 if (isToolOnly(key)) continue
@@ -112,13 +112,29 @@ class ClassicPadTest {
         assertTrue("these keys would show an error: $failures", failures.isEmpty())
     }
 
-    @Test fun shiftGivesTheFunctionKeysASecondFunction() {
-        // The point of SHIFT: the keys that insert a function get a second one.
+    @Test fun everyFunctionKeyShowsASecondLabel() {
+        // The printed second label is the whole look of a classic scientific
+        // pad, so a function key without one is a hole in the layout.
         val withoutSecond = everyKey()
-            .filter { it.action in FUNCTION_KEYS }
-            .filter { it.shiftedLabel == null }
+            .filter { it.action in FUNCTION_KEYS || it.tool != null }
+            .filter { it.second == null }
             .map { it.label }
-        assertTrue("these function keys have no SHIFT layer: $withoutSecond", withoutSecond.isEmpty())
+        assertTrue("these function keys show no second label: $withoutSecond", withoutSecond.isEmpty())
+    }
+
+    @Test fun everyDigitShowsASecondLabel() {
+        val withoutSecond = everyKey()
+            .filter { it.action.length == 1 && it.action[0].isDigit() }
+            .filter { it.second == null }
+            .map { it.label }
+        assertTrue("these digits show no second label: $withoutSecond", withoutSecond.isEmpty())
+    }
+
+    @Test fun theModifierKeysAreThere() {
+        val labels = everyKey().map { it.label }.toSet()
+        for (key in listOf("SHIFT", "ALPHA", "MODE", "2nd")) {
+            assertTrue("the pad has no $key", labels.contains(key))
+        }
     }
 
     @Test fun theModernPadAndTheClassicPadShareTheirActions() {
@@ -127,7 +143,7 @@ class ClassicPadTest {
         val modern = (PAD.flatten() + SCIENTIFIC_KEYS).toSet()
         val classicTyped = everyKey()
             .filterNot { isToolOnly(it) }
-            .flatMap { listOfNotNull(it.action, it.shiftedAction) }
+            .flatMap { listOfNotNull(it.action, it.secondAction) }
             // rand is a real engine function that simply has no modern key
             .filter { !it.startsWith("@") && it !in special && it !in setOf("e", "rand") }
             .toSet()

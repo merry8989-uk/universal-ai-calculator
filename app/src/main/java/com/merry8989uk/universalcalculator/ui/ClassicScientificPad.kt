@@ -19,33 +19,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * The classic scientific keypad: six keys across, eight rows down, with a SHIFT
- * key that reveals a second function on each one.
+ * The classic scientific pad.
  *
- * Every key carries the name the calculator already understands, so a key press
- * goes through exactly the same path as the modern pad — there is no second
- * arithmetic engine hiding in here. `onTool` is for the handful of keys that
- * open a whole screen rather than typing something (the integral, the
- * derivative, the limit).
+ * Every key carries a small second label above it, the way a real scientific
+ * calculator is printed: the function you get by pressing SHIFT first. The label
+ * is always visible, so you can see what a key will do before reaching for the
+ * modifier — that is the whole point of the layout.
+ *
+ * Each key names something the calculator already understands, so a press goes
+ * through exactly the same path as the modern pad. [ClassicKey.tool] is for the
+ * few keys that open a whole screen instead of typing.
  */
-internal enum class ClassicTone { Digit, Operator, Function, Accent, Danger }
+internal enum class ClassicTone { Digit, Operator, Function, Accent, Danger, Shift }
 
 internal data class ClassicKey(
+    /** The big label on the key. */
     val label: String,
-    /** The key name the calculator handles, or a tool id when [tool] is set. */
+    /** The key name the calculator handles, or "" when [tool] is set. */
     val action: String = "",
+    /** The small label above the key, always on screen. */
+    val second: String? = null,
+    /** What SHIFT makes the key do. */
+    val secondAction: String? = null,
+    /** The colour of the small label, so families of functions read together. */
+    val secondTone: ClassicTone = ClassicTone.Accent,
     val tone: ClassicTone = ClassicTone.Function,
-    val shiftedLabel: String? = null,
-    val shiftedAction: String? = null,
-    val shiftedTone: ClassicTone = ClassicTone.Accent,
     /** Set when the key opens a screen instead of typing. */
     val tool: String? = null,
-    val shiftedTool: String? = null,
+    val secondTool: String? = null,
 )
 
 private const val CARET_LEFT = "@left"
@@ -54,72 +61,94 @@ private const val SHIFT = "@shift"
 private const val MENU = "@menu"
 private const val DEG_TOGGLE = "@deg"
 
-/** Eight rows of six, in the order they are drawn. */
+private val YELLOW = ClassicTone.Accent
+private val BLUE = ClassicTone.Shift
+
+/**
+ * Ten rows of six. The first row is the modifier bar, the next five are the
+ * function block, and the last four are the number pad with its operators.
+ */
 internal val CLASSIC_ROWS: List<List<ClassicKey>> = listOf(
+    // ---- modifier bar ----
     listOf(
-        ClassicKey("SHIFT", SHIFT, ClassicTone.Accent),
-        ClassicKey("\u25C0", CARET_LEFT, ClassicTone.Function),
-        ClassicKey("\u25B6", CARET_RIGHT, ClassicTone.Function),
-        ClassicKey("\u232B", "del", ClassicTone.Danger, shiftedLabel = "AC", shiftedAction = "C"),
-        ClassicKey("AC", "C", ClassicTone.Danger),
-        ClassicKey("\u22EE", MENU, ClassicTone.Function),
+        ClassicKey("SHIFT", SHIFT, tone = ClassicTone.Accent),
+        ClassicKey("ALPHA", SHIFT, tone = ClassicTone.Shift),
+        ClassicKey("MODE", MENU, tone = ClassicTone.Function),
+        ClassicKey("2nd", SHIFT, tone = ClassicTone.Shift),
+        ClassicKey("\u232B", "del", second = "AC", secondAction = "C", tone = ClassicTone.Danger,
+            secondTone = ClassicTone.Danger),
+        ClassicKey("AC", "C", tone = ClassicTone.Danger),
+    ),
+    // ---- functions, top block ----
+    listOf(
+        ClassicKey("CALC", "=", second = "SOLVE", secondAction = "=", tone = ClassicTone.Function),
+        ClassicKey("\u222Bdx", tool = "calculus", second = "lim", secondTool = "limits",
+            secondTone = YELLOW, tone = ClassicTone.Function),
+        ClassicKey("d/dx", tool = "calculus", second = "partial", secondTool = "partial",
+            secondTone = YELLOW, tone = ClassicTone.Function),
+        ClassicKey("x!", "!", second = "nCr", secondAction = "nCr", tone = ClassicTone.Function),
+        ClassicKey("\u03A3", "sum", second = "GCD", secondAction = "gcd", tone = ClassicTone.Function),
+        ClassicKey("\u03A0", "prod", second = "LCM", secondAction = "lcm", tone = ClassicTone.Function),
     ),
     listOf(
-        ClassicKey("DRG", DEG_TOGGLE, ClassicTone.Accent, shiftedLabel = "\u00B0", shiftedAction = "deg"),
-        ClassicKey("x\u21D4E", "swap", ClassicTone.Accent, shiftedLabel = "x\u2192M", shiftedAction = "MS"),
-        ClassicKey("\u03A3", "sum", ClassicTone.Accent, shiftedLabel = "\u03A0", shiftedAction = "prod"),
-        ClassicKey("\u222Bdx", tone = ClassicTone.Accent, tool = "calculus",
-            shiftedLabel = "d/dx", shiftedTool = "calculus"),
-        ClassicKey("\u03C0", "pi", ClassicTone.Function, shiftedLabel = "\u03C4", shiftedAction = "tau"),
-        ClassicKey("e", "e", ClassicTone.Function, shiftedLabel = "e\u02E3", shiftedAction = "exp"),
+        ClassicKey("x\u207B\u00B9", "1/x", second = "\u207F\u221A", secondAction = "nthroot",
+            tone = ClassicTone.Function),
+        ClassicKey("\u221Ax", "sqrt", second = "\u221Bx", secondAction = "cbrt", tone = ClassicTone.Function),
+        ClassicKey("x\u00B2", "x^2", second = "x\u00B3", secondAction = "x^3", tone = ClassicTone.Function),
+        ClassicKey("x\u02B8", "x^y", second = "y\u221Ax", secondAction = "nthroot", tone = ClassicTone.Function),
+        ClassicKey("Log", "log", second = "10\u02E3", secondAction = "exp2", tone = ClassicTone.Function),
+        ClassicKey("Ln", "ln", second = "e\u02E3", secondAction = "exp", tone = ClassicTone.Function),
     ),
     listOf(
-        ClassicKey("sin", "sin", shiftedLabel = "sin\u207B\u00B9", shiftedAction = "asin"),
-        ClassicKey("cos", "cos", shiftedLabel = "cos\u207B\u00B9", shiftedAction = "acos"),
-        ClassicKey("tan", "tan", shiftedLabel = "tan\u207B\u00B9", shiftedAction = "atan"),
-        ClassicKey("i", "i", shiftedLabel = "sinh", shiftedAction = "sinh"),
-        ClassicKey("log", "log", shiftedLabel = "log\u2081\u2080", shiftedAction = "log10"),
-        ClassicKey("ln", "ln", shiftedLabel = "log\u2082", shiftedAction = "log2"),
+        ClassicKey("hyp", "hypot", second = "abs", secondAction = "abs", tone = ClassicTone.Function),
+        ClassicKey("Sin", "sin", second = "Sin\u207B\u00B9", secondAction = "asin", tone = ClassicTone.Function),
+        ClassicKey("Cos", "cos", second = "Cos\u207B\u00B9", secondAction = "acos", tone = ClassicTone.Function),
+        ClassicKey("Tan", "tan", second = "Tan\u207B\u00B9", secondAction = "atan", tone = ClassicTone.Function),
+        ClassicKey("Cot", "cot", second = "csc", secondAction = "csc", tone = ClassicTone.Function),
+        ClassicKey("sec", "sec", second = "sinh", secondAction = "sinh", tone = ClassicTone.Function),
     ),
     listOf(
-        ClassicKey("x\u207B\u00B9", "1/x", shiftedLabel = "\u207F\u221A", shiftedAction = "nthroot"),
-        ClassicKey("x\u00B2", "x^2", shiftedLabel = "x\u00B3", shiftedAction = "x^3"),
-        ClassicKey("\u221A", "sqrt", shiftedLabel = "\u221B", shiftedAction = "cbrt"),
-        ClassicKey("x\u02B8", "x^y", shiftedLabel = "hyp", shiftedAction = "hypot"),
-        ClassicKey("(", "(", shiftedLabel = "abs", shiftedAction = "abs"),
-        ClassicKey(")", ")", shiftedLabel = "\u230A\u230B", shiftedAction = "floor"),
+        ClassicKey("\u2220", DEG_TOGGLE, second = "\u00B0", secondAction = "deg",
+            secondTone = YELLOW, tone = ClassicTone.Function),
+        ClassicKey("cosh", "cosh", second = "tanh", secondAction = "tanh", tone = ClassicTone.Function),
+        ClassicKey("FACT", "!", second = "mround", secondAction = "mround", tone = ClassicTone.Function),
+        ClassicKey("floor", "floor", second = "ceil", secondAction = "ceil", tone = ClassicTone.Function),
+        ClassicKey("sign", "sign", second = "rand", secondAction = "rand", tone = ClassicTone.Function),
+        ClassicKey("\u03C0", "pi", second = "\u03C4", secondAction = "tau", tone = ClassicTone.Function),
+    ),
+    // ---- number pad and operators ----
+    listOf(
+        ClassicKey("7", "7", second = "nPr", secondAction = "nPr", tone = ClassicTone.Digit),
+        ClassicKey("8", "8", second = "catalan", secondAction = "catalan", tone = ClassicTone.Digit),
+        ClassicKey("9", "9", second = "fib", secondAction = "fib", tone = ClassicTone.Digit),
+        ClassicKey("(", "(", second = "RCL", secondAction = "MR", tone = ClassicTone.Function),
+        ClassicKey(")", ")", second = "STO", secondAction = "MS", tone = ClassicTone.Function),
+        ClassicKey("\u00F7", "/", second = "mod", secondAction = "mod", tone = ClassicTone.Operator),
     ),
     listOf(
-        ClassicKey("7", "7", ClassicTone.Digit),
-        ClassicKey("8", "8", ClassicTone.Digit),
-        ClassicKey("9", "9", ClassicTone.Digit),
-        ClassicKey("\u00D7", "*", ClassicTone.Operator),
-        ClassicKey("\u00F7", "/", ClassicTone.Operator),
-        ClassicKey("%", "%", ClassicTone.Operator, shiftedLabel = "mod", shiftedAction = "mod"),
+        ClassicKey("4", "4", second = "isprime", secondAction = "isprime", tone = ClassicTone.Digit),
+        ClassicKey("5", "5", second = "totient", secondAction = "totient", tone = ClassicTone.Digit),
+        ClassicKey("6", "6", second = "isqrt", secondAction = "isqrt", tone = ClassicTone.Digit),
+        ClassicKey("\u00D7", "*", second = "hypot", secondAction = "hypot", tone = ClassicTone.Operator),
+        ClassicKey("\u00F7", "/", second = "mod", secondAction = "mod", tone = ClassicTone.Operator),
+        ClassicKey("%", "%", second = "\u2211", secondAction = "sum", tone = ClassicTone.Operator),
     ),
     listOf(
-        ClassicKey("4", "4", ClassicTone.Digit),
-        ClassicKey("5", "5", ClassicTone.Digit),
-        ClassicKey("6", "6", ClassicTone.Digit),
-        ClassicKey("+", "+", ClassicTone.Operator),
-        ClassicKey("\u2212", "-", ClassicTone.Operator),
-        ClassicKey("nCr", "nCr", shiftedLabel = "cat", shiftedAction = "catalan"),
+        ClassicKey("1", "1", second = "gcd", secondAction = "gcd", tone = ClassicTone.Digit),
+        ClassicKey("2", "2", second = "lcm", secondAction = "lcm", tone = ClassicTone.Digit),
+        ClassicKey("3", "3", second = "nextprime", secondAction = "nextprime", tone = ClassicTone.Digit),
+        ClassicKey("+", "+", second = "\u00B1", secondAction = "neg", tone = ClassicTone.Operator),
+        ClassicKey("\u2212", "-", second = "sign", secondAction = "sign", tone = ClassicTone.Operator),
+        ClassicKey("\u2190", CARET_LEFT, second = "\u2192", secondAction = CARET_RIGHT,
+            secondTone = YELLOW, tone = ClassicTone.Function),
     ),
     listOf(
-        ClassicKey("1", "1", ClassicTone.Digit),
-        ClassicKey("2", "2", ClassicTone.Digit),
-        ClassicKey("3", "3", ClassicTone.Digit),
-        ClassicKey("\u00B1", "neg", ClassicTone.Operator, shiftedLabel = "sign", shiftedAction = "sign"),
-        ClassicKey("EXP", "e", ClassicTone.Function, shiftedLabel = "10\u02E3", shiftedAction = "exp2"),
-        ClassicKey("nPr", "nPr", shiftedLabel = "fib", shiftedAction = "fib"),
-    ),
-    listOf(
-        ClassicKey("0", "0", ClassicTone.Digit),
-        ClassicKey(".", ".", ClassicTone.Digit),
-        ClassicKey("Ans", "ans", ClassicTone.Function, shiftedLabel = "ran#", shiftedAction = "rand"),
-        ClassicKey("x", "x", ClassicTone.Function, shiftedLabel = "\u0393", shiftedAction = "gamma"),
-        ClassicKey("=", "=", ClassicTone.Accent),
-        ClassicKey("MR", "MR", ClassicTone.Function, shiftedLabel = "M+", shiftedAction = "M+"),
+        ClassicKey("0", "0", second = "M+", secondAction = "M+", tone = ClassicTone.Digit),
+        ClassicKey(".", ".", second = "ran#", secondAction = "rand", tone = ClassicTone.Digit),
+        ClassicKey("Exp", "e", second = "10\u02E3", secondAction = "exp2", tone = ClassicTone.Function),
+        ClassicKey("Ans", "ans", second = "M\u2212", secondAction = "MS", tone = ClassicTone.Function),
+        ClassicKey("x", "x", second = "\u0393", secondAction = "gamma", tone = ClassicTone.Function),
+        ClassicKey("=", "=", second = "=", secondAction = "=", tone = ClassicTone.Accent),
     ),
 )
 
@@ -135,46 +164,41 @@ internal fun ClassicScientificPad(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(horizontal = 3.dp, vertical = 2.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp),
+        modifier = modifier.fillMaxSize().padding(horizontal = 2.dp, vertical = 2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         CLASSIC_ROWS.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 row.forEach { key ->
-                    val label = if (shifted) key.shiftedLabel ?: key.label else key.label
-                    val tone = if (shifted) key.shiftedTone else key.tone
-                    // Say what the key does, using the action when there is one,
-                    // so a glyph like ∫dx is never read out as itself.
-                    val activeAction = if (shifted) key.shiftedAction ?: key.action else key.action
+                    // The small label is always drawn; SHIFT only changes what a
+                    // press does, so the key never looks different to the eye.
+                    val activeAction = if (shifted) key.secondAction ?: key.action else key.action
                     val spoken = if (activeAction.isEmpty() || activeAction.startsWith("@")) {
-                        spokenKey(label)
+                        spokenKey(key.label)
                     } else {
                         spokenKey(activeAction)
                     }
                     ClassicKeyView(
-                        label = label,
-                        tone = if (key.action == SHIFT && shifted) ClassicTone.Accent else tone,
-                        highlighted = key.action == SHIFT && shifted,
+                        label = key.label,
+                        second = key.second,
+                        secondTone = key.secondTone,
+                        tone = if (shifted && key.second != null) ClassicTone.Shift else key.tone,
+                        shifted = shifted,
                         spoken = spoken,
                         modifier = Modifier.weight(1f).fillMaxSize(),
                     ) {
                         when {
-                            key.action == SHIFT -> onShiftToggle()
-                            key.action == CARET_LEFT -> onCaret(-1)
-                            key.action == CARET_RIGHT -> onCaret(1)
-                            key.action == MENU -> onMenu()
-                            key.action == DEG_TOGGLE && !shifted -> onToggleDegrees()
+                            activeAction == SHIFT -> onShiftToggle()
+                            activeAction == CARET_LEFT -> onCaret(-1)
+                            activeAction == CARET_RIGHT -> onCaret(1)
+                            activeAction == MENU -> onMenu()
+                            activeAction == DEG_TOGGLE -> onToggleDegrees()
                             else -> {
-                                val tool = if (shifted) key.shiftedTool ?: key.tool else key.tool
-                                val action = if (shifted) key.shiftedAction ?: key.action else key.action
-                                if (tool != null && (action.isEmpty() || action == key.action)) {
-                                    onTool(tool)
-                                } else {
-                                    onKey(action)
-                                }
+                                val tool = if (shifted) key.secondTool ?: key.tool else key.tool
+                                if (tool != null) onTool(tool) else onKey(activeAction)
                             }
                         }
                     }
@@ -187,8 +211,10 @@ internal fun ClassicScientificPad(
 @Composable
 private fun ClassicKeyView(
     label: String,
+    second: String?,
+    secondTone: ClassicTone,
     tone: ClassicTone,
-    highlighted: Boolean,
+    shifted: Boolean,
     spoken: String,
     modifier: Modifier = Modifier,
     onPress: () -> Unit,
@@ -197,31 +223,56 @@ private fun ClassicKeyView(
         ClassicTone.Digit -> Color(0xFF23283A)
         ClassicTone.Operator -> Color(0xFF2F3550)
         ClassicTone.Function -> Color(0xFF1B2032)
-        ClassicTone.Accent -> Color(0xFF6C4CF1)
-        ClassicTone.Danger -> Color(0xFF8A2F3F)
+        ClassicTone.Accent -> Color(0xFFE8A33D)
+        ClassicTone.Danger -> Color(0xFFB4462F)
+        ClassicTone.Shift -> Color(0xFF6C4CF1)
     }
     val textColor = when (tone) {
         ClassicTone.Digit -> Color(0xFFF2F4FA)
         ClassicTone.Operator -> Color(0xFFBFE3FF)
-        ClassicTone.Function -> Color(0xFFC9D2E6)
-        ClassicTone.Accent -> Color.White
+        ClassicTone.Function -> Color(0xFFD3DAEA)
+        ClassicTone.Accent -> Color(0xFF2A1A05)
         ClassicTone.Danger -> Color.White
+        ClassicTone.Shift -> Color.White
     }
-    Box(
+    val secondColor = when (secondTone) {
+        ClassicTone.Accent -> Color(0xFFE8B84B)
+        ClassicTone.Shift -> Color(0xFF9C8BFF)
+        ClassicTone.Danger -> Color(0xFFFF8A7A)
+        else -> Color(0xFF7FB2E8)
+    }
+
+    Column(
         modifier = modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(if (highlighted) Color(0xFFB58BFF) else background)
+            .clip(RoundedCornerShape(7.dp))
+            .background(background)
             .clickable(onClick = onPress)
-            .semantics { contentDescription = spoken },
-        contentAlignment = Alignment.Center,
+            .semantics { contentDescription = spoken }
+            .padding(horizontal = 2.dp, vertical = 1.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = label,
-            color = if (highlighted) Color(0xFF1B1030) else textColor,
-            fontSize = 13.sp,
-            fontFamily = FontFamily.Monospace,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-        )
+        // the small second-function label, printed above the key like the real thing
+        if (second != null) {
+            Text(
+                text = second,
+                color = secondColor,
+                fontSize = 8.sp,
+                fontFamily = FontFamily.Monospace,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+            )
+        }
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            Text(
+                text = label,
+                color = textColor,
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = if (shifted && second != null) FontWeight.Bold else FontWeight.Normal,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
     }
 }
