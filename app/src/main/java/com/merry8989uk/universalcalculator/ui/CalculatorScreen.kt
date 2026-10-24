@@ -90,6 +90,7 @@ import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.Evaluator
+import com.merry8989uk.universalcalculator.calc.ExpressionFix
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Complex
@@ -289,6 +290,9 @@ fun CalculatorScreen(
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var historyOpen by rememberSaveable { mutableStateOf(false) }
     var sciOpen by rememberSaveable { mutableStateOf(false) }
+    // The exact value behind the rounded number on screen, so continuing a
+    // calculation after "=" does not silently lose precision.
+    var exactResult by remember { mutableStateOf<Double?>(null) }
 
     val historyVm: HistoryViewModel = viewModel()
     val history by historyVm.entries.collectAsState()
@@ -318,21 +322,39 @@ fun CalculatorScreen(
     val text = expr.text
     val classic = settings.layoutStyle == "Classic"
 
-    val preview: String = if (text.isBlank()) "" else try {
-        if (ComplexEvaluator.hasImaginary(text)) {
+    // Half-typed input is completed rather than refused, so the preview shows a
+    // number while you are still typing instead of going blank.
+    val balanced = ExpressionFix.balance(text)
+
+    val preview: String = if (balanced.isBlank()) "" else try {
+        if (ComplexEvaluator.hasImaginary(balanced)) {
             val r = ComplexEvaluator.evaluate(
-                                                text, degrees,
+                                                balanced, degrees,
                                                 mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                                             )
             if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
         } else {
-            Format.number(Evaluator.evaluate(text, degrees, mapOf("ans" to ans)))
+            Format.number(Evaluator.evaluate(balanced, degrees, mapOf("ans" to ans, "x" to xValue)))
         }
     } catch (e: Exception) {
         ""
     }
 
     fun insert(snippet: String) {
+        // After "=", an operator continues from the exact value; anything else
+        // begins a new calculation, which is what a calculator is expected to do.
+        val pending = exactResult
+        if (pending != null) {
+            exactResult = null
+            val continues = snippet.isNotEmpty() && snippet[0] in "+-*/^%!)°"
+            expr = if (continues) {
+                val exact = Format.number(pending)
+                TextFieldValue(exact + snippet, TextRange(exact.length + snippet.length))
+            } else {
+                TextFieldValue(snippet, TextRange(snippet.length))
+            }
+            return
+        }
         val t = expr.text
         val start = expr.selection.min
         val end = expr.selection.max
@@ -341,6 +363,7 @@ fun CalculatorScreen(
     }
 
     fun backspace() {
+        exactResult = null
         val t = expr.text
         val start = expr.selection.min
         val end = expr.selection.max
@@ -352,14 +375,15 @@ fun CalculatorScreen(
     }
 
     fun currentValue(): Double = try {
+        val ready = ExpressionFix.balance(text)
         when {
-            text.isBlank() -> ans
-            ComplexEvaluator.hasImaginary(text) ->
+            ready.isBlank() -> ans
+            ComplexEvaluator.hasImaginary(ready) ->
                 ComplexEvaluator.evaluate(
-                    text, degrees,
+                    ready, degrees,
                     mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                 ).abs()
-            else -> Evaluator.evaluate(text, degrees, mapOf("ans" to ans, "x" to xValue))
+            else -> Evaluator.evaluate(ready, degrees, mapOf("ans" to ans, "x" to xValue))
         }
     } catch (e: Exception) {
         ans
@@ -876,28 +900,37 @@ fun CalculatorScreen(
                             spoken = spokenKey(key),
                             onPress = {
                                 when (key) {
-                                    "C" -> expr = TextFieldValue("")
+                                    "C" -> { exactResult = null; expr = TextFieldValue("") }
                                     "del" -> backspace()
                                     "=" -> {
+                                        // Complete anything half-typed first.
+                                        val ready = ExpressionFix.balance(text)
+                                        exactResult = null
                                         val shown = try {
-                                            if (ComplexEvaluator.hasImaginary(text)) {
+                                            if (ready.isBlank()) {
+                                                "0"
+                                            } else if (ComplexEvaluator.hasImaginary(ready)) {
                                                 val r = ComplexEvaluator.evaluate(
-                                                text, degrees,
+                                                ready, degrees,
                                                 mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                                             )
                                                 if (r.isReal(1e-10)) {
                                                     ans = r.re
-                                                    Format.number(r.re)
+                                                    exactResult = r.re
+                                                    pretty(Format.number(r.re), settings.numberFormat, settings.decimals)
                                                 } else {
                                                     Complex.text(r)
                                                 }
                                             } else {
-                                                val value = Evaluator.evaluate(text, degrees, mapOf("ans" to ans, "x" to xValue))
+                                                val value = Evaluator.evaluate(ready, degrees, mapOf("ans" to ans, "x" to xValue))
                                                 ans = value
-                                                Format.number(value)
+                                                exactResult = value
+                                                // Shown at the number of decimals the user chose.
+                                                pretty(Format.number(value), settings.numberFormat, settings.decimals)
                                             }
                                         } catch (e: Exception) {
-                                            "error"
+                                            // Say why rather than just "error".
+                                            e.message?.takeIf { it.isNotBlank() } ?: "error"
                                         }
                                         DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
                                         if (settings.historyEnabled) {
@@ -911,12 +944,9 @@ fun CalculatorScreen(
                                     "x" -> insert("x")
                                     "swap" -> swapOperands()
                                     "neg" -> {
-                                        val t = expr.text
-                                        expr = if (t.startsWith("-")) {
-                                            TextFieldValue(t.drop(1), TextRange((t.length - 1).coerceAtLeast(0)))
-                                        } else {
-                                            TextFieldValue("-$t", TextRange(t.length + 1))
-                                        }
+                                        exactResult = null
+                                        val next = ExpressionFix.negate(expr.text)
+                                        expr = TextFieldValue(next, TextRange(next.length))
                                     }
                                     else -> insert(key)
                                 }
