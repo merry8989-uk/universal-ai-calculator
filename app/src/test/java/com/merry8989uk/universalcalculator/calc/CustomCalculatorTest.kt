@@ -39,7 +39,31 @@ class CustomCalculatorTest {
     }
 
     @Test fun theDefaultsComeFromTheInputs() {
-        assertEquals(mapOf("P" to 100000.0, "r" to 0.01, "n" to 12.0), emi().defaults())
+        // lower-cased, because that is how the evaluator reads a name
+        assertEquals(mapOf("p" to 100000.0, "r" to 0.01, "n" to 12.0), emi().defaults())
+    }
+
+    @Test fun namesAreCaseInsensitiveLikeTheEvaluator() {
+        // "P" as an input and "p" in the formula are the same variable.
+        val c = CustomCalculator(
+            id = "c", name = "Case", inputs = listOf(CustomInput("P", "Principal", 10.0)),
+            expression = "p*2",
+        )
+        assertNull(c.problem())
+        assertEquals(20.0, c.compute(c.defaults()), 1e-9)
+    }
+
+    @Test fun anInputDifferingOnlyInCaseIsADuplicate() {
+        val bad = emi().copy(
+            inputs = listOf(CustomInput("x", "One", 1.0), CustomInput("X", "Two", 2.0)),
+            expression = "x",
+        )
+        assertNotNull("x and X are the same variable", bad.problem())
+    }
+
+    @Test fun aReservedNameInAnyCaseIsRejected() {
+        assertTrue(!CustomCalculator.isValidKey("Sin"))
+        assertTrue(!CustomCalculator.isValidKey("PI"))
     }
 
     @Test fun aBlankNameIsRejected() {

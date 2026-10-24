@@ -41,7 +41,9 @@ data class CustomCalculator(
             return "\"${bad.key}\" is not a usable input name. Use letters, digits and " +
                 "underscores, and do not start with a digit."
         }
-        val duplicate = inputs.groupBy { it.key }.entries.firstOrNull { it.value.size > 1 }
+        // The evaluator lower-cases names, so "P" and "p" are the same variable.
+        val duplicate = inputs.groupBy { it.key.lowercase() }
+            .entries.firstOrNull { it.value.size > 1 }
         if (duplicate != null) return "The input \"${duplicate.key}\" is defined twice."
         val blankLabel = inputs.firstOrNull { it.label.isBlank() }
         if (blankLabel != null) return "Every input needs a label."
@@ -54,12 +56,22 @@ data class CustomCalculator(
         }
     }
 
-    /** The inputs at their default values. */
-    fun defaults(): Map<String, Double> = inputs.associate { it.key to it.default }
+    /**
+     * The inputs at their default values.
+     *
+     * Names are lower-cased because that is how the evaluator reads them, so
+     * "P" in a formula and "P" as an input name are the same thing.
+     */
+    fun defaults(): Map<String, Double> =
+        inputs.associate { it.key.lowercase() to it.default }
 
     /** Works out the result for a set of input values. */
     fun compute(values: Map<String, Double>, degrees: Boolean = false): Double =
-        Evaluator.evaluate(expression, degrees = degrees, vars = values)
+        Evaluator.evaluate(
+            expression,
+            degrees = degrees,
+            vars = values.entries.associate { it.key.lowercase() to it.value },
+        )
 
     /** The same thing as a built-in, so one UI renders both. */
     fun toFormula(degrees: Boolean = false): Formula = Formula(
@@ -81,7 +93,7 @@ data class CustomCalculator(
             key.isNotBlank() &&
                 !key.first().isDigit() &&
                 key.all { it.isLetterOrDigit() || it == '_' } &&
-                key !in RESERVED
+                key.lowercase() !in RESERVED
 
         /** Names the evaluator already understands; they cannot be inputs. */
         private val RESERVED = setOf(
