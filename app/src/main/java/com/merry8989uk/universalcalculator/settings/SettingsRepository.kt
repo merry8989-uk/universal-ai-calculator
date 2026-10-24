@@ -42,6 +42,7 @@ class SettingsRepository(private val context: Context) {
         val AI_ENABLED = booleanPreferencesKey("ai_enabled")
         val FRACTIONS = booleanPreferencesKey("fractions_enabled")
         val LAYOUT_STYLE = stringPreferencesKey("layout_style")
+        val MINIMAL_MODE = booleanPreferencesKey("minimal_mode")
         val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
         val SAVE_STATE = booleanPreferencesKey("save_state")
         val SAVED_EXPRESSION = stringPreferencesKey("saved_expression")
@@ -69,6 +70,7 @@ class SettingsRepository(private val context: Context) {
             aiEnabled = p[Keys.AI_ENABLED] ?: true,
             fractionsEnabled = p[Keys.FRACTIONS] ?: false,
             layoutStyle = p[Keys.LAYOUT_STYLE] ?: "Modern",
+            minimalMode = p[Keys.MINIMAL_MODE] ?: false,
             keepScreenOn = p[Keys.KEEP_SCREEN_ON] ?: false,
             saveState = p[Keys.SAVE_STATE] ?: true,
         )
@@ -112,6 +114,7 @@ class SettingsRepository(private val context: Context) {
         put("aiEnabled", p[Keys.AI_ENABLED])
         put("fractions", p[Keys.FRACTIONS])
         put("layoutStyle", p[Keys.LAYOUT_STYLE])
+        put("minimalMode", p[Keys.MINIMAL_MODE])
         put("keepScreenOn", p[Keys.KEEP_SCREEN_ON])
         put("saveState", p[Keys.SAVE_STATE])
         return out
@@ -148,6 +151,7 @@ class SettingsRepository(private val context: Context) {
             bool("aiEnabled", Keys.AI_ENABLED)
             bool("fractions", Keys.FRACTIONS)
             str("layoutStyle", Keys.LAYOUT_STYLE)
+            bool("minimalMode", Keys.MINIMAL_MODE)
             bool("keepScreenOn", Keys.KEEP_SCREEN_ON)
             bool("saveState", Keys.SAVE_STATE)
         }
@@ -198,6 +202,7 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { it[Keys.FRACTIONS] = enabled }
 
     suspend fun setLayoutStyle(style: String) =
+    suspend fun setMinimalMode(enabled: Boolean) { context.dataStore.edit { it[Keys.MINIMAL_MODE] = enabled } }
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
 
     suspend fun setKeepScreenOn(enabled: Boolean) =

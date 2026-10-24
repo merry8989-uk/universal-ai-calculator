@@ -83,6 +83,9 @@ private val TOOLS = listOf(
 @Composable
 fun FormulasScreen(
     resetSignal: Int = 0,
+    /** A tool to open straight away, e.g. "calculus" from the classic pad. */
+    requestedTool: String = "",
+    onToolRequestUsed: () -> Unit = {},
     onInnerChange: (Boolean) -> Unit = {},
 ) {
     val analyticsContext = androidx.compose.ui.platform.LocalContext.current
@@ -94,6 +97,14 @@ fun FormulasScreen(
     // Pressing the Formulas tab again returns to this hub.
     LaunchedEffect(resetSignal) {
         if (resetSignal > 0) { selected = null; tool = "" }
+    }
+    // A key on the classic pad can ask for a tool by name.
+    LaunchedEffect(requestedTool) {
+        if (requestedTool.isNotEmpty()) {
+            selected = null
+            tool = requestedTool
+            onToolRequestUsed()
+        }
     }
     // Tell the root whether an inner screen is open, so the back button knows
     // to leave it before it offers to exit. Leaving the tab clears the flag.

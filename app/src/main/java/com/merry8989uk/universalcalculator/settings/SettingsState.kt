@@ -31,8 +31,17 @@ data class SettingsState(
     val aiEnabled: Boolean = true,
     /** Also show results as simple fractions, e.g. 0.75 as 3/4. */
     val fractionsEnabled: Boolean = false,
-    /** Keypad style: "Modern" (rounded, gradient) or "Classic" (flat, square). */
+    /**
+     * Keypad style: "Modern" (rounded, gradient), "Classic" (flat, square) or
+     * "Classic Scientific" (the full multi-row scientific pad).
+     */
     val layoutStyle: String = "Modern",
+    /**
+     * Minimal mode. Only the three calculators are left: everything else —
+     * the assistant, the formula reference, the converters, the tools — is
+     * hidden until this is switched off again.
+     */
+    val minimalMode: Boolean = false,
     /** Keep the screen awake while the calculator is open. */
     val keepScreenOn: Boolean = false,
     /** Remember the expression and bring it back on the next launch. */

@@ -53,12 +53,20 @@ import com.merry8989uk.universalcalculator.settings.SettingsState
 private val TAB_LABELS = listOf(
     R.string.tab_standard, R.string.tab_scientific, R.string.tab_convert,
     R.string.tab_formulas, R.string.tab_ask_ai, R.string.tab_settings,
+    R.string.tab_sci_classic,
 )
 private val TAB_A11Y = listOf(
     R.string.tab_standard_a11y, R.string.tab_scientific_a11y, R.string.tab_convert_a11y,
     R.string.tab_formulas_a11y, R.string.tab_ask_ai_a11y, R.string.tab_settings_a11y,
+    R.string.tab_sci_classic_a11y,
 )
-private val TAB_GLYPHS = listOf("=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699")
+private val TAB_GLYPHS = listOf(
+    "=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699", "\u2211",
+)
+
+/** The classic scientific pad, reachable as its own tab in minimal mode. */
+private const val SCI_CLASSIC_TAB = 6
+private const val FORMULAS_TAB = 3
 
 /** Two tabs on each side of the assistant button, so it sits dead centre. */
 private val LEFT_TABS = listOf(0, 1)
@@ -115,6 +123,13 @@ fun AppRoot(settings: SettingsState) {
     val a11y = TAB_A11Y.map { stringResource(it) }
 
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    // A tool the classic pad asked for, handed to the Formulas tab.
+    var requestedTool by remember { mutableStateOf("") }
+    val minimal = settings.minimalMode
+    // Leaving minimal mode must not strand the user on a tab that is gone.
+    LaunchedEffect(minimal) {
+        if (minimal && tab !in listOf(0, 1, SCI_CLASSIC_TAB, SETTINGS_TAB)) tab = 0
+    }
     var aiContext by rememberSaveable { mutableStateOf("") }
     var aiAsk by rememberSaveable { mutableStateOf("") }
 
@@ -171,41 +186,48 @@ fun AppRoot(settings: SettingsState) {
                     .padding(horizontal = 2.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Balances the settings gear at the other end.
-                Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
-
-                LEFT_TABS.forEach { i ->
-                    NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
-                }
-
-                // The assistant: centred, because the row is balanced either side.
-                Box(modifier = Modifier.weight(AI_WEIGHT), contentAlignment = Alignment.Center) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.clearAndSetSemantics {
-                            contentDescription = a11y[AI_TAB]
-                            role = Role.Tab
-                            selected = tab == AI_TAB
-                        },
-                    ) {
-                        MagicButton(onClick = { selectTab(AI_TAB) }, size = 62.dp)
-                        Spacer(Modifier.width(2.dp))
-                        Text(
-                            labels[AI_TAB],
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center,
-                        )
+                if (minimal) {
+                    // Three calculators and the settings that turn this off.
+                    listOf(0, 1, SCI_CLASSIC_TAB, SETTINGS_TAB).forEach { i ->
+                        NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                     }
-                }
+                } else {
+                    // Balances the settings gear at the other end.
+                    Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
 
-                RIGHT_TABS.forEach { i ->
-                    NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
-                }
+                    LEFT_TABS.forEach { i ->
+                        NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
+                    }
 
-                // Settings lives in the overflow menu now, so this end of the
-                // bar is an empty spacer that keeps the assistant centred.
-                Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
+                    // The assistant: centred, because the row is balanced either side.
+                    Box(modifier = Modifier.weight(AI_WEIGHT), contentAlignment = Alignment.Center) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.clearAndSetSemantics {
+                                contentDescription = a11y[AI_TAB]
+                                role = Role.Tab
+                                selected = tab == AI_TAB
+                            },
+                        ) {
+                            MagicButton(onClick = { selectTab(AI_TAB) }, size = 62.dp)
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                labels[AI_TAB],
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+
+                    RIGHT_TABS.forEach { i ->
+                        NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
+                    }
+
+                    // Settings lives in the overflow menu now, so this end of the
+                    // bar is an empty spacer that keeps the assistant centred.
+                    Spacer(modifier = Modifier.weight(SIDE_WEIGHT))
+                }
             }
         },
     ) { padding ->
@@ -218,6 +240,7 @@ fun AppRoot(settings: SettingsState) {
                     onAskAi = { q -> aiContext = q; tab = AI_TAB },
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
+                    onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                 )
                 1 -> CalculatorScreen(
                     title = "Scientific",
@@ -226,10 +249,24 @@ fun AppRoot(settings: SettingsState) {
                     onAskAi = { q -> aiContext = q; tab = AI_TAB },
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
+                    onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
+                )
+                SCI_CLASSIC_TAB -> CalculatorScreen(
+                    title = "Sci Classic",
+                    functionKeys = SCIENTIFIC_KEYS,
+                    settings = settings,
+                    // This tab is the classic pad whatever the layout setting says.
+                    forceLayout = "Classic Scientific",
+                    onAskAi = { q -> aiContext = q; tab = AI_TAB },
+                    onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
+                    onOpenSettings = { selectTab(SETTINGS_TAB) },
+                    onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                 )
                 2 -> ConvertScreen()
                 3 -> FormulasScreen(
                     resetSignal = resetTick,
+                    requestedTool = requestedTool,
+                    onToolRequestUsed = { requestedTool = "" },
                     onInnerChange = { innerOpen = it },
                 )
                 AI_TAB -> AskAiScreen(

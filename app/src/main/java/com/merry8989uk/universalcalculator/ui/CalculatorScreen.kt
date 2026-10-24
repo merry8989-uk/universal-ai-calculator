@@ -157,7 +157,7 @@ internal fun insertFor(key: String): String = when (key) {
 }
 
 /** Keys that stand for a function of one or more arguments. */
-private val FUNCTION_KEYS: Set<String> = setOf(
+internal val FUNCTION_KEYS: Set<String> = setOf(
     "sin", "cos", "tan", "csc", "sec", "cot",
     "asin", "acos", "atan", "acot", "asec", "acsc", "atan2",
     "sinh", "cosh", "tanh", "coth", "sech", "csch",
@@ -273,6 +273,10 @@ fun CalculatorScreen(
     onAskAi: (String) -> Unit,
     onAskAiNow: (String) -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    /** Opens one of the app's tools, e.g. "calculus" or "limits". */
+    onOpenTool: (String) -> Unit = {},
+    /** Overrides the layout setting, for the dedicated classic tab. */
+    forceLayout: String? = null,
 ) {
     var expr by rememberSaveable(stateSaver = exprSaver) { mutableStateOf(TextFieldValue("")) }
     var ans by rememberSaveable { mutableStateOf(0.0) }
@@ -290,6 +294,8 @@ fun CalculatorScreen(
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var historyOpen by rememberSaveable { mutableStateOf(false) }
     var sciOpen by rememberSaveable { mutableStateOf(false) }
+    // The SHIFT layer of the classic scientific pad.
+    var classicShift by rememberSaveable { mutableStateOf(false) }
     // The exact value behind the rounded number on screen, so continuing a
     // calculation after "=" does not silently lose precision.
     var exactResult by remember { mutableStateOf<Double?>(null) }
@@ -320,7 +326,8 @@ fun CalculatorScreen(
     var aiLoading by remember { mutableStateOf(false) }
 
     val text = expr.text
-    val classic = settings.layoutStyle == "Classic"
+    val effectiveLayout = forceLayout ?: settings.layoutStyle
+    val classic = effectiveLayout == "Classic"
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
@@ -362,6 +369,13 @@ fun CalculatorScreen(
         expr = TextFieldValue(next, TextRange(start + snippet.length))
     }
 
+    /** Moves the caret, for the arrow keys on the classic pad. */
+    fun moveCaret(by: Int) {
+        val t = expr.text
+        val at = (expr.selection.max + by).coerceIn(0, t.length)
+        expr = TextFieldValue(t, TextRange(at))
+    }
+
     fun backspace() {
         exactResult = null
         val t = expr.text
@@ -387,6 +401,67 @@ fun CalculatorScreen(
         }
     } catch (e: Exception) {
         ans
+    }
+
+    /**
+     * What every key does, shared by the modern pad and the classic scientific
+     * pad, so the two can never behave differently.
+     */
+    fun pressKey(key: String) {
+when (key) {
+                                    "C" -> { exactResult = null; expr = TextFieldValue("") }
+                                    "del" -> backspace()
+                                    "=" -> {
+                                        // Complete anything half-typed first.
+                                        val ready = ExpressionFix.balance(text)
+                                        exactResult = null
+                                        val shown = try {
+                                            if (ready.isBlank()) {
+                                                "0"
+                                            } else if (ComplexEvaluator.hasImaginary(ready)) {
+                                                val r = ComplexEvaluator.evaluate(
+                                                ready, degrees,
+                                                mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
+                                            )
+                                                if (r.isReal(1e-10)) {
+                                                    ans = r.re
+                                                    exactResult = r.re
+                                                    pretty(Format.number(r.re), settings.numberFormat, settings.decimals)
+                                                } else {
+                                                    Complex.text(r)
+                                                }
+                                            } else {
+                                                val value = Evaluator.evaluate(ready, degrees, mapOf("ans" to ans, "x" to xValue))
+                                                ans = value
+                                                exactResult = value
+                                                // Shown at the number of decimals the user chose.
+                                                pretty(Format.number(value), settings.numberFormat, settings.decimals)
+                                            }
+                                        } catch (e: Exception) {
+                                            // Say why rather than just "error".
+                                            e.message?.takeIf { it.isNotBlank() } ?: "error"
+                                        }
+                                        DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
+                                        if (settings.historyEnabled) {
+                                            historyVm.append("${text.ifBlank { "0" }} = $shown")
+                                        }
+                                        expr = TextFieldValue(shown, TextRange(shown.length))
+                                        rippleTick++
+                                    }
+                                    "00" -> insert("00")
+                                    "ans" -> insert("ans")
+                                    "x" -> insert("x")
+                                    "swap" -> swapOperands()
+                                    "MR" -> insert(Format.number(memory))
+                                    "M+" -> memory += currentValue()
+                                    "MS" -> memory = currentValue()
+                                    "neg" -> {
+                                        exactResult = null
+                                        val next = ExpressionFix.negate(expr.text)
+                                        expr = TextFieldValue(next, TextRange(next.length))
+                                    }
+                                    else -> insert(key)
+                                }
     }
 
     // ---- voice input ----
@@ -843,7 +918,19 @@ fun CalculatorScreen(
                 )
             }
 
-            if (functionKeys.isNotEmpty()) {
+            if (effectiveLayout == "Classic Scientific") {
+                // The full scientific pad, six keys across, with SHIFT.
+                ClassicScientificPad(
+                    shifted = classicShift,
+                    onShiftToggle = { classicShift = !classicShift },
+                    onKey = { key -> pressKey(key) },
+                    onTool = onOpenTool,
+                    onCaret = { by -> moveCaret(by) },
+                    onMenu = { menuOpen = true },
+                    onToggleDegrees = { degrees = !degrees },
+                    modifier = Modifier.weight(1f),
+                )
+            } else if (functionKeys.isNotEmpty()) {
                 // One handle instead of two scrolling rows: it slides the whole
                 // scientific keypad out from the left edge.
                 val handleSpoken = stringResource(R.string.functions_drawer_a11y)
@@ -898,59 +985,7 @@ fun CalculatorScreen(
                             classic = classic,
                             haptic = settings.hapticsEnabled,
                             spoken = spokenKey(key),
-                            onPress = {
-                                when (key) {
-                                    "C" -> { exactResult = null; expr = TextFieldValue("") }
-                                    "del" -> backspace()
-                                    "=" -> {
-                                        // Complete anything half-typed first.
-                                        val ready = ExpressionFix.balance(text)
-                                        exactResult = null
-                                        val shown = try {
-                                            if (ready.isBlank()) {
-                                                "0"
-                                            } else if (ComplexEvaluator.hasImaginary(ready)) {
-                                                val r = ComplexEvaluator.evaluate(
-                                                ready, degrees,
-                                                mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
-                                            )
-                                                if (r.isReal(1e-10)) {
-                                                    ans = r.re
-                                                    exactResult = r.re
-                                                    pretty(Format.number(r.re), settings.numberFormat, settings.decimals)
-                                                } else {
-                                                    Complex.text(r)
-                                                }
-                                            } else {
-                                                val value = Evaluator.evaluate(ready, degrees, mapOf("ans" to ans, "x" to xValue))
-                                                ans = value
-                                                exactResult = value
-                                                // Shown at the number of decimals the user chose.
-                                                pretty(Format.number(value), settings.numberFormat, settings.decimals)
-                                            }
-                                        } catch (e: Exception) {
-                                            // Say why rather than just "error".
-                                            e.message?.takeIf { it.isNotBlank() } ?: "error"
-                                        }
-                                        DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
-                                        if (settings.historyEnabled) {
-                                            historyVm.append("${text.ifBlank { "0" }} = $shown")
-                                        }
-                                        expr = TextFieldValue(shown, TextRange(shown.length))
-                                        rippleTick++
-                                    }
-                                    "00" -> insert("00")
-                                    "ans" -> insert("ans")
-                                    "x" -> insert("x")
-                                    "swap" -> swapOperands()
-                                    "neg" -> {
-                                        exactResult = null
-                                        val next = ExpressionFix.negate(expr.text)
-                                        expr = TextFieldValue(next, TextRange(next.length))
-                                    }
-                                    else -> insert(key)
-                                }
-                            },
+                            onPress = { pressKey(key) },
                             // Holding backspace deletes repeatedly.
                             onHold = if (key == "del") {
                                 { backspace() }

@@ -268,20 +268,34 @@ fun SettingsScreen(
             ToggleRow(stringResource(R.string.keep_screen_on), state.keepScreenOn, vm::setKeepScreenOn)
             ToggleRow(stringResource(R.string.save_state), state.saveState, vm::setSaveState)
 
+            ToggleRow(
+                stringResource(R.string.minimal_mode),
+                state.minimalMode,
+                vm::setMinimalMode,
+            )
+            Text(
+                stringResource(R.string.minimal_mode_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
             Text(stringResource(R.string.keypad_layout), style = MaterialTheme.typography.bodyMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Modern", "Classic").forEach { style ->
+                listOf("Modern", "Classic", "Classic Scientific").forEach { style ->
                     FilterChip(
                         selected = state.layoutStyle == style,
                         onClick = { vm.setLayoutStyle(style) },
-                        label = { Text(style) },
+                        label = { Text(if (style == "Classic Scientific") "Sci Classic" else style) },
                     )
                 }
             }
             Text(
-                if (state.layoutStyle == "Classic")
-                    "Classic: flat, square keys with no colour gradient."
-                else "Modern: rounded keys with a colour gradient.",
+                when (state.layoutStyle) {
+                    "Classic" -> "Classic: flat, square keys with no colour gradient."
+                    "Classic Scientific" ->
+                        "Sci Classic: the full scientific pad, six keys across with a " +
+                            "SHIFT key for the second functions."
+                    else -> "Modern: rounded keys with a colour gradient."
+                },
                 style = MaterialTheme.typography.bodySmall,
             )
 
