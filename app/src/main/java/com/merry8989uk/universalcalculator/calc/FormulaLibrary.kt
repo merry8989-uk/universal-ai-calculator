@@ -1003,9 +1003,11 @@ object FormulaLibrary {
         ) { m -> listOf(out("Volume", v(m, "baseArea") * v(m, "h"))) },
 
         Formula("torus", "Torus", "Geometry", "Volume and surface area.",
-            listOf(InputSpec("R", "Major radius", 10.0), InputSpec("r", "Minor radius", 3.0)),
+            // Two radii, so they are named apart: "R" and "r" would be the same
+            // name to the expression engine, which folds case.
+            listOf(InputSpec("rmaj", "Major radius", 10.0), InputSpec("rmin", "Minor radius", 3.0)),
         ) { m ->
-            val R = v(m, "R"); val r = v(m, "r")
+            val R = v(m, "rmaj"); val r = v(m, "rmin")
             listOf(
                 out("Volume", 2.0 * PI * PI * R * r * r),
                 out("Surface area", 4.0 * PI * PI * R * r),
@@ -2930,9 +2932,13 @@ object FormulaLibrary {
 
         Formula("hollow_cylinder", "Hollow cylinder", "Geometry",
             "Volume and surface of a pipe with outer radius R and inner radius r.",
-            listOf(InputSpec("R", "Outer radius", 5.0), InputSpec("r", "Inner radius", 4.0), InputSpec("h", "Height", 20.0)),
+            listOf(
+                InputSpec("rout", "Outer radius", 5.0),
+                InputSpec("rin", "Inner radius", 4.0),
+                InputSpec("h", "Height", 20.0),
+            ),
         ) { m ->
-            val R = v(m, "R"); val r = v(m, "r"); val h = v(m, "h")
+            val R = v(m, "rout"); val r = v(m, "rin"); val h = v(m, "h")
             listOf(out("Volume", PI * (R * R - r * r) * h),
                 out("Curved surface (outer+inner)", 2 * PI * (R + r) * h),
                 out("Total surface", 2 * PI * (R + r) * h + 2 * PI * (R * R - r * r)))
