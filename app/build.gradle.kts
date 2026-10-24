@@ -15,8 +15,8 @@ android {
         applicationId = "com.merry8989uk.universalcalculator"
         minSdk = 26
         targetSdk = 35
-        versionCode = 43
-        versionName = "1.42.0"
+        versionCode = 44
+        versionName = "1.43.0"
     }
 
     // Release signing is read from environment variables so no key material
@@ -60,6 +60,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

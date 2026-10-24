@@ -32,6 +32,10 @@ jobs:
       - name: Run unit tests
         run: ./gradlew --no-daemon test
 
+      - name: Build the watch app
+        # So a break in :wear or :core is caught here, not at release time.
+        run: ./gradlew --no-daemon :wear:assembleDebug :core:assemble
+
       - name: Summarise results
         if: always()
         run: |
@@ -39,7 +43,9 @@ jobs:
           import glob, xml.etree.ElementTree as ET
           total = fail = err = skip = 0
           problems = []
-          for f in glob.glob('app/build/test-results/testDebugUnitTest/*.xml'):
+          files = (glob.glob('app/build/test-results/testDebugUnitTest/*.xml')
+                   + glob.glob('core/build/test-results/test/*.xml'))
+          for f in files:
               root = ET.parse(f).getroot()
               total += int(root.get('tests', 0))
               fail += int(root.get('failures', 0))

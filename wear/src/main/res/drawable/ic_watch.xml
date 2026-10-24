@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A small equals-in-a-ring mark, so the app has an icon of its own. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#0A0C14"
+        android:pathData="M24,2 A22,22 0 1,0 24,46 A22,22 0 1,0 24,2 Z" />
+    <path
+        android:fillColor="#6C4CF1"
+        android:pathData="M24,5 A19,19 0 1,0 24,43 A19,19 0 1,0 24,5 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,19 h18 v3 h-18 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,26 h18 v3 h-18 z" />
+</vector>

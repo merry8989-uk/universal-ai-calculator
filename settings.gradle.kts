@@ -16,3 +16,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "UniversalAICalculator"
 include(":app")
+include(":core")
+include(":wear")
