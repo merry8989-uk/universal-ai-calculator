@@ -379,4 +379,13 @@
     <string name="diag_ping_failed">No answer from the server.</string>
     <string name="enable_ask_ai">Ask AI</string>
     <string name="enable_ask_ai_help">Off hides the assistant everywhere: its button in the bar, the magic button above the keypad, the voice and photo row, and its own screen. The calculators are untouched.</string>
+    <string name="gradians_mode">Gradians</string>
+    <string name="angle_unit">Angle unit</string>
+    <string name="default_output">Default output</string>
+    <string name="output_fraction">Fraction</string>
+    <string name="output_decimal">Decimal</string>
+    <string name="auto_close_brackets">Complete brackets automatically</string>
+    <string name="auto_close_brackets_help">sin(30 is worked out as sin(30). Turn this off to be told a bracket is missing instead.</string>
+    <string name="ignore_trailing_operator">Ignore a trailing operator</string>
+    <string name="ignore_trailing_operator_help">3+4+ is treated as 3+4. Turn this off to be told the expression is unfinished.</string>
 </resources>

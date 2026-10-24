@@ -33,6 +33,9 @@ class SettingsRepository(private val context: Context) {
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
+        val ANGLE_UNIT = stringPreferencesKey("angle_unit")
+        val AUTO_CLOSE = booleanPreferencesKey("auto_close_brackets")
+        val IGNORE_TRAILING = booleanPreferencesKey("ignore_trailing_operator")
         val NUMBER_FORMAT = stringPreferencesKey("number_format")
         val DECIMALS = intPreferencesKey("decimals")
         val UNIT_SYSTEM = stringPreferencesKey("unit_system")
@@ -61,6 +64,9 @@ class SettingsRepository(private val context: Context) {
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
+            angleUnit = p[Keys.ANGLE_UNIT] ?: "DEGREE",
+            autoCloseBrackets = p[Keys.AUTO_CLOSE] ?: true,
+            ignoreTrailingOperator = p[Keys.IGNORE_TRAILING] ?: true,
             numberFormat = p[Keys.NUMBER_FORMAT] ?: "Indian",
             decimals = p[Keys.DECIMALS] ?: -1,
             unitSystem = p[Keys.UNIT_SYSTEM] ?: "Metric",
@@ -203,6 +209,15 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setLayoutStyle(style: String) =
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setAutoCloseBrackets(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.AUTO_CLOSE] = enabled }
+
+    suspend fun setIgnoreTrailingOperator(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.IGNORE_TRAILING] = enabled }
+
+    suspend fun setAngleUnit(unit: String) =
+        context.dataStore.edit { it[Keys.ANGLE_UNIT] = unit }
 
     suspend fun setMinimalMode(enabled: Boolean) =
         context.dataStore.edit { it[Keys.MINIMAL_MODE] = enabled }

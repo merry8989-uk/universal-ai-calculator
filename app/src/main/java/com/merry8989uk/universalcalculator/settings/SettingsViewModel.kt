@@ -34,6 +34,10 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setFractionsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setFractionsEnabled(enabled) }
     fun setLayoutStyle(style: String) = viewModelScope.launch { repo.setLayoutStyle(style) }
     fun setMinimalMode(enabled: Boolean) = viewModelScope.launch { repo.setMinimalMode(enabled) }
+    fun setAngleUnit(unit: String) = viewModelScope.launch { repo.setAngleUnit(unit) }
+    fun setAutoCloseBrackets(enabled: Boolean) = viewModelScope.launch { repo.setAutoCloseBrackets(enabled) }
+    fun setIgnoreTrailingOperator(enabled: Boolean) =
+        viewModelScope.launch { repo.setIgnoreTrailingOperator(enabled) }
     fun setKeepScreenOn(enabled: Boolean) = viewModelScope.launch { repo.setKeepScreenOn(enabled) }
     fun setSaveState(enabled: Boolean) = viewModelScope.launch { repo.setSaveState(enabled) }
 

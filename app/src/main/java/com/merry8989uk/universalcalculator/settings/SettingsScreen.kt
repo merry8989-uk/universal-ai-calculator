@@ -307,6 +307,62 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
+            // ---- Sci Classic ----
+            Section("Sci Classic")
+            Text(
+                "These apply to the classic scientific pad. They do not change the " +
+                    "Standard or the modern Scientific keypad.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text(stringResource(R.string.angle_unit), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("DEGREE", "RADIAN", "GRADIAN").forEach { unit ->
+                    FilterChip(
+                        selected = state.angleUnit == unit,
+                        onClick = { vm.setAngleUnit(unit) },
+                        label = { Text(unit.lowercase().replaceFirstChar { it.uppercase() }) },
+                    )
+                }
+            }
+            Text(
+                "A full turn is 360, 2\u03C0 or 400. The DEG key cycles through all three.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text(stringResource(R.string.default_output), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = state.fractionsEnabled,
+                    onClick = { vm.setFractionsEnabled(true) },
+                    label = { Text(stringResource(R.string.output_fraction)) },
+                )
+                FilterChip(
+                    selected = !state.fractionsEnabled,
+                    onClick = { vm.setFractionsEnabled(false) },
+                    label = { Text(stringResource(R.string.output_decimal)) },
+                )
+            }
+
+            ToggleRow(
+                stringResource(R.string.auto_close_brackets),
+                state.autoCloseBrackets,
+                vm::setAutoCloseBrackets,
+            )
+            Text(
+                stringResource(R.string.auto_close_brackets_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            ToggleRow(
+                stringResource(R.string.ignore_trailing_operator),
+                state.ignoreTrailingOperator,
+                vm::setIgnoreTrailingOperator,
+            )
+            Text(
+                stringResource(R.string.ignore_trailing_operator_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
             Text(stringResource(R.string.home_screen_widget), style = MaterialTheme.typography.bodyMedium)
             Text(
                 "Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. " +

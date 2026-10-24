@@ -12,7 +12,11 @@ package com.merry8989uk.universalcalculator.calc
  */
 object ExpressionFix {
 
-    fun balance(text: String): String {
+    fun balance(
+        text: String,
+        closeBrackets: Boolean = true,
+        dropTrailingOperator: Boolean = true,
+    ): String {
         var t = text.trim()
         if (t.isEmpty()) return ""
 

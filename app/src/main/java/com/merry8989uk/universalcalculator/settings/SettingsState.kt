@@ -14,6 +14,15 @@ data class SettingsState(
     val livePreview: Boolean = true,
     /** Use degrees for trigonometry by default. */
     val degreesMode: Boolean = true,
+    /**
+     * How trigonometry reads its arguments: "DEGREE", "RADIAN" or "GRADIAN".
+     * Gradians are the third unit the classic scientific calculators offer.
+     */
+    val angleUnit: String = "DEGREE",
+    /** Close any bracket the user has not closed before working it out. */
+    val autoCloseBrackets: Boolean = true,
+    /** Ignore a plus or minus left dangling at the end of the input. */
+    val ignoreTrailingOperator: Boolean = true,
     /** Thousands separators in results. */
     /** Digit grouping: "Indian", "International", "European" or "None". */
     val numberFormat: String = "Indian",

@@ -285,7 +285,10 @@ fun CalculatorScreen(
 ) {
     var expr by rememberSaveable(stateSaver = exprSaver) { mutableStateOf(TextFieldValue("")) }
     var ans by rememberSaveable { mutableStateOf(0.0) }
-    var degrees by rememberSaveable { mutableStateOf(settings.degreesMode) }
+    // Degrees, radians or gradians. The setting picks the starting one; the
+    // DEG key cycles through all three.
+    var angleName by rememberSaveable { mutableStateOf(settings.angleUnit) }
+    val angle = com.merry8989uk.universalcalculator.calc.AngleUnit.of(angleName)
     var memory by rememberSaveable { mutableStateOf(0.0) }
     // The value the variable x takes when it appears in the expression.
     var xText by rememberSaveable { mutableStateOf("0") }
@@ -338,17 +341,17 @@ fun CalculatorScreen(
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
-    val balanced = ExpressionFix.balance(text)
+    val balanced = ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator)
 
     val preview: String = if (balanced.isBlank()) "" else try {
         if (ComplexEvaluator.hasImaginary(balanced)) {
             val r = ComplexEvaluator.evaluate(
-                                                balanced, degrees,
+                                                balanced, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
                                                 mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                                             )
             if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
         } else {
-            Format.number(Evaluator.evaluate(balanced, degrees, mapOf("ans" to ans, "x" to xValue)))
+            Format.number(Evaluator.evaluate(balanced, vars = mapOf("ans" to ans, "x" to xValue), unit = angle))
         }
     } catch (e: Exception) {
         ""
@@ -396,15 +399,15 @@ fun CalculatorScreen(
     }
 
     fun currentValue(): Double = try {
-        val ready = ExpressionFix.balance(text)
+        val ready = ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator)
         when {
             ready.isBlank() -> ans
             ComplexEvaluator.hasImaginary(ready) ->
                 ComplexEvaluator.evaluate(
-                    ready, degrees,
+                    ready, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
                     mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                 ).abs()
-            else -> Evaluator.evaluate(ready, degrees, mapOf("ans" to ans, "x" to xValue))
+            else -> Evaluator.evaluate(ready, vars = mapOf("ans" to ans, "x" to xValue), unit = angle)
         }
     } catch (e: Exception) {
         ans
@@ -426,14 +429,14 @@ when (key) {
                                     "del" -> backspace()
                                     "=" -> {
                                         // Complete anything half-typed first.
-                                        val ready = ExpressionFix.balance(text)
+                                        val ready = ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator)
                                         exactResult = null
                                         val shown = try {
                                             if (ready.isBlank()) {
                                                 "0"
                                             } else if (ComplexEvaluator.hasImaginary(ready)) {
                                                 val r = ComplexEvaluator.evaluate(
-                                                ready, degrees,
+                                                ready, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
                                                 mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                                             )
                                                 if (r.isReal(1e-10)) {
@@ -444,7 +447,7 @@ when (key) {
                                                     Complex.text(r)
                                                 }
                                             } else {
-                                                val value = Evaluator.evaluate(ready, degrees, mapOf("ans" to ans, "x" to xValue))
+                                                val value = Evaluator.evaluate(ready, vars = mapOf("ans" to ans, "x" to xValue), unit = angle)
                                                 ans = value
                                                 exactResult = value
                                                 // Shown at the number of decimals the user chose.
@@ -699,11 +702,22 @@ when (key) {
                                 text = {
                                     Text(
                                         stringResource(
-                                            if (degrees) R.string.degrees_mode else R.string.radians_mode,
+                                            when (angle) {
+                                                com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE -> R.string.degrees_mode
+                                                com.merry8989uk.universalcalculator.calc.AngleUnit.RADIAN -> R.string.radians_mode
+                                                else -> R.string.gradians_mode
+                                            },
                                         ),
                                     )
                                 },
-                                onClick = { menuOpen = false; degrees = !degrees },
+                                onClick = {
+                                    menuOpen = false
+                                    angleName = when (angle) {
+                                        com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE -> "RADIAN"
+                                        com.merry8989uk.universalcalculator.calc.AngleUnit.RADIAN -> "GRADIAN"
+                                        else -> "DEGREE"
+                                    }
+                                },
                             )
                         }
                     }
@@ -938,7 +952,13 @@ when (key) {
                     onTool = onOpenTool,
                     onCaret = { by -> moveCaret(by) },
                     onMenu = { menuOpen = true },
-                    onToggleDegrees = { degrees = !degrees },
+                    onToggleDegrees = {
+                        angleName = when (angle) {
+                            com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE -> "RADIAN"
+                            com.merry8989uk.universalcalculator.calc.AngleUnit.RADIAN -> "GRADIAN"
+                            else -> "DEGREE"
+                        }
+                    },
                     modifier = Modifier.weight(1f),
                 )
             } else if (functionKeys.isNotEmpty()) {
@@ -968,7 +988,7 @@ when (key) {
                 }
             }
 
-            PAD.forEach { row ->
+            if (!classicScientific) PAD.forEach { row ->
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),

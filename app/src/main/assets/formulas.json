@@ -1406,11 +1406,6 @@
    "f": "dP/dt = k P  →  P = P₀ e^(kt)"
   },
   {
-   "c": "Differential Equations",
-   "t": "Newton's law of cooling",
-   "f": "dT/dt = −k (T − Tₐ)"
-  },
-  {
    "c": "Series",
    "t": "Arithmetic mean",
    "f": "A = (a + b) / 2"
@@ -5544,6 +5539,1291 @@
    "c": "Finance & Economics",
    "t": "Index number (Paasche)",
    "f": "P = (Σ p₁q₁ / Σ p₀q₁) × 100"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Equations of motion (v = u + at)",
+   "f": "v = u + a t"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Displacement with constant acceleration",
+   "f": "s = u t + ½ a t²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Velocity–displacement relation",
+   "f": "v² = u² + 2 a s"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Average velocity",
+   "f": "v̅ = (u + v) / 2"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Newton's second law",
+   "f": "F = m a"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Weight",
+   "f": "W = m g"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Momentum",
+   "f": "p = m v"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Impulse",
+   "f": "J = F Δt = Δp"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Work done by a constant force",
+   "f": "W = F s cos θ"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Kinetic energy",
+   "f": "K = ½ m v²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Gravitational potential energy",
+   "f": "U = m g h"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Elastic potential energy",
+   "f": "U = ½ k x²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Mechanical energy conservation",
+   "f": "K₁ + U₁ = K₂ + U₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Power",
+   "f": "P = W / t = F v"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Centripetal acceleration",
+   "f": "a = v² / r = ω² r"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Centripetal force",
+   "f": "F = m v² / r"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Angular velocity",
+   "f": "ω = 2π / T = 2π f"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Linear and angular speed",
+   "f": "v = ω r"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Angular acceleration",
+   "f": "α = Δω / Δt"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Rotational kinetic energy",
+   "f": "K = ½ I ω²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Torque",
+   "f": "τ = r F sin θ = I α"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Angular momentum",
+   "f": "L = I ω = m v r"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Moment of inertia of a rod (centre)",
+   "f": "I = (1/12) m L²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Moment of inertia of a solid sphere",
+   "f": "I = (2/5) m r²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Moment of inertia of a disc",
+   "f": "I = ½ m r²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Newton's law of gravitation",
+   "f": "F = G m₁ m₂ / r²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Gravitational field strength",
+   "f": "g = G M / r²"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Orbital velocity",
+   "f": "v = √(G M / r)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Escape velocity",
+   "f": "v = √(2 G M / r)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Kepler's third law",
+   "f": "T² ∝ a³"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Hooke's law",
+   "f": "F = k x"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Young's modulus",
+   "f": "Y = (F / A) / (ΔL / L)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Stress",
+   "f": "σ = F / A"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Strain",
+   "f": "ε = ΔL / L"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Pressure",
+   "f": "P = F / A"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Pressure in a fluid",
+   "f": "P = ρ g h"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Buoyant force (Archimedes)",
+   "f": "F = ρ g V"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Equation of continuity",
+   "f": "A₁ v₁ = A₂ v₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Bernoulli's equation",
+   "f": "P + ½ ρ v² + ρ g h = constant"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Torricelli's law",
+   "f": "v = √(2 g h)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Reynolds number",
+   "f": "Re = ρ v D / μ"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Stokes' law",
+   "f": "F = 6 π η r v"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Terminal velocity",
+   "f": "v = 2 r² (ρ − σ) g / (9 η)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Simple pendulum period",
+   "f": "T = 2π √(L / g)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Mass–spring period",
+   "f": "T = 2π √(m / k)"
+  },
+  {
+   "c": "Physics",
+   "t": "Mechanics: Friction force",
+   "f": "f = μ N"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: First law of thermodynamics",
+   "f": "ΔU = Q − W"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Work by a gas at constant pressure",
+   "f": "W = P ΔV"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Ideal gas law",
+   "f": "P V = n R T"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Combined gas law",
+   "f": "P₁ V₁ / T₁ = P₂ V₂ / T₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Boyle's law",
+   "f": "P₁ V₁ = P₂ V₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Charles's law",
+   "f": "V₁ / T₁ = V₂ / T₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Gay-Lussac's law",
+   "f": "P₁ / T₁ = P₂ / T₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Avogadro's law",
+   "f": "V ∝ n"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Heat energy",
+   "f": "Q = m c ΔT"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Latent heat",
+   "f": "Q = m L"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Thermal expansion (linear)",
+   "f": "ΔL = α L ΔT"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Thermal expansion (area)",
+   "f": "ΔA = 2 α A ΔT"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Thermal expansion (volume)",
+   "f": "ΔV = 3 α V ΔT"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Efficiency of a heat engine",
+   "f": "η = 1 − Qᴄ / Qʜ"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Carnot efficiency",
+   "f": "η = 1 − Tᴄ / Tʜ"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Average kinetic energy of a molecule",
+   "f": "KE = (3/2) kᵇ T"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Root-mean-square speed",
+   "f": "vᵣₘₛ = √(3 R T / M)"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Mean free path",
+   "f": "λ = kᵇ T / (√2 π d² P)"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Newton's law of cooling",
+   "f": "dQ/dt = −k (T − Tₐ)"
+  },
+  {
+   "c": "Physics",
+   "t": "Thermodynamics: Stefan–Boltzmann law",
+   "f": "P = σ A ε T⁴"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Wave speed",
+   "f": "v = f λ"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Period and frequency",
+   "f": "T = 1 / f"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Angular frequency",
+   "f": "ω = 2π f"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Wave number",
+   "f": "k = 2π / λ"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Simple harmonic motion displacement",
+   "f": "x = A sin(ω t + φ)"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Speed of a wave on a string",
+   "f": "v = √(T / μ)"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Sound intensity level",
+   "f": "β = 10 log(I / I₀)"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Intensity of sound",
+   "f": "I = P / (4π r²)"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Doppler effect (moving source)",
+   "f": "f′ = f v / (v − vₛ)"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Doppler effect (moving observer)",
+   "f": "f′ = f (v + vₒ) / v"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Beat frequency",
+   "f": "fᵇ = |f₁ − f₂|"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Standing wave on a string",
+   "f": "f = n v / (2 L)"
+  },
+  {
+   "c": "Physics",
+   "t": "Waves and Sound: Resonance in a closed pipe",
+   "f": "f = n v / (4 L)"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Snell's law",
+   "f": "n₁ sin θ₁ = n₂ sin θ₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Refractive index",
+   "f": "n = c / v"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Critical angle",
+   "f": "θᶜ = sin⁻¹(n₂ / n₁)"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Mirror formula",
+   "f": "1/f = 1/v + 1/u"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Lens formula",
+   "f": "1/f = 1/v − 1/u"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Lens maker's equation",
+   "f": "1/f = (n − 1)(1/R₁ − 1/R₂)"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Magnification (lens)",
+   "f": "m = v / u"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Magnification (mirror)",
+   "f": "m = −v / u"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Power of a lens",
+   "f": "P = 1 / f"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Combined lenses in contact",
+   "f": "1/F = 1/f₁ + 1/f₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Young's double slit fringe spacing",
+   "f": "Δy = λ D / d"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Single slit first minimum",
+   "f": "a sin θ = λ"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Diffraction grating",
+   "f": "d sin θ = n λ"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Photoelectric equation",
+   "f": "h f = φ + KEₘₐₓ"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: de Broglie wavelength",
+   "f": "λ = h / p"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Energy of a photon",
+   "f": "E = h f = h c / λ"
+  },
+  {
+   "c": "Physics",
+   "t": "Optics: Momentum of a photon",
+   "f": "p = h / λ"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Ohm's law",
+   "f": "V = I R"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Electric power",
+   "f": "P = V I = I² R = V² / R"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Resistors in series",
+   "f": "R = R₁ + R₂ + R₃"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Resistors in parallel",
+   "f": "1/R = 1/R₁ + 1/R₂ + 1/R₃"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Coulomb's law",
+   "f": "F = k q₁ q₂ / r²"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Electric field",
+   "f": "E = F / q = k Q / r²"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Electric potential",
+   "f": "V = k Q / r"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Capacitance",
+   "f": "C = Q / V"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Parallel plate capacitor",
+   "f": "C = ε₀ A / d"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Capacitors in series",
+   "f": "1/C = 1/C₁ + 1/C₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Capacitors in parallel",
+   "f": "C = C₁ + C₂"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Energy stored in a capacitor",
+   "f": "U = ½ C V²"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Current",
+   "f": "I = Q / t"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Drift velocity",
+   "f": "I = n A e vₔ"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Magnetic force on a moving charge",
+   "f": "F = q v B sin θ"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Magnetic force on a wire",
+   "f": "F = B I L sin θ"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Force between parallel wires",
+   "f": "F/L = μ₀ I₁ I₂ / (2π d)"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Magnetic field of a long wire",
+   "f": "B = μ₀ I / (2π r)"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Magnetic field inside a solenoid",
+   "f": "B = μ₀ n I"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Faraday's law",
+   "f": "ε = −N ΔΦ / Δt"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Motional emf",
+   "f": "ε = B L v"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Transformer equation",
+   "f": "Vₛ / Vₚ = Nₛ / Nₚ"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: RC time constant",
+   "f": "τ = R C"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: RL time constant",
+   "f": "τ = L / R"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Impedance of an RLC circuit",
+   "f": "Z = √(R² + (Xₗ − Xᶜ)²)"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: Resonant frequency of an LC circuit",
+   "f": "f = 1 / (2π √(L C))"
+  },
+  {
+   "c": "Physics",
+   "t": "Electricity and Magnetism: RMS and peak voltage",
+   "f": "Vᵣₘₛ = Vₚ / √2"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Mass–energy equivalence",
+   "f": "E = m c²"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Relativistic mass",
+   "f": "m = m₀ / √(1 − v²/c²)"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Time dilation",
+   "f": "Δt = Δt₀ / √(1 − v²/c²)"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Length contraction",
+   "f": "L = L₀ √(1 − v²/c²)"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Energy of a hydrogen level",
+   "f": "Eₙ = −13.6 / n² eV"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Rydberg formula",
+   "f": "1/λ = R (1/n₁² − 1/n₂²)"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Bohr radius",
+   "f": "rₙ = n² a₀"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Radioactive decay law",
+   "f": "N = N₀ e^(−λ t)"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Activity",
+   "f": "A = λ N"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Mass defect",
+   "f": "Δm = Z mₚ + N mₙ − M"
+  },
+  {
+   "c": "Physics",
+   "t": "Modern Physics: Binding energy",
+   "f": "E = Δm c²"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Speed of light in vacuum",
+   "f": "c = 2.997 924 58 × 10⁸ m/s"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Gravitational constant",
+   "f": "G = 6.674 × 10⁻¹¹ N m²/kg²"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Planck constant",
+   "f": "h = 6.626 × 10⁻³⁴ J s"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Elementary charge",
+   "f": "e = 1.602 × 10⁻¹⁹ C"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Boltzmann constant",
+   "f": "kᵇ = 1.381 × 10⁻²³ J/K"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Avogadro constant",
+   "f": "Nₐ = 6.022 × 10²³ /mol"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Gas constant",
+   "f": "R = 8.314 J/(mol K)"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Vacuum permittivity",
+   "f": "ε₀ = 8.854 × 10⁻¹² F/m"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Vacuum permeability",
+   "f": "μ₀ = 4π × 10⁻⁷ H/m"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Standard gravity",
+   "f": "g = 9.806 65 m/s²"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Stefan–Boltzmann constant",
+   "f": "σ = 5.670 × 10⁻⁸ W/(m² K⁴)"
+  },
+  {
+   "c": "Physics",
+   "t": "Units and Constants: Faraday constant",
+   "f": "F = 96 485 C/mol"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Atomic number",
+   "f": "Z = number of protons"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Mass number",
+   "f": "A = Z + N"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Number of neutrons",
+   "f": "N = A − Z"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Isotope notation",
+   "f": "ᴬᶻX with A = Z + N"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Bohr energy of an electron",
+   "f": "Eₙ = −13.6 Z² / n² eV"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Bohr radius",
+   "f": "rₙ = 0.529 n² / Z Å"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Rydberg equation",
+   "f": "1/λ = Rʜ Z² (1/n₁² − 1/n₂²)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: de Broglie wavelength of an electron",
+   "f": "λ = h / (m v)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Heisenberg uncertainty",
+   "f": "Δx Δp ≥ h / 4π"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Maximum electrons in a shell",
+   "f": "2 n²"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Number of orbitals in a shell",
+   "f": "n²"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Energy of a photon",
+   "f": "E = h ν = h c / λ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Molar mass from formula",
+   "f": "M = Σ (atomic masses)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Atomic Structure: Percent composition by mass",
+   "f": "% = (mass of element / molar mass) × 100"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Moles from mass",
+   "f": "n = m / M"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Mass from moles",
+   "f": "m = n M"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Number of particles",
+   "f": "N = n Nₐ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Molarity",
+   "f": "M = n / V"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Molality",
+   "f": "m = n / kg solvent"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Mole fraction",
+   "f": "xᵢ = nᵢ / nₜₒₜₐₗ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Mass percent",
+   "f": "% w/w = (mass solute / mass solution) × 100"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Volume percent",
+   "f": "% v/v = (volume solute / volume solution) × 100"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Parts per million",
+   "f": "ppm = (mass solute / mass solution) × 10⁶"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Molarity from mass percent and density",
+   "f": "M = (% × density × 10) / Mₘ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Dilution equation",
+   "f": "M₁ V₁ = M₂ V₂"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Ideal gas moles",
+   "f": "n = P V / (R T)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Molar volume at STP",
+   "f": "Vₘ = 22.414 L/mol"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Percent yield",
+   "f": "% yield = (actual / theoretical) × 100"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Limiting reagent moles",
+   "f": "n = m / M, smallest ratio wins"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Empirical formula from percent",
+   "f": "divide each % by atomic mass, then by the smallest"
+  },
+  {
+   "c": "Chemistry",
+   "t": "The Mole and Stoichiometry: Molecular formula from empirical",
+   "f": "n = molar mass / empirical formula mass"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Avogadro's law",
+   "f": "V₁ / n₁ = V₂ / n₂"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Dalton's law of partial pressures",
+   "f": "Pₜₒₜₐₗ = P₁ + P₂ + P₃"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Partial pressure from mole fraction",
+   "f": "Pᵢ = xᵢ Pₜₒₜₐₗ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Density of a gas",
+   "f": "ρ = P M / (R T)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Graham's law of diffusion",
+   "f": "r₁ / r₂ = √(M₂ / M₁)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Root-mean-square speed",
+   "f": "uᵣₘₛ = √(3 R T / M)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: van der Waals equation",
+   "f": "(P + a n²/V²)(V − n b) = n R T"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Gas Laws: Compressibility factor",
+   "f": "Z = P V / (n R T)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Molality from molarity",
+   "f": "m = (1000 M) / (1000 ρ − M Mₘ)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Raoult's law",
+   "f": "Pₛₒₗᵘₜᵢₒₙ = xₛₒₗᵛₑₙₜ P°"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Elevation of boiling point",
+   "f": "ΔTᵇ = Kᵇ m i"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Depression of freezing point",
+   "f": "ΔTᶠ = Kᶠ m i"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Osmotic pressure",
+   "f": "π = i M R T"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: van't Hoff factor",
+   "f": "i = observed particles / formula units"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Henry's law",
+   "f": "P = Kʜ x"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Degree of dissociation",
+   "f": "α = (i − 1) / (n − 1)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Normality",
+   "f": "N = M × n-factor"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Solutions and Colligative Properties: Mass of solute in a solution",
+   "f": "m = M V Mₘ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: First law of thermodynamics",
+   "f": "ΔU = q + w"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Enthalpy change",
+   "f": "ΔH = ΔU + Δ(P V)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Enthalpy at constant pressure",
+   "f": "ΔH = qₚ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Standard enthalpy of reaction",
+   "f": "ΔH° = Σ ΔHᶠ°(products) − Σ ΔHᶠ°(reactants)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Hess's law",
+   "f": "ΔHₜₒₜₐₗ = sum of the steps"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Gibbs free energy",
+   "f": "ΔG = ΔH − T ΔS"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Entropy change",
+   "f": "ΔS = qᵣₑᵥ / T"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Standard free energy of reaction",
+   "f": "ΔG° = Σ ΔGᶠ°(products) − Σ ΔGᶠ°(reactants)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Free energy and equilibrium",
+   "f": "ΔG° = −R T ln K"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Cell potential and free energy",
+   "f": "ΔG° = −n F E°"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Heat capacity",
+   "f": "q = C ΔT"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Calorimetry",
+   "f": "qᵣₑₐᶜₜᵢₒₙ = −qₛᵤᵣᵣₒᵤₙᵈᵢₙᵏₛ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Chemical Thermodynamics: Bond enthalpy estimate",
+   "f": "ΔH = Σ bonds broken − Σ bonds formed"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Equilibrium constant",
+   "f": "Kᶜ = [C]ᶜ[D]ᵈ / ([A]ᵃ[B]ᵇ)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Kₚ from Kᶜ",
+   "f": "Kₚ = Kᶜ (R T)^Δn"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Reaction quotient",
+   "f": "Q = [products] / [reactants] at any moment"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Direction of shift",
+   "f": "Q < K forward, Q > K backward"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: pH of a strong acid",
+   "f": "pH = −log[H⁺]"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: pOH of a strong base",
+   "f": "pOH = −log[OH⁻]"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Water ion product",
+   "f": "Kᴡ = [H⁺][OH⁻] = 10⁻¹⁴"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: pH and pOH",
+   "f": "pH + pOH = 14"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Weak acid dissociation",
+   "f": "Kₐ = [H⁺][A⁻] / [HA]"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Weak base dissociation",
+   "f": "Kᵇ = [BH⁺][OH⁻] / [B]"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Kₐ and Kᵇ of a conjugate pair",
+   "f": "Kₐ Kᵇ = Kᴡ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: pKₐ and pKᵇ",
+   "f": "pKₐ + pKᵇ = 14"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Henderson–Hasselbalch",
+   "f": "pH = pKₐ + log([A⁻] / [HA])"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Percent dissociation",
+   "f": "% = ([H⁺] / [HA]₀) × 100"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Solubility product",
+   "f": "Kₛₚ = [A⁺]ᵃ[B⁻]ᵇ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Equilibrium: Common ion effect",
+   "f": "adding A⁻ lowers the solubility of AB"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Cell potential",
+   "f": "E°ᶜₑₗₗ = E°ᶜₐₜₕₒᵈₑ − E°ₐₙₒᵈₑ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Nernst equation",
+   "f": "E = E° − (R T / n F) ln Q"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Nernst at 25 °C",
+   "f": "E = E° − (0.0592 / n) log Q"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Equilibrium constant from E°",
+   "f": "log K = n E° / 0.0592"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Faraday's law of electrolysis",
+   "f": "m = (M I t) / (n F)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Charge passed",
+   "f": "Q = I t"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Moles of electrons",
+   "f": "n(e⁻) = Q / F"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Cell potential and K",
+   "f": "E° = (0.0592 / n) log K"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Conductivity",
+   "f": "κ = 1 / ρ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Electrochemistry: Molar conductivity",
+   "f": "Λₘ = κ / c"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Rate of reaction",
+   "f": "rate = −Δ[A] / Δt"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Rate law",
+   "f": "rate = k [A]ᵃ[B]ᵇ"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Zero order integrated",
+   "f": "[A] = [A]₀ − k t"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: First order integrated",
+   "f": "ln[A] = ln[A]₀ − k t"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Second order integrated",
+   "f": "1/[A] = 1/[A]₀ + k t"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: First order half-life",
+   "f": "t½ = ln 2 / k = 0.693 / k"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Zero order half-life",
+   "f": "t½ = [A]₀ / (2 k)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Arrhenius equation",
+   "f": "k = A e^(−Eₐ / R T)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Two-point Arrhenius",
+   "f": "ln(k₂/k₁) = (Eₐ/R)(1/T₁ − 1/T₂)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Activation energy from slope",
+   "f": "ln k = ln A − (Eₐ/R)(1/T)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Catalyst effect",
+   "f": "lowers Eₐ without changing ΔH"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Kinetics: Rate from rate constant",
+   "f": "rate = k × concentrations"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Degree of unsaturation",
+   "f": "DoU = (2C + 2 + N − H − X) / 2"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Empirical formula of a hydrocarbon",
+   "f": "CₓHᵧ from combustion masses"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Combustion of a hydrocarbon",
+   "f": "CₓHᵧ + (x + y/4) O₂ → x CO₂ + (y/2) H₂O"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Molar mass by freezing point",
+   "f": "M = (Kᶠ w₂) / (ΔTᶠ w₁)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Molar mass by boiling point",
+   "f": "M = (Kᵇ w₂) / (ΔTᵇ w₁)"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Rᶠ value in chromatography",
+   "f": "Rᶠ = distance travelled by solute / by solvent"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Beer–Lambert law",
+   "f": "A = ε l c"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Transmittance and absorbance",
+   "f": "A = −log T"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Equivalent mass",
+   "f": "E = M / n-factor"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Concentration from titration",
+   "f": "M₁ V₁ / n₁ = M₂ V₂ / n₂"
+  },
+  {
+   "c": "Chemistry",
+   "t": "Organic and Analytical: Hardness of water",
+   "f": "ppm as CaCO₃ = (mass CaCO₃ / mass water) × 10⁶"
   }
  ]
 }

@@ -377,4 +377,13 @@
     <string name="diag_ping_failed">सर्वर से कोई जवाब नहीं आया।</string>
     <string name="enable_ask_ai">Ask AI</string>
     <string name="enable_ask_ai_help">बंद करने पर असिस्टेंट हर जगह से छिप जाता है: बार का बटन, कीपैड के ऊपर का जादुई बटन, आवाज़ और फ़ोटो वाली पंक्ति, और उसकी अपनी स्क्रीन। कैलकुलेटर पर कोई फ़र्क़ नहीं पड़ता।</string>
+    <string name="gradians_mode">ग्रेडियन</string>
+    <string name="angle_unit">कोण इकाई</string>
+    <string name="default_output">डिफ़ॉल्ट परिणाम</string>
+    <string name="output_fraction">भिन्न</string>
+    <string name="output_decimal">दशमलव</string>
+    <string name="auto_close_brackets">कोष्ठक अपने आप बंद करें</string>
+    <string name="auto_close_brackets_help">sin(30 को sin(30) मानकर हल किया जाता है। बंद करने पर कोष्ठक छूटने का संदेश आएगा।</string>
+    <string name="ignore_trailing_operator">अंत का चिह्न अनदेखा करें</string>
+    <string name="ignore_trailing_operator_help">3+4+ को 3+4 माना जाता है। बंद करने पर अधूरे व्यंजक का संदेश आएगा।</string>
 </resources>

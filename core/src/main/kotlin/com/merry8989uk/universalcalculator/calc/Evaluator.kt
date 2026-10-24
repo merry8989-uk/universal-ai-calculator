@@ -46,13 +46,19 @@ object Evaluator {
 
     class EvalException(message: String) : Exception(message)
 
-    /** Evaluates [expression]. [degrees] switches trig between degrees and radians. */
+    /**
+     * Evaluates [expression].
+     *
+     * [degrees] switches trigonometry between degrees and radians. Pass [unit]
+     * instead when gradians are wanted too; it wins over [degrees].
+     */
     fun evaluate(
         expression: String,
         degrees: Boolean = false,
         vars: Map<String, Double> = emptyMap(),
+        unit: AngleUnit? = null,
     ): Double {
-        val parser = Parser(expression, degrees, vars)
+        val parser = Parser(expression, unit ?: if (degrees) AngleUnit.DEGREE else AngleUnit.RADIAN, vars)
         val v = parser.parseExpression()
         parser.expectEnd()
         if (v.isNaN()) throw EvalException("Result is not a number")
@@ -62,7 +68,7 @@ object Evaluator {
 
     private class Parser(
         private val s: String,
-        private val degrees: Boolean,
+        private val angle: AngleUnit,
         private val vars: Map<String, Double>,
     ) {
         private var i = 0
@@ -155,7 +161,7 @@ object Evaluator {
             // alone (trig already reads degrees), in RAD mode it becomes radians.
             while (peek() == '\u00B0') {
                 i++
-                v = if (degrees) v else v * PI / 180.0
+                v = if (angle == AngleUnit.DEGREE) v * PI / 180.0 else angle.toRadians(v)
                 skipSpaces()
             }
             return Operand(if (percent) v / 100.0 else v, percent)
@@ -249,8 +255,8 @@ object Evaluator {
             } else {
                 throw EvalException("$name() needs two arguments")
             }
-            fun toRad(x: Double) = if (degrees) Math.toRadians(x) else x
-            fun fromRad(x: Double) = if (degrees) Math.toDegrees(x) else x
+            fun toRad(x: Double) = angle.toRadians(x)
+            fun fromRad(x: Double) = angle.fromRadians(x)
 
             return when (name) {
                 // ---- trigonometric ----
