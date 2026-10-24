@@ -233,7 +233,12 @@ object Evaluator {
                 "tau" -> 2 * PI
                 "phi" -> (1 + sqrt(5.0)) / 2
                 "ans" -> vars["ans"] ?: 0.0
-                else -> vars[name] ?: throw EvalException("Unknown name '$name'")
+                else -> vars[name]
+                    // Identifiers are folded to lower case above, so a caller
+                    // that stored its variables as "R" would otherwise be told
+                    // there is no such name. Match without regard to case.
+                    ?: vars.entries.firstOrNull { it.key.lowercase() == name }?.value
+                    ?: throw EvalException("Unknown name '$name'")
             }
         }
 

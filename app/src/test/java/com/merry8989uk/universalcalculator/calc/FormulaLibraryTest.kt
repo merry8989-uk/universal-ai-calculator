@@ -56,17 +56,25 @@ class FormulaLibraryTest {
         assertTrue("NaN outputs:\n" + nan.joinToString("\n"), nan.isEmpty())
     }
 
-    @Test fun everyInputKeyIsLowerCase() {
-        // The evaluator lower-cases identifiers before looking them up, so an
-        // upper-case key would silently collide with a lower-case twin.
+    @Test fun noCalculatorHasTwoKeysDifferingOnlyByCase() {
+        // A hand-written calculator reads its inputs by exact key, so "R" and
+        // "r" are two different values and that is fine. What must never happen
+        // is two keys that differ only by case, because the expression engine
+        // folds names to lower case and could not tell them apart.
         val bad = ArrayList<String>()
         for (f in FormulaLibrary.formulas) {
-            for (i in f.inputs) {
-                if (i.key != i.key.lowercase()) bad.add("${f.id}: ${i.key}")
-                if (i.label.isBlank()) bad.add("${f.id}: ${i.key} has no label")
-            }
+            val lowered = f.inputs.map { it.key.lowercase() }
+            val clashing = lowered.filter { k -> lowered.count { it == k } > 1 }.distinct()
+            if (clashing.isNotEmpty()) bad.add("${f.id}: $clashing")
         }
-        assertTrue("input keys must be lower case: $bad", bad.isEmpty())
+        assertTrue("two input keys differ only by case: $bad", bad.isEmpty())
+    }
+
+    @Test fun everyInputHasALabel() {
+        val bad = FormulaLibrary.formulas.flatMap { f ->
+            f.inputs.filter { it.label.isBlank() }.map { "${f.id}: ${it.key}" }
+        }
+        assertTrue("inputs with no label: $bad", bad.isEmpty())
     }
 
     @Test fun inputsHaveLabelsAndUniqueKeys() {
