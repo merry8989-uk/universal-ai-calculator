@@ -2482,11 +2482,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Spherical Segment: volume",
-   "f": "V= πh(3r²+3r²+h²) 6"
-  },
-  {
-   "c": "Geometry",
    "t": "Prolate Spheroid",
    "f": "4 πabc 3 Semi-axes: a, b, b (a >b)"
   },
