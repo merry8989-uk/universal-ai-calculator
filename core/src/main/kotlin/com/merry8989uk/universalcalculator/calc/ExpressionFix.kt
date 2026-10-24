@@ -21,7 +21,7 @@ object ExpressionFix {
         if (t.isEmpty()) return ""
 
         // 1. drop a trailing operator, or an open bracket nobody has filled in
-        while (t.isNotEmpty()) {
+        while (dropTrailingOperator && t.isNotEmpty()) {
             when (t.last()) {
                 '+', '-', '*', '/', '^', ',' -> t = t.dropLast(1).trimEnd()
                 '(' -> {
@@ -47,7 +47,7 @@ object ExpressionFix {
                 else -> out.append(c)
             }
         }
-        repeat(depth) { out.append(')') }
+        if (closeBrackets) repeat(depth) { out.append(')') }
         return out.toString()
     }
 
