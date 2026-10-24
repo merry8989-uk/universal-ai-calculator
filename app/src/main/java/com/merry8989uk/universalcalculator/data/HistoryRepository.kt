@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.historyStore: DataStore<Preferences> by preferencesDataStore(name = "history")
@@ -39,7 +40,7 @@ class HistoryRepository(private val context: Context) {
 
     /** The whole history as one string, for sync. */
     suspend fun readAll(): String =
-        kotlinx.coroutines.flow.first(entries)
+        entries.first()
 
     /** Replaces the history with what came back from sync, keeping the cap. */
     suspend fun replaceAll(text: String) {

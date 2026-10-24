@@ -67,7 +67,7 @@ object SyncService {
         if (includeHistory && payload.history.isNotBlank()) {
             HistoryRepository(context).replaceAll(payload.history)
         }
-        Outcome.Ok("Restored ${payload.summary()}.")
+        return Outcome.Ok("Restored ${payload.summary()}.")
     }
 
     /** Removes the stored blob. The code and its data are gone for good. */
