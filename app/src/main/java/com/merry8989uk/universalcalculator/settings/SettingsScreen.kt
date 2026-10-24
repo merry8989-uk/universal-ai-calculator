@@ -284,7 +284,14 @@ fun SettingsScreen(
                     FilterChip(
                         selected = state.layoutStyle == style,
                         onClick = { vm.setLayoutStyle(style) },
-                        label = { Text(if (style == "Classic Scientific") "Sci Classic" else style) },
+                        label = {
+                            Text(
+                                when (style) {
+                                    "Classic Scientific" -> "Sci Classic"
+                                    else -> style
+                                },
+                            )
+                        },
                     )
                 }
             }
@@ -292,8 +299,9 @@ fun SettingsScreen(
                 when (state.layoutStyle) {
                     "Classic" -> "Classic: flat, square keys with no colour gradient."
                     "Classic Scientific" ->
-                        "Sci Classic: the full scientific pad, six keys across with a " +
-                            "SHIFT key for the second functions."
+                        "Sci Classic: the full scientific pad, six keys across with a SHIFT " +
+                            "key for the second functions. It replaces the Scientific tab " +
+                            "while this is on. Standard is not affected."
                     else -> "Modern: rounded keys with a colour gradient."
                 },
                 style = MaterialTheme.typography.bodySmall,

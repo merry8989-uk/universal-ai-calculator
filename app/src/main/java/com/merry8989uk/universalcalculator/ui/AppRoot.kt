@@ -53,20 +53,15 @@ import com.merry8989uk.universalcalculator.settings.SettingsState
 private val TAB_LABELS = listOf(
     R.string.tab_standard, R.string.tab_scientific, R.string.tab_convert,
     R.string.tab_formulas, R.string.tab_ask_ai, R.string.tab_settings,
-    R.string.tab_sci_classic,
 )
 private val TAB_A11Y = listOf(
     R.string.tab_standard_a11y, R.string.tab_scientific_a11y, R.string.tab_convert_a11y,
     R.string.tab_formulas_a11y, R.string.tab_ask_ai_a11y, R.string.tab_settings_a11y,
-    R.string.tab_sci_classic_a11y,
 )
-private val TAB_GLYPHS = listOf(
-    "=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699", "\u2211",
-)
+private val TAB_GLYPHS = listOf("=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699")
 
-/** The classic scientific pad, reachable as its own tab in minimal mode. */
-private const val SCI_CLASSIC_TAB = 6
 private const val FORMULAS_TAB = 3
+private const val SCIENTIFIC_TAB = 1
 
 /** Two tabs on each side of the assistant button, so it sits dead centre. */
 private val LEFT_TABS = listOf(0, 1)
@@ -110,6 +105,16 @@ internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
     R.string.fn_group_const to listOf("pi", "e", "tau", "phi", "i", "x", "deg", "(", ")", "swap"),
 )
 
+/**
+ * Which pad a tab shows.
+ *
+ * "Classic Scientific" swaps the modern scientific pad for the classic one, on
+ * the Scientific tab only. The Standard tab always keeps the plain number pad —
+ * the layout setting must never reach it.
+ */
+internal fun usesClassicPad(layout: String, isScientificTab: Boolean): Boolean =
+    isScientificTab && layout == "Classic Scientific"
+
 /** The flat list, for tests and for anything that just wants every key. */
 internal val SCIENTIFIC_KEYS: List<String> = SCIENTIFIC_GROUPS.flatMap { it.second }
 
@@ -126,9 +131,12 @@ fun AppRoot(settings: SettingsState) {
     // A tool the classic pad asked for, handed to the Formulas tab.
     var requestedTool by remember { mutableStateOf("") }
     val minimal = settings.minimalMode
+    // One switch, one meaning: the classic pad replaces the modern one on the
+    // Scientific tab. It never reaches the Standard tab.
+    val classicScientific = usesClassicPad(settings.layoutStyle, isScientificTab = true)
     // Leaving minimal mode must not strand the user on a tab that is gone.
     LaunchedEffect(minimal) {
-        if (minimal && tab !in listOf(0, 1, SCI_CLASSIC_TAB, SETTINGS_TAB)) tab = 0
+        if (minimal && tab !in listOf(0, SCIENTIFIC_TAB, SETTINGS_TAB)) tab = 0
     }
     var aiContext by rememberSaveable { mutableStateOf("") }
     var aiAsk by rememberSaveable { mutableStateOf("") }
@@ -188,7 +196,7 @@ fun AppRoot(settings: SettingsState) {
             ) {
                 if (minimal) {
                     // Three calculators and the settings that turn this off.
-                    listOf(0, 1, SCI_CLASSIC_TAB, SETTINGS_TAB).forEach { i ->
+                    listOf(0, SCIENTIFIC_TAB, SETTINGS_TAB).forEach { i ->
                         NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                     }
                 } else {
@@ -242,21 +250,13 @@ fun AppRoot(settings: SettingsState) {
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                 )
-                1 -> CalculatorScreen(
-                    title = "Scientific",
+                SCIENTIFIC_TAB -> CalculatorScreen(
+                    // With "Classic Scientific" chosen the classic pad takes this
+                    // tab's place; there is never a second scientific tab.
+                    title = if (classicScientific) "Sci Classic" else "Scientific",
                     functionKeys = SCIENTIFIC_KEYS,
                     settings = settings,
-                    onAskAi = { q -> aiContext = q; tab = AI_TAB },
-                    onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
-                    onOpenSettings = { selectTab(SETTINGS_TAB) },
-                    onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
-                )
-                SCI_CLASSIC_TAB -> CalculatorScreen(
-                    title = "Sci Classic",
-                    functionKeys = SCIENTIFIC_KEYS,
-                    settings = settings,
-                    // This tab is the classic pad whatever the layout setting says.
-                    forceLayout = "Classic Scientific",
+                    classicScientific = classicScientific,
                     onAskAi = { q -> aiContext = q; tab = AI_TAB },
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                     onOpenSettings = { selectTab(SETTINGS_TAB) },

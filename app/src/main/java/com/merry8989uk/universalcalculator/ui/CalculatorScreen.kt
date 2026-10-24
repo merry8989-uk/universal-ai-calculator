@@ -275,8 +275,13 @@ fun CalculatorScreen(
     onOpenSettings: () -> Unit = {},
     /** Opens one of the app's tools, e.g. "calculus" or "limits". */
     onOpenTool: (String) -> Unit = {},
-    /** Overrides the layout setting, for the dedicated classic tab. */
-    forceLayout: String? = null,
+    /**
+     * Show the classic scientific pad instead of the modern one.
+     *
+     * Only the Scientific tab ever sets this, and only when the setting asks for
+     * it. The Standard tab is never touched by the layout setting.
+     */
+    classicScientific: Boolean = false,
 ) {
     var expr by rememberSaveable(stateSaver = exprSaver) { mutableStateOf(TextFieldValue("")) }
     var ans by rememberSaveable { mutableStateOf(0.0) }
@@ -326,8 +331,8 @@ fun CalculatorScreen(
     var aiLoading by remember { mutableStateOf(false) }
 
     val text = expr.text
-    val effectiveLayout = forceLayout ?: settings.layoutStyle
-    val classic = effectiveLayout == "Classic"
+    // The flat square key style is a separate thing from the pad itself.
+    val classic = settings.layoutStyle == "Classic"
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
@@ -919,7 +924,7 @@ when (key) {
                 )
             }
 
-            if (effectiveLayout == "Classic Scientific") {
+            if (classicScientific) {
                 // The full scientific pad, six keys across, with SHIFT.
                 ClassicScientificPad(
                     shifted = classicShift,
