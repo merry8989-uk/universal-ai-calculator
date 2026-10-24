@@ -107,14 +107,11 @@ object DiagnosticsLogger {
     private fun recordCrash(thread: Thread, error: Throwable) {
         if (!enabled) return
         val context = appContext
-        val device = context?.let {
-            "${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
-        } ?: "unknown device"
+        val snapshot = context?.let { DeviceSnapshot.block(it) }.orEmpty()
 
         val entry = buildString {
             appendLine("===== CRASH ${timeFmt.format(Date())} =====")
-            appendLine("app    : ${BuildConfig.VERSION_NAME}")
-            appendLine("device : $device")
+            appendLine(snapshot)
             appendLine("thread : ${thread.name}")
             appendLine("error  : ${error.javaClass.name}: ${error.message}")
             appendLine("--- stack ---")
@@ -156,8 +153,8 @@ object DiagnosticsLogger {
         val when_ = timeFmt.format(Date(timestamp))
         val entry = buildString {
             appendLine("===== $kind $when_ =====")
-            appendLine("app    : ${BuildConfig.VERSION_NAME}")
-            appendLine("device : ${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
+            // An ANR is usually a memory or a device problem, so the snapshot matters here.
+            appendLine(appContext?.let { DeviceSnapshot.block(it) }.orEmpty())
             appendLine("source : system exit history (the process died before it could report)")
             if (description.isNotBlank()) appendLine("detail : $description")
             if (trace.isNotBlank()) {

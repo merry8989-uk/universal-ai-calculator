@@ -54,8 +54,10 @@ class WidgetConfigActivity : ComponentActivity() {
             UniversalCalculatorTheme {
                 WidgetConfigScreen(
                     initial = CalculatorWidgetProvider.styleOf(this, widgetId),
-                    onConfirm = { style ->
+                    initialLayout = CalculatorWidgetProvider.layoutOf(this, widgetId),
+                    onConfirm = { style, layout ->
                         CalculatorWidgetProvider.setStyle(this, widgetId, style)
+                        CalculatorWidgetProvider.setLayout(this, widgetId, layout)
                         val manager = AppWidgetManager.getInstance(this)
                         CalculatorWidgetProvider.render(this, manager, widgetId)
                         setResult(RESULT_OK, android.content.Intent().putExtra(
@@ -76,25 +78,59 @@ private val OPTIONS = listOf(
     CalculatorWidgetProvider.STYLE_CLEAR to ("Transparent" to "Barely there \u2014 the keys and numbers float on your wallpaper."),
 )
 
+private val LAYOUT_OPTIONS = listOf(
+    CalculatorWidgetProvider.LAYOUT_STANDARD to
+        ("Standard" to "Numbers and the four operations."),
+    CalculatorWidgetProvider.LAYOUT_SCIENTIFIC to
+        ("Scientific" to "The same keypad with sin, cos, tan, ln, root and powers."),
+)
+
 @Composable
 private fun WidgetConfigScreen(
     initial: Int,
-    onConfirm: (Int) -> Unit,
+    initialLayout: Int,
+    onConfirm: (Int, Int) -> Unit,
     onCancel: () -> Unit,
 ) {
     var style by remember { mutableIntStateOf(initial) }
+    var layout by remember { mutableIntStateOf(initialLayout) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text("Calculator widget", style = MaterialTheme.typography.titleLarge)
-        Text(
-            "Choose how solid the widget background should be. You can change it later " +
-                "by adding the widget again.",
-            style = MaterialTheme.typography.bodySmall,
-        )
 
+        Text("Keypad", style = MaterialTheme.typography.titleMedium)
+        LAYOUT_OPTIONS.forEach { (value, text) ->
+            val (title, blurb) = text
+            val selected = layout == value
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                        else Color.Transparent,
+                    )
+                    .border(
+                        1.dp,
+                        Color.White.copy(alpha = if (selected) 0.35f else 0.14f),
+                        RoundedCornerShape(14.dp),
+                    )
+                    .clickable { layout = value }
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = selected, onClick = { layout = value })
+                Column(modifier = Modifier.padding(start = 4.dp)) {
+                    Text(title, style = MaterialTheme.typography.titleMedium)
+                    Text(blurb, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        Text("Background", style = MaterialTheme.typography.titleMedium)
         OPTIONS.forEach { (value, text) ->
             val (title, blurb) = text
             val selected = style == value
@@ -128,7 +164,7 @@ private fun WidgetConfigScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Button(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Cancel") }
-            Button(onClick = { onConfirm(style) }, modifier = Modifier.weight(1f)) { Text("Add widget") }
+            Button(onClick = { onConfirm(style, layout) }, modifier = Modifier.weight(1f)) { Text("Add widget") }
         }
     }
 }

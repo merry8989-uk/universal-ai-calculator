@@ -202,8 +202,10 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { it[Keys.FRACTIONS] = enabled }
 
     suspend fun setLayoutStyle(style: String) =
-    suspend fun setMinimalMode(enabled: Boolean) { context.dataStore.edit { it[Keys.MINIMAL_MODE] = enabled } }
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setMinimalMode(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.MINIMAL_MODE] = enabled }
 
     suspend fun setKeepScreenOn(enabled: Boolean) =
         context.dataStore.edit { it[Keys.KEEP_SCREEN_ON] = enabled }
