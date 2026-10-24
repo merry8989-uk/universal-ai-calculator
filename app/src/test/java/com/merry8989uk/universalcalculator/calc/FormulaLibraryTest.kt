@@ -56,6 +56,19 @@ class FormulaLibraryTest {
         assertTrue("NaN outputs:\n" + nan.joinToString("\n"), nan.isEmpty())
     }
 
+    @Test fun everyInputKeyIsLowerCase() {
+        // The evaluator lower-cases identifiers before looking them up, so an
+        // upper-case key would silently collide with a lower-case twin.
+        val bad = ArrayList<String>()
+        for (f in FormulaLibrary.formulas) {
+            for (i in f.inputs) {
+                if (i.key != i.key.lowercase()) bad.add("${f.id}: ${i.key}")
+                if (i.label.isBlank()) bad.add("${f.id}: ${i.key} has no label")
+            }
+        }
+        assertTrue("input keys must be lower case: $bad", bad.isEmpty())
+    }
+
     @Test fun inputsHaveLabelsAndUniqueKeys() {
         for (f in FormulaLibrary.formulas) {
             val keys = f.inputs.map { it.key }
