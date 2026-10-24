@@ -32,6 +32,31 @@ jobs:
       - name: Install wrangler
         run: npm install -g wrangler
 
+      - name: Attach the sync storage, if the token allows it
+        working-directory: backend/cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -u
+          ID="$(wrangler kv namespace list 2>/dev/null | python3 ../../tools/kv_namespace_id.py NEXUS_SYNC || true)"
+
+          if [ -z "$ID" ]; then
+            OUT="$(wrangler kv namespace create NEXUS_SYNC 2>&1 || true)"
+            echo "$OUT"
+            ID="$(printf '%s' "$OUT" | grep -oE '[a-f0-9]{32}' | head -1)"
+          fi
+
+          if [ -z "$ID" ]; then
+            echo "::warning::Sync storage could not be set up, so encrypted sync stays off."
+            echo "Add the 'Workers KV Storage: Edit' permission to CLOUDFLARE_API_TOKEN and run"
+            echo "this workflow again to switch sync on. The assistant is unaffected."
+            exit 0
+          fi
+
+          printf '\n[[kv_namespaces]]\nbinding = "NEXUS_SYNC"\nid = "%s"\n' "$ID" >> wrangler.toml
+          echo "Sync storage attached (namespace $ID)."
+
       - name: Deploy the Worker
         working-directory: backend/cloudflare
         env:
@@ -55,6 +80,15 @@ jobs:
             -d '{"question":"What is 15 percent of 2400? Reply with one short line."}' \
             | tee /tmp/answer.json
           echo
+          echo "--- sync storage ---"
+          SLOT="$(python3 -c "import hashlib;print(hashlib.sha256(b'nexuscalc-sync-v1|'+b'ci-smoke-code').hexdigest())")"
+          curl -sS --max-time 30 -X POST "$WORKER_URL" -H 'Content-Type: application/json' \
+            -d "{\"sync\":\"put\",\"slot\":\"$SLOT\",\"blob\":\"smoke-test-blob\"}" | tee /tmp/sync_put.json
+          echo
+          curl -sS --max-time 30 -X POST "$WORKER_URL" -H 'Content-Type: application/json' \
+            -d "{\"sync\":\"get\",\"slot\":\"$SLOT\"}" | tee /tmp/sync_get.json
+          echo
+
           if grep -qi '"answer"' /tmp/answer.json; then
             echo "SMOKE TEST: PASS"
             python3 -c "import json;d=json.load(open('/tmp/answer.json'));print('model used:', d.get('model'));print('answer:', d.get('answer'))"

@@ -72,6 +72,22 @@
   <p>Nothing is attached to your identity. There is no sign-in, no user ID and no
   profile, so requests cannot be tied back to you.</p>
 
+  <h2>Optional encrypted sync</h2>
+  <p>Sync is off until you turn it on. If you do:</p>
+  <ul>
+    <li>You choose a <strong>sync code</strong>. It stays on your device and is never sent
+        anywhere.</li>
+    <li>Your own calculators, your settings and (only if you tick the box) your calculation
+        history are <strong>encrypted on the device</strong> with a key derived from that code,
+        using AES-256-GCM with PBKDF2.</li>
+    <li>What reaches the server is an <strong>unreadable blob</strong> filed under the
+        SHA-256 hash of your code. The server cannot read your data and cannot work out your
+        code from what it holds.</li>
+    <li>Anyone who knows the code can open the stored copy, so keep it safe. <strong>There is
+        no reset</strong> — if you lose the code, the stored copy can never be read again.
+        You can delete it at any time from Settings.</li>
+  </ul>
+
   <h2>What we do not do</h2>
   <ul>
     <li>No advertising and no ad SDKs.</li>

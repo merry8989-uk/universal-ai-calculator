@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -84,6 +85,75 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setDensity(value: Float) =
         context.dataStore.edit { it[Keys.DENSITY] = value }
+
+    /**
+     * The settings worth carrying to another device, as plain strings.
+     *
+     * Diagnostics, notifications and the saved expression are deliberately left
+     * out: they are about this device, not the user's choices.
+     */
+    suspend fun exportSyncable(): Map<String, String> {
+        val p = context.dataStore.data.first()
+        val out = LinkedHashMap<String, String>()
+        fun put(name: String, value: Any?) { if (value != null) out[name] = value.toString() }
+        put("themeMode", p[Keys.THEME_MODE])
+        put("themeName", p[Keys.THEME_NAME])
+        put("textScale", p[Keys.TEXT_SCALE])
+        put("density", p[Keys.DENSITY])
+        put("language", p[Keys.LANGUAGE])
+        put("livePreview", p[Keys.LIVE_PREVIEW])
+        put("degrees", p[Keys.DEGREES])
+        put("numberFormat", p[Keys.NUMBER_FORMAT])
+        put("decimals", p[Keys.DECIMALS])
+        put("unitSystem", p[Keys.UNIT_SYSTEM])
+        put("keySound", p[Keys.KEY_SOUND])
+        put("history", p[Keys.HISTORY])
+        put("haptics", p[Keys.HAPTICS])
+        put("aiEnabled", p[Keys.AI_ENABLED])
+        put("fractions", p[Keys.FRACTIONS])
+        put("layoutStyle", p[Keys.LAYOUT_STYLE])
+        put("keepScreenOn", p[Keys.KEEP_SCREEN_ON])
+        put("saveState", p[Keys.SAVE_STATE])
+        return out
+    }
+
+    /** Applies a set of settings from a sync payload. Unknown keys are ignored. */
+    suspend fun importSyncable(values: Map<String, String>) {
+        context.dataStore.edit { p ->
+            fun str(name: String, key: androidx.datastore.preferences.core.Preferences.Key<String>) {
+                values[name]?.let { p[key] = it }
+            }
+            fun bool(name: String, key: androidx.datastore.preferences.core.Preferences.Key<Boolean>) {
+                values[name]?.toBooleanStrictOrNull()?.let { p[key] = it }
+            }
+            fun num(name: String, key: androidx.datastore.preferences.core.Preferences.Key<Int>) {
+                values[name]?.toIntOrNull()?.let { p[key] = it }
+            }
+            fun flt(name: String, key: androidx.datastore.preferences.core.Preferences.Key<Float>) {
+                values[name]?.toFloatOrNull()?.let { p[key] = it }
+            }
+            str("themeMode", Keys.THEME_MODE)
+            str("themeName", Keys.THEME_NAME)
+            flt("textScale", Keys.TEXT_SCALE)
+            flt("density", Keys.DENSITY)
+            str("language", Keys.LANGUAGE)
+            bool("livePreview", Keys.LIVE_PREVIEW)
+            bool("degrees", Keys.DEGREES)
+            str("numberFormat", Keys.NUMBER_FORMAT)
+            num("decimals", Keys.DECIMALS)
+            str("unitSystem", Keys.UNIT_SYSTEM)
+            str("keySound", Keys.KEY_SOUND)
+            bool("history", Keys.HISTORY)
+            bool("haptics", Keys.HAPTICS)
+            bool("aiEnabled", Keys.AI_ENABLED)
+            bool("fractions", Keys.FRACTIONS)
+            str("layoutStyle", Keys.LAYOUT_STYLE)
+            bool("keepScreenOn", Keys.KEEP_SCREEN_ON)
+            bool("saveState", Keys.SAVE_STATE)
+        }
+        // the language is mirrored for the activity, so keep that in step
+        values["language"]?.let { LocaleHelper.store(context, it) }
+    }
 
     suspend fun setLanguage(language: String) {
         // Kept in SharedPreferences too: the activity reads it synchronously.

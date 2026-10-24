@@ -10,3 +10,10 @@ binding = "AI"
 # Preferred model. If Cloudflare retires it, the Worker automatically falls back
 # to the other current models listed in worker.js.
 AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+# Encrypted sync storage. The deploy workflow fills in the real namespace id
+# from Cloudflare before deploying; if it cannot, the binding is left out and
+# only the sync endpoints are disabled (the assistant keeps working).
+# [[kv_namespaces]]
+# binding = "NEXUS_SYNC"
+# id = "PLACEHOLDER"

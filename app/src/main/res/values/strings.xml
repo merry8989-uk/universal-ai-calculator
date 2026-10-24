@@ -245,4 +245,16 @@
     <string name="limits_diverge_pos">The limit does not exist as a number: it runs away to +\u221E.</string>
     <string name="limits_diverge_neg">The limit does not exist as a number: it runs away to \u2212\u221E.</string>
     <string name="limits_equals">= </string>
+    <string name="sync_title">Sync</string>
+    <string name="sync_help">Carry your own calculators and your settings to another device. Everything is encrypted on this device with a code you choose, and only you know that code — the server stores an unreadable blob and never sees it.</string>
+    <string name="sync_code">Sync code</string>
+    <string name="sync_code_help">At least %1$d characters. Use the same code on every device. We cannot recover it for you.</string>
+    <string name="sync_code_saved">Sync code saved on this device.</string>
+    <string name="sync_include_history">Include calculation history</string>
+    <string name="sync_save_code">Save the code</string>
+    <string name="sync_upload">Upload now</string>
+    <string name="sync_restore">Restore now</string>
+    <string name="sync_last_uploaded">Last uploaded %1$s</string>
+    <string name="sync_warning">Keep the code safe. Without it the stored copy can never be read again — there is no reset.</string>
+    <string name="sync_delete">Delete the stored copy</string>
 </resources>

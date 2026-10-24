@@ -301,6 +301,9 @@ fun SettingsScreen(
             )
             ToggleRow("Enable Ask AI", state.aiEnabled, vm::setAiEnabled)
 
+            Section(stringResource(R.string.sync_title))
+            com.merry8989uk.universalcalculator.sync.SyncSection()
+
             Section(stringResource(R.string.section_updates))
 
             val updateState = updater.state

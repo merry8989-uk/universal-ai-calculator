@@ -84,31 +84,7 @@ object CustomCalcStore {
     }
 
     /** One field per line, so newlines and backslashes must be folded away. */
-    private fun escape(s: String): String = buildString {
-        s.forEach { ch ->
-            when (ch) {
-                '\\' -> append("\\\\")
-                '\n' -> append("\\n")
-                '\r' -> Unit
-                else -> append(ch)
-            }
-        }
-    }
+    private fun escape(s: String): String = LineText.escape(s)
 
-    private fun unescape(s: String): String = buildString {
-        var i = 0
-        while (i < s.length) {
-            val ch = s[i]
-            if (ch == '\\' && i + 1 < s.length) {
-                when (s[i + 1]) {
-                    'n' -> { append('\n'); i += 2 }
-                    '\\' -> { append('\\'); i += 2 }
-                    else -> { append(ch); i++ }
-                }
-            } else {
-                append(ch)
-                i++
-            }
-        }
-    }
+    private fun unescape(s: String): String = LineText.unescape(s)
 }

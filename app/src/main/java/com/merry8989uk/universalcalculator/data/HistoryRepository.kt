@@ -36,4 +36,14 @@ class HistoryRepository(private val context: Context) {
     suspend fun clear() {
         context.historyStore.edit { it[KEY] = "" }
     }
+
+    /** The whole history as one string, for sync. */
+    suspend fun readAll(): String =
+        kotlinx.coroutines.flow.first(entries)
+
+    /** Replaces the history with what came back from sync, keeping the cap. */
+    suspend fun replaceAll(text: String) {
+        val lines = text.split("\n").filter { it.isNotBlank() }.takeLast(MAX_ENTRIES)
+        context.historyStore.edit { it[KEY] = lines.joinToString("\n") }
+    }
 }

@@ -202,6 +202,45 @@ export default {
     try {
       const body = await request.json().catch(() => ({}));
 
+      // --- sync mode: store or fetch an encrypted blob ---
+      // The blob is already encrypted on the device, so the Worker only ever
+      // holds unreadable bytes under an opaque slot id.
+      const sync = typeof body?.sync === "string" ? body.sync : "";
+      if (sync) {
+        if (!env.NEXUS_SYNC) {
+          return json(
+            { error: "Sync storage is not configured on this deployment." },
+            501,
+          );
+        }
+        const slot = typeof body?.slot === "string" ? body.slot : "";
+        // the slot is a SHA-256 in hex; anything else is not ours
+        if (!/^[a-f0-9]{64}$/.test(slot)) {
+          return json({ error: "Bad slot id." }, 400);
+        }
+
+        if (sync === "put") {
+          const blob = typeof body?.blob === "string" ? body.blob : "";
+          if (!blob) return json({ error: "Nothing to store." }, 400);
+          if (blob.length > 512_000) return json({ error: "That payload is too large." }, 413);
+          await env.NEXUS_SYNC.put(`slot:${slot}`, blob);
+          return json({ stored: true, bytes: blob.length, at: Date.now() });
+        }
+
+        if (sync === "get") {
+          const blob = await env.NEXUS_SYNC.get(`slot:${slot}`);
+          if (blob === null) return json({ found: false });
+          return json({ found: true, blob });
+        }
+
+        if (sync === "delete") {
+          await env.NEXUS_SYNC.delete(`slot:${slot}`);
+          return json({ deleted: true });
+        }
+
+        return json({ error: "Unknown sync action." }, 400);
+      }
+
       // --- audio mode: transcribe an uploaded clip ---
       const audio = typeof body?.audio === "string" ? body.audio : "";
       if (audio) {
