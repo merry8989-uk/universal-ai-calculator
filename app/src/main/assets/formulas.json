@@ -372,7 +372,7 @@
   },
   {
    "c": "Geometry",
-   "t": "Square: geometric formula",
+   "t": "Square: area, perimeter and diagonal",
    "f": "A = a²,  P = 4a,  diagonal = a√2"
   },
   {
@@ -1742,7 +1742,7 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complex Numbers: set identity",
+   "t": "Complex Numbers: the set of complex numbers",
    "f": "C={x+iy|xeR and y∈R}, where i is the imaginary unit"
   },
   {
@@ -2012,17 +2012,17 @@
   },
   {
    "c": "Algebra",
-   "t": "Roots: root rule",
+   "t": "Roots: root of a power",
    "f": "(a)=Va 15"
   },
   {
    "c": "Algebra",
-   "t": "Roots: root rule (2)",
+   "t": "Roots: sum of two roots",
    "f": "2 1 √a+√b"
   },
   {
    "c": "Algebra",
-   "t": "Roots: sum of two roots",
+   "t": "Roots: rationalising the denominator",
    "f": "√a±√b"
   },
   {
@@ -2172,7 +2172,7 @@
   },
   {
    "c": "Geometry",
-   "t": "Isosceles Trapezoid: geometric formula",
+   "t": "Isosceles Trapezoid: leg length",
    "f": "c√ab+ c2"
   },
   {
@@ -2207,12 +2207,12 @@
   },
   {
    "c": "Geometry",
-   "t": "Trapezoid with Inscribed Circle: geometric formula",
+   "t": "Trapezoid with Inscribed Circle: semiperimeter",
    "f": "a+b_c+d 2"
   },
   {
    "c": "Geometry",
-   "t": "Trapezoid with Inscribed Circle: geometric formula (2)",
+   "t": "Trapezoid with Inscribed Circle: perimeter",
    "f": "L=2(a+b)=2(c+d)"
   },
   {
@@ -2242,22 +2242,22 @@
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle: arc length",
+   "t": "Sector of a Circle: arc length",
    "f": "s=Rx"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle: geometric formula",
+   "t": "Sector of a Circle: sector area",
    "f": "πRa 180°"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle: perimeter",
+   "t": "Sector of a Circle: perimeter",
    "f": "L=s+2R Rs_R²x_πR²α"
   },
   {
    "c": "Geometry",
-   "t": "Sectorofa Circle: geometric formula (2)",
+   "t": "Sector of a Circle: angle from the area",
    "f": "2 360° 53"
   },
   {
@@ -2272,7 +2272,7 @@
   },
   {
    "c": "Geometry",
-   "t": "Segment of a Circle: geometric formula",
+   "t": "Segment of a Circle: perimeter",
    "f": "L=s+a 54"
   },
   {
@@ -2322,7 +2322,7 @@
   },
   {
    "c": "Geometry",
-   "t": "Rectangular Right Wedge: geometric formula",
+   "t": "Rectangular Right Wedge: base area",
    "f": "Ss=ab"
   },
   {
@@ -2402,12 +2402,12 @@
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder with: geometric formula",
+   "t": "Right Circular Cylinder with: lateral surface",
    "f": "S, =πR(h, +h)"
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cylinder with: geometric formula (2)",
+   "t": "Right Circular Cylinder with: base and total surface",
    "f": "Sg=πR²+πR、R² 68"
   },
   {
@@ -2437,38 +2437,33 @@
   },
   {
    "c": "Geometry",
-   "t": "Right Circular Cone: geometric formula",
+   "t": "Right Circular Cone: volume",
    "f": "1 SH= πRH 1 3"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone: height of a frustum",
+   "t": "Frustum of a Right Circular Cone: height of a frustum",
    "f": "H=√m²-(R-r)² R=k"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone: surface area",
+   "t": "Frustum of a Right Circular Cone: surface area",
    "f": "S =πm(R+r)"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone: surface area (2)",
+   "t": "Frustum of a Right Circular Cone: surface area (2)",
    "f": "S=S,+S+S=π[R²+r²+m(R+r)]"
   },
   {
    "c": "Geometry",
-   "t": "Frustum ofa Right Circular Cone: geometric formula",
+   "t": "Frustum of a cone: surface area",
    "f": "(S, + S,S + S2)"
   },
   {
    "c": "Geometry",
    "t": "Spherical Sector",
    "f": "S=πR(2h+r)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Note: The given formulas are correct both for “open” and",
-   "f": "V= πR²h 3 “\"closed\"spherical sector"
   },
   {
    "c": "Geometry",
@@ -2552,18 +2547,8 @@
   },
   {
    "c": "Trigonometry",
-   "t": "COS L",
-   "f": "cot α = sin α"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Most Important Formulas: tangent identity",
    "f": "tan α·cot α =1"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "COSC",
-   "f": "sec O. = 1"
   },
   {
    "c": "Trigonometry",
@@ -2597,18 +2582,13 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Trigonometric: sine identity",
+   "t": "Relations between Trigonometric: sine identity",
    "f": "sinα=±√1-cos²α=±√ (1-cos2α)=2cos² 2 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Trigonometric: cosine identity",
+   "t": "Relations between Trigonometric: cosine identity",
    "f": "cosα=±√1-sin²α=± (1+cos2α)=2cos² 1-tan² 2 2"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "COSCL",
-   "f": "±√csc²α-1 1+ cos 2o. sin 20. cotα="
   },
   {
    "c": "Trigonometry",
@@ -2617,7 +2597,7 @@
   },
   {
    "c": "Trigonometry",
-   "t": "2tan: cosecant identity",
+   "t": "Half-angle: cosecant",
    "f": "cscO= ±√1+cot²α= 2 sin α. 2"
   },
   {
@@ -2742,47 +2722,47 @@
   },
   {
    "c": "Trigonometry",
-   "t": "2tan: trigonometric identity",
+   "t": "Half-angle: cosine",
    "f": "COSL= 2 1+ tan² 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: sine of a sum",
+   "t": "Transforming of Trigonometric: sum of sines",
    "f": "sin α+sinβ=2sin- α+β α-β 2 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: tangent of a sum",
+   "t": "Transforming of Trigonometric: sum of tangents",
    "f": "tan α +tanβ=- cOS O ·cos β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: tangent of a difference",
+   "t": "Transforming of Trigonometric: difference of tangents",
    "f": "tanα-tanβ= sin(α-β) cOS Q ·cos β sin(β+α)"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: cotangent of a sum",
+   "t": "Transforming of Trigonometric: sum of cotangents",
    "f": "cot α+cotβ= sin α ·sin β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: cotangent of a difference",
+   "t": "Transforming of Trigonometric: difference of cotangents",
    "f": "cotα-cotβ= sin(β -α) sin o. · sin β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: cosine of a sum",
+   "t": "Transforming of Trigonometric: cosine plus sine",
    "f": "cos α+ sin α =√2co"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: trigonometric identity",
+   "t": "Transforming of Trigonometric: a ratio identity",
    "f": "COs O. sin α = cOs Q · sin β cos(α +β)"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: tangent of a difference (2)",
+   "t": "Transforming of Trigonometric: tangent minus cotangent",
    "f": "tan α -cotβ=- cOS OL · sin β"
   },
   {
@@ -2807,27 +2787,27 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: cosine identity",
+   "t": "Transforming of Trigonometric: product of cosines",
    "f": "cosα·cosβ= 2 sin(α -β)+ sin(α +β)"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: sine identity",
+   "t": "Transforming of Trigonometric: sine times cosine",
    "f": "sinα·cosβ= 2"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: tangent identity",
+   "t": "Transforming of Trigonometric: product of tangents",
    "f": "tanα·tanβ= tan α + tan β cot α + cotβ"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: cotangent identity",
+   "t": "Transforming of Trigonometric: product of cotangents",
    "f": "cotα·cotβ= cot α+cotβ tan α + tan β"
   },
   {
    "c": "Trigonometry",
-   "t": "Transforming of Trigonometric: tangent identity (2)",
+   "t": "Transforming of Trigonometric: tangent times cotangent",
    "f": "tanα·cotβ= tan α + cot β cot α + tan β 97"
   },
   {
@@ -2857,7 +2837,7 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions: trigonometric identity",
+   "t": "Powers of Trigonometric Functions: cosine to the fourth",
    "f": "cos 4c + 4cos 2α + 3 8 10cos α + 5sin 3o + cos 50"
   },
   {
@@ -2887,47 +2867,47 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse sine",
+   "t": "Relations between Inverse: inverse sine",
    "f": "arcsin(-x)=-arcsinx"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse sine (2)",
+   "t": "Relations between Inverse: inverse sine (2)",
    "f": "arcsinx =arccos √1-x², 0≤x≤1"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse sine (3)",
+   "t": "Relations between Inverse: inverse sine (3)",
    "f": "arcsin x= =-arccos√1-x²,-1≤x≤0"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse cosine",
+   "t": "Relations between Inverse: inverse cosine",
    "f": "arccos(-x)=π-arccosx 103"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse cosine (2)",
+   "t": "Relations between Inverse: inverse cosine (2)",
    "f": "arccosx=arcsin√1-x²,0≤x≤1"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse tangent",
+   "t": "Relations between Inverse: inverse tangent",
    "f": "arctan(-x)=-arctanx"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse tangent (2)",
+   "t": "Relations between Inverse: inverse tangent (2)",
    "f": "arctanx = arcsin √1+x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse tangent (3)",
+   "t": "Relations between Inverse: inverse tangent (3)",
    "f": "arctanx=arccos- 1 x≥0. √1+ x"
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse tangent (4)",
+   "t": "Relations between Inverse: inverse tangent (4)",
    "f": "arctanx=-arccos x≤0 104"
   },
   {
@@ -2937,7 +2917,7 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Relationsbetween Inverse: inverse cotangent",
+   "t": "Relations between Inverse: inverse cotangent",
    "f": "arccotx=π-arcsin 1+x"
   },
   {
@@ -3037,12 +3017,12 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "Trace ofa Matrix",
+   "t": "Trace of a Matrix",
    "f": "If A is a square nxn matrix, its trace, denoted by tr A, is defined to be the sum of the terms on the leading diagonal: tr A=a, +a +...+a"
   },
   {
    "c": "Matrices & Determinants",
-   "t": "Inverse ofa Matrix",
+   "t": "Inverse of a Matrix",
    "f": "If A is a square nx n matrix with a nonsingular determinant detA, then its inverse A' is given by A=adjA detA"
   },
   {
@@ -3237,22 +3217,22 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Midpoint of a Line Segment",
+   "t": "Midpoint of a Line Segment: in the plane",
    "f": "X + X2 y+y2,=1. 2 yo 2"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Centroid (Intersection of Medians) ofa Triangle",
+   "t": "Centroid (Intersection of Medians) of a Triangle",
    "f": "X, + X +X; y+y+y3 x。=,y 3"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Incenter (Intersection of Angle Bisectors) ofa Triangle",
+   "t": "Incenter (Intersection of Angle Bisectors) of a Triangle",
    "f": "ax +bx+cx ay;+by2+cy3 x=,yo a+b+c"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Orthocenter(Intersection of Altitudes)ofa Triangle",
+   "t": "Orthocenter (Intersection of Altitudes)of a Triangle",
    "f": "xx+y² x²+y2y3 X x;x +y² x²+ysy"
   },
   {
@@ -3277,12 +3257,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Line Given a Point and the Gradient",
+   "t": "Equation of a Line Given a Point and the Gradient",
    "f": "y=y。+k(x-xo), where k is the gradient, P(xos y。) is a point on the line. y P(xy)"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Line That Passes Through Two Points",
+   "t": "Equation of a Line That Passes Through Two Points",
    "f": "y-y_x-x y2-yx-x1 or X 141"
   },
   {
@@ -3327,7 +3307,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Circle Centered at Any Point (a,b)",
+   "t": "Equation of a Circle Centered at Any Point (a,b)",
    "f": "(x-a)²+(y-b)²=R² P(x,y) R A(a,b)"
   },
   {
@@ -3362,7 +3342,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Hyperbola(Standard Form)",
+   "t": "Equation of a Hyperbola (Standard Form)",
    "f": "x²_y =1 -C"
   },
   {
@@ -3387,7 +3367,7 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Parabola (Standard Form)",
+   "t": "Equation of a Parabola (Standard Form)",
    "f": "y²=2px 158"
   },
   {
@@ -3397,12 +3377,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Midpoint ofa Line Segment",
+   "t": "Midpoint of a Line Segment: in space",
    "f": "y+y2 Z+Z 2 2"
   },
   {
    "c": "Analytic Geometry",
-   "t": "General Equation ofa Plane",
+   "t": "General Equation of a Plane",
    "f": "Ax + By + Cz + D = 0 165"
   },
   {
@@ -3452,12 +3432,12 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Plane Through P(x,y,z,) and P,(xy2z2),",
+   "t": "Equation of a Plane Through P(x,y,z,) and P,(xy2z2),",
    "f": "and Parallel To the Vector (a,b,c) x-x y-y Z-Z y-y"
   },
   {
    "c": "Analytic Geometry",
-   "t": "Point Direction Form of the Equation ofa Line",
+   "t": "Point Direction Form of the Equation of a Line",
    "f": "X-x y-y Z-Z b where the point P(x,y,z,) lies on the line, and (a,b,c) is"
   },
   {
@@ -3647,12 +3627,12 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions: limit of a sum",
+   "t": "Limits of Functions: limit of a sum",
    "f": "lim[f(x)+ g(x)]=limf(x)+ limg(x)"
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions: limit of a difference",
+   "t": "Limits of Functions: limit of a difference",
    "f": "lim[f(x)-g(x)]=limf(x)-limg(x)"
   },
   {
@@ -3662,17 +3642,17 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions: limit of a constant multiple",
+   "t": "Limits of Functions: limit of a constant multiple",
    "f": "lim[kf(x)]=klim f(x)"
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions: the limit equals the value",
+   "t": "Limits of Functions: the limit equals the value",
    "f": "limf(x)=f(a), if the function f(x) is continuous at x =a"
   },
   {
    "c": "Differential Calculus",
-   "t": "Limitsof Functions: a standard limit",
+   "t": "Limits of Functions: a standard limit",
    "f": "lima²=1 X-0"
   },
   {
@@ -3812,7 +3792,7 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Gradient ofa Scalar Function",
+   "t": "Gradient of a Scalar Function",
    "f": "Jeee =△=Jpe8 Cu Cu grad u=Vu"
   },
   {
@@ -3822,7 +3802,7 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Divergence ofa Vector Field",
+   "t": "Divergence of a Vector Field",
    "f": "divF=V.F= PQR"
   },
   {
@@ -3932,7 +3912,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions: form",
+   "t": "Integrals of Irrational Functions: root of x squared plus a squared",
    "f": "√x²+a² 2"
   },
   {
@@ -3942,7 +3922,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions: form (2)",
+   "t": "Integrals of Irrational Functions: x over a root",
    "f": "x√a²-x²dx"
   },
   {
@@ -3984,11 +3964,6 @@
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions: cotangent identity",
    "f": "cot xdx = In|sin x|+ C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "COSX",
-   "f": "xp 1 sin²x -CSCx+C"
   },
   {
    "c": "Integral Calculus",
@@ -4102,7 +4077,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Reduction Formulas: integral form",
+   "t": "Reduction Formulas: tangent to the n",
    "f": "Jtan\"xdx= -tan\"-'x-∫ tan\"-²xdx, n≠1. n-1"
   },
   {
@@ -4187,7 +4162,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Double Integral: integral form",
+   "t": "Double Integral: difference",
    "f": "{{[f(x,y)-g(x,y)]aA={f(x,y)dA-g(x,y)dA"
   },
   {
@@ -4202,12 +4177,12 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Area ofa Region",
+   "t": "Area of a Region",
    "f": "b f(x) dydx (for a type I region). a g(×) y=h(x) y=g(x)"
   },
   {
    "c": "Integral Calculus",
-   "t": "Volume ofa Solid: volume under a surface",
+   "t": "Volume of a Solid: volume under a surface",
    "f": "V=J∫f(x,y)dA. z = f(x,y) R"
   },
   {
@@ -4237,7 +4212,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Volume ofa Solid: volume by slices",
+   "t": "Volume of a Solid: volume by slices",
    "f": "V= zpApxp"
   },
   {
@@ -4282,12 +4257,12 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Length ofa Curve",
+   "t": "Length of a Curve",
    "f": "where C ia a piecewise smooth curve described by the posi- tion vector r(t),α≤t≤β. If the curve Cis two-dimensional, then -—- dt"
   },
   {
    "c": "Integral Calculus",
-   "t": "Length ofa Curve in Polar Coordinates",
+   "t": "Length of a Curve in Polar Coordinates",
    "f": "+r² d0, de where the curve C is given by the equation r = r(0), α≤0≤β in polar coordinates"
   },
   {
@@ -4337,7 +4312,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Volume ofa Solid Bounded by a Closed Surface",
+   "t": "Volume of a Solid Bounded by a Closed Surface",
    "f": "xdydz+ydxdz+zdxdy"
   },
   {
@@ -4617,12 +4592,12 @@
   },
   {
    "c": "Series",
-   "t": "(xlna)\"",
+   "t": "Series for a to the x",
    "f": "a²=1+ 2! iE n!"
   },
   {
    "c": "Series",
-   "t": "(1)x2",
+   "t": "Series for cos x",
    "f": "cos x=1- i9业 (2n)! 314"
   },
   {
@@ -4632,12 +4607,12 @@
   },
   {
    "c": "Series",
-   "t": "[x<1: series formula",
+   "t": "Series for arcsin",
    "f": "3. .(2n -1)x2+1 2·32·4·5 2 .4 ·6...(2n)(2n +1)"
   },
   {
    "c": "Series",
-   "t": "[x<1: series formula (2)",
+   "t": "Series for arcsin, higher terms",
    "f": "4· 6..(2n)(2n +1) x x” (1)”x2n+1"
   },
   {
@@ -4662,7 +4637,7 @@
   },
   {
    "c": "Series",
-   "t": "1·3x²",
+   "t": "Series for the root of one plus x",
    "f": "√1+x=1+ 1·3·5x4"
   },
   {
