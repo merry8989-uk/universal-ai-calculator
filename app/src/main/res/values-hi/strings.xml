@@ -375,4 +375,6 @@
     <string name="diag_pinging">जाँच हो रही है…</string>
     <string name="diag_ping_result">सबसे अच्छा %1$d ms · औसत %2$d ms · सबसे खराब %3$d ms</string>
     <string name="diag_ping_failed">सर्वर से कोई जवाब नहीं आया।</string>
+    <string name="enable_ask_ai">Ask AI</string>
+    <string name="enable_ask_ai_help">बंद करने पर असिस्टेंट हर जगह से छिप जाता है: बार का बटन, कीपैड के ऊपर का जादुई बटन, आवाज़ और फ़ोटो वाली पंक्ति, और उसकी अपनी स्क्रीन। कैलकुलेटर पर कोई फ़र्क़ नहीं पड़ता।</string>
 </resources>

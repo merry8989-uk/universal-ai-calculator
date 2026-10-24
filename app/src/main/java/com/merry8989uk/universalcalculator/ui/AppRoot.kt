@@ -131,6 +131,14 @@ internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
  * as it is and the classic pad gets a tab of its own, so all the calculators are
  * reachable side by side.
  */
+/**
+ * Whether the assistant is shown at all.
+ *
+ * It goes away for either reason: the Ask AI switch turned off, or minimal mode
+ * on. Both mean the same thing to the user — no assistant anywhere.
+ */
+internal fun aiIsVisible(aiEnabled: Boolean, minimal: Boolean): Boolean = aiEnabled && !minimal
+
 internal fun usesClassicPad(
     layout: String,
     isScientificTab: Boolean,
@@ -157,9 +165,12 @@ fun AppRoot(settings: SettingsState) {
     // Scientific tab. It never reaches the Standard tab.
     val classicScientific =
         usesClassicPad(settings.layoutStyle, isScientificTab = true, minimal = minimal)
+    val aiVisible = aiIsVisible(settings.aiEnabled, minimal)
     // Leaving minimal mode must not strand the user on a tab that is gone.
     LaunchedEffect(minimal) {
         if (minimal && tab !in MINIMAL_TABS && tab != SETTINGS_TAB) tab = STANDARD_TAB
+        // Turning Ask AI off must not leave the user stranded on its screen.
+        if (!aiVisible && tab == AI_TAB) tab = STANDARD_TAB
     }
     var aiContext by rememberSaveable { mutableStateOf("") }
     var aiAsk by rememberSaveable { mutableStateOf("") }
@@ -222,6 +233,12 @@ fun AppRoot(settings: SettingsState) {
                     // converters and the formula reference. Settings is still in
                     // the overflow menu, so minimal can be switched off again.
                     MINIMAL_TABS.forEach { i ->
+                        NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
+                    }
+                } else if (!aiVisible) {
+                    // Ask AI is off, so its button goes and the four remaining
+                    // tabs share the whole bar evenly.
+                    (LEFT_TABS + RIGHT_TABS).forEach { i ->
                         NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                     }
                 } else {
@@ -306,10 +323,18 @@ fun AppRoot(settings: SettingsState) {
                     onToolRequestUsed = { requestedTool = "" },
                     onInnerChange = { innerOpen = it },
                 )
-                AI_TAB -> AskAiScreen(
+                AI_TAB -> if (!aiVisible) CalculatorScreen(
+                    title = "Standard",
+                    functionKeys = emptyList(),
+                    settings = settings,
+                    onAskAi = {},
+                    onAskAiNow = {},
+                    onOpenSettings = { selectTab(SETTINGS_TAB) },
+                    onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
+                ) else AskAiScreen(
                     contextText = aiContext,
                     onClearContext = { aiContext = "" },
-                    enabled = settings.aiEnabled,
+                    enabled = aiVisible,
                     initialQuestion = aiAsk,
                     onInitialQuestionUsed = { aiAsk = "" },
                     resetSignal = resetTick,

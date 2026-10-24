@@ -321,7 +321,11 @@ fun SettingsScreen(
                     "server, so there is nothing to set up or paste here.",
                 style = MaterialTheme.typography.bodySmall,
             )
-            ToggleRow("Enable Ask AI", state.aiEnabled, vm::setAiEnabled)
+            ToggleRow(stringResource(R.string.enable_ask_ai), state.aiEnabled, vm::setAiEnabled)
+            Text(
+                stringResource(R.string.enable_ask_ai_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
 
             Section(stringResource(R.string.sync_title))
             com.merry8989uk.universalcalculator.sync.SyncSection()

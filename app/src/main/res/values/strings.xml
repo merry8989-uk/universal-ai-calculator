@@ -377,4 +377,6 @@
     <string name="diag_pinging">Checking…</string>
     <string name="diag_ping_result">best %1$d ms · average %2$d ms · worst %3$d ms</string>
     <string name="diag_ping_failed">No answer from the server.</string>
+    <string name="enable_ask_ai">Ask AI</string>
+    <string name="enable_ask_ai_help">Off hides the assistant everywhere: its button in the bar, the magic button above the keypad, the voice and photo row, and its own screen. The calculators are untouched.</string>
 </resources>

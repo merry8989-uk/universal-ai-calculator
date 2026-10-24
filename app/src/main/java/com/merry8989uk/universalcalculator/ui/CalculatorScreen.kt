@@ -333,6 +333,8 @@ fun CalculatorScreen(
     val text = expr.text
     // The flat square key style is a separate thing from the pad itself.
     val classic = settings.layoutStyle == "Classic"
+    // One rule, shared with the tab bar, so the two can never disagree.
+    val aiVisible = aiIsVisible(settings.aiEnabled, settings.minimalMode)
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
@@ -489,7 +491,7 @@ when (key) {
                 expr = TextFieldValue(exprText, TextRange(exprText.length))
                 // Hand the words and the expression to the assistant so it can
                 // answer and explain, not just evaluate.
-                if (settings.aiEnabled) {
+                if (aiVisible) {
                     // Send the spoken words and the expression to the assistant
                     // so it answers and explains, not just evaluates.
                     onAskAiNow(
@@ -534,7 +536,7 @@ when (key) {
             if (r.expression != null) {
                 expr = TextFieldValue(r.expression, TextRange(r.expression.length))
                 // Send the text read from the photo to the assistant too.
-                if (settings.aiEnabled) {
+                if (aiVisible) {
                     onAskAiNow(
                         "I photographed a calculation and the text read from the photo is: " +
                             "${r.expression}" +
@@ -837,8 +839,8 @@ when (key) {
                     )
                 }
                 // Voice, photo and "ask about this" are all the assistant, so
-                // minimal mode takes them away with the rest of it.
-                if (!settings.minimalMode) Row(
+                // they go when it is switched off or minimal mode is on.
+                if (aiVisible) Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -911,9 +913,9 @@ when (key) {
             }
 
             // The magic button sits on the left, above the yellow rows and the
-            // Clear key, so it is within reach of the thumb. Minimal mode hides
-            // the assistant everywhere, this included.
-            if (!settings.minimalMode) Row(
+            // Clear key, so it is within reach of the thumb. Switching the
+            // assistant off, or minimal mode, takes it away.
+            if (aiVisible) Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
