@@ -765,7 +765,9 @@ when (key) {
 
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    // The classic pad is the star: the display keeps only enough
+                    // room for the expression and the result.
+                    .weight(if (classicScientific) DISPLAY_WEIGHT_CLASSIC else 1f)
                     .fillMaxWidth()
                     .glassSurface(RoundedCornerShape(22.dp)),
             ) {
@@ -784,7 +786,7 @@ when (key) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(14.dp),
+                    .padding(if (classicScientific) 8.dp else 14.dp),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.End,
             ) {
@@ -959,7 +961,7 @@ when (key) {
                             else -> "DEGREE"
                         }
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(PAD_WEIGHT_CLASSIC),
                 )
             } else if (functionKeys.isNotEmpty()) {
                 // One handle instead of two scrolling rows: it slides the whole
@@ -1065,6 +1067,15 @@ when (key) {
         AppInfoDialog(onClose = { showAppInfo = false })
     }
 }
+
+/**
+ * How the vertical space is split when the classic pad is showing.
+ *
+ * The pad carries sixty keys, so it gets the larger share; the display keeps
+ * just enough to read the expression and the answer without crowding them.
+ */
+internal const val DISPLAY_WEIGHT_CLASSIC = 0.42f
+internal const val PAD_WEIGHT_CLASSIC = 1.8f
 
 /** Adds thousands separators to the integer part when the user wants them. */
 /**

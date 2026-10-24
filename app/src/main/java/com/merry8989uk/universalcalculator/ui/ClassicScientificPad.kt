@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -254,24 +255,32 @@ private fun ClassicKeyView(
     ) {
         // the small second-function label, printed above the key like the real thing
         if (second != null) {
-            Text(
+            AutoSizeText(
                 text = second,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 8.sp,
+                ),
                 color = secondColor,
-                fontSize = 8.sp,
-                fontFamily = FontFamily.Monospace,
-                maxLines = 1,
+                minScale = 0.7f,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            Text(
+        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            // Shrinks to fit rather than clipping, so a narrow phone keeps every
+            // label readable without the keys growing.
+            AutoSizeText(
                 text = label,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = if (shifted && second != null) FontWeight.Bold else FontWeight.Normal,
+                    fontSize = 14.sp,
+                ),
                 color = textColor,
-                fontSize = 14.sp,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = if (shifted && second != null) FontWeight.Bold else FontWeight.Normal,
+                minScale = 0.6f,
                 textAlign = TextAlign.Center,
-                maxLines = 1,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
