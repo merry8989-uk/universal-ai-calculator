@@ -24,7 +24,7 @@ class ClassicPadTest {
     private val ARITY = mapOf(
         "nthroot" to 2, "hypot" to 2, "mod" to 2, "nCr" to 2, "nPr" to 2,
         "gcd" to 2, "lcm" to 2, "beta" to 2, "atan2" to 2, "pow" to 2,
-        "sum" to 2, "prod" to 2, "min" to 2, "max" to 2, "range" to 2,
+        "sum" to 2, "prod" to 2, "min" to 2, "max" to 2, "range" to 2, "mround" to 2,
         "geomean" to 2, "harmmean" to 2,
         "rand" to 0,
     )

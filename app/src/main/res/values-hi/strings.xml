@@ -386,4 +386,7 @@
     <string name="auto_close_brackets_help">sin(30 को sin(30) मानकर हल किया जाता है। बंद करने पर कोष्ठक छूटने का संदेश आएगा।</string>
     <string name="ignore_trailing_operator">अंत का चिह्न अनदेखा करें</string>
     <string name="ignore_trailing_operator_help">3+4+ को 3+4 माना जाता है। बंद करने पर अधूरे व्यंजक का संदेश आएगा।</string>
+    <string name="classic_angle">कोण इकाई</string>
+    <string name="classic_caret_l">कर्सर बाएँ</string>
+    <string name="classic_caret_r">कर्सर दाएँ</string>
 </resources>

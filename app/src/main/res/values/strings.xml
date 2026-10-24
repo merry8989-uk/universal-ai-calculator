@@ -388,4 +388,7 @@
     <string name="auto_close_brackets_help">sin(30 is worked out as sin(30). Turn this off to be told a bracket is missing instead.</string>
     <string name="ignore_trailing_operator">Ignore a trailing operator</string>
     <string name="ignore_trailing_operator_help">3+4+ is treated as 3+4. Turn this off to be told the expression is unfinished.</string>
+    <string name="classic_angle">angle unit</string>
+    <string name="classic_caret_l">move the cursor left</string>
+    <string name="classic_caret_r">move the cursor right</string>
 </resources>

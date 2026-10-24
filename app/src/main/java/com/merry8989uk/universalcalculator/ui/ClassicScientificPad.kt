@@ -130,7 +130,7 @@ internal val CLASSIC_ROWS: List<List<ClassicKey>> = listOf(
         ClassicKey("5", "5", second = "totient", secondAction = "totient", tone = ClassicTone.Digit),
         ClassicKey("6", "6", second = "isqrt", secondAction = "isqrt", tone = ClassicTone.Digit),
         ClassicKey("\u00D7", "*", second = "hypot", secondAction = "hypot", tone = ClassicTone.Operator),
-        ClassicKey("\u00F7", "/", second = "mod", secondAction = "mod", tone = ClassicTone.Operator),
+        ClassicKey("^", "^", second = "nthroot", secondAction = "nthroot", tone = ClassicTone.Operator),
         ClassicKey("%", "%", second = "\u2211", secondAction = "sum", tone = ClassicTone.Operator),
     ),
     listOf(
