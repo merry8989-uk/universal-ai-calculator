@@ -137,6 +137,19 @@ internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
  * It goes away for either reason: the Ask AI switch turned off, or minimal mode
  * on. Both mean the same thing to the user — no assistant anywhere.
  */
+/**
+ * Where a pick from the MODE list should land.
+ *
+ * The three calculators are tabs; everything else is a tool inside the Formulas
+ * hub, which the root opens on the requested screen.
+ */
+internal fun modeTarget(id: String, minimal: Boolean): String = when (id) {
+    "standard" -> "tab:0"
+    "scientific" -> "tab:1"
+    "classic" -> if (minimal) "tab:$SCI_CLASSIC_TAB" else "tab:1"
+    else -> "tool:$id"
+}
+
 internal fun aiIsVisible(aiEnabled: Boolean, minimal: Boolean): Boolean = aiEnabled && !minimal
 
 internal fun usesClassicPad(
@@ -166,6 +179,17 @@ fun AppRoot(settings: SettingsState) {
     val classicScientific =
         usesClassicPad(settings.layoutStyle, isScientificTab = true, minimal = minimal)
     val aiVisible = aiIsVisible(settings.aiEnabled, minimal)
+
+    // A pick from the MODE list: a tab for the calculators, a tool otherwise.
+    fun openMode(id: String) {
+        val target = modeTarget(id, minimal)
+        if (target.startsWith("tab:")) {
+            selectTab(target.removePrefix("tab:").toInt())
+        } else {
+            requestedTool = target.removePrefix("tool:")
+            selectTab(FORMULAS_TAB)
+        }
+    }
     // Leaving minimal mode must not strand the user on a tab that is gone.
     LaunchedEffect(minimal) {
         if (minimal && tab !in MINIMAL_TABS && tab != SETTINGS_TAB) tab = STANDARD_TAB
@@ -291,6 +315,7 @@ fun AppRoot(settings: SettingsState) {
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
+                    onOpenMode = { id -> openMode(id) },
                 )
                 SCIENTIFIC_TAB -> CalculatorScreen(
                     // With "Classic Scientific" chosen the classic pad takes this
@@ -303,6 +328,7 @@ fun AppRoot(settings: SettingsState) {
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
+                    onOpenMode = { id -> openMode(id) },
                 )
                 SCI_CLASSIC_TAB -> CalculatorScreen(
                     // Only reachable in minimal mode, where the classic pad sits
@@ -315,6 +341,7 @@ fun AppRoot(settings: SettingsState) {
                     onAskAiNow = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
+                    onOpenMode = { id -> openMode(id) },
                 )
                 CONVERT_TAB -> ConvertScreen()
                 FORMULAS_TAB -> FormulasScreen(

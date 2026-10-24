@@ -275,6 +275,8 @@ fun CalculatorScreen(
     onOpenSettings: () -> Unit = {},
     /** Opens one of the app's tools, e.g. "calculus" or "limits". */
     onOpenTool: (String) -> Unit = {},
+    /** Opens a kind of calculation picked from the MODE list. */
+    onOpenMode: (String) -> Unit = {},
     /**
      * Show the classic scientific pad instead of the modern one.
      *
@@ -302,8 +304,13 @@ fun CalculatorScreen(
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var historyOpen by rememberSaveable { mutableStateOf(false) }
     var sciOpen by rememberSaveable { mutableStateOf(false) }
-    // The SHIFT layer of the classic scientific pad.
-    var classicShift by rememberSaveable { mutableStateOf(false) }
+    // Which printed layer the classic pad is reading from. SHIFT and ALPHA
+    // both lock: one tap holds the layer on, another lets it go.
+    var classicLayerName by rememberSaveable { mutableStateOf(ClassicLayer.NORMAL.name) }
+    val classicLayer = ClassicLayer.valueOf(classicLayerName)
+    // 2nd turns the pad over; 0 is the arithmetic page, 1 is the tools page.
+    var classicPage by rememberSaveable { mutableIntStateOf(0) }
+    var modeDialog by remember { mutableStateOf(false) }
     // The exact value behind the rounded number on screen, so continuing a
     // calculation after "=" does not silently lose precision.
     var exactResult by remember { mutableStateOf<Double?>(null) }
@@ -948,12 +955,28 @@ when (key) {
             if (classicScientific) {
                 // The full scientific pad, six keys across, with SHIFT.
                 ClassicScientificPad(
-                    shifted = classicShift,
-                    onShiftToggle = { classicShift = !classicShift },
+                    layer = classicLayer,
+                    page = classicPage,
+                    // one tap locks the layer on, another tap lets it go
+                    onShift = {
+                        classicLayerName = if (classicLayer == ClassicLayer.SHIFT) {
+                            ClassicLayer.NORMAL.name
+                        } else {
+                            ClassicLayer.SHIFT.name
+                        }
+                    },
+                    onAlpha = {
+                        classicLayerName = if (classicLayer == ClassicLayer.ALPHA) {
+                            ClassicLayer.NORMAL.name
+                        } else {
+                            ClassicLayer.ALPHA.name
+                        }
+                    },
+                    onMode = { modeDialog = true },
+                    onPageToggle = { classicPage = if (classicPage == 0) 1 else 0 },
                     onKey = { key -> pressKey(key) },
                     onTool = onOpenTool,
                     onCaret = { by -> moveCaret(by) },
-                    onMenu = { menuOpen = true },
                     onToggleDegrees = {
                         angleName = when (angle) {
                             com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE -> "RADIAN"
@@ -1065,6 +1088,15 @@ when (key) {
     }
     if (showAppInfo) {
         AppInfoDialog(onClose = { showAppInfo = false })
+    }
+    if (modeDialog) {
+        ClassicModeDialog(
+            onPick = { id ->
+                modeDialog = false
+                onOpenMode(id)
+            },
+            onDismiss = { modeDialog = false },
+        )
     }
 }
 
