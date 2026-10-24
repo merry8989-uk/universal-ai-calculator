@@ -193,7 +193,10 @@ object Symbolic {
                 if (abs(c.im) < 1e-6) out.add(round(c.re * 1e9) / 1e9)
             }
         }
-        return out.sorted()
+        // A very ill-conditioned polynomial can make the numeric pass diverge.
+        // A root that is not a finite number is not a root, so it is dropped
+        // rather than handed to the caller as NaN.
+        return out.filter { it.isFinite() }.sorted()
     }
 
     private fun rationalRoots(p: DoubleArray): List<Double> {

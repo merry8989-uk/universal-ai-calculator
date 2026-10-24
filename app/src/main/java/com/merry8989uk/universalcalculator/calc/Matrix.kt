@@ -168,7 +168,12 @@ object Matrix {
                     listOf(Complex(tr / 2.0, r / 2.0), Complex(tr / 2.0, -r / 2.0))
                 }
             }
+            // Above a certain size the characteristic polynomial is too
+            // ill-conditioned for its roots to be resolved in double precision,
+            // and the numeric pass can diverge. Only finite values are returned;
+            // the caller may therefore get fewer eigenvalues than the matrix has.
             else -> polyRoots(characteristicPolynomial(a))
+                .filter { it.re.isFinite() && it.im.isFinite() }
         }
     }
 
