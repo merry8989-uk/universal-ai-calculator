@@ -13,8 +13,8 @@ import org.junit.Test
  */
 class ExpressionFixTest {
 
-    private fun value(text: String): Double =
-        Evaluator.evaluate(ExpressionFix.balance(text))
+    private fun value(text: String, degrees: Boolean = false): Double =
+        Evaluator.evaluate(ExpressionFix.balance(text), degrees)
 
     // ---- completing a half-typed expression ----
 
@@ -27,7 +27,7 @@ class ExpressionFixTest {
     @Test fun aTrailingOperatorIsDropped() {
         assertEquals("5", ExpressionFix.balance("5+"))
         assertEquals("5", ExpressionFix.balance("5*"))
-        assertEquals("5", ExpressionFix.balance("2^"))
+        assertEquals("2", ExpressionFix.balance("2^"))
         assertEquals("5+3", ExpressionFix.balance("5+3-"))
     }
 
@@ -66,7 +66,8 @@ class ExpressionFixTest {
 
     @Test fun whatUsedToBeAnErrorNowGivesAnAnswer() {
         // each of these threw before: "Missing ')'" or "Unexpected end of expression"
-        assertEquals(0.5, value("sin(30"), 1e-12)
+        // trig reads degrees, which is how the keypad is set up
+        assertEquals(0.5, value("sin(30", degrees = true), 1e-12)
         assertEquals(8.0, value("(5+3"), 1e-12)
         assertEquals(5.0, value("5+"), 1e-12)
         assertEquals(8.0, value("5+3)"), 1e-12)
@@ -80,7 +81,8 @@ class ExpressionFixTest {
             "mean(1,2,3" to 2.0, "erf(1" to 0.8427007929497149,
         )
         cases.forEach { (text, expected) ->
-            assertEquals("$text should evaluate", expected, value(text), 1e-9)
+            // degrees only changes the trig cases; the rest are unaffected
+            assertEquals("$text should evaluate", expected, value(text, degrees = true), 1e-9)
         }
     }
 
@@ -110,7 +112,7 @@ class ExpressionFixTest {
         assertEquals(-1.0, value(ExpressionFix.negate("2+3")), 1e-12)
         assertEquals(-6.0, value(ExpressionFix.negate("2*3")), 1e-12)
         // the sign key then = on a half-typed function still works
-        assertEquals(-0.5, value(ExpressionFix.negate("sin(30")), 1e-12)
+        assertEquals(-0.5, value(ExpressionFix.negate("sin(30"), degrees = true), 1e-12)
     }
 
     // ---- the decimals setting ----

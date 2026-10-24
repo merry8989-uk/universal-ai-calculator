@@ -3212,7 +3212,7 @@ object FormulaLibrary {
                 out("Tax inside an inclusive total", total - base))
         },
 
-    )
+    ) + ExtraFormulas.all
 
     fun byCategory(category: String): List<Formula> = formulas.filter { it.category == category }
 }

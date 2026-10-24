@@ -1,19 +1,4 @@
 {
- "categories": [
-  "Sets & Numbers",
-  "Algebra",
-  "Geometry",
-  "Trigonometry",
-  "Matrices & Determinants",
-  "Vectors",
-  "Analytic Geometry",
-  "Differential Calculus",
-  "Integral Calculus",
-  "Differential Equations",
-  "Series",
-  "Probability & Combinatorics",
-  "Finance & Economics"
- ],
  "formulas": [
   {
    "c": "Sets & Numbers",
@@ -29,11 +14,6 @@
    "c": "Sets & Numbers",
    "t": "Difference",
    "f": "A \\ B = { x : x ∈ A and x ∉ B }"
-  },
-  {
-   "c": "Sets & Numbers",
-   "t": "Complement",
-   "f": "A′ = { x : x ∈ U and x ∉ A }"
   },
   {
    "c": "Sets & Numbers",
@@ -377,38 +357,8 @@
   },
   {
    "c": "Geometry",
-   "t": "Pythagoras",
-   "f": "a² + b² = c²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Triangle area (base × height)",
-   "f": "A = ½ b h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Heron's formula",
-   "f": "A = √(s(s − a)(s − b)(s − c)),  s = (a + b + c) / 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Triangle area (two sides, angle)",
-   "f": "A = ½ a b sin C"
-  },
-  {
-   "c": "Geometry",
    "t": "Sine rule",
    "f": "a / sin A = b / sin B = c / sin C = 2R"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cosine rule",
-   "f": "c² = a² + b² − 2ab cos C"
-  },
-  {
-   "c": "Geometry",
-   "t": "Median of a triangle",
-   "f": "mₐ = ½√(2b² + 2c² − a²)"
   },
   {
    "c": "Geometry",
@@ -417,208 +367,13 @@
   },
   {
    "c": "Geometry",
-   "t": "Inradius",
-   "f": "r = A / s"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circumradius",
-   "f": "R = abc / (4A)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Angle sum of a polygon",
-   "f": "Sum of interior angles = (n − 2) · 180°"
-  },
-  {
-   "c": "Geometry",
    "t": "Exterior angles of a polygon",
    "f": "Sum of exterior angles = 360°"
   },
   {
    "c": "Geometry",
-   "t": "Interior angle of a regular polygon",
-   "f": "θ = (n − 2) · 180° / n"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circle area",
-   "f": "A = π r²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circle circumference",
-   "f": "C = 2 π r = π d"
-  },
-  {
-   "c": "Geometry",
-   "t": "Arc length",
-   "f": "L = r θ  (θ in radians)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Sector area",
-   "f": "A = ½ r² θ"
-  },
-  {
-   "c": "Geometry",
-   "t": "Chord length",
-   "f": "c = 2 r sin(θ / 2)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circle equation",
-   "f": "(x − h)² + (y − k)² = r²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rectangle",
-   "f": "A = l w,  P = 2(l + w)"
-  },
-  {
-   "c": "Geometry",
    "t": "Square",
    "f": "A = a²,  P = 4a,  diagonal = a√2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Parallelogram",
-   "f": "A = b h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rhombus",
-   "f": "A = ½ d₁ d₂"
-  },
-  {
-   "c": "Geometry",
-   "t": "Trapezoid",
-   "f": "A = ½ (a + b) h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular polygon area",
-   "f": "A = ½ n R² sin(2π / n)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular polygon perimeter",
-   "f": "P = 2 n R sin(π / n)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Ellipse area",
-   "f": "A = π a b"
-  },
-  {
-   "c": "Geometry",
-   "t": "Ellipse circumference (approx.)",
-   "f": "C ≈ π[3(a + b) − √((3a + b)(a + 3b))]"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cyclic quadrilateral area",
-   "f": "A = √((s − a)(s − b)(s − c)(s − d))  (Brahmagupta)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cube",
-   "f": "V = a³,  S = 6a²,  diagonal = a√3"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rectangular box",
-   "f": "V = l w h,  S = 2(lw + lh + wh),  diagonal = √(l² + w² + h²)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cylinder",
-   "f": "V = π r² h,  S = 2 π r (r + h)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Hollow cylinder",
-   "f": "V = π (R² − r²) h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cone",
-   "f": "V = ⅓ π r² h,  S = π r (r + l),  l = √(r² + h²)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Frustum of a cone",
-   "f": "V = (π h / 3)(R² + R r + r²)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Sphere",
-   "f": "V = (4/3) π r³,  S = 4 π r²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Hemisphere",
-   "f": "V = (2/3) π r³,  S = 3 π r²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Spherical cap",
-   "f": "V = (π h² / 3)(3R − h),  curved S = 2 π R h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Spherical segment",
-   "f": "V = (π h / 6)(3a² + 3b² + h²)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Spherical sector",
-   "f": "V = (2/3) π R² h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Torus",
-   "f": "V = 2 π² R r²,  S = 4 π² R r"
-  },
-  {
-   "c": "Geometry",
-   "t": "Ellipsoid",
-   "f": "V = (4/3) π a b c"
-  },
-  {
-   "c": "Geometry",
-   "t": "Prism",
-   "f": "V = B h,  lateral S = P h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Pyramid",
-   "f": "V = ⅓ B h"
-  },
-  {
-   "c": "Geometry",
-   "t": "Frustum of a pyramid",
-   "f": "V = (h / 3)(B₁ + B₂ + √(B₁B₂))"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular tetrahedron",
-   "f": "V = a³ / (6√2),  S = √3 a²,  h = a√(2/3)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular octahedron",
-   "f": "V = (√2 / 3) a³,  S = 2√3 a²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular dodecahedron",
-   "f": "V = ((15 + 7√5) / 4) a³,  S = 3√(25 + 10√5) a²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular icosahedron",
-   "f": "V = (5(3 + √5) / 12) a³,  S = 5√3 a²"
   },
   {
    "c": "Geometry",
@@ -852,11 +607,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Law of sines",
-   "f": "a / sin A = b / sin B = c / sin C"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Hyperbolic identity",
    "f": "cosh²x − sinh²x = 1"
   },
@@ -1017,23 +767,8 @@
   },
   {
    "c": "Vectors",
-   "t": "Magnitude",
-   "f": "|a| = √(a₁² + a₂² + a₃²)"
-  },
-  {
-   "c": "Vectors",
-   "t": "Unit vector",
-   "f": "â = a / |a|"
-  },
-  {
-   "c": "Vectors",
    "t": "Dot product (geometric)",
    "f": "a · b = |a| |b| cos θ"
-  },
-  {
-   "c": "Vectors",
-   "t": "Dot product (components)",
-   "f": "a · b = a₁b₁ + a₂b₂ + a₃b₃"
   },
   {
    "c": "Vectors",
@@ -1057,26 +792,6 @@
   },
   {
    "c": "Vectors",
-   "t": "Angle between vectors",
-   "f": "cos θ = (a · b) / (|a| |b|)"
-  },
-  {
-   "c": "Vectors",
-   "t": "Scalar projection",
-   "f": "proj = (a · b) / |b|"
-  },
-  {
-   "c": "Vectors",
-   "t": "Vector projection",
-   "f": "proj_b a = ((a · b) / |b|²) b"
-  },
-  {
-   "c": "Vectors",
-   "t": "Cross product (magnitude)",
-   "f": "|a × b| = |a| |b| sin θ"
-  },
-  {
-   "c": "Vectors",
    "t": "Cross product (determinant form)",
    "f": "a × b = (a₂b₃ − a₃b₂, a₃b₁ − a₁b₃, a₁b₂ − a₂b₁)"
   },
@@ -1097,11 +812,6 @@
   },
   {
    "c": "Vectors",
-   "t": "Scalar triple product",
-   "f": "a · (b × c) = volume of the parallelepiped"
-  },
-  {
-   "c": "Vectors",
    "t": "Vector triple product",
    "f": "a × (b × c) = (a · c) b − (a · b) c"
   },
@@ -1116,29 +826,9 @@
    "f": "P divides AB in m : n at ((m x₂ + n x₁)/(m + n), (m y₂ + n y₁)/(m + n))"
   },
   {
-   "c": "Vectors",
-   "t": "Direction cosines",
-   "f": "cos²α + cos²β + cos²γ = 1"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance between two points",
-   "f": "d = √((x₂ − x₁)² + (y₂ − y₁)²)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance in 3-D",
-   "f": "d = √((x₂ − x₁)² + (y₂ − y₁)² + (z₂ − z₁)²)"
-  },
-  {
    "c": "Analytic Geometry",
    "t": "Midpoint",
    "f": "M = ((x₁ + x₂)/2, (y₁ + y₂)/2)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Slope",
-   "f": "m = (y₂ − y₁) / (x₂ − x₁)"
   },
   {
    "c": "Analytic Geometry",
@@ -1182,16 +872,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Angle between two lines",
-   "f": "tan θ = |(m₁ − m₂) / (1 + m₁ m₂)|"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance from a point to a line",
-   "f": "d = |A x₀ + B y₀ + C| / √(A² + B²)"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Distance between parallel lines",
    "f": "d = |C₁ − C₂| / √(A² + B²)"
   },
@@ -1202,28 +882,8 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Ellipse",
-   "f": "x² / a² + y² / b² = 1,  c² = a² − b²"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Ellipse eccentricity",
-   "f": "e = c / a < 1"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Ellipse latus rectum",
    "f": "L = 2 b² / a"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Hyperbola",
-   "f": "x² / a² − y² / b² = 1,  c² = a² + b²"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Hyperbola eccentricity",
-   "f": "e = c / a > 1"
   },
   {
    "c": "Analytic Geometry",
@@ -1234,11 +894,6 @@
    "c": "Analytic Geometry",
    "t": "Parabola (standard)",
    "f": "y² = 4 p x, focus (p, 0), directrix x = −p"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Parabola latus rectum",
-   "f": "L = 4p"
   },
   {
    "c": "Analytic Geometry",
@@ -1254,16 +909,6 @@
    "c": "Analytic Geometry",
    "t": "Plane in 3-D",
    "f": "A x + B y + C z + D = 0"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance from a point to a plane",
-   "f": "d = |A x₀ + B y₀ + C z₀ + D| / √(A² + B² + C²)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Sphere",
-   "f": "(x − a)² + (y − b)² + (z − c)² = r²"
   },
   {
    "c": "Analytic Geometry",
@@ -1637,11 +1282,6 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Arc length",
-   "f": "L = ∫ₐᵇ √(1 + (dy/dx)²) dx"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Surface of revolution",
    "f": "S = 2π ∫ₐᵇ y √(1 + (dy/dx)²) dx"
   },
@@ -1772,58 +1412,13 @@
   },
   {
    "c": "Series",
-   "t": "Arithmetic progression (nth term)",
-   "f": "aₙ = a + (n − 1) d"
-  },
-  {
-   "c": "Series",
-   "t": "Arithmetic progression (sum)",
-   "f": "Sₙ = (n / 2)[2a + (n − 1)d]"
-  },
-  {
-   "c": "Series",
    "t": "Arithmetic mean",
    "f": "A = (a + b) / 2"
   },
   {
    "c": "Series",
-   "t": "Geometric progression (nth term)",
-   "f": "aₙ = a rⁿ⁻¹"
-  },
-  {
-   "c": "Series",
-   "t": "Geometric progression (sum)",
-   "f": "Sₙ = a (1 − rⁿ) / (1 − r),  r ≠ 1"
-  },
-  {
-   "c": "Series",
-   "t": "Geometric series (infinite)",
-   "f": "S∞ = a / (1 − r) for |r| < 1"
-  },
-  {
-   "c": "Series",
    "t": "Geometric mean",
    "f": "G = √(ab)"
-  },
-  {
-   "c": "Series",
-   "t": "Harmonic mean",
-   "f": "H = 2ab / (a + b)"
-  },
-  {
-   "c": "Series",
-   "t": "Sum of first n integers",
-   "f": "Σ k = n(n + 1) / 2"
-  },
-  {
-   "c": "Series",
-   "t": "Sum of squares",
-   "f": "Σ k² = n(n + 1)(2n + 1) / 6"
-  },
-  {
-   "c": "Series",
-   "t": "Sum of cubes",
-   "f": "Σ k³ = [n(n + 1) / 2]²"
   },
   {
    "c": "Series",
@@ -1839,11 +1434,6 @@
    "c": "Series",
    "t": "Harmonic series",
    "f": "Σ 1/k diverges"
-  },
-  {
-   "c": "Series",
-   "t": "p-series",
-   "f": "Σ 1/kᵖ converges iff p > 1"
   },
   {
    "c": "Series",
@@ -1937,16 +1527,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Permutations",
-   "f": "nPr = n! / (n − r)!"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Combinations",
-   "f": "nCr = n! / (r! (n − r)!)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Symmetry of combinations",
    "f": "nCr = nC(n − r)"
   },
@@ -1959,21 +1539,6 @@
    "c": "Probability & Combinatorics",
    "t": "Pascal's rule",
    "f": "nCr + nC(r − 1) = (n + 1)Cr"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Permutations with repetition",
-   "f": "nʳ arrangements of r items from n types"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Circular permutations",
-   "f": "(n − 1)! arrangements around a circle"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Derangements",
-   "f": "!n = n! Σ (−1)ᵏ / k! for k = 0 … n"
   },
   {
    "c": "Probability & Combinatorics",
@@ -1992,11 +1557,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Complement",
-   "f": "P(A′) = 1 − P(A)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Addition rule",
    "f": "P(A ∪ B) = P(A) + P(B) − P(A ∩ B)"
   },
@@ -2012,11 +1572,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Conditional probability",
-   "f": "P(A | B) = P(A ∩ B) / P(B)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Multiplication rule",
    "f": "P(A ∩ B) = P(A) P(B | A)"
   },
@@ -2024,16 +1579,6 @@
    "c": "Probability & Combinatorics",
    "t": "Total probability",
    "f": "P(B) = Σ P(Aᵢ) P(B | Aᵢ)"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Bayes' theorem",
-   "f": "P(A | B) = P(A) P(B | A) / P(B)"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Odds",
-   "f": "odds = P / (1 − P)"
   },
   {
    "c": "Probability & Combinatorics",
@@ -2064,16 +1609,6 @@
    "c": "Probability & Combinatorics",
    "t": "Covariance",
    "f": "Cov(X, Y) = E(XY) − E(X)E(Y)"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Binomial distribution",
-   "f": "P(X = k) = nCk pᵏ (1 − p)ⁿ⁻ᵏ"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Binomial mean and variance",
-   "f": "μ = np,  σ² = np(1 − p)"
   },
   {
    "c": "Probability & Combinatorics",
@@ -2117,11 +1652,6 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Union of Sets",
-   "f": "C=AUB={x|x∈Aorx∈B)"
-  },
-  {
-   "c": "Sets & Numbers",
    "t": "Commutativity",
    "f": "AUB=BUA"
   },
@@ -2157,11 +1687,6 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Complement",
-   "f": "A'={x∈I|xA}"
-  },
-  {
-   "c": "Sets & Numbers",
    "t": "Complement of Intersection and Union",
    "f": "AUA'=I, AA'="
   },
@@ -2192,11 +1717,6 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Formula 22",
-   "f": "A\\B=Aif AB="
-  },
-  {
-   "c": "Sets & Numbers",
    "t": "Set Identities",
    "f": "(A\\B)C=(AC)\\(BC)"
   },
@@ -2212,18 +1732,8 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Natural Numbers",
-   "f": "Counting numbers: N= {1,2,3,..)"
-  },
-  {
-   "c": "Sets & Numbers",
    "t": "Whole Numbers",
    "f": "Counting numbers and zero: N。 = {0,1,2,3"
-  },
-  {
-   "c": "Sets & Numbers",
-   "t": "Integers",
-   "f": "Whole numbers and their opposites and zero: Z=N={1,2,3.,..), Z=..,-3,-2,-1}, Z=Z{0}Z={.,-3,-2,-1,0,1,2,3"
   },
   {
    "c": "Sets & Numbers",
@@ -2372,18 +1882,8 @@
   },
   {
    "c": "Sets & Numbers",
-   "t": "Nth Root of a Complex Number",
-   "f": "/z=/r（cosp+isinp）=/r +2πk n n"
-  },
-  {
-   "c": "Sets & Numbers",
    "t": "Euler's Formula",
    "f": "ei* =cosx+isinx 11"
-  },
-  {
-   "c": "Algebra",
-   "t": "Factoring Formulas",
-   "f": "a²-b²=(a+b)a-b)"
   },
   {
    "c": "Algebra",
@@ -2492,16 +1992,6 @@
   },
   {
    "c": "Algebra",
-   "t": "Formula 93",
-   "f": "b ≠0 Va nm/am"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 94",
-   "f": "nm/b\""
-  },
-  {
-   "c": "Algebra",
    "t": "Roots",
    "f": "(a)=/a"
   },
@@ -2542,46 +2032,6 @@
   },
   {
    "c": "Algebra",
-   "t": "Logarithms",
-   "f": "log.1=0"
-  },
-  {
-   "c": "Algebra",
-   "t": "Logarithms",
-   "f": "log,a=1"
-  },
-  {
-   "c": "Algebra",
-   "t": "Logarithms",
-   "f": "log.0= ∞o if a >1 +∞ if a<1"
-  },
-  {
-   "c": "Algebra",
-   "t": "Logarithms",
-   "f": "log,(xy)=log,x+log。y"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 110",
-   "f": "log,(x)=nlog,x"
-  },
-  {
-   "c": "Algebra",
-   "t": "log.a",
-   "f": "log,x="
-  },
-  {
-   "c": "Algebra",
-   "t": "logea",
-   "f": "log.c= 1"
-  },
-  {
-   "c": "Algebra",
-   "t": "Logarithms",
-   "f": "X=alogx"
-  },
-  {
-   "c": "Algebra",
    "t": "Logarithm to Base 10",
    "f": "log1o x = log x"
   },
@@ -2597,11 +2047,6 @@
   },
   {
    "c": "Algebra",
-   "t": "log e",
-   "f": "lnx= 1 log x=2.3025851og x 17"
-  },
-  {
-   "c": "Algebra",
    "t": "Linear Equation in One Variable",
    "f": "ax+b=0,x= b a"
   },
@@ -2614,16 +2059,6 @@
    "c": "Algebra",
    "t": "Discriminant",
    "f": "D=b²-4ac"
-  },
-  {
-   "c": "Algebra",
-   "t": "Viete's Formulas",
-   "f": "If x²+px+q=0,then [x+x=-p xx=q"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 123",
-   "f": "ax²+bx=0,x=0,x="
   },
   {
    "c": "Algebra",
@@ -2677,36 +2112,6 @@
   },
   {
    "c": "Algebra",
-   "t": "Formula 141",
-   "f": "a + ≥2, where a > 0; an equality takes place only at a =1. 20"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 142",
-   "f": "/a,a...a"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 143",
-   "f": "If ax +b>0 and a >0,then x>"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 144",
-   "f": "If ax+b>0 and a<0,then x<"
-  },
-  {
-   "c": "Algebra",
-   "t": "Formula 145",
-   "f": "ax²+bx +c>0 a<0 D>0 X < X, X >X2 x<x<x"
-  },
-  {
-   "c": "Algebra",
-   "t": "Inequalities",
-   "f": "|a+b]≤|a|+|b]"
-  },
-  {
-   "c": "Algebra",
    "t": "Inequalities",
    "f": "If |x|<a,then -a<x<a, where a>0"
   },
@@ -2722,118 +2127,8 @@
   },
   {
    "c": "Algebra",
-   "t": "f(x)",
-   "f": "If x² >a,then x|>√a, where a >0. [f(x)·g(x)>0"
-  },
-  {
-   "c": "Algebra",
    "t": "Simplified Compound Interest Formula",
    "f": "If interest is compounded once peryear,then the previous formula simplifies to: A= C(1+r)"
-  },
-  {
-   "c": "Algebra",
-   "t": "Continuous Compound Interest",
-   "f": "If interest is compounded continually ( n →∞ ）, then A=Ce\". 23"
-  },
-  {
-   "c": "Geometry",
-   "t": "Right Triangle",
-   "f": "α+β=90° 24"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 157",
-   "f": "sin O. = cosβ"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 158",
-   "f": "COS L sin β"
-  },
-  {
-   "c": "Geometry",
-   "t": "tan a",
-   "f": "cotβ b b"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 160",
-   "f": "cotα tanβ"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 161",
-   "f": "sec α. = cosecβ b"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 162",
-   "f": "coseca= =secβ a"
-  },
-  {
-   "c": "Geometry",
-   "t": "tively, onto the hypotenuse c",
-   "f": "a²=fc,b²=gc, where f and c are projections of the legs a and b, respec- C"
-  },
-  {
-   "c": "Geometry",
-   "t": "where h is the altitude from the right angle",
-   "f": "h²=fg，"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 166",
-   "f": "m²=b²- b² where m, and m, are the medians to the legs a and b. c/2 R"
-  },
-  {
-   "c": "Geometry",
-   "t": "Right Triangle",
-   "f": "2 =m"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 169",
-   "f": "a+b 2 a+b+c"
-  },
-  {
-   "c": "Geometry",
-   "t": "Right Triangle",
-   "f": "ab=ch 26"
-  },
-  {
-   "c": "Geometry",
-   "t": "Isosceles Triangle",
-   "f": "β=90°- α 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 173",
-   "f": "h² =b²- 4 27"
-  },
-  {
-   "c": "Geometry",
-   "t": "ah_b²",
-   "f": "L=a+2b"
-  },
-  {
-   "c": "Geometry",
-   "t": "Isosceles Triangle",
-   "f": "sinα"
-  },
-  {
-   "c": "Geometry",
-   "t": "Equilateral Triangle",
-   "f": "h=a√3 2 28"
-  },
-  {
-   "c": "Geometry",
-   "t": "Equilateral Triangle",
-   "f": "L=3a"
-  },
-  {
-   "c": "Geometry",
-   "t": "Equilateral Triangle",
-   "f": "S= ah_a²√3 4"
   },
   {
    "c": "Geometry",
@@ -2852,58 +2147,8 @@
   },
   {
    "c": "Geometry",
-   "t": "Law of Cosines",
-   "f": "a²=b²+c²-2bccosα, b²=a²+c²-2accosβ, c²=a²+b²-2ab cos"
-  },
-  {
-   "c": "Geometry",
-   "t": "Law of Sines",
-   "f": "a b C =2R， sin α"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 187",
-   "f": "ac ab _abc R="
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 188",
-   "f": "_(p-a(p-b(p-c) h, α （p-b)p-c)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 189",
-   "f": "2 bc p(p-a) COS"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 190",
-   "f": "√p(p-a)(p-b(p-c), a √P(p-a)(p-b)(p-c), √P(p-a)(p-b)(p-c)"
-  },
-  {
-   "c": "Geometry",
    "t": "Scalene Triangle",
    "f": "h,=bsin y=csinβ, h,=asin=csin α, h, =asin β= bsin α"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 192",
-   "f": "b² + c² a 2 b² 4"
-  },
-  {
-   "c": "Geometry",
-   "t": "Scalene Triangle",
-   "f": "AM= 2 2 m，BM= m，CM="
-  },
-  {
-   "c": "Geometry",
-   "t": "d_av2",
-   "f": "d=a√2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 198",
-   "f": "r= 2"
   },
   {
    "c": "Geometry",
@@ -2914,71 +2159,6 @@
    "c": "Geometry",
    "t": "Square",
    "f": "S=a²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rectangle",
-   "f": "d=√a²+b² 34"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rectangle",
-   "f": "L=2(a+b)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rectangle",
-   "f": "S=ab"
-  },
-  {
-   "c": "Geometry",
-   "t": "Parallelogram",
-   "f": "α+β=180°"
-  },
-  {
-   "c": "Geometry",
-   "t": "Parallelogram",
-   "f": "d²+d² =2(a² +b²) 35"
-  },
-  {
-   "c": "Geometry",
-   "t": "Parallelogram",
-   "f": "h=bsin α=bsinβ"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 209",
-   "f": "S=ah=absinα, d,d, sin p"
-  },
-  {
-   "c": "Geometry",
-   "t": "Rhombus",
-   "f": "d²+d²=4a²"
-  },
-  {
-   "c": "Geometry",
-   "t": "'p'p",
-   "f": "h=asinα= 2a"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 213",
-   "f": "d,d, a sin α 2 4a"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 215",
-   "f": "S=ah=a²sinα， 1 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Trapezoid",
-   "f": "a+b 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Trapezoid",
-   "f": "s=a+b. h=qh 2"
   },
   {
    "c": "Geometry",
@@ -3022,11 +2202,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Formula 229",
-   "f": "qh=ch： 2 h 2"
-  },
-  {
-   "c": "Geometry",
    "t": "Trapezoid with Inscribed Circle",
    "f": "a+b=c+d"
   },
@@ -3042,43 +2217,8 @@
   },
   {
    "c": "Geometry",
-   "t": "dd, sin p",
-   "f": "s=a+b. P+3=4 h=qh, 2 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Kite",
-   "f": "α+β+2y=360"
-  },
-  {
-   "c": "Geometry",
-   "t": "Kite",
-   "f": "s=dd 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cyclic Quadrilateral",
-   "f": "α+=β+=180"
-  },
-  {
-   "c": "Geometry",
    "t": "Ptolemy's Theorem",
    "f": "ac + bd =d,d"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cyclic Quadrilateral",
-   "f": "L=a+b+c+d 1 (ac+bd)(ad+ bc)(ab+cd)"
-  },
-  {
-   "c": "Geometry",
-   "t": "wherep",
-   "f": "4√（p-a(p-b)(p-c)p-d) L 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "dd sin ，",
-   "f": "2 S=√(p-a)(p-b)(p-c)p-d), where p= L"
   },
   {
    "c": "Geometry",
@@ -3092,16 +2232,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Formula 244",
-   "f": "r= wherep= L 2 45"
-  },
-  {
-   "c": "Geometry",
-   "t": "d,d, sin p",
-   "f": "S=pr= 2"
-  },
-  {
-   "c": "Geometry",
    "t": "General Quadrilateral",
    "f": "α+β++=360°"
   },
@@ -3109,76 +2239,6 @@
    "c": "Geometry",
    "t": "General Quadrilateral",
    "f": "L=a+b+c+d 46"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular Hexagon",
-   "f": "0 =120°"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular Hexagon",
-   "f": "a√3 r=m= 2 47"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular Hexagon",
-   "f": "L=6a"
-  },
-  {
-   "c": "Geometry",
-   "t": "wherep",
-   "f": "S=pr= a²3√3 2 L 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular Polygon",
-   "f": "n-2 180° 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 256",
-   "f": "2sin π"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 257",
-   "f": "r=m 2tan- n"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular Polygon",
-   "f": "L=na"
-  },
-  {
-   "c": "Geometry",
-   "t": "n R²",
-   "f": "2π sin 2 n"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circle",
-   "f": "a=2Rsin"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 261",
-   "f": "aa, =b,b2 a"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circle",
-   "f": "ee=ff"
-  },
-  {
-   "c": "Geometry",
-   "t": "Circle",
-   "f": "g²=ff 51"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 265",
-   "f": "L=2πR=πd 2 52"
   },
   {
    "c": "Geometry",
@@ -3217,36 +2277,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Formula 274",
-   "f": "sin α R 180°"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cube",
-   "f": "d=a√3"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cube",
-   "f": "r= 55"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cube",
-   "f": "R= a√3 2"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cube",
-   "f": "S=6a²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Cube",
-   "f": "V=a²"
-  },
-  {
-   "c": "Geometry",
    "t": "Rectangular Parallelepiped",
    "f": "d=√a²+b²+c²"
   },
@@ -3262,11 +2292,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Prism",
-   "f": "S=S +2SB"
-  },
-  {
-   "c": "Geometry",
    "t": "Lateral Area of a Right Prism",
    "f": "S =(a, +a2 +a; +...+an)1"
   },
@@ -3277,31 +2302,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Prism",
-   "f": "V=Ssh"
-  },
-  {
-   "c": "Geometry",
-   "t": "Regular Tetrahedron",
-   "f": "S=√3a²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 291",
-   "f": "3 6√"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 293",
-   "f": "n 2sin- n"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 294",
-   "f": "nam 1 na√4b²-a²=pm 2"
-  },
-  {
-   "c": "Geometry",
    "t": "Regular Pyramid",
    "f": "Ss=pr"
   },
@@ -3309,11 +2309,6 @@
    "c": "Geometry",
    "t": "Regular Pyramid",
    "f": "S=Ss +S"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 299",
-   "f": "m(P +P,)"
   },
   {
    "c": "Geometry",
@@ -3337,11 +2332,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Formula 307",
-   "f": "(2a+c) 6"
-  },
-  {
-   "c": "Geometry",
    "t": "Platonic Solids",
    "f": "a√6 6"
   },
@@ -3354,11 +2344,6 @@
    "c": "Geometry",
    "t": "Platonic Solids",
    "f": "S=2a²√3 a²√2"
-  },
-  {
-   "c": "Geometry",
-   "t": "lcosahedron",
-   "f": "V= 3"
   },
   {
    "c": "Geometry",
@@ -3477,36 +2462,6 @@
   },
   {
    "c": "Geometry",
-   "t": "Sphere",
-   "f": "S=4πR²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 341",
-   "f": "πRH 3 6"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 342",
-   "f": "R=r²+h²"
-  },
-  {
-   "c": "Geometry",
-   "t": "Spherical Cap",
-   "f": "Ss=πr^"
-  },
-  {
-   "c": "Geometry",
-   "t": "Spherical Cap",
-   "f": "Sc=π(h²+r²)"
-  },
-  {
-   "c": "Geometry",
-   "t": "Spherical Cap",
-   "f": "S=Ss+Sc=π（h²+2r²)=π(2Rh+r²) V= =h²(3R-h)=h3r²+h²)"
-  },
-  {
-   "c": "Geometry",
    "t": "Spherical Sector",
    "f": "S=πR(2h+r)"
   },
@@ -3532,33 +2487,8 @@
   },
   {
    "c": "Geometry",
-   "t": "Formula 352",
-   "f": "πR² α=2R²x 90 =πR²+2R²x 90"
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 354",
-   "f": "V= πR a= 270"
-  },
-  {
-   "c": "Geometry",
    "t": "Prolate Spheroid",
    "f": "4 πabc 3 Semi-axes: a, b, b (a >b)"
-  },
-  {
-   "c": "Geometry",
-   "t": "a arcsine",
-   "f": "S=2πb b+ Va²-b2 wheree="
-  },
-  {
-   "c": "Geometry",
-   "t": "Formula 358",
-   "f": "S=2πbb+- be/a √b²-a² wheree="
-  },
-  {
-   "c": "Geometry",
-   "t": "Ellipsoid",
-   "f": "4 πb²a 3"
   },
   {
    "c": "Geometry",
@@ -3572,11 +2502,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "rad ≈ 0.017453 rad",
-   "f": "1°=π 180"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Radian and Degree Measures of Angles",
    "f": "1'= π rad =0.000291 rad 180·60"
   },
@@ -3587,31 +2512,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Formula 367",
-   "f": "sinα="
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 368",
-   "f": "COS α ="
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 369",
-   "f": "tan α = X"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 370",
-   "f": "cota= 81"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 371",
-   "f": "sec α.="
-  },
-  {
-   "c": "Trigonometry",
    "t": "Sine Function",
    "f": "y= sin x, -1≤sinx ≤1. y=sinx 1 3π 2"
   },
@@ -3619,16 +2519,6 @@
    "c": "Trigonometry",
    "t": "Cosine Function",
    "f": "y=cos x,-1≤cosx≤1. 82"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Tangent Function",
-   "f": "y = tan x, x ≠(2k + ≤ tan x ≤ ∞o y=tanx 3π 2"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Cotangent Function",
-   "f": "y=cotx,x≠kπ，-∞<cotx≤∞. y=cotx 3π 2 2"
   },
   {
    "c": "Trigonometry",
@@ -3644,11 +2534,6 @@
    "c": "Trigonometry",
    "t": "COS OL",
    "f": "tan . sina seco cosecα"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "sin o",
-   "f": "α° α. rad cos . tan α"
   },
   {
    "c": "Trigonometry",
@@ -3669,11 +2554,6 @@
    "c": "Trigonometry",
    "t": "Most Important Formulas",
    "f": "csc²α-cot²α=1"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "sin Ct",
-   "f": "tanα= COS C 88"
   },
   {
    "c": "Trigonometry",
@@ -3729,11 +2609,6 @@
    "c": "Trigonometry",
    "t": "Relationsbetween Trigonometric",
    "f": "cosα=±√1-sin²α=± (1+cos2α)=2cos² 1-tan² 2 2"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "sin 2o",
-   "f": "tanα= sin α. ±√sec²α-1= 1cos 2αt O SO"
   },
   {
    "c": "Trigonometry",
@@ -3802,11 +2677,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "tan 2o",
-   "f": "1-tanα cot α-tan α cot²α-1_cotα-tan α"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Double Angle Formulas",
    "f": "cot 2a= 2cotα. 2 92"
   },
@@ -3847,11 +2717,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "tan4ot",
-   "f": "4tanα-4tan²α 1-6tan²α +tan*α tan²α -10tan²α + 5tan α"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Multiple Angle Formulas",
    "f": "tan 50= 1-10tanα+5tan*α cot²α-3cot α"
   },
@@ -3872,16 +2737,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Formula 427",
-   "f": "α 1+cos c 土 2"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 428",
-   "f": "tan 1+ cos α 1+ cos 0. sin α"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Half Angle Formulas",
    "f": "√1-cosα 1-cos α. sin α 0100+ 2"
   },
@@ -3897,23 +2752,8 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Formula 432",
-   "f": "tan α = 2 1-tan"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Transforming of Trigonometric",
    "f": "sin α+sinβ=2sin- α+β α-β 2 2"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 435",
-   "f": "sin α-sinβ=2cos α+β α-β 2 2"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 436",
-   "f": "α +β α-β COs C+cosβ=2cos 2"
   },
   {
    "c": "Trigonometry",
@@ -3969,11 +2809,6 @@
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric",
    "f": "1- sin α = 2sin"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Transforming of Trigonometric",
-   "f": "sinα sinβ= cosα -β)-cos(α+B) 2 cos(α-β)+ cos(α +β)"
   },
   {
    "c": "Trigonometry",
@@ -4047,21 +2882,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Inverse Cosine Function",
-   "f": "y=arccosx，-1≤x≤1,0≤arccosx≤π. 99"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Inverse Tangent Function",
-   "f": "y=arctanx，-∞≤x≤∞∞, π <arctanx 2 y"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Inverse Cotangent Function",
-   "f": "y=arccotx，-∞≤x≤∞,0<arccotx<π. y y=arccotx 元 2"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Inverse Secant Function",
    "f": "y=arcsecx, x∈(-∞,-1][1,∞), arcsecxe y π y=arcsecx 2"
   },
@@ -4077,11 +2897,6 @@
   },
   {
    "c": "Trigonometry",
-   "t": "arccosx",
-   "f": "arcsinx= π 2"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Relationsbetween Inverse",
    "f": "arcsinx =arccos √1-x², 0≤x≤1"
   },
@@ -4092,28 +2907,8 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Formula 478",
-   "f": "arcsin x= arctan <1. √1-x² √1-x²"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 479",
-   "f": "arcsinx=arccot 0<x≤1"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 480",
-   "f": "arcsinx= arccot π 1≤x<0"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Relationsbetween Inverse",
    "f": "arccos(-x)=π-arccosx 103"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "arccosx",
-   "f": "π = arcsinx 2"
   },
   {
    "c": "Trigonometry",
@@ -4123,32 +2918,7 @@
   {
    "c": "Trigonometry",
    "t": "Relationsbetween Inverse",
-   "f": "arccosx=π-arcsin√1-x²， -1≤x≤0. √1-x²"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 485",
-   "f": "arccosx=arctan 0<x≤1 √1-x²"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 486",
-   "f": "arccosx=π+arctan 1≤x<0"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 487",
-   "f": "arccosx=arccot- 1≤x≤1"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
    "f": "arctan(-x)=-arctanx"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "arccotx",
-   "f": "arctan x = 2"
   },
   {
    "c": "Trigonometry",
@@ -4167,53 +2937,13 @@
   },
   {
    "c": "Trigonometry",
-   "t": "arctanx",
-   "f": "π arctan 1 二"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "arctanx",
-   "f": "π arctan- x<0. 2"
-  },
-  {
-   "c": "Trigonometry",
    "t": "X >0",
    "f": "arctanx=arccot X"
   },
   {
    "c": "Trigonometry",
-   "t": "Formula 496",
-   "f": "1 arctanx=arccot π，x<0"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Relationsbetween Inverse",
-   "f": "arccot(- π-arccotx"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "x >0",
-   "f": "arccotx=arcsin"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Relationsbetween Inverse",
    "f": "arccotx=π-arcsin 1+x"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 501",
-   "f": "arccotx=arccos √1+x"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 502",
-   "f": "arccotx=arctan X"
-  },
-  {
-   "c": "Trigonometry",
-   "t": "Formula 503",
-   "f": "arccotx=π+arctan， X 105"
   },
   {
    "c": "Trigonometry",
@@ -4272,11 +3002,6 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "Formula 516",
-   "f": "N-th Order Determinant a12 a1j a21 a22"
-  },
-  {
-   "c": "Matrices & Determinants",
    "t": "Minor",
    "f": "The minor M, associated with the element a; of n-th order matrix A is the (n -1)-th order determinant derived from the matrix A by deletion of its i-th row and j-th column. 108"
   },
@@ -4292,33 +3017,13 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "determinant is zero",
-   "f": "If two rows (or two columns) are identical, the value of the aal =0 a2 109"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "If the elements of any row (or column) are increased (or",
-   "f": "decreased)byequal multiples of the corresponding elements of any other row (or column), the value of the determinant is unchanged. a,+kb,b|_ab| a+kbb2"
-  },
-  {
-   "c": "Matrices & Determinants",
    "t": "Definition",
    "f": "An m x n matrix A is a rectangular array of elements (num- bers or functions) with m rows and n columns. a1 a12 ain"
   },
   {
    "c": "Matrices & Determinants",
-   "t": "symmetric about the leading diagonal",
-   "f": "Asquare matrix a」 is symmetric if a=a, i.e. it is"
-  },
-  {
-   "c": "Matrices & Determinants",
    "t": "Matrices",
    "f": "A square matrix |a,」 is skew-symmetric if as = -a 110"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "Formula 534",
-   "f": "If k is a scalar, and A =|a;J is a matrix, then ka2 kan ka1 kaz2"
   },
   {
    "c": "Matrices & Determinants",
@@ -4352,48 +3057,8 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "If A isa square nxn matrix, the eigenvectors X satisfy",
-   "f": "the equation AX =ΛX, while the eigenvalues 入 satisfy the characteristic equation [A-入I=0"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "Formula 544",
-   "f": "ax+by=d Dy (Cramer's rule), D"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "Formula 545",
-   "f": "If D=0,then the system has a single solution: D D D If D=0 and D≠0(or D, ≠0), then the system has no"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "Formula 546",
-   "f": "ax+by+cz=d [ax+b;y+cz=d Dy D"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "Matrix Form ofa System of n Linear Equations in",
-   "f": "n Unknowns The set of linear equations [ax, +ax +...+ax =b ax, +ax+..+a2x =b2 [ax, +anx +...+ax =bn"
-  },
-  {
-   "c": "Matrices & Determinants",
    "t": "Solution of a Set of Linear Equations nxn",
    "f": "X=A·B, where A' is the inverse of A. 117"
-  },
-  {
-   "c": "Vectors",
-   "t": "Unit Vectors",
-   "f": "i=(1,0,0), j=(0,1,0), k=(0,0,1), =]==1"
-  },
-  {
-   "c": "Vectors",
-   "t": "Vector Coordinates",
-   "f": "=AB=（x-x)i+(y-y)j+(z-z)k 118"
-  },
-  {
-   "c": "Vectors",
-   "t": "Formula 552",
-   "f": "(（x-x)²+(y-y。)²+(2,-z。)²"
   },
   {
    "c": "Vectors",
@@ -4409,16 +3074,6 @@
    "c": "Vectors",
    "t": "Vector Coordinates",
    "f": "If r(x, Y,Z)=,(X, Y,Z,),then X=X, Y=Y,Z=Z"
-  },
-  {
-   "c": "Vectors",
-   "t": "Formula 556",
-   "f": "w=u+v"
-  },
-  {
-   "c": "Vectors",
-   "t": "Formula 557",
-   "f": "w=u, +u +u +...+u U6"
   },
   {
    "c": "Vectors",
@@ -4492,11 +3147,6 @@
   },
   {
    "c": "Vectors",
-   "t": "Angle Between Two Vectors",
-   "f": "If =(X,Y,Z),v=(X,Y,Z),then cos0= X,X,+YY,+Z,Z √x²+Y²+Z²√x²+Y²+Z²"
-  },
-  {
-   "c": "Vectors",
    "t": "Commutative Property",
    "f": "uv=v·"
   },
@@ -4509,11 +3159,6 @@
    "c": "Vectors",
    "t": "Distributive Property",
    "f": "u-(v+w)=·v+u·w 2"
-  },
-  {
-   "c": "Vectors",
-   "t": "v<0if",
-   "f": ">θ> 2"
   },
   {
    "c": "Vectors",
@@ -4537,21 +3182,6 @@
   },
   {
    "c": "Vectors",
-   "t": "Vector Product of Vectors ui andv",
-   "f": "uxv=w,where ·|w|=||·sinθ,where 0≤0≤； 2 nTM and w⊥V"
-  },
-  {
-   "c": "Vectors",
-   "t": "Formula 588",
-   "f": "w=uxv= Y, Z X Y2"
-  },
-  {
-   "c": "Vectors",
-   "t": "Formula 589",
-   "f": "w=uxv Zx Y Z,²xz,x"
-  },
-  {
-   "c": "Vectors",
    "t": "Vector Product",
    "f": "S=uxv=|·sinθ (Fig.83)"
   },
@@ -4567,16 +3197,6 @@
   },
   {
    "c": "Vectors",
-   "t": "Associative Property",
-   "f": "(u)x（uv）=xv 126"
-  },
-  {
-   "c": "Vectors",
-   "t": "Distributive Property",
-   "f": "Mxn+Axn=(M+△）xn"
-  },
-  {
-   "c": "Vectors",
    "t": "Vector Product",
    "f": "uxv=0 if u and v are parallel(0=0)"
   },
@@ -4589,11 +3209,6 @@
    "c": "Vectors",
    "t": "Vector Product",
    "f": "ixj=k,jxk=i,kxi=j"
-  },
-  {
-   "c": "Vectors",
-   "t": "Scalar Triple Product",
-   "f": "[uvw]=u·(vxw)=v.(wxu)=w-(uxv)"
   },
   {
    "c": "Vectors",
@@ -4617,43 +3232,13 @@
   },
   {
    "c": "Vectors",
-   "t": "Volumeof Pyramid",
-   "f": "V= u-（vxw）"
-  },
-  {
-   "c": "Vectors",
    "t": "Triple Product",
    "f": "If u·(vxw)=0,then the vectors u,V,and w are linearly dependent, so w =u+ μv for some scalars 入 and μ"
-  },
-  {
-   "c": "Vectors",
-   "t": "Vector Triple Product",
-   "f": "M(A·n)-（M·n)=(MxA）xn 129"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance Between Two Points",
-   "f": "d=AB=x -x,|=|x,-x2| d A(x) B(x)"
   },
   {
    "c": "Analytic Geometry",
    "t": "Dividing a Line Segment in the Ratio",
    "f": "x, +x AC Xo 1+入 CB"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Midpoint ofa Line Segment",
-   "f": "x+x2，入=1. X= 2"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance Between Two Points",
-   "f": "d=AB=√(x-x)²+(y-y)² B(xy2) A(x，y)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Dividing a Line Segment in the Ratio",
-   "f": "x+x y+2y X。= 1+入 ，y="
   },
   {
    "c": "Analytic Geometry",
@@ -4672,18 +3257,8 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Circumcenter (Intersection of the Side Perpendicular",
-   "f": "Bisectors)of a Triangle x²+y² y1 x²+y² y2"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Orthocenter(Intersection of Altitudes)ofa Triangle",
    "f": "xx+y² x²+y2y3 X x;x +y² x²+ysy"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Area ofa Quadrilateral",
-   "f": "S=(±)[（(x-x(y+y2)+(x-x)(y+y3)+ +(x -xXy+y)+(x-x,)(y+y)] V B(xy2) A(xy)"
   },
   {
    "c": "Analytic Geometry",
@@ -4704,11 +3279,6 @@
    "c": "Analytic Geometry",
    "t": "Straight Line in Plane",
    "f": "Explicit Equation ofa Straight Line (Slope-Intercept Form) y =kx + b. 139"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Gradient ofa Line",
-   "f": "k=tanα=Y-V X-x B(xy2) A(x，y) 0"
   },
   {
    "c": "Analytic Geometry",
@@ -4747,16 +3317,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Straight Line in Parametric Form",
-   "f": "x=a+tb [y=a+tb where (x, y)are the coordinates of any unknown point on the line, (a,a) are the coordinates of a known point on the line"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance From a Point To a Line",
-   "f": "The distance from the point P(a,b) to the line Ax + By + C= 0 is [Aa + Bb + C √A²+B² M(xy)"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Parallel Lines",
    "f": "Two lines y = kjx + b, and y = kx + b, are paralle if k= k. Two lines Ax+Bty+C=0 and Ax+By+C=0 are parallel if A_B"
   },
@@ -4767,28 +3327,13 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Angle Between Two Lines",
-   "f": "k-k tan= 1+ k,k2 AA, +B,B COS="
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Intersection of Two Lines",
    "f": "If two lines A,x+ B,y+C =0 and A,x+ By+C,=0 inter- sect, the intersection point has coordinates -C,B+C,B -A,C,+A,C X。="
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Circle Centered at the Origin (Standard",
-   "f": "Form) x²+y²=R² P(x,y)"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Equation ofa Circle Centered at Any Point (a,b)",
    "f": "(x-a)²+(y-b)²=R² P(x,y) R A(a,b)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Parametric Form",
-   "f": "[x=Rcost ly=Rsint 0≤t≤2π"
   },
   {
    "c": "Analytic Geometry",
@@ -4799,16 +3344,6 @@
    "c": "Analytic Geometry",
    "t": "Equation of an Ellipse (Standard Form)",
    "f": "+y² a² b² =1 F"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "where r, r are distances from any point P(x,y) on",
-   "f": "r+r,=2a, the ellipse to the two foci. y P(x,y) 2"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Ellipse",
-   "f": "a²=b²+c²"
   },
   {
    "c": "Analytic Geometry",
@@ -4832,38 +3367,13 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Approximate Formulas of the Circumference",
-   "f": "L=π(1.5(a+b)-√ab), L=π√2（a²+b²)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Ellipse",
-   "f": "S=πab"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Equation ofa Hyperbola(Standard Form)",
    "f": "x²_y =1 -C"
   },
   {
    "c": "Analytic Geometry",
-   "t": "where r, r, are distances from any point P(x,y) on",
-   "f": "-r|=2a, the hyperbola to the two foci. 155"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Equations of Asymptotes",
    "f": "b y=± -X a"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Hyperbola",
-   "f": "c² =a²+b²"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Parametric Equations of the Right Branch of a Hyperbola",
-   "f": "x=acosht (y=bsinht ，0≤t≤2π"
   },
   {
    "c": "Analytic Geometry",
@@ -4889,26 +3399,6 @@
    "c": "Analytic Geometry",
    "t": "General Form",
    "f": "Ax² + Bxy + Cy² + Dx+ Ey + F = 0, where B²-4AC=0"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Formula 668",
-   "f": "y=ax²,p= 1 Equation of the directrix 159"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Formula 669",
-   "f": "General Form, Axis Parallel to the y-axis Ax² + Dx + Ey + F =0 (A, E nonzero), =d +xq+ x= 1 Equation of the directrix"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Distance Between Two Points",
-   "f": "d=AB=√(x-x)²+(y-y)²+(z-2,)² Z B(xy2Z2 d A(x，y"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Dividing a Line Segment in the Ratio 7",
-   "f": "x+入x y+y Z+Z 1+入 ，y。="
   },
   {
    "c": "Analytic Geometry",
@@ -4952,11 +3442,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Parametric Form",
-   "f": "[x=x, +a,s+a,t y=y+bs+bt, [z=z,+c,s+c,t where (x,y,z) are the coordinates of any unknown point on the line,the point P(x,yz) lies in the plane,the vectors"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Dihedral Angle Between Two Planes",
    "f": "If the planes are given by Ax+B,y +C,z+D, =0, Ax +By+Cz+D =0, then the dihedral angle between them is n,·n"
   },
@@ -4977,16 +3462,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Distance From a Point To a Plane",
-   "f": "The distance from the point P(x,yz,) to the plane Ax + By + Cz + D = 0 is 173"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Intersection of Two Planes",
-   "f": "If two planes A,x + B,y + C,z + D =0 and Ax +By+Cz+D =0 intersect, the intersection straight line is given by [x=x +at {y=y,+bt"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Point Direction Form of the Equation ofa Line",
    "f": "X-x y-y Z-Z b where the point P(x,y,z,) lies on the line, and (a,b,c) is"
   },
@@ -4994,16 +3469,6 @@
    "c": "Analytic Geometry",
    "t": "Two Point Form",
    "f": "x-x_y-y_z-Z x-xy-yZ2-Z P(xy222) P(x,y,z)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Parametric Form",
-   "f": "x=x,+tcoso y=y,+tcosβ， [z=z,+tcos where the point P(x,Y,z,)） lies on the straight line, cosα,cosβ，cos are the direction cosines of the direction"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Angle Between Two Straight Lines",
-   "f": "aa+b,b+cC2 so [|√a²+b²+c²√a²+b²+c² 177"
   },
   {
    "c": "Analytic Geometry",
@@ -5082,16 +3547,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Equation ofa Sphere Centered at the Origin (Standard",
-   "f": "Form) x²+y²+z²=R²"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Diameter Form",
-   "f": "0=(²z-z)(z-z)+(-△)x-)+(x-x)(x-x) 189"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Four Point Form",
    "f": "x²+y²+z² X +y² + x² X y"
   },
@@ -5127,18 +3582,8 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Linear Function",
-   "f": "y=ax+b， xeR，a=tanα is the slope of the line, b is the y-intercept. 192"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Quadratic Function",
    "f": "y=x²,x∈R"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 730",
-   "f": "y=ax²+bx+c, x∈R. y=ax²+bx+c a<0"
   },
   {
    "c": "Differential Calculus",
@@ -5157,11 +3602,6 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Square Root Function",
-   "f": "y=√x, x∈[0,∞0)"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Exponential Functions",
    "f": "y=a*, a>0,a≠1, y=e*if a=e,e=2.71828182846.. >e>0 a> (0,1)"
   },
@@ -5169,16 +3609,6 @@
    "c": "Differential Calculus",
    "t": "Logarithmic Functions",
    "f": "y=logax,x∈(0,∞), a>0,a≠1, y=lnx if a=e, x>0. y=logax a>1 (1,0)"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Hyperbolic Sine Function",
-   "f": "y= sinh x， sinh x = e-e-x X∈R. 2 199"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Hyperbolic Cosine Function",
-   "f": "y=cosh x,cosh x： e*+e XeR. 2 y"
   },
   {
    "c": "Differential Calculus",
@@ -5207,11 +3637,6 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Inverse Hyperbolic Cosine Function",
-   "f": "y=arccosh x, x∈[1,∞). y=arccoshx"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Inverse Hyperbolic Tangent Function",
    "f": "y = arctanh x, x ∈ (1, 1). 204"
   },
@@ -5219,11 +3644,6 @@
    "c": "Differential Calculus",
    "t": "Inverse Hyperbolic Cotangent Function",
    "f": "y=arccoth x, x∈(-∞,-1)(1,∞). 205"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Inverse Hyperbolic Secant Function",
-   "f": "y= arcsech x, x ∈(0,1]. 206"
   },
   {
    "c": "Differential Calculus",
@@ -5242,11 +3662,6 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "f(x)",
-   "f": "lim[f(x)-g(x)]=limf(x)·limg(x) limf(x)"
-  },
-  {
-   "c": "Differential Calculus",
    "t": ",if limg(x)≠0",
    "f": "lim- x→ g(x) lim g(x)"
   },
@@ -5258,22 +3673,7 @@
   {
    "c": "Differential Calculus",
    "t": "Limitsof Functions",
-   "f": "lim f(g(x))=f(limg(x)"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Limitsof Functions",
    "f": "limf(x)=f(a), if the function f(x) is continuous at x =a"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 757",
-   "f": "tanx 1 X sin- x"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 759",
-   "f": "lim- →0 X In(1+ x)"
   },
   {
    "c": "Differential Calculus",
@@ -5282,158 +3682,13 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Formula 764",
-   "f": "y(x)=lim f(x+△x)-f(x) x→0 △x Ax→0 △x dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 765",
-   "f": "=tan o. d(u+v)"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 767",
-   "f": "d(u-v) dv dx xp"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Chain Rule",
-   "f": "y=f(g(x))，u=g(x), dy_dy.du xpnp_xp"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Logarithmic Differentiation",
    "f": "y=f(x), Iny=Inf(x), [Inf(x)] dx xp"
   },
   {
    "c": "Differential Calculus",
-   "t": "Formula 775",
-   "f": "(C)=0 xp"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 776",
-   "f": "(x)=1 dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 777",
-   "f": "(ax + b)=a dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 778",
-   "f": "(ax+ bx+ c) = ax + b"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 784",
-   "f": "(Inx)=1 dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 788",
-   "f": "(sin x)= cosx dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 789",
-   "f": "(cosx)= -sin x xp"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 790",
-   "f": "(tanx)= dx cos²x"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 792",
-   "f": "(secx)= tan x ·secx dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 793",
-   "f": "(cscx）=-cotx·cscx dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 794",
-   "f": "dx (arcsin x)= √1-x²"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 796",
-   "f": "dx (arctanx)= 1+ x² 213"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 797",
-   "f": "dx (arccotx 1 + x"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 800",
-   "f": "(sinh x)= coshx dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 801",
-   "f": "(coshx)= sinhx dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 802",
-   "f": "(tanhx)= =sech²x dx cosh²x"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 803",
-   "f": "(cothx)= dx -csch²x sinh²x"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 804",
-   "f": "(sech x)=-sech x·tanh x dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 805",
-   "f": "(csch x)=-csch x ·coth x dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 806",
-   "f": "(arcsinh x) dx √x² +1"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 807",
-   "f": "(arccosh x)= dx 214"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 809",
-   "f": "(arccoth x)= dx"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 810",
-   "f": "+uInu dv dx dx"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Second derivative",
    "f": "f\"=(f)'=|"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Formula 812",
-   "f": "Higher-Order derivative f(a)=d\"y y(n) = (f(n-1)"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
-   "f": "(u+v))=u()+(a)"
   },
   {
    "c": "Differential Calculus",
@@ -5447,28 +3702,8 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "(xm)",
-   "f": "m! （m-n）"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Higher Order Derivatives",
    "f": "( (x))=n!"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "x\" Ina",
-   "f": "(log, x))=(-1)(n-1)"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
-   "f": "(Inx)g) =(-1)-\"(n-1)!"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
-   "f": "(ax))=a*ln²a"
   },
   {
    "c": "Differential Calculus",
@@ -5482,11 +3717,6 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Higher Order Derivatives",
-   "f": "(sinx)n)= sin 7"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Velocity and Acceleration",
    "f": "s =f(t) is the position of an object relative to a fixed coordinate system at a time t, V=s'=f’(t) is the instantaneous velocity of the object, W =v’= s\"”=f\"(t) is the instantaneous acceleration of the object"
   },
@@ -5494,16 +3724,6 @@
    "c": "Differential Calculus",
    "t": "Tangent Line",
    "f": "y-y。=f(x。)(x-x。) 217"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Normal Line",
-   "f": "y-y。= （x-x。)(Fig176) f(x。"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Local extrema",
-   "f": "A function f(x) has a local maximum at x, if and only if there exists some interval containing x， such that f(x,)≥f(x) for all x in the interval (Fig.177). A function f(x) has a local minimum at x, if and only if there exists some interval containing x, such that"
   },
   {
    "c": "Differential Calculus",
@@ -5542,16 +3762,6 @@
   },
   {
    "c": "Differential Calculus",
-   "t": "Formula 839",
-   "f": "f(x+△x)=f(x)+f(x)△x y=f(x) dy △x=dx x+△X"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Small Change iny",
-   "f": "y=f(x+△x)-f（x)"
-  },
-  {
-   "c": "Differential Calculus",
    "t": "Differential",
    "f": "d(u+v)=du+dv"
   },
@@ -5569,11 +3779,6 @@
    "c": "Differential Calculus",
    "t": "Apnnp A",
    "f": "d(uv)=vdu+udv"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "First Order Partial Derivatives",
-   "f": "The partial derivative with respect to x of =f(also =Zx)， Ox"
   },
   {
    "c": "Differential Calculus",
@@ -5638,11 +3843,6 @@
   {
    "c": "Differential Calculus",
    "t": "Differential Operators",
-   "f": "curl(gradf)=Vx(Vf)=0 J△=(△)·△=(Jpex8）AIP“98"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Differential Operators",
    "f": "curl(curl F)=grad(div F)-v²F=V(v·F)-v²F 226"
   },
   {
@@ -5678,22 +3878,7 @@
   {
    "c": "Integral Calculus",
    "t": "Indefinite Integral",
-   "f": "[f（ax+b)dx= F(ax +b)+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Indefinite Integral",
    "f": "Jf(x)r(x)dx=→f²(x)+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "f(x)",
-   "f": "dx=Inlf(x)+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Method of Substitution",
-   "f": "∫f(x)dx= Jf(u(t)u'(t)dt if x=u(t)"
   },
   {
    "c": "Integral Calculus",
@@ -5707,21 +3892,6 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 877",
-   "f": "[xdx = 2"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 879",
-   "f": "xP+1 +C，p≠-1. P + 1 228"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Rational Functions",
-   "f": "[(ax + b) dx = (ax + b)1 +C,n≠-1. a(n +1)"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Rational Functions",
    "f": "=1mx+C dx=-Inlax+b+C"
   },
@@ -5732,138 +3902,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 883",
-   "f": "ax+b bc -ad In|cx + d|+ C p+ x3"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 884",
-   "f": "+C, a≠b. (x + a)(x + b) a-b x+a]"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 885",
-   "f": "a + bx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 886",
-   "f": "(a+bx)²-2a(a+bx)+a²1nla+bx +bx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 887",
-   "f": "1 |a+bx x(a+ bx) X"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 888",
-   "f": "b a+bx Jx²(a+bx)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 889",
-   "f": "In|a + bx| + (a + bx)² b² a+bx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "x²dx",
-   "f": "+ bx - 2alnla + bx|- a (a + bx) a + bx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 891",
-   "f": "x(a + bx)² a(a + bx)+ +C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 894",
-   "f": "1 a+x 2a"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 895",
-   "f": "1 2a x + a]"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 896",
-   "f": "tan-x+C 1+ x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 898",
-   "f": "x² + a²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 899",
-   "f": "a + bx² √ab arctan C，ab>0"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 900",
-   "f": "a + bx² 2b"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 901",
-   "f": "x² +bx 2a a +bx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 902",
-   "f": "a²-b²x² a-bx xp 2ax + b-√b² -4ac"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 903",
-   "f": "ax²+bx + c √b²-4ac 2ax + b +√b² 4ac b²-4ac>0"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 904",
-   "f": "2 2ax + b + xq + xe arctan"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 905",
-   "f": "Vax + b a"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions",
    "f": "√ax+bdx= (ax +b)+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 907",
-   "f": "ax +b 3a² 231"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "15a²",
-   "f": "[x√ax+b dx= 2(3ax -2b) (ax+b)+C xp √ax+b-√b-ac"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "arctan",
-   "f": "(x + c)/ax + b √ac-b ac-b +C"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions",
    "f": "P + x3 c√ac"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 912",
-   "f": "ax+b (ax + b)(cx + d)- cx +d ad-bc"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "105b²",
-   "f": "[x²√a+bx dx=2(8a12abx+15b²x2) （a+bx)+C"
   },
   {
    "c": "Integral Calculus",
@@ -5877,43 +3922,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 916",
-   "f": "2 a + bx xa+ bx arctan"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
-   "f": "√b+x Va+b +C a+x (a+x)b-x)-(a+b)arcsin"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions",
    "f": "Va+b + C 1+x"
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 919",
-   "f": "√1-x²+arcsinx+C 1-x x-a"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "2arcsin",
    "f": "+C (x-a)(b-a) Vb-a"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 921",
-   "f": "[√a+bx-cx² dx= 2cx -b √a + bx - cx² + b²-4ac 2cx -b"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 922",
-   "f": "√ax²+bx+c √a"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 923",
-   "f": "1 Vax²+bx+c arcsin √a"
   },
   {
    "c": "Integral Calculus",
@@ -5923,72 +3938,7 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions",
-   "f": "[x√x²+a²dx=（x²+a²)2+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
-   "f": "[x²√x²+a²dx=(2x²+a²) 1mx+√x²+a²+C 8 √x²+a²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 927",
-   "f": "+1nx+√x²+a²+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 928",
-   "f": "=Inx+√x²+a²+C √x² +a²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 929",
-   "f": "Vx²+a² dx=√x²+a²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 930",
-   "f": "=√x²+a²+C √x²+a²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
    "f": "√x²+a² 2"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 932",
-   "f": "1 X x√x²+a²aa+√x²+a²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 933",
-   "f": "{√x²-a²dx=√x²-a² x+√x²-a²+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Irrational Functions",
-   "f": "{x√x²-a²dx=（x²-a²)+C 234"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 935",
-   "f": "√x²-a² X"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 941",
-   "f": "(x+a)x²-a² Vx+a +C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 942",
-   "f": "1 x+a +C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 944",
-   "f": "X +C 235"
   },
   {
    "c": "Integral Calculus",
@@ -6002,78 +3952,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "arcsin",
-   "f": "x²√a²-x²d 8 -x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 949",
-   "f": "√a²-x²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 951",
-   "f": "arcsin x+C √1-x² xp"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 952",
-   "f": "+ C √a²-x² a"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 953",
-   "f": "-√a²-x²+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 954",
-   "f": "+C 236"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 955",
-   "f": "2 Va + x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 956",
-   "f": "1 a+ x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 957",
-   "f": "1 bx + a² √b²-a² arcsin"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 958",
-   "f": "x+b (x+b)Va²-x² √a²b² a²-b²√a²-x²+a²+bx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
-   "f": "[sin xdx = -cos x + C"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
    "f": "∫cos xdx = sin x + C 237"
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 964",
-   "f": "[sin²x dx = sin2x +C"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
    "f": "cos²xdx= x+1 sin2x+C 24"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "sinx dx",
-   "f": "-cosx+C= cos3x cOSx+C 3"
   },
   {
    "c": "Integral Calculus",
@@ -6087,38 +3972,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 971",
-   "f": "sec²x dx = tan x +C"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
    "f": "sin x cosx dx = cos2x+C 4 238"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "sin²xcosx dx",
-   "f": "x+C 3"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "sin xcosx dx",
-   "f": "1 cosx+C 3"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 977",
-   "f": "sin²xcosx dx= sin4x+C 832"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
-   "f": "[tan xdx =-In|cos x|+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "sin x",
-   "f": "cosx xp +C=secx+C COSX"
   },
   {
    "c": "Integral Calculus",
@@ -6142,43 +3997,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "c Osx",
-   "f": "sin x dx =lntan + cosx + C"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
    "f": "∫cot²x dx=-cotx-x+C"
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 986",
-   "f": "= Inltan x| + C cOSx sin x 239"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 987",
-   "f": "sinxcosx + Intan sinx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 988",
-   "f": "1 +Intan sin x cos²x COSX"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "m²≠ n²",
-   "f": "sin mx sin nx dx = 2(m +n) 2(m-n) +C，"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
    "f": "cos(m+n)x cos(m-n)x sin mxcosnx dx = +C 2(m+n)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
-   "f": "sin(m +n)x sin（m-n)x cosmxcosnx dx = +C， 2(m+n)"
   },
   {
    "c": "Integral Calculus",
@@ -6193,27 +4018,12 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
-   "f": "[sin xcos\" x dx =- _cos+1x +C n+1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
    "f": "sin\" xcosx dx = sin+1 x +C n +1 240"
   },
   {
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions",
    "f": "∫arcsinx dx=xarcsinx+√1-x²+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
-   "f": "[arccosx dx=xarccosx-√1-x²+C '666 arctan x dx=x arctan x In(x²+1)+C 2"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions",
-   "f": "∫arccotx dx=xarccotx+ In（x²+1)+C 2"
   },
   {
    "c": "Integral Calculus",
@@ -6262,16 +4072,6 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 1010",
-   "f": "∫a*dx a* + C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1011",
-   "f": "[e dx= 0+"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Exponential and Logarithmic",
    "f": "xe dx = (ax -1)+C"
   },
@@ -6282,48 +4082,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "xlnx",
-   "f": "=In|lnx|+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "ln x",
-   "f": "{x\"lnx dx=x” n+1 (n+1) a² + b² 242"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Exponential and Logarithmic",
    "f": "ecosbx dx= acosbx+bsinbx +C a² + b²"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "x\"emx",
-   "f": "xe\" dx = 1 emdx m m"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1019",
-   "f": "dx m dx, n≠1. (n-1）x-"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1020",
-   "f": "sinh\" xdx =- sinh\"-xcoshx- sinh-²xdx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1021",
-   "f": "cosh x n-2 dx sinh\" x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1022",
-   "f": "cosh°xdx= sinhxcosh”-xcoshx+n-1 cosh-²xdx sinh x dx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "cosh\"x",
-   "f": "(n-1)cosh-²x,n≠1. n-1* cosh-2"
   },
   {
    "c": "Integral Calculus",
@@ -6338,27 +4098,7 @@
   {
    "c": "Integral Calculus",
    "t": "Reduction Formulas",
-   "f": "[coth\" xdx = x+coth-² xdx, n≠1. n-1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Reduction Formulas",
    "f": "Jsech\"xdx=sech\"-xtanhx sech-²xdx, n≠1. n-1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1029",
-   "f": "sin\" xdx = sin\"-xcosx+ [sinn-² xdx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1030",
-   "f": "COS X n-2 dx sin\" x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1032",
-   "f": "n-2 cos\"x(n-1)cos\"-1x,n≠1. x-x=xpsoxuc0l"
   },
   {
    "c": "Integral Calculus",
@@ -6369,16 +4109,6 @@
    "c": "Integral Calculus",
    "t": "Reduction Formulas",
    "f": "Jtan\"xdx= -tan\"-'x-∫ tan\"-²xdx, n≠1. n-1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Reduction Formulas",
-   "f": "[cot\" xdx = -- cot\"-1 x- {cotn-2 xdx, n≠1. n-1 n-1 n-1 n-1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1040",
-   "f": "(n-1)xn-1 + n1"
   },
   {
    "c": "Integral Calculus",
@@ -6407,36 +4137,6 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 1046",
-   "f": "[x\" sin- xdx =- n+1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1047",
-   "f": "[x\"cosxdx= x+1 n+1 n+1- -tan'x"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1049",
-   "f": "ax\" +b a a ax\" +b"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1050",
-   "f": "2ax-b ax²+ bx +c) (n - 1)(b² - 4ac)(ax² + bx + c)-1 2(2n-3)a"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1051",
-   "f": "2n3 dx (x² +a² 2(n-1)a²（x²+a²）-1"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1052",
-   "f": "-a²) 2(n-1)a²（x²-a²) 2n —3 dx"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Definite Integral",
    "f": "{1dx=b-a"
   },
@@ -6462,18 +4162,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "[f(x)dx for a<c<b",
-   "f": "{f(x)dx={f(x)dx+]"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Definite Integral",
    "f": "jf(x)dx≥0 if f(x)≥0 on [a,b]"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Definite Integral",
-   "f": "Jf(x)dx≤0 if f(x)≤0 on a,b]. 248"
   },
   {
    "c": "Integral Calculus",
@@ -6482,23 +4172,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Methodof Substitution",
-   "f": "If x=g(t),then f（x)dx=∫f（g（t)g（t)dt, where c=g\"(a), d=g-(b)"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integration by Parts",
    "f": "udv=(uv)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Trapezoidal Rule",
-   "f": "f（x）dx= 2n 249"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Simpson's Rule",
-   "f": "b[（x)+4f(x)+2(x）)+4f(x)+ f(x)dx: 3n +2f(x)+.+4f(x-1)+f(x)], where"
   },
   {
    "c": "Integral Calculus",
@@ -6512,43 +4187,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Improper Integral",
-   "f": "If f(x) is a continuous function on [a,∞), then x = lim [f(x)dx. 253"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "[f(x)dx",
-   "f": "If f(x) is a continuous function on (-o∞o,b], then f(x)dx=lim y=f(x)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Improper Integral",
-   "f": "[f（x）dx= +xP(x)] +[f(x）dx y=f(x)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Comparison Theorems",
-   "f": "Let f(x) and g(x) be continuous functions on the closed interval [a,∞). Suppose that 0≤g(x)≤f(x) for all x in [a,o0). 255"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Absolute Convergence",
    "f": "(x)dx is convergent,then the integral f(x)dx is abso- lutely convergent"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Discontinuous Integrand",
-   "f": "Let f(x) be a function which is continuous on the interval [a,b) but is discontinuous at x = b. Then f(x)dx =lim [f(x)dx y=f(x)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Let f(x) be a continuous function for all real numbers x in",
-   "f": "the interval [a,b] except for some point c in (a,b). Then f(x)dx=lim [f(x)dx+ lim [f(x)dx. y=f(x)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Double Integral",
-   "f": "[f(x,y)+g(x,y)dA={f(x,y)dA+g(x,y)dA"
   },
   {
    "c": "Integral Calculus",
@@ -6557,48 +4197,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "where k is a constant",
-   "f": "{∫kf(x,y)dA =k{f(x,y)dA"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Double Integral",
-   "f": "If f(x,y)≤g(x,y) on R, then [f(x,y)dA≤ g(x,y)dA"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Double Integral",
    "f": "If f(x,y)≥0 on R and Sc R, then 259"
   },
   {
    "c": "Integral Calculus",
-   "t": "regions,then",
-   "f": "If f(x,y)≥0 on R and R and S are non-overlapping {[f(x,y)dA= [+VP(A‘x)] {ff(x,y)dA RwS"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Iterated Integrals and Fubini's Theorem",
-   "f": "[f(x,y)dA= f(x,y)dydx a p(x) for a region of type I, R=(x,y)|a≤x≤b,p(x)≤y≤q(x)"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Double Integrals over Rectangular Regions",
    "f": "If R is the rectangular region [a,b]x[c,d], then f(x,y)dxdy |f(x,y)dy f(x,y)dx|dy In the special case where the integrand f(x,y) can be writ-"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Change of Variables",
-   "f": "[f(x,y)dxdy= d(x,y) dudv, (u,v) Cx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Polar Coordinates",
-   "f": "x=rcos0,y=rsin0"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Double Integrals in Polar Coordinates",
-   "f": "The Differential dxdy for Polar Coordinates is dxdy= [0(x,y) drd0=rdrd0. 0(r,0)"
   },
   {
    "c": "Integral Calculus",
@@ -6632,48 +4237,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Average of a Function",
-   "f": "[f(x,y)dA, where S= dA"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Triple Integral",
-   "f": "[f(x,y,z)+g(xy,z)]av= f(xy,zdv+ g(xy,z)dv AP(zx) AP(zx) =AP[(zx)8-(zx)] { 0LL"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "where k is a constant",
-   "f": "kf(x,y,z)dV=k f(x,y,zdV"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "regions,then",
-   "f": "If f(x,y,z)>≥0 and G and T are nonoverlapping basic f(x,y,z)dv =f f(x,y,z)dv+Jff f(x,y,z)dv. Here GUT is the union of the regions G and T. 270"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Evaluation of Triple Integrals by Repeated Integrals",
    "f": "If the solid Gis the set of points (x,y,z) suchthat (x,y)∈R,x(x,y)≤z≤(x,y),then (x,Y) f{ f(x,y,z)dxdydz = f(x,y,z)dz"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Triple Integrals over Parallelepiped",
-   "f": "If G is a parallelepiped [a, b]x[c, d]x[r, s], then In the special case where the integrand f(x,y,z)can be written as g(x)h(y)k(z) we have (xy,z）dxdydz= =g(xxhy）dyk(2"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Change of Variables",
-   "f": "f f(x,y,z)dxdydz = ={ [x(u,v,w)y（u,y,w)z（u,v,w)] 0(x,y,z) dxdydz, 0（u,v,w)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Triple Integrals in Cylindrical Coordinates",
-   "f": "The differential dxdydz for cylindrical coordinates is （x,y,z) dxdydz = （r,0,z) drd0dz=rdrdodz"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Triple Integrals in Spherical Coordinates",
-   "f": "The Differential dxdydz for Spherical Coordinates is [(x,y,z) dxdydz= drd0dp=r²sin0drd0dp （r,0,p)"
   },
   {
    "c": "Integral Calculus",
@@ -6702,58 +4267,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Triple Integral",
-   "f": "Moments of Inertia about the x-axis, y-axis, and z-axis I=Ixy+Ix=ff(2²+y²)（x,y,z)dV, I=1y+1=f (2²+x²)（x,y,z)dV, 274"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Polar Moment of Inertia",
-   "f": "I=Ixy+I+1={f(x²+y²+z²）（x,y,z)dV"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Line Integral of a Scalar Function",
-   "f": "Let a curve C be given by the vector function F = F(s), 0≤s≤S, and a scalar function F is defined over the curve C. Then F(r(s)ds={F(x,y,z)ds={Fds, where ds is the arc length differential"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "C,UC,",
    "f": "∫Fds=∫Fds+∫Fds"
   },
   {
    "c": "Integral Calculus",
-   "t": "F(x,y,z)ds",
-   "f": "If the smooth curve C is parametrized by r =r(t), α≤t≤β,then F(x（t)y（t)z（t）)/(x（t)²+（y(（t）)²+(z(（t）)²dt"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Line Integral",
-   "f": "If Cis a smooth curve in the xy-plane given by the equation y=f(x), a≤x≤b,then F(x,f(x))/1+(f’(x)²dx"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Line Integralof Vector Field",
    "f": "Let a curve C be defined by the vector function r =r(s), 0≤s≤S.Then ds is the unit vector of the tangent line to this curve. r(s=0)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Properties of Line Integrals of Vector Fields",
-   "f": "[(F-dr)=-{(F·dr), where -C denote the curve with the opposite orientation. [(F·di)=[(F·di)=J(F.dr)+[(F.di), where Cis the union of the curves C, and C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Formula 1124",
-   "f": "If the curve C is parameterized by r(t)= (x(t),y(t),z(t), α≤t≤β,then ∫Pdx + Qdy + Rdz = +Q(x（）y（(）x()+R(x（y（）x()) p"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "then",
-   "f": "If C lies in the xy-plane and given by the equation y =f(x), Pdx+Qdy={P(x,f(x)+Q(x,f(x))"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Green's Theorem",
-   "f": "Q P dxdy=$Pdx+Qdy, （axoy） where F =P(x,y)i +Q(x,y)j is a continuous vector func-"
   },
   {
    "c": "Integral Calculus",
@@ -6767,11 +4287,6 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Formula 0",
-   "f": "P Q R If the line integral is taken in xy-plane so that"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Length ofa Curve",
    "f": "where C ia a piecewise smooth curve described by the posi- tion vector r(t),α≤t≤β. If the curve Cis two-dimensional, then -—- dt"
   },
@@ -6782,53 +4297,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Mass ofa Wire",
-   "f": "m= Jp(x,y,z)ds, where p(x, y,z) is the mass per unit length of the wire. If Cis a curve parametrized by the vector function (t)=(x(t), y(t),z(t),then the mass can be computed by the formula"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Moments of Inertia",
-   "f": "The moments of inertia about the x-axis, y-axis, and z-axis aregivenby the formulas I={(²+2²)(（xy,z)ds, I={(x²+z²)p（x,y,z)ds, ="
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Volume of a Solid Formed by Rotating a Closed Curve",
    "f": "about the x-axis 2xydy+y²dx 282"
   },
   {
    "c": "Integral Calculus",
-   "t": "Work",
-   "f": "Work done by a force F on an object moving along a curve Cis given by theline integral W= [F.dr, where F is the vector force field acting on the object, d is"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Ampere's Law",
    "f": "fB·dr=μol. The line integral of a magnetic field B around a closed path C is equal to the total current I flowing through the area bounded by the path. B"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Surface Integral of a Scalar Function",
-   "f": "Let a surface S be given by the position vector r(u,v)=x（u,v)i+y(u,v)j+z(u,v)k, where (u,v) ranges over some domain D(u,v) of the uv- plane. The surface integral of a scalar function f(x,y,z) over"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "z(x,y) is a differentiable function in the domain D(x,y),",
-   "f": "If the surface S is given by the equation z =z(x,y) where then (x=(xxx1() dxdy. D(x,y)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Surface Integral of the Vector Field F over the Surface S",
-   "f": "If S is oriented outward, then {F(x,y,z) ds=[ {{F(x,y,z)-nds {F(x（u,v),y（u,v)z(u,v) D(u,x)"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "z(x,y) is a differentiable function in the domain D(x,y),",
-   "f": "If the surface S is given by the equation z=z(x,y), where then ·If S is oriented upward, i.e. the k-th component of the normal vector is positive, then [[F(x,y,z)·ds=]"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "where P(x,y,z), Q(x,y,z), R(x,y,z) are the components of",
-   "f": "∫{(F·n)s=Pdydz+Qdzdx+Rdxdy =J{(Pcosα +Q cosβ+R cosy)dS, the vector field F. cosα，cosβ，cos are the angles between the outer unit normal vector n and the x-axis, y-axis, and z-axis, respect-"
   },
   {
    "c": "Integral Calculus",
@@ -6862,33 +4337,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "face area is",
-   "f": "If S is given explicitly by the function z(x,y), then the sur- (() pxp where D(x,y) is the projection of the surface S onto the xy- plane"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Mass of a Surface",
    "f": "m=J∫μ(x,y,z)ds, where μ(x,y,z) is the mass per unit area (density func- tion)"
   },
   {
    "c": "Integral Calculus",
-   "t": "Surface Integral",
-   "f": "Moments of Inertia about the xy-plane (or z =0), yz-plane (x=0),and xz-plane (y=0) Ixy = J{z²μ(x,y,z)ds, I=J{x²μ（x,y,z)ds 291"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Surface Integral",
-   "f": "Moments of Inertia about the x-axis, y-axis,and z-axis I={(y²+z²）（x,y,z)ds, I={（x²+z²）（x,yz）ds I={（x²+y²)（x,yz)ds"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Volume ofa Solid Bounded by a Closed Surface",
    "f": "xdydz+ydxdz+zdxdy"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Gravitational Force",
-   "f": "F=Gmμ（xy,z) SP where m is a mass at a point (xo,Yoza) outside the surface, r=(x-xy-yosz-zo>, μ(x,y,z) is the density function"
   },
   {
    "c": "Integral Calculus",
@@ -6907,18 +4362,8 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Surface Charge",
-   "f": "Q=o（x,y)ds， where o(x,y) is the surface charge density"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Gauss'Law",
    "f": "The electric flux through any closed surface is proportional to the charge Q enclosed by the surface fE·ds= Q E0"
-  },
-  {
-   "c": "Differential Equations",
-   "t": "Linear Equations",
-   "f": "d+p(xy=q(x) dx The general solution is {u（x)q(x)dx+C u(x)"
   },
   {
    "c": "Differential Equations",
@@ -6959,11 +4404,6 @@
    "c": "Differential Equations",
    "t": "Population Dynamics (Logistic Model)",
    "f": "dP_ = kP|1- P 1P M"
-  },
-  {
-   "c": "Differential Equations",
-   "t": "Homogeneous Linear Equations with Constant Coefficients",
-   "f": "y\"+py'+qy=0. The characteristic equation is ²+p+q=0. If ， and are distinct real roots of the characteristic equation, then the general solution is"
   },
   {
    "c": "Differential Equations",
@@ -7027,11 +4467,6 @@
   },
   {
    "c": "Series",
-   "t": "Formula 1187",
-   "f": "2a+(n-1)d 2 2 304"
-  },
-  {
-   "c": "Series",
    "t": "Geometric Series",
    "f": "a = qa- =a,q-"
   },
@@ -7049,11 +4484,6 @@
    "c": "Series",
    "t": "Geometric Series",
    "f": "s, =a.q-a = q-1"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1192",
-   "f": "S=limS In→ 1-q For |q|<1, the sum S converges as n→∞0"
   },
   {
    "c": "Series",
@@ -7078,17 +4508,7 @@
   {
    "c": "Series",
    "t": "Some Finite Series",
-   "f": "1² +2 +3²+.+ n² = n(n+1(2n+1) 6"
-  },
-  {
-   "c": "Series",
-   "t": "Some Finite Series",
    "f": "1* +23+3*+..+n3 n(n +1)"
-  },
-  {
-   "c": "Series",
-   "t": "Some Finite Series",
-   "f": "1 +3² + 5² +.+(2n -1)² = n（4n²-1 3"
   },
   {
    "c": "Series",
@@ -7152,11 +4572,6 @@
   },
   {
    "c": "Series",
-   "t": "converges for p>1 and diverges for",
-   "f": "p-series p-series 0<p≤1"
-  },
-  {
-   "c": "Series",
    "t": "The Integral Test",
    "f": "Let f(x) be a function which is continuous, positive, and decreasing for all x ≥1. The series ∑f(n)=f(1)+f(2)+f(3)+..+f(n)+.. =1 converges if"
   },
@@ -7207,38 +4622,8 @@
   },
   {
    "c": "Series",
-   "t": "Integration of Power Series",
-   "f": "n=0 Then, for |x|<R,the indefinite integral f(x)dx exists and [f(x)dx= {a。dx+ {a,xdx+{ax²dx+ =ax + C"
-  },
-  {
-   "c": "Series",
-   "t": "Taylor Series",
-   "f": "f(x)=f((a)(x-a) n! 2! f(lo)(a)(x-a) -+R"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1226",
-   "f": "The Remainder After n+1 Terms is given by f(n+1)(≤)x-a)+1 (n+1) a<g<x"
-  },
-  {
-   "c": "Series",
    "t": "(xlna)\"",
    "f": "a²=1+ 2! iE n!"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1230",
-   "f": "In(1+x)= x3 xd (1)xn+1 1<x≤1"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1231",
-   "f": "1+ x X 3 5"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1232",
-   "f": "lnx= x²xx"
   },
   {
    "c": "Series",
@@ -7252,23 +4637,8 @@
   },
   {
    "c": "Series",
-   "t": "Formula 1235",
-   "f": "tanx=x+ 2x 17x 62x9 15"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1237",
-   "f": "arcsin x=x+ 1·3xs"
-  },
-  {
-   "c": "Series",
    "t": "[x<1",
    "f": "3. .(2n -1)x2+1 2·32·4·5 2 .4 ·6...(2n)(2n +1)"
-  },
-  {
-   "c": "Series",
-   "t": "arccosx",
-   "f": "1· 3x + 1.3. 5.(2n - 1)x2+1 2·3 2·4·5"
   },
   {
    "c": "Series",
@@ -7279,11 +4649,6 @@
    "c": "Series",
    "t": "Power Series Expansions for Some",
    "f": "arctanx=x ±..,|x|≤1. 3 5 7 2n + 1"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1240",
-   "f": "coshx=1+ + 2! 4! i9"
   },
   {
    "c": "Series",
@@ -7302,18 +4667,8 @@
   },
   {
    "c": "Series",
-   "t": "Formula 1245",
-   "f": "1 =1+x+x²+x²+"
-  },
-  {
-   "c": "Series",
    "t": "1·3x²",
    "f": "√1+x=1+ 1·3·5x4"
-  },
-  {
-   "c": "Series",
-   "t": "Formula 1247",
-   "f": "√1+x=1+ 1·2x² 1·2·5x² 1·2·5·8x4 +..., x|≤1"
   },
   {
    "c": "Series",
@@ -7332,18 +4687,8 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Factorial",
-   "f": "n!=1-2-3..(n-2)n-1)n 0!=1"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Permutations and Combinations",
    "f": "\"P, =n!"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Formula 1253",
-   "f": "n! (n-m)!"
   },
   {
    "c": "Probability & Combinatorics",
@@ -7382,11 +4727,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Complement",
-   "f": "P(A)=1-P(A)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Independent Events",
    "f": "P(A/B)=P(A), P(B/A)= P(B)"
   },
@@ -7407,11 +4747,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Conditional Probability",
-   "f": "P(A/B)= P(AB) P(B)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Probability Formulas",
    "f": "P(AB)=P(B)·P(A/B)=P(A)·P(B/A) 320"
   },
@@ -7422,18 +4757,8 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Bayes Theorem",
-   "f": "P(B/A)= P(A/B).P(B) P(A)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Bayes?Formula",
    "f": "P(B;)·P(A/B;) P(B;/A)= k=1 where B is a set of mutually exclusive events (hypotheses)"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Normal Density Function",
-   "f": "1 _(x-μ)2 p（x)= √2π e"
   },
   {
    "c": "Probability & Combinatorics",
@@ -7457,16 +4782,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "where",
-   "f": "P(α<X<β)=F X is normally distributed random variable, Fis cumulative normal distribution function, P(α <X<β) is interval probability"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "where",
-   "f": "P(X-μ<e)=2F X is normally distributed random variable, F is cumulative normal distribution function"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Cumulative Distribution Function",
    "f": "F(x)=P(x<x)={f(t)dt, where t is a variable of integration"
   },
@@ -7487,23 +4802,8 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Poisson Distribution",
-   "f": "P(X=k)≈ 入k ，=np， k! μ=,o²="
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Density Function",
    "f": "P(a≤ X≤b)"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Continuous Uniform Density",
-   "f": "1 a+b b-a ，μ= 2"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Exponential Density Function",
-   "f": "f（t)=e-,μ=,o²=² where tis time, is the failure rate"
   },
   {
    "c": "Probability & Combinatorics",
@@ -7527,18 +4827,8 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "where",
-   "f": "E(x²)=V(x)+μ², μ= E(x) is the expected value, V(X) is the variance. 325"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Variance of Discrete Random Variables",
    "f": "o²=V(x)=E[(x-μ)²]=∑(x-μ)²P;, where x, is a particular outcome, P; is its probability"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Variance of Continuous Random Variables",
-   "f": "o²=V(x)=E(x-μ)² x-μ)²f（x)dx"
   },
   {
    "c": "Probability & Combinatorics",
@@ -7549,11 +4839,6 @@
    "c": "Probability & Combinatorics",
    "t": "Standard Deviation",
    "f": "D(x)=√v(x)=√E[(x-μ)]"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Covariance",
-   "f": "“（x）（x)-（xx)=[(（x）-x)(（x)-x)]=(xx）Ao where X is random variable, V(x) is the variance of X, μ is the expected value of X or Y"
   },
   {
    "c": "Probability & Combinatorics",
@@ -8082,23 +5367,8 @@
   },
   {
    "c": "Finance & Economics",
-   "t": "Forward price",
-   "f": "F(t, T) = S_t · e^(r(T−t)) − FV(dividends)"
-  },
-  {
-   "c": "Finance & Economics",
-   "t": "Forward price with a yield",
-   "f": "F(t, T) = S_t · e^((r − δ)(T−t))"
-  },
-  {
-   "c": "Finance & Economics",
    "t": "Prepaid forward price",
    "f": "Fᴾ(t, T) = S_t or S_t e^(−δ(T−t))"
-  },
-  {
-   "c": "Finance & Economics",
-   "t": "Put-call parity (European)",
-   "f": "c(S, K, t, T) − p(S, K, t, T) = Fᴾ(t, T) − K e^(−r(T−t))"
   },
   {
    "c": "Finance & Economics",
@@ -8137,21 +5407,6 @@
   },
   {
    "c": "Finance & Economics",
-   "t": "Black-Scholes d₁",
-   "f": "d₁ = [ln(S/K) + (r + σ²/2)T] / (σ√T)"
-  },
-  {
-   "c": "Finance & Economics",
-   "t": "Black-Scholes d₂",
-   "f": "d₂ = d₁ − σ√T"
-  },
-  {
-   "c": "Finance & Economics",
-   "t": "Option delta",
-   "f": "Δ = ∂c/∂S = N(d₁)"
-  },
-  {
-   "c": "Finance & Economics",
    "t": "Option gamma",
    "f": "Γ = ∂²c/∂S² = φ(d₁) / (S σ √T)"
   },
@@ -8184,11 +5439,6 @@
    "c": "Finance & Economics",
    "t": "Binomial price",
    "f": "c = e^(−rT)[p* c_u + (1 − p*) c_d]"
-  },
-  {
-   "c": "Finance & Economics",
-   "t": "Sharpe ratio",
-   "f": "Sharpe = (E[R] − r) / σ"
   },
   {
    "c": "Finance & Economics",
@@ -8324,11 +5574,6 @@
    "c": "Finance & Economics",
    "t": "Index number (Paasche)",
    "f": "P = (Σ p₁q₁ / Σ p₀q₁) × 100"
-  },
-  {
-   "c": "Finance & Economics",
-   "t": "Real value index",
-   "f": "Real value index = (nominal value / price index) × 100"
   }
  ]
 }
