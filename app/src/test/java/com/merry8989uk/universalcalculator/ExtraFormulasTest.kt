@@ -100,6 +100,7 @@ class ExtraFormulasTest {
                 wrong.add("$id: got $got, wanted $want")
             }
         }
+        if (wrong.isNotEmpty()) println("WRONG:\n" + wrong.joinToString("\n"))
         assertTrue("these calculators give the wrong answer: $wrong", wrong.isEmpty())
     }
 
@@ -133,6 +134,7 @@ class ExtraFormulasTest {
                 broken.add("$id: ${e.message}")
             }
         }
+        if (broken.isNotEmpty()) println("THREW:\n" + broken.joinToString("\n"))
         assertTrue("these calculators throw on their own defaults: $broken", broken.isEmpty())
     }
 }

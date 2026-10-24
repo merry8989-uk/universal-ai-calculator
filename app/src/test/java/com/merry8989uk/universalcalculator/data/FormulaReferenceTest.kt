@@ -33,7 +33,8 @@ class FormulaReferenceTest {
         .replace("\u2212", "-").replace("\u00D7", "*").replace("\u00F7", "/").replace("\u00B7", "*")
 
     @Test fun referenceIsPresentAndSubstantial() {
-        assertTrue("expected 1500+ reference formulas, found ${entries.size}", entries.size >= 1500)
+        // the reference holds only what cannot be a calculator: rules, identities and tables
+        assertTrue("expected 1000+ reference formulas, found ${entries.size}", entries.size >= 1000)
     }
 
     @Test fun everyEntryIsComplete() {

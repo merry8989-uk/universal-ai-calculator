@@ -50,6 +50,7 @@ class FormulaLibraryTest {
                 broken.add("${f.id}: ${e::class.simpleName}: ${e.message}")
             }
         }
+        if (broken.isNotEmpty()) println("THREW:\n" + broken.joinToString("\n"))
         assertTrue("formulas that threw:\n" + broken.joinToString("\n"), broken.isEmpty())
         assertTrue("non-finite outputs:\n" + notFinite.joinToString("\n"), notFinite.isEmpty())
         assertTrue("NaN outputs:\n" + nan.joinToString("\n"), nan.isEmpty())
