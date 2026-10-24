@@ -42,6 +42,7 @@ Engineering, Construction and Math.
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **x variable key** (with an inline value field) and a **⇄ swap** key
 - **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
+- **Stress tests** (333 tests total)
 - **Watch companion** (Wear OS), sharing the engine via `:core`
 - **Encrypted sync** (end-to-end, off by default)
 - **Limits** and **partial fractions** (advanced CAS)
