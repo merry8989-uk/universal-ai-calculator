@@ -180,16 +180,6 @@ fun AppRoot(settings: SettingsState) {
         usesClassicPad(settings.layoutStyle, isScientificTab = true, minimal = minimal)
     val aiVisible = aiIsVisible(settings.aiEnabled, minimal)
 
-    // A pick from the MODE list: a tab for the calculators, a tool otherwise.
-    fun openMode(id: String) {
-        val target = modeTarget(id, minimal)
-        if (target.startsWith("tab:")) {
-            selectTab(target.removePrefix("tab:").toInt())
-        } else {
-            requestedTool = target.removePrefix("tool:")
-            selectTab(FORMULAS_TAB)
-        }
-    }
     // Leaving minimal mode must not strand the user on a tab that is gone.
     LaunchedEffect(minimal) {
         if (minimal && tab !in MINIMAL_TABS && tab != SETTINGS_TAB) tab = STANDARD_TAB
@@ -208,6 +198,17 @@ fun AppRoot(settings: SettingsState) {
     fun selectTab(i: Int) {
         if (tab == i) resetTick++ else tab = i
         Analytics.event(analyticsContext, "tab:" + TAB_LABELS[i].toString())
+    }
+
+    // A pick from the MODE list: a tab for the calculators, a tool otherwise.
+    fun openMode(id: String) {
+        val target = modeTarget(id, minimal)
+        if (target.startsWith("tab:")) {
+            selectTab(target.removePrefix("tab:").toInt())
+        } else {
+            requestedTool = target.removePrefix("tool:")
+            selectTab(FORMULAS_TAB)
+        }
     }
 
     // The key tone follows the setting.
