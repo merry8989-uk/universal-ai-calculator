@@ -372,7 +372,7 @@
     <string name="classic_e_const">e</string>
     <string name="classic_deg">degrees</string>
     <string name="diag_connection">Connection</string>
-    <string name="diag_connection_help">Measures a real round trip to this app's own server. The server answers a ping at once, so the number is the network, not a model thinking.</string>
+    <string name="diag_connection_help">Measures a real round trip to the server this app uses. It answers a ping at once, so the number is the network, not a model thinking.</string>
     <string name="diag_ping">Check</string>
     <string name="diag_pinging">Checking…</string>
     <string name="diag_ping_result">best %1$d ms · average %2$d ms · worst %3$d ms</string>
