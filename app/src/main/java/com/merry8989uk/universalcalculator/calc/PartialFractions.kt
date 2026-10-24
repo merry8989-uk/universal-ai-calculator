@@ -70,7 +70,12 @@ object PartialFractions {
         }
 
         // Distinct real roots, with how many times each occurs.
-        val roots = Symbolic.roots(den)
+        // Symbolic.roots can hand back the same root more than once (a zero root
+        // is added twice, for instance), so fold those together first.
+        val roots = ArrayList<Double>()
+        for (r in Symbolic.roots(den)) {
+            if (roots.none { abs(it - r) < 1e-7 }) roots.add(r)
+        }
         if (roots.isEmpty()) {
             return Outcome.NotPossible("The denominator has no real roots, so it cannot be split this way.")
         }

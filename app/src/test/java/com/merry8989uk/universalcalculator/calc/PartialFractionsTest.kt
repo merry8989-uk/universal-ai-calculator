@@ -98,7 +98,8 @@ class PartialFractionsTest {
         val num = doubleArrayOf(0.0, 0.0, 0.0, 1.0)
         val den = minusRoot(1.0)
         val d = PartialFractions.decompose(num, den) as PartialFractions.Outcome.Decomposed
-        assertEquals(3, Symbolic.degree(d.polynomial))
+        // x^3/(x-1) = (x^2 + x + 1) + 1/(x-1)
+        assertEquals(2, Symbolic.degree(d.polynomial))
         assertEquals(1.0, d.polynomial[0], 1e-9)
         assertEquals(1.0, d.polynomial[1], 1e-9)
         assertEquals(1.0, d.polynomial[2], 1e-9)

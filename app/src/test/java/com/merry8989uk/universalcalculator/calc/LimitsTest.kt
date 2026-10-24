@@ -71,9 +71,13 @@ class LimitsTest {
         assertTrue("expected divergence, got $v", v != null && v == Double.POSITIVE_INFINITY)
     }
 
-    @Test fun aStraightLineDiverges() {
-        val v = lim("x", 100.0)
-        assertTrue(v != null && v == Double.POSITIVE_INFINITY)
+    @Test fun aPolynomialAtAPointIsItsValue() {
+        // x approaches 100; it does not run away there.
+        assertEquals(100.0, lim("x", 100.0)!!, 1e-6)
+    }
+
+    @Test fun aLinearFunctionDivergesAtInfinity() {
+        assertTrue(Limits.limitAtInfinity("2*x+1") == Double.POSITIVE_INFINITY)
     }
 
     // ---- at infinity ----
