@@ -149,7 +149,11 @@ internal fun ClassicScientificPad(
                     // Say what the key does, using the action when there is one,
                     // so a glyph like ∫dx is never read out as itself.
                     val activeAction = if (shifted) key.shiftedAction ?: key.action else key.action
-                    val spoken = if (activeAction.startsWith("@")) label else spokenKey(activeAction)
+                    val spoken = if (activeAction.isEmpty() || activeAction.startsWith("@")) {
+                        spokenKey(label)
+                    } else {
+                        spokenKey(activeAction)
+                    }
                     ClassicKeyView(
                         label = label,
                         tone = if (key.action == SHIFT && shifted) ClassicTone.Accent else tone,

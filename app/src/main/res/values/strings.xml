@@ -360,4 +360,15 @@
     <string name="classic_ms">स्मृति में रखें</string>
     <string name="classic_e">e</string>
     <string name="classic_deg">अंश</string>
+    <string name="classic_dx">integral</string>
+    <string name="classic_ddx">derivative</string>
+    <string name="classic_">sum of a list</string>
+    <string name="classic_">product of a list</string>
+    <string name="classic_xe">swap operands</string>
+    <string name="classic_drg">angle unit</string>
+    <string name="classic_xm">store in memory</string>
+    <string name="classic_">degrees</string>
+    <string name="classic_ac">clear</string>
+    <string name="classic_ans">previous answer</string>
+    <string name="classic_exp">exponent</string>
 </resources>

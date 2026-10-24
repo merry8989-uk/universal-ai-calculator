@@ -55,7 +55,11 @@ class ClassicPadTest {
     @Test fun everyKeyHasASpokenLabel() {
         val missing = ArrayList<String>()
         everyKey().forEach { key ->
-            val spoken = if (key.action.startsWith("@")) key.label else Spoken.key(key.action)
+            val spoken = if (key.action.isEmpty() || key.action.startsWith("@")) {
+                Spoken.key(key.label)
+            } else {
+                Spoken.key(key.action)
+            }
             // a glyph read out as itself tells a screen-reader user nothing
             val isGlyph = spoken.length == 1 && !spoken[0].isLetterOrDigit()
             if (spoken.isBlank() || isGlyph) missing.add("${key.label} -> '$spoken'")

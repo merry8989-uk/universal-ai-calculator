@@ -358,4 +358,15 @@
     <string name="classic_ms">स्मृति में रखें</string>
     <string name="classic_e">e</string>
     <string name="classic_deg">अंश</string>
+    <string name="classic_dx">समाकल</string>
+    <string name="classic_ddx">अवकलज</string>
+    <string name="classic_">सूची का योग</string>
+    <string name="classic_">सूची का गुणनफल</string>
+    <string name="classic_xe">ऑपरेंड बदलें</string>
+    <string name="classic_drg">कोण इकाई</string>
+    <string name="classic_xm">स्मृति में रखें</string>
+    <string name="classic_">अंश</string>
+    <string name="classic_ac">साफ़ करें</string>
+    <string name="classic_ans">पिछला उत्तर</string>
+    <string name="classic_exp">घातांक</string>
 </resources>
