@@ -40,7 +40,7 @@ jobs:
       - name: Encrypted sync round trip
         run: |
           python3 -m pip install --quiet cryptography
-          python3 tools/sync_roundtrip.py "${{ env.WORKER_URL }}"
+          python3 tools/sync_roundtrip.py https://nexus-calc-ai.br19shc39.workers.dev
 
       - name: Whole-page transcription (the PDF path)
         run: |
