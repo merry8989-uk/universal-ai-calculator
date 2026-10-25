@@ -28,11 +28,13 @@ fun AutoSizeText(
     color: Color = Color.Unspecified,
     minScale: Float = 0.42f,
     textAlign: TextAlign? = null,
+    /** Where the text sits in the box. A key label is centred; a result is not. */
+    contentAlignment: Alignment = Alignment.CenterEnd,
 ) {
     val measurer = rememberTextMeasurer()
     val resolved = if (style.fontSize.isSpecified) style else style.merge(LocalTextStyle.current)
 
-    BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.CenterEnd) {
+    BoxWithConstraints(modifier = modifier, contentAlignment = contentAlignment) {
         val available = constraints.maxWidth
         val fitted = remember(text, resolved, available) {
             if (text.isEmpty() || available <= 0) resolved

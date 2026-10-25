@@ -92,6 +92,7 @@ import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.calc.AnswerStyle
 import com.merry8989uk.universalcalculator.calc.CalcInfo
 import com.merry8989uk.universalcalculator.calc.ExpressionGuard
 import com.merry8989uk.universalcalculator.calc.Evaluator
@@ -1024,10 +1025,18 @@ when (key) {
                     val asFraction = if (settings.fractionsEnabled && preview.isNotEmpty()) {
                         preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
                     } else null
+                    // A big answer is shown twice: the whole number, and beneath it
+                    // the same number in scientific form. 28 14 74 97 67 10 656 says
+                    // exactly what it is; = 2.814 749 767 11x10^14 says how big.
+                    val written = if (preview.isNotEmpty())
+                        pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)
+                    else ""
+                    val twoLines = if (preview.isNotEmpty()) {
+                        preview.toDoubleOrNull()?.let { AnswerStyle.lines(it, written) }
+                    } else null
                     AutoSizeText(
                         text = if (preview.isNotEmpty())
-                            "= ${pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)}" +
-                                (asFraction?.let { "   ($it)" } ?: "")
+                            "= $written" + (asFraction?.let { "   ($it)" } ?: "")
                         else "",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
@@ -1037,6 +1046,15 @@ when (key) {
                             contentDescription = resultSpoken
                         },
                     )
+                    if (twoLines != null && twoLines.isTwoLines) {
+                        Text(
+                            twoLines.scientific,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
                 // How the expression was read, when that is not the obvious way.
                 if (settings.showCalcInfo && preview.isNotEmpty()) {

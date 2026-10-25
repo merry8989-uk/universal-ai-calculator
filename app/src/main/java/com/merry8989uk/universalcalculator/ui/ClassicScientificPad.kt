@@ -519,6 +519,8 @@ private fun ClassicKeyView(
                 color = textColor,
                 minScale = 0.6f,
                 textAlign = TextAlign.Center,
+                // a key label sits in the middle of its key, not at the right edge
+                contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -540,6 +542,7 @@ private fun ClassicMicroLabel(text: String?, color: Color, emphasise: Boolean) {
         color = if (emphasise) Color.White else color,
         minScale = 0.7f,
         textAlign = TextAlign.Center,
+        contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxWidth(),
     )
 }
