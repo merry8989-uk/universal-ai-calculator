@@ -737,7 +737,7 @@
   },
   {
    "c": "Matrices & Determinants",
-   "t": "Characteristic equation",
+   "t": "Characteristic equation of a matrix",
    "f": "det(A − λI) = 0"
   },
   {
@@ -1122,7 +1122,7 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Power rule",
+   "t": "Power rule for integrals",
    "f": "∫ xⁿ dx = xⁿ⁺¹ / (n + 1) + C, n ≠ −1"
   },
   {
@@ -1352,7 +1352,7 @@
   },
   {
    "c": "Differential Equations",
-   "t": "Characteristic equation",
+   "t": "Characteristic equation of an ODE",
    "f": "a r² + b r + c = 0"
   },
   {
@@ -1874,11 +1874,6 @@
    "c": "Sets & Numbers",
    "t": "Formula“De Moivre”",
    "f": "(cosp + isin p) =cos(np)+ isin(nq)"
-  },
-  {
-   "c": "Sets & Numbers",
-   "t": "Euler's Formula",
-   "f": "ei* =cosx+isinx 11"
   },
   {
    "c": "Algebra",
@@ -3287,11 +3282,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Parallel Lines",
-   "f": "Two lines y = kjx + b, and y = kx + b, are paralle if k= k. Two lines Ax+Bty+C=0 and Ax+By+C=0 are parallel if A_B"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Perpendicular Lines: perpendicular lines",
    "f": "Two lines y =k,x + b, and y = k,x +b, are perpendicular if 1 or, equivalently, k,k, =-1. k Two lines Ax+By+C,=0 and A,x+By+C=0 are"
   },
@@ -3649,11 +3639,6 @@
    "c": "Differential Calculus",
    "t": "Limits of Functions: a standard limit",
    "f": "lima²=1 X-0"
-  },
-  {
-   "c": "Differential Calculus",
-   "t": "Logarithmic Differentiation",
-   "f": "y=f(x), Iny=Inf(x), [Inf(x)] dx xp"
   },
   {
    "c": "Differential Calculus",
@@ -4142,16 +4127,6 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Area Under a Curve",
-   "f": "{f(x)dx=F(b)-F(a), where F'(x)= f(x). 251"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Area Between Two Curves",
-   "f": "S={[f(x)-g(x)]dx=F(b)-G(b)-F(a)+G(a), where F(x)=f(x), G’(x)= g(x). 252"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Absolute Convergence",
    "f": "(x)dx is convergent,then the integral f(x)dx is abso- lutely convergent"
   },
@@ -4339,16 +4314,6 @@
    "c": "Differential Equations",
    "t": "Homogeneous Equations",
    "f": "The differential equation dx the function f(x,y) is homogeneous,that is f(tx,ty)=f(x,y). The substitution z= (then y=zx)leads to the separable"
-  },
-  {
-   "c": "Differential Equations",
-   "t": "Bernoulli Equation",
-   "f": "+p(x)y=q(x). xp The substitution z= y'-\" leads to the linear equation +(1-n)p(x)z=(1-n)g(x). xp"
-  },
-  {
-   "c": "Differential Equations",
-   "t": "Riccati Equation",
-   "f": "xp If a particular solution y, is known, then the general solu- tion can be obtained with the help of substitution 1 which leads to the first order linear equation"
   },
   {
    "c": "Differential Equations",
@@ -4577,11 +4542,6 @@
   },
   {
    "c": "Series",
-   "t": "Radius of Convergence",
-   "f": "If the interval of convergence is (x。 R,x。 +R) for some R ≥0, the R is called the radius of convergence. It is given as R=lim- 1"
-  },
-  {
-   "c": "Series",
    "t": "Differentiation of Power Series",
    "f": "Let f(x)=ax²=a +axx+ax²+..for |x|<R. n=0 Then, for |x|<R, f(x) is continuous, the derivative f’(x) exists and f(x)="
   },
@@ -4692,11 +4652,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Independent Events",
-   "f": "P(A/B)=P(A), P(B/A)= P(B)"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Addition Rule for Independent Events",
    "f": "P(AU B)=P(A)+ P(B)"
   },
@@ -4762,11 +4717,6 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "Geometric Distribution",
-   "f": "P(T=j)=q²'p, o²= P where Tis the first successful event is the series"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Density Function",
    "f": "P(a≤ X≤b)"
   },
@@ -4799,11 +4749,6 @@
    "c": "Probability & Combinatorics",
    "t": "Propertiesof Variance",
    "f": "V(x+Y)=v(x)+V(Y), v(x-Y)=v(x)+v(Y), V(x+c)=v(x), V(cx)=c²v(x), where c is a constant"
-  },
-  {
-   "c": "Probability & Combinatorics",
-   "t": "Standard Deviation",
-   "f": "D(x)=√v(x)=√E[(x-μ)]"
   },
   {
    "c": "Probability & Combinatorics",
@@ -6824,6 +6769,306 @@
    "c": "Chemistry",
    "t": "Organic and Analytical: Hardness of water",
    "f": "ppm as CaCO₃ = (mass CaCO₃ / mass water) × 10⁶"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Forward price (no dividend)",
+   "f": "F(t,T) = S(t)·e^{r(T−t)}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Forward price (dividend yield)",
+   "f": "F(t,T) = S(t)·e^{(r−δ)(T−t)}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Prepaid forward",
+   "f": "F^P(t,T) = S(t) − PV(dividends)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Forward value at delivery",
+   "f": "V(T) = S(T) − F(t,T)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Put-call parity",
+   "f": "c − p = F^P(t,T) − K·e^{−r(T−t)}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Put-call parity (no dividend)",
+   "f": "c − p = S(t) − K·e^{−r(T−t)}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Put-call parity (dividend yield)",
+   "f": "c − p = S(t)·e^{−δ(T−t)} − K·e^{−r(T−t)}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Call spread bound",
+   "f": "0 ≤ c(K₁) − c(K₂) ≤ (K₂ − K₁)·e^{−rT}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Put spread bound",
+   "f": "0 ≤ p(K₂) − p(K₁) ≤ (K₂ − K₁)·e^{−rT}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Convexity of calls",
+   "f": "(c(K₁)−c(K₂))/(K₂−K₁) ≥ (c(K₂)−c(K₃))/(K₃−K₂)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Convexity of puts",
+   "f": "(p(K₂)−p(K₁))/(K₂−K₁) ≤ (p(K₃)−p(K₂))/(K₃−K₂)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Arbitrage strike weights",
+   "f": "K₂ = λK₁ + (1−λ)K₃,  λ = (K₃−K₂)/(K₃−K₁)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "American vs European call",
+   "f": "c(S,K,t,T) ≤ C(S,K,t,T) ≤ S(t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "American vs European put",
+   "f": "p(S,K,t,T) ≤ P(S,K,t,T) ≤ K"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Early exercise of a call",
+   "f": "exercise if PV(dividends) > p(S,K) + K(1 − e^{−r(T−t)})"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Early exercise of a put",
+   "f": "exercise if K(1 − e^{−r(T−t)}) > c(S,K) + PV(dividends)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "One-period binomial price",
+   "f": "Δ = (C_u − C_d)/(S_u − S_d)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Replicating portfolio cost",
+   "f": "C = Δ·S + (C_u − Δ·S_u)·e^{−rh}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Binomial price (risk-neutral)",
+   "f": "C = e^{−rh}[p*·C_u + (1−p*)·C_d]"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "CRR up factor",
+   "f": "u = e^{σ√h},  d = 1/u"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Jarrow-Rudd up factor",
+   "f": "u = e^{(r−δ−σ²/2)h + σ√h}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Standard Brownian motion",
+   "f": "Z(t) ~ N(0, t),  independent and stationary increments"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Arithmetic Brownian motion",
+   "f": "X(t) = μt + σZ(t) ~ N(μt, σ²t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "GBM moments",
+   "f": "E[Y^k(t)] = Y^k(0)·e^{(kμ + ½k²σ²)t}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Lognormal stock price",
+   "f": "ln Y(t) ~ N(ln Y(0) + μt, σ²t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Moment generating function",
+   "f": "E[e^{kU}] = e^{kE(U) + ½k²Var(U)}"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Diffusion",
+   "f": "dX(t) = a(t,X)dt + b(t,X)dZ(t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Ito bracket",
+   "f": "(dX)² = b²(t,X)dt"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Sharpe ratio of an asset",
+   "f": "φ = (m + δ − r)/s"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Sharpe ratio of a stock",
+   "f": "φ = (α − r)/σ"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Hedge ratio N",
+   "f": "N = −s_X·X(t)/(s_Y·Y(t))"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Hedge cash W",
+   "f": "W = −X(t) − N·Y(t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Black-Scholes equation",
+   "f": "rV = V_t + (r−δ)S·V_S + ½σ²S²·V_SS"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "d₁",
+   "f": "d₁ = [ln(S/K) + (r − δ + ½σ²)(T−t)] / (σ√(T−t))"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "d₂",
+   "f": "d₂ = d₁ − σ√(T−t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Cash-or-nothing call",
+   "f": "c = e^{−r(T−t)}N(d₂)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Asset-or-nothing call",
+   "f": "c = S·e^{−δ(T−t)}N(d₁)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Delta",
+   "f": "Δ = V_S"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Gamma",
+   "f": "Γ = V_SS"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Theta",
+   "f": "θ = V_t"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Call delta",
+   "f": "Δ_c = e^{−δ(T−t)}N(d₁)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Put delta",
+   "f": "Δ_p = −e^{−δ(T−t)}N(−d₁)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Greek identity",
+   "f": "θ + (r−δ)S·Δ + ½σ²S²·Γ = rV"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Delta-Gamma approximation",
+   "f": "V(S+ε) ≈ V(S) + Δ·ε + ½Γ·ε²"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Delta-Gamma-Theta approximation",
+   "f": "V(S+h, t+h) ≈ V + Δε + ½Γε² + θh"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Elasticity",
+   "f": "Ω = S·Δ/V"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Derivative volatility",
+   "f": "σ_V = Ω·σ"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Delta from a tree",
+   "f": "Δ = e^{−δh}(C_u − C_d)/(S_u − S_d)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Asian option",
+   "f": "payoff depends on the average price over the life"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Barrier option",
+   "f": "payoff is void if the price crosses a barrier"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Compound option",
+   "f": "an option whose underlying is another option"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Gap option",
+   "f": "strike and the trigger price differ"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Exchange option",
+   "f": "right to exchange one asset for another"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Rendleman-Bartter",
+   "f": "dr = a·r·dt + σ·r·dZ"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Vasicek",
+   "f": "dr = a(b − r)dt + σ·dZ"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Cox-Ingersoll-Ross",
+   "f": "dr = a(b − r)dt + σ√r·dZ"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Black model",
+   "f": "c = e^{−r(T−t)}[F·N(d₁) − K·N(d₂)]"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Vega",
+   "f": "ν = V_σ = S·e^{−δ(T−t)}·N′(d₁)·√(T−t)"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "Rho",
+   "f": "ρ = V_r = K(T−t)·e^{−r(T−t)}N(d₂)  for a call"
+  },
+  {
+   "c": "Financial Derivatives",
+   "t": "N′ (standard normal density)",
+   "f": "N′(x) = e^{−x²/2} / √(2π)"
   }
  ]
 }
