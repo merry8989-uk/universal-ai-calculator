@@ -64,8 +64,8 @@ object Evaluator {
         val parser = Parser(
             expression,
             unit ?: if (degrees) AngleUnit.DEGREE else AngleUnit.RADIAN,
-            vars,
             percentage,
+            vars,
         )
         val v = parser.parseExpression()
         parser.expectEnd()
