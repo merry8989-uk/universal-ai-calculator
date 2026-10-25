@@ -985,7 +985,7 @@ when (key) {
                         }
                     },
                     // Compact keys: the pad asks for what it needs and no more.
-                    modifier = Modifier.align(Alignment.TopCenter),
+                    modifier = Modifier,
                     rowHeight = CLASSIC_KEY_HEIGHT,
                 )
             } else if (functionKeys.isNotEmpty()) {
@@ -1107,7 +1107,7 @@ when (key) {
  * better than a few fat ones, and it is what a real scientific calculator looks
  * like. The display takes whatever room is left over.
  */
-internal const val CLASSIC_KEY_HEIGHT = 40.dp
+internal val CLASSIC_KEY_HEIGHT = 40.dp
 internal const val DISPLAY_WEIGHT_CLASSIC = 1f
 internal const val PAD_WEIGHT_CLASSIC = 1f
 

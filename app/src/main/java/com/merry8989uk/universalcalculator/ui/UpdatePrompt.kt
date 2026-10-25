@@ -70,6 +70,8 @@ internal fun UpdatePrompt(
                 onDismissRequest = {},
                 title = { Text("Downloading the update") },
                 text = {
+                    // read once: a computed property cannot be smart-cast
+                    val fraction = p.fraction
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.semantics {
@@ -77,9 +79,9 @@ internal fun UpdatePrompt(
                             contentDescription = spoken
                         },
                     ) {
-                        if (p.fraction != null) {
+                        if (fraction != null) {
                             LinearProgressIndicator(
-                                progress = { p.fraction },
+                                progress = { fraction },
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         } else {
