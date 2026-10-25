@@ -85,7 +85,8 @@ class FunctionTableTest {
         assertNull(t.rows.first { it.x == -2.0 }.f)
         assertNull(t.rows.first { it.x == -1.0 }.f)
         assertEquals(0.0, t.rows.first { it.x == 0.0 }.f!!, 1e-12)
-        assertEquals(2.0, t.rows.first { it.x == 2.0 }.f!!, 1e-12)
+        // sqrt(2), not 2: the cell holds the square root of the x in that row
+        assertEquals(1.4142135624, t.rows.first { it.x == 2.0 }.f!!, 1e-9)
     }
 
     @Test fun anInfiniteValueIsLeftEmptyRatherThanShown() {
