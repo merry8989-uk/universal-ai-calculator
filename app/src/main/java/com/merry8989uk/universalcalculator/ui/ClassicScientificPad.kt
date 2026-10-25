@@ -49,6 +49,17 @@ import androidx.compose.ui.unit.sp
  * Every action names something the calculator already understands, so a press
  * goes through exactly the same path as the modern pad.
  */
+/** One of the little state lights above the keys. */
+@Composable
+private fun Indicator(label: String, on: Boolean, colour: Color) {
+    Text(
+        label,
+        style = MaterialTheme.typography.labelSmall,
+        color = if (on) colour else Color(0xFF4A4E58),
+        fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+    )
+}
+
 internal enum class ClassicTone { Digit, Operator, Function, Accent, Danger, Shift, Alpha }
 
 /** Which printed layer a key press reads from. */
@@ -209,20 +220,20 @@ internal val CLASSIC_PAGE_ONE: List<List<ClassicKey>> = listOf(
 internal val CLASSIC_PAGE_TWO: List<List<ClassicKey>> = listOf(
     modifierBar("1st"),
     listOf(
-        ClassicKey("MATRIX", tool = "matrix", tone = ClassicTone.Accent),
-        ClassicKey("VECTOR", tool = "reference", tone = ClassicTone.Accent),
-        ClassicKey("STAT", tool = "statistics", tone = ClassicTone.Accent),
-        ClassicKey("DISTR", tool = "distributions", tone = ClassicTone.Accent),
-        ClassicKey("CPLX", tool = "complex", tone = ClassicTone.Accent),
-        ClassicKey("RPN", tool = "rpn", tone = ClassicTone.Accent),
+        ClassicKey("MATRIX", tool = "matrix", tone = ClassicTone.Function),
+        ClassicKey("VECTOR", tool = "reference", tone = ClassicTone.Function),
+        ClassicKey("STAT", tool = "statistics", tone = ClassicTone.Function),
+        ClassicKey("DISTR", tool = "distributions", tone = ClassicTone.Function),
+        ClassicKey("CPLX", tool = "complex", tone = ClassicTone.Function),
+        ClassicKey("RPN", tool = "rpn", tone = ClassicTone.Function),
     ),
     listOf(
-        ClassicKey("SYMB", tool = "symbolic", tone = ClassicTone.Shift),
-        ClassicKey("LIMIT", tool = "limits", tone = ClassicTone.Shift),
-        ClassicKey("PARTIAL", tool = "partial", tone = ClassicTone.Shift),
-        ClassicKey("CALC", tool = "calculus", tone = ClassicTone.Shift),
-        ClassicKey("GRAPH", tool = "graph", tone = ClassicTone.Shift),
-        ClassicKey("TABLE", tool = "table", tone = ClassicTone.Shift),
+        ClassicKey("SYMB", tool = "symbolic", tone = ClassicTone.Function),
+        ClassicKey("LIMIT", tool = "limits", tone = ClassicTone.Function),
+        ClassicKey("PARTIAL", tool = "partial", tone = ClassicTone.Function),
+        ClassicKey("CALC", tool = "calculus", tone = ClassicTone.Function),
+        ClassicKey("GRAPH", tool = "graph", tone = ClassicTone.Function),
+        ClassicKey("TABLE", tool = "table", tone = ClassicTone.Function),
     ),
     listOf(
         ClassicKey("CONV", tool = "converter", tone = ClassicTone.Function),
@@ -232,45 +243,50 @@ internal val CLASSIC_PAGE_TWO: List<List<ClassicKey>> = listOf(
         ClassicKey("SOLVE", tool = "solver", tone = ClassicTone.Function),
         ClassicKey("MENU", CLASSIC_MODE, tone = ClassicTone.Function),
     ),
+    // the counting functions, which page one has no room for
     listOf(
-        ClassicKey("gcd", "gcd", tone = ClassicTone.Function),
-        ClassicKey("lcm", "lcm", tone = ClassicTone.Function),
-        ClassicKey("isprime", "isprime", tone = ClassicTone.Function),
-        ClassicKey("totient", "totient", tone = ClassicTone.Function),
-        ClassicKey("fib", "fib", tone = ClassicTone.Function),
-        ClassicKey("catalan", "catalan", tone = ClassicTone.Function),
+        ClassicKey("nCr", "nCr(", shift = "nPr", shiftAction = "nPr(",
+            alpha = "!", alphaAction = "!", tone = ClassicTone.Function),
+        ClassicKey("gcd", "gcd(", shift = "lcm", shiftAction = "lcm(",
+            alpha = "mod", alphaAction = "mod(", tone = ClassicTone.Function),
+        ClassicKey("abs", "abs(", shift = "sign", shiftAction = "sign(",
+            alpha = "hypot", alphaAction = "hypot(", tone = ClassicTone.Function),
+        ClassicKey("\u221Bx", "cbrt(", shift = "n\u221Ax", shiftAction = "nthroot(",
+            alpha = "\u221Ax", alphaAction = "sqrt(", tone = ClassicTone.Function),
+        ClassicKey("floor", "floor(", shift = "ceil", shiftAction = "ceil(",
+            alpha = "round", alphaAction = "round(", tone = ClassicTone.Function),
+        ClassicKey("mround", "mround(", shift = "sinc", shiftAction = "sinc(",
+            alpha = "rand", alphaAction = "rand", tone = ClassicTone.Function),
     ),
+    // the special functions
     listOf(
-        ClassicKey("7", "7", tone = ClassicTone.Digit),
-        ClassicKey("8", "8", tone = ClassicTone.Digit),
-        ClassicKey("9", "9", tone = ClassicTone.Digit),
-        ClassicKey("(", "(", tone = ClassicTone.Function),
-        ClassicKey(")", ")", tone = ClassicTone.Function),
-        ClassicKey("\u00F7", "/", tone = ClassicTone.Operator),
+        ClassicKey("\u0393", "gamma(", shift = "log\u0393", shiftAction = "lgamma(",
+            alpha = "\u03B2", alphaAction = "beta(", tone = ClassicTone.Function),
+        ClassicKey("erf", "erf(", shift = "erfc", shiftAction = "erfc(",
+            alpha = "\u03B6", alphaAction = "zeta(", tone = ClassicTone.Function),
+        ClassicKey("W", "lambertw(", shift = "\u03C8", shiftAction = "digamma(",
+            alpha = "\u0393'", alphaAction = "gamma(", tone = ClassicTone.Function),
+        ClassicKey("fib", "fib(", shift = "catalan", shiftAction = "catalan(",
+            alpha = "golden", alphaAction = "golden", tone = ClassicTone.Function),
+        ClassicKey("totient", "totient(", shift = "isqrt", shiftAction = "isqrt(",
+            alpha = "isprime", alphaAction = "isprime(", tone = ClassicTone.Function),
+        ClassicKey("nextprime", "nextprime(", shift = "tau", shiftAction = "tau",
+            alpha = "pi", alphaAction = "pi", tone = ClassicTone.Function),
     ),
+    // the summaries
     listOf(
-        ClassicKey("4", "4", tone = ClassicTone.Digit),
-        ClassicKey("5", "5", tone = ClassicTone.Digit),
-        ClassicKey("6", "6", tone = ClassicTone.Digit),
-        ClassicKey("\u00D7", "*", tone = ClassicTone.Operator),
-        ClassicKey("^", "^", tone = ClassicTone.Operator),
-        ClassicKey("%", "%", tone = ClassicTone.Operator),
-    ),
-    listOf(
-        ClassicKey("1", "1", tone = ClassicTone.Digit),
-        ClassicKey("2", "2", tone = ClassicTone.Digit),
-        ClassicKey("3", "3", tone = ClassicTone.Digit),
-        ClassicKey("+", "+", tone = ClassicTone.Operator),
-        ClassicKey("\u2212", "-", tone = ClassicTone.Operator),
-        ClassicKey("\u2190", CLASSIC_LEFT, tone = ClassicTone.Function),
-    ),
-    listOf(
-        ClassicKey("0", "0", tone = ClassicTone.Digit),
-        ClassicKey(".", ".", tone = ClassicTone.Digit),
-        ClassicKey("Exp", "e", tone = ClassicTone.Function),
-        ClassicKey("Ans", "ans", tone = ClassicTone.Function),
-        ClassicKey("x", "x", tone = ClassicTone.Function),
-        ClassicKey("=", "=", tone = ClassicTone.Accent),
+        ClassicKey("sum", "sum(", shift = "prod", shiftAction = "prod(",
+            alpha = "\u2211", alphaAction = "sum(", tone = ClassicTone.Function),
+        ClassicKey("mean", "mean(", shift = "median", shiftAction = "median(",
+            alpha = "mode", alphaAction = "mode(", tone = ClassicTone.Function),
+        ClassicKey("sd", "sd(", shift = "variance", shiftAction = "variance(",
+            alpha = "range", alphaAction = "range(", tone = ClassicTone.Function),
+        ClassicKey("min", "min(", shift = "max", shiftAction = "max(",
+            alpha = "geomean", alphaAction = "geomean(", tone = ClassicTone.Function),
+        ClassicKey("harmean", "harmean(", shift = "atan2", shiftAction = "atan2(",
+            alpha = "log2", alphaAction = "log2(", tone = ClassicTone.Function),
+        ClassicKey("log10", "log10(", shift = "log1p", shiftAction = "log1p(",
+            alpha = "expm1", alphaAction = "expm1(", tone = ClassicTone.Function),
     ),
 )
 
@@ -302,6 +318,28 @@ internal fun ClassicScientificPad(
         modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 2.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
+        // The state line the reference puts above the keys: S and A say which
+        // layer is locked, rather than the keys changing colour.
+        Row(
+            modifier = Modifier.fillMaxWidth().height(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Indicator("S", layer == ClassicLayer.SHIFT, Color(0xFFE8A33D))
+            Indicator("A", layer == ClassicLayer.ALPHA, Color(0xFF9A7BFF))
+            Indicator(
+                if (page == 1) "2nd" else "1st",
+                page == 1,
+                Color(0xFF9AA0AE),
+            )
+            Box(modifier = Modifier.weight(1f))
+            Text(
+                "NORM-11",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color(0xFF6E7480),
+            )
+        }
+
         rows.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth().height(rowHeight),
@@ -380,23 +418,19 @@ private fun ClassicKeyView(
     modifier: Modifier = Modifier,
     onPress: () -> Unit,
 ) {
-    val background = when {
-        lit -> Color(0xFFB58BFF)
-        tone == ClassicTone.Digit -> Color(0xFF23283A)
-        tone == ClassicTone.Operator -> Color(0xFF2F3550)
-        tone == ClassicTone.Function -> Color(0xFF1B2032)
-        tone == ClassicTone.Accent -> Color(0xFFE8A33D)
-        tone == ClassicTone.Danger -> Color(0xFFB4462F)
-        tone == ClassicTone.Shift -> Color(0xFF6C4CF1)
-        else -> Color(0xFF1B2032)
+    // The classic pad is monochrome on purpose. Only the four keys the
+    // reference colours are coloured: SHIFT, ALPHA, and the two that clear.
+    // Everything else is the same grey, and the small labels above carry the
+    // meaning — which is what makes it readable at this size.
+    val background = when (tone) {
+        ClassicTone.Accent -> Color(0xFFE8A33D)
+        ClassicTone.Shift -> Color(0xFF6C4CF1)
+        ClassicTone.Danger -> Color(0xFFE07A3C)
+        else -> Color(0xFF2B2B30)
     }
-    val textColor = when {
-        lit -> Color(0xFF1B1030)
-        tone == ClassicTone.Digit -> Color(0xFFF2F4FA)
-        tone == ClassicTone.Operator -> Color(0xFFBFE3FF)
-        tone == ClassicTone.Function -> Color(0xFFD3DAEA)
-        tone == ClassicTone.Accent -> Color(0xFF2A1A05)
-        else -> Color.White
+    val textColor = when (tone) {
+        ClassicTone.Accent -> Color(0xFF241503)
+        else -> Color(0xFFF2F2F4)
     }
 
     Column(

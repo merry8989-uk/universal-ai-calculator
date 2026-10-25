@@ -90,6 +90,7 @@ import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.CalcInfo
+import com.merry8989uk.universalcalculator.calc.ExpressionGuard
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.ExpressionFix
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
@@ -374,18 +375,23 @@ fun CalculatorScreen(
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
     val balanced = ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator)
+    // A double sign reads as a sign: 5--8 becomes 5-(-8), so the screen and the
+    // answer agree about what was typed.
+    val worked = ExpressionGuard.bracketNegativeNumbers(balanced)
+    // What is wrong with what was typed, said in words rather than a parser error.
+    val guardWarning = ExpressionGuard.check(text)
 
-    val preview: String = if (balanced.isBlank()) "" else try {
-        if (ComplexEvaluator.hasImaginary(balanced)) {
+    val preview: String = if (worked.isBlank() || guardWarning != null) "" else try {
+        if (ComplexEvaluator.hasImaginary(worked)) {
             val r = ComplexEvaluator.evaluate(
-                                                balanced, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
+                                                worked, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
                                                 mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                                             )
             if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
         } else {
             Format.number(
                 Evaluator.evaluate(
-                    balanced,
+                    worked,
                     vars = mapOf("ans" to ans, "x" to xValue),
                     unit = angle,
                     percentage = percentageMode,
@@ -483,8 +489,19 @@ when (key) {
                                     "C" -> { exactResult = null; expr = TextFieldValue("") }
                                     "del" -> backspace()
                                     "=" -> {
+                                        // Refuse nonsense rather than work out a wrong answer:
+                                        // sinsinsin, +-+, a symbol with no meaning.
+                                        val complaint = ExpressionGuard.check(text)
+                                        if (complaint != null) {
+                                            // The complaint is already shown under the
+                                            // expression, so nothing is worked out and
+                                            // nothing is added to the history.
+                                            exactResult = null
+                                        } else {
                                         // Complete anything half-typed first.
-                                        val ready = ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator)
+                                        val ready = ExpressionGuard.bracketNegativeNumbers(
+                                            ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator),
+                                        )
                                         exactResult = null
                                         val shown = try {
                                             if (ready.isBlank()) {
@@ -532,6 +549,7 @@ when (key) {
                                         }
                                         expr = TextFieldValue(shown, TextRange(shown.length))
                                         rippleTick++
+                                        }
                                     }
                                     "00" -> insert("00")
                                     "ans" -> insert("ans")
@@ -864,6 +882,18 @@ when (key) {
                     Text(it, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth())
+                }
+
+                // Said in words, under the expression, so the user knows why nothing
+                // came out rather than thinking the calculator is broken.
+                if (guardWarning != null) {
+                    Text(
+                        guardWarning,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                    )
                 }
 
                 val calcSpoken = stringResource(
