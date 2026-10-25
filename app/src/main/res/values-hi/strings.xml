@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Nexus Calc</string>
+    <string name="widget_label">Nexus Calc</string>
     <string name="widget_description">होम स्क्रीन पर एक मानक कैलकुलेटर — ठोस, धुँधले या पूरी तरह पारदर्शी रूप में।</string>
 
     <!-- Bottom navigation -->
