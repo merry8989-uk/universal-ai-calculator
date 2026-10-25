@@ -60,6 +60,12 @@ fun MatrixScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth().height(100.dp).padding(top = 8.dp),
         )
 
+        OutlinedTextField(
+            value = power, onValueChange = { power = it },
+            label = { Text("Power n \u2014 for A^power") },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -105,6 +111,32 @@ fun MatrixScreen(onBack: () -> Unit) {
                     }
                 }
             }) { Text("Eigenvalues") }
+            Button(onClick = {
+                run {
+                    val l = com.merry8989uk.universalcalculator.calc.AdvancedMatrix
+                        .cholesky(Matrix.parse(aText))
+                        ?: return@run "A has no Cholesky factor: it is not symmetric and positive definite."
+                    "A = L\u00B7L\u1D40, with L =\n" + Matrix.format(l)
+                }
+            }) { Text("Cholesky") }
+            Button(onClick = {
+                run {
+                    val n = power.trim().toIntOrNull()
+                        ?: return@run "The power needs a whole number."
+                    val r = com.merry8989uk.universalcalculator.calc.AdvancedMatrix
+                        .power(Matrix.parse(aText), n)
+                        ?: return@run "That power could not be worked out (a negative one needs an inverse)."
+                    "A^$n =\n" + Matrix.format(r)
+                }
+            }) { Text("A^power") }
+            Button(onClick = {
+                run {
+                    val r = com.merry8989uk.universalcalculator.calc.AdvancedMatrix
+                        .expm(Matrix.parse(aText))
+                        ?: return@run "e^A could not be worked out."
+                    "e^A =\n" + Matrix.format(r)
+                }
+            }) { Text("e^A") }
             Button(onClick = {
                 run {
                     val (l, u, _) = Matrix.lu(Matrix.parse(aText))
