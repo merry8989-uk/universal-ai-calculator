@@ -106,7 +106,7 @@ object EquationSolver {
 
         val reals = usable.filter { it.isReal }
         val complexes = usable.filterNot { it.isReal }
-        val distinctReals = reals.distinctBy { Math.round(it * 1e9) }.size
+        val distinctReals = reals.distinctBy { Math.round(it.re * 1e9) }.size
         val kind = when {
             complexes.isNotEmpty() -> "${reals.size} real and ${complexes.size} complex roots"
             distinctReals < reals.size -> "a repeated root, and $distinctReals distinct"
