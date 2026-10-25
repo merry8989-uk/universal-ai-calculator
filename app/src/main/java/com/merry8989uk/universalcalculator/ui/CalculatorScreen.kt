@@ -289,6 +289,7 @@ internal fun KeyButton(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalculatorScreen(
     title: String,

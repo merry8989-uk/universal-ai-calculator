@@ -42,7 +42,8 @@ class HistoryRepository(private val context: Context) {
     suspend fun remove(entry: String) {
         context.historyStore.edit { prefs ->
             val current = prefs[KEY] ?: ""
-            val lines = current.split("\n").filter { it.isNotBlank() }
+            // split() gives a read-only list, so the removal needs a copy
+            val lines = current.split("\n").filter { it.isNotBlank() }.toMutableList()
             val at = lines.indexOfLast { it == entry }
             if (at >= 0) {
                 lines.removeAt(at)

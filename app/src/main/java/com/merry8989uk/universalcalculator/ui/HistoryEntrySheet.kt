@@ -73,7 +73,7 @@ internal fun HistoryEntrySheet(
                     onShare()
                 }
                 Option(stringResource(R.string.history_ask_ai), onAskAi)
-                Option(stringResource(R.string.history_delete), onDelete, danger = true)
+                Option(stringResource(R.string.history_delete), danger = true, onPress = onDelete)
             }
         },
         confirmButton = {},
@@ -84,7 +84,7 @@ internal fun HistoryEntrySheet(
 }
 
 @Composable
-private fun Option(label: String, onPress: () -> Unit, danger: Boolean = false) {
+private fun Option(label: String, danger: Boolean = false, onPress: () -> Unit) {
     Text(
         label,
         style = MaterialTheme.typography.bodyLarge,
