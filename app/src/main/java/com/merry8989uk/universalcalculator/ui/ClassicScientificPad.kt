@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -49,6 +50,72 @@ import androidx.compose.ui.unit.sp
  * Every action names something the calculator already understands, so a press
  * goes through exactly the same path as the modern pad.
  */
+/**
+ * The direction pad.
+ *
+ * Four arrows round a centre, the way the reference draws it. Left and right
+ * move the cursor through the expression; up and down walk the history.
+ */
+@Composable
+private fun DirectionPad(
+    modifier: Modifier = Modifier,
+    onLeft: () -> Unit,
+    onRight: () -> Unit,
+    onUp: () -> Unit,
+    onDown: () -> Unit,
+) {
+    val grey = Color(0xFF2B2B30)
+    val ink = Color(0xFFD8DCE6)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(7.dp))
+            .background(grey),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(1.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Arrow("\u25B2", ink, Modifier.weight(1f), onUp)
+            Row(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Arrow("\u25C0", ink, Modifier.weight(1f), onLeft)
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color(0xFF141418)),
+                )
+                Arrow("\u25B6", ink, Modifier.weight(1f), onRight)
+            }
+            Arrow("\u25BC", ink, Modifier.weight(1f), onDown)
+        }
+    }
+}
+
+/** One arm of the direction pad. */
+@Composable
+private fun Arrow(label: String, ink: Color, modifier: Modifier, onPress: () -> Unit) {
+    val spoken = when (label) {
+        "\u25C0" -> "move the cursor left"
+        "\u25B6" -> "move the cursor right"
+        "\u25B2" -> "the previous calculation"
+        else -> "the next calculation"
+    }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { contentDescription = spoken }
+            .clickable(onClick = onPress),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, color = ink, fontSize = 9.sp)
+    }
+}
+
 /** One of the little state lights above the keys. */
 @Composable
 private fun Indicator(label: String, on: Boolean, colour: Color) {
@@ -78,6 +145,8 @@ internal data class ClassicKey(
     val alphaAction: String? = null,
     val alphaTool: String? = null,
     val tone: ClassicTone = ClassicTone.Function,
+    /** How many columns wide the key is. Only the direction pad needs more than one. */
+    val span: Int = 1,
     /** Set when the key opens a screen instead of typing. */
     val tool: String? = null,
 )
@@ -87,6 +156,9 @@ internal const val CLASSIC_SHIFT = "@shift"
 internal const val CLASSIC_ALPHA = "@alpha"
 internal const val CLASSIC_MODE = "@mode"
 internal const val CLASSIC_PAGE = "@page"
+
+/** The direction pad: one key that carries four. */
+internal const val CLASSIC_DPAD = "@dpad"
 internal const val CLASSIC_DEG = "@deg"
 internal const val CLASSIC_LEFT = "@left"
 internal const val CLASSIC_RIGHT = "@right"
@@ -94,10 +166,10 @@ internal const val CLASSIC_RIGHT = "@right"
 private fun modifierBar(pageLabel: String) = listOf(
     ClassicKey("SHIFT", CLASSIC_SHIFT, tone = ClassicTone.Accent),
     ClassicKey("ALPHA", CLASSIC_ALPHA, tone = ClassicTone.Shift),
+    // the direction pad, which the reference puts in the middle of this row
+    ClassicKey("", CLASSIC_DPAD, tone = ClassicTone.Function, span = 2),
     ClassicKey("MODE", CLASSIC_MODE, tone = ClassicTone.Function),
     ClassicKey(pageLabel, CLASSIC_PAGE, tone = ClassicTone.Function),
-    ClassicKey("\u232B", "del", shift = "AC", shiftAction = "C", tone = ClassicTone.Danger),
-    ClassicKey("AC", "C", tone = ClassicTone.Danger),
 )
 
 /** Page one: the arithmetic and function keys. */
@@ -205,14 +277,14 @@ internal val CLASSIC_PAGE_ONE: List<List<ClassicKey>> = listOf(
             alpha = "sd", alphaAction = "sd", tone = ClassicTone.Digit),
         ClassicKey(".", ".", shift = "ran#", shiftAction = "rand",
             alpha = "var", alphaAction = "var", tone = ClassicTone.Digit),
-        ClassicKey("Exp", "e", shift = "10\u02E3", shiftAction = "exp2",
-            alpha = "e\u02E3", alphaAction = "exp", tone = ClassicTone.Function),
-        ClassicKey("Ans", "ans", shift = "M\u2212", shiftAction = "MS",
-            alpha = "M+", alphaAction = "M+", tone = ClassicTone.Function),
         ClassicKey("x", "x", shift = "\u0393", shiftAction = "gamma",
             alpha = "erfc", alphaAction = "erfc", tone = ClassicTone.Function),
-        ClassicKey("=", "=", shift = "=", shiftAction = "=",
-            alpha = "=", alphaAction = "=", tone = ClassicTone.Accent),
+        ClassicKey("Ans", "ans", shift = "M\u2212", shiftAction = "MS",
+            alpha = "M+", alphaAction = "M+", tone = ClassicTone.Function),
+        // the two clearing keys sit here, as they do in the reference; the
+        // equals sign is the CALC key on the first row
+        ClassicKey("\u232B", "del", shift = "AC", shiftAction = "C", tone = ClassicTone.Danger),
+        ClassicKey("AC", "C", tone = ClassicTone.Danger),
     ),
 )
 
@@ -304,6 +376,8 @@ internal fun ClassicScientificPad(
     onKey: (String) -> Unit,
     onTool: (String) -> Unit,
     onCaret: (Int) -> Unit,
+    /** Up and down on the direction pad: through the history, newest first. */
+    onVertical: (Int) -> Unit = {},
     onToggleDegrees: () -> Unit,
     modifier: Modifier = Modifier,
     /** How tall one row of keys is. Kept compact on purpose. */
@@ -318,28 +392,6 @@ internal fun ClassicScientificPad(
         modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 2.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        // The state line the reference puts above the keys: S and A say which
-        // layer is locked, rather than the keys changing colour.
-        Row(
-            modifier = Modifier.fillMaxWidth().height(18.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Indicator("S", layer == ClassicLayer.SHIFT, Color(0xFFE8A33D))
-            Indicator("A", layer == ClassicLayer.ALPHA, Color(0xFF9A7BFF))
-            Indicator(
-                if (page == 1) "2nd" else "1st",
-                page == 1,
-                Color(0xFF9AA0AE),
-            )
-            Box(modifier = Modifier.weight(1f))
-            Text(
-                "NORM-11",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color(0xFF6E7480),
-            )
-        }
-
         rows.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth().height(rowHeight),
@@ -370,6 +422,17 @@ internal fun ClassicScientificPad(
                         "*" -> multiplicationSign
                         else -> key.label
                     }
+                    // the direction pad is one key that carries four
+                    if (key.action == CLASSIC_DPAD) {
+                        DirectionPad(
+                            modifier = Modifier.weight(key.span.toFloat()).fillMaxSize(),
+                            onLeft = { onCaret(-1) },
+                            onRight = { onCaret(1) },
+                            onUp = { onVertical(-1) },
+                            onDown = { onVertical(1) },
+                        )
+                        return@forEach
+                    }
                     ClassicKeyView(
                         label = shownLabel,
                         shift = key.shift,
@@ -383,7 +446,7 @@ internal fun ClassicScientificPad(
                             ClassicLayer.NORMAL -> null
                         },
                         spoken = spoken,
-                        modifier = Modifier.weight(1f).fillMaxSize(),
+                        modifier = Modifier.weight(key.span.toFloat()).fillMaxSize(),
                     ) {
                         when (active.action) {
                             CLASSIC_SHIFT -> onShift()

@@ -81,6 +81,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -326,6 +327,8 @@ fun CalculatorScreen(
     var sciOpen by rememberSaveable { mutableStateOf(false) }
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.
+    // How far back the direction pad has walked through the history.
+    var recallAt by rememberSaveable { mutableIntStateOf(0) }
     var classicLayerName by rememberSaveable { mutableStateOf(ClassicLayer.NORMAL.name) }
     val classicLayer = ClassicLayer.valueOf(classicLayerName)
     // 2nd turns the pad over; 0 is the arithmetic page, 1 is the tools page.
@@ -883,6 +886,39 @@ when (key) {
                 // The recent calculations, the way the reference shows them: the
                 // expression on the left and what it came to on the right, newest
                 // at the bottom. It scrolls, so nothing is lost off the top.
+                // The state line the reference puts at the top of the display:
+                // which layer is locked, whether the memory has anything in it,
+                // and how the answers are being written.
+                if (classicScientific) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        StateLight("S", classicLayer == ClassicLayer.SHIFT, Color(0xFFE8A33D))
+                        StateLight("A", classicLayer == ClassicLayer.ALPHA, Color(0xFF9A7BFF))
+                        StateLight("STO", memory != 0.0, Color(0xFF7FB2E8))
+                        StateLight("RCL", memory != 0.0, Color(0xFF7FB2E8))
+                        Box(modifier = Modifier.weight(1f))
+                        StateLight(
+                            when (angle) {
+                                com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE -> "DEG"
+                                com.merry8989uk.universalcalculator.calc.AngleUnit.GRADIAN -> "GRA"
+                                else -> "RAD"
+                            },
+                            true,
+                            Color(0xFF9AA0AE),
+                        )
+                        StateLight(
+                            if (decimalMode == com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL)
+                                "NORM-11" else decimalMode.label.uppercase(),
+                            false,
+                            Color(0xFF6E7480),
+                        )
+                        StateLight("MATH", !settings.fractionsEnabled, Color(0xFF6E7480))
+                        StateLight("DECI", settings.fractionsEnabled, Color(0xFF6E7480))
+                    }
+                }
+
                 val recent = history.split("\n").filter { it.isNotBlank() }
                 if (recent.isNotEmpty()) {
                     val tape = rememberScrollState()
@@ -1134,6 +1170,21 @@ when (key) {
                     onKey = { key -> pressKey(key) },
                     onTool = onOpenTool,
                     onCaret = { by -> moveCaret(by) },
+                    onVertical = { step ->
+                        // up and down walk the history: up goes back through it,
+                        // down comes forward again
+                        val entries = history.split("\n").filter { it.isNotBlank() }
+                        if (entries.isNotEmpty()) {
+                            val at = recallAt + step
+                            val clamped = at.coerceIn(0, entries.size - 1)
+                            recallAt = clamped
+                            val entry = entries[entries.size - 1 - clamped]
+                            val sum = entry.substringBeforeLast(" = ").trim()
+                            if (sum.isNotBlank()) {
+                                expr = TextFieldValue(sum, TextRange(sum.length))
+                            }
+                        }
+                    },
                     onToggleDegrees = {
                         angleName = when (angle) {
                             com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE -> "RADIAN"
@@ -1278,6 +1329,17 @@ internal const val PAD_WEIGHT_CLASSIC = 1f
  *   European       3.000.000,5
  *   None           3000000.5
  */
+/** One of the little state lights on the display line. */
+@Composable
+private fun StateLight(label: String, on: Boolean, colour: Color) {
+    Text(
+        label,
+        style = MaterialTheme.typography.labelSmall,
+        color = if (on) colour else Color(0xFF4A4E58),
+        fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+    )
+}
+
 private fun pretty(
     text: String,
     format: String,

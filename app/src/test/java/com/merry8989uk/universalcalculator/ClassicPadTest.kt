@@ -3,6 +3,8 @@ package com.merry8989uk.universalcalculator
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.ui.CALC_MODES
 import com.merry8989uk.universalcalculator.ui.CLASSIC_ALPHA
+import com.merry8989uk.universalcalculator.ui.CLASSIC_DPAD
+import com.merry8989uk.universalcalculator.ui.CLASSIC_MODE
 import com.merry8989uk.universalcalculator.ui.CLASSIC_PAGE
 import com.merry8989uk.universalcalculator.ui.CLASSIC_PAGE_ONE
 import com.merry8989uk.universalcalculator.ui.CLASSIC_PAGE_TWO
@@ -127,7 +129,15 @@ class ClassicPadTest {
         assertTrue("no SHIFT key", CLASSIC_SHIFT in actions)
         assertTrue("no ALPHA key", CLASSIC_ALPHA in actions)
         assertTrue("no page key", CLASSIC_PAGE in actions)
+        assertTrue("no MODE key", CLASSIC_MODE in actions)
         assertTrue("SHIFT and ALPHA must be different keys", CLASSIC_SHIFT != CLASSIC_ALPHA)
+    }
+
+    @Test fun theClearingKeysAreOnThePad() {
+        // they are in the last row, as they are in the reference
+        val actions = CLASSIC_PAGE_ONE.flatten().map { it.action }
+        assertTrue("no delete key", "del" in actions)
+        assertTrue("no clear key", "C" in actions)
     }
 
     @Test fun theSecondPageIsTurnedToByItsKey() {
@@ -234,5 +244,34 @@ class ClassicPadTest {
     @Test fun everyModeHasANameAndADescription() {
         val thin = CALC_MODES.filter { it.name.isBlank() || it.blurb.isBlank() }
         assertTrue("modes with nothing to show: $thin", thin.isEmpty())
+    }
+
+    // ---- the direction pad ----
+
+    @Test fun theDirectionPadIsInTheModifierRow() {
+        for ((name, page) in listOf("one" to CLASSIC_PAGE_ONE, "two" to CLASSIC_PAGE_TWO)) {
+            val actions = page.first().map { it.action }
+            assertTrue("page $name has no direction pad", CLASSIC_DPAD in actions)
+        }
+    }
+
+    @Test fun theDirectionPadTakesTwoColumns() {
+        val pad = CLASSIC_PAGE_ONE.first().first { it.action == CLASSIC_DPAD }
+        assertEquals("the direction pad should be two columns wide", 2, pad.span)
+    }
+
+    @Test fun onlyTheDirectionPadSpansMoreThanOneColumn() {
+        // every other key is one column, or the rows stop lining up
+        val wide = everyKey().filter { it.span != 1 }.map { it.label }
+        assertEquals("these keys are wider than one column: $wide", 1, wide.size)
+        assertTrue(wide.first().isEmpty())
+    }
+
+    @Test fun theModifierRowStillAddsUpToSixColumns() {
+        // the six-across grid has to survive a key that takes two
+        for ((name, page) in listOf("one" to CLASSIC_PAGE_ONE, "two" to CLASSIC_PAGE_TWO)) {
+            val span = page.first().sumOf { it.span }
+            assertEquals("page $name's first row is $span columns wide, not six", 6, span)
+        }
     }
 }
