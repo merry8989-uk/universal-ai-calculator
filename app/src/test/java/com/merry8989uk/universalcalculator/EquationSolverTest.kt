@@ -203,7 +203,8 @@ class EquationSolverTest {
 
     @Test fun aLinearInequalityFlipsWhenTheCoefficientIsNegative() {
         // -2x - 4 < 0  =>  x > -2
-        assertEquals("x > -2\n(-2, \u221E)", EquationSolver.linearInequality(-2.0, -4.0, lessThan = true))
+        // the parenthesis style writes a positive infinity with its plus sign
+        assertEquals("x > -2\n(-2, +\u221E)", EquationSolver.linearInequality(-2.0, -4.0, lessThan = true))
     }
 
     @Test fun aLinearInequalityWithNoX() {
@@ -222,7 +223,7 @@ class EquationSolverTest {
     @Test fun aQuadraticOutsideItsRoots() {
         // x^2 - 4 > 0  =>  x < -2 or x > 2
         assertEquals(
-            "x < -2 or x > 2\n(-\u221E, -2) \u222A (2, \u221E)",
+            "x < -2 or x > 2\n(-\u221E, -2) \u222A (2, +\u221E)",
             EquationSolver.quadraticInequality(1.0, 0.0, -4.0, lessThan = false),
         )
     }
