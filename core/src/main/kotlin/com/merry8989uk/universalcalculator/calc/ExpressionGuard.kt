@@ -30,8 +30,7 @@ object ExpressionGuard {
     /** Whether [word] is a name the calculator knows: a function or a variable. */
     private fun isAName(word: String): Boolean =
         FUNCTIONS.any { it.equals(word, ignoreCase = true) } ||
-            word.equals("ans", true) || word.equals("x", true) ||
-            word.equals("e", true) || word.equals("i", true)
+            CONSTANTS.any { it.equals(word, ignoreCase = true) }
 
     /**
      * Splits a run of letters into the names it is made of, or null when it
@@ -50,6 +49,12 @@ object ExpressionGuard {
         }
         return if (parts.size >= 2) parts else null
     }
+
+    /** The names that stand for a value rather than doing something to one. */
+    private val CONSTANTS = setOf(
+        "pi", "\u03C0", "tau", "\u03C4", "e", "i", "x", "ans",
+        "inf", "infinity", "golden", "\u03C6",
+    )
 
     /** The characters an expression may contain. */
     private val ALLOWED = "0123456789.+-*/^()!% \u03C0\u03C4\u221A\u00D7\u00F7\u2212\u00B0,{}[]_"
