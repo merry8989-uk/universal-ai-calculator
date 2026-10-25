@@ -92,9 +92,16 @@ class KeyboardDisplayTest {
     }
 
     @Test fun bothNotesCanAppearTogether() {
-        // a missing sign and a percentage in one expression
-        val note = CalcInfo.explain("2pi + 20%", PercentageMode.MULTIPLICATIVE)
+        // a missing sign and a percentage in one expression. "2pi + 20%" is not
+        // one of these: there the percent follows "2pi", not a number, so the
+        // percentage reading never comes up and only the missing sign is noted.
+        val note = CalcInfo.explain("100 + 20% * 2pi", PercentageMode.MULTIPLICATIVE)
         assertTrue("expected both notes, got '$note'", note.contains("missing") && note.contains("%"))
+        assertEquals(
+            "a percent after something that is not a number needs no note",
+            "a missing \u00D7 counts as \u00D7",
+            CalcInfo.explain("2pi + 20%", PercentageMode.MULTIPLICATIVE),
+        )
     }
 
     @Test fun theNoteUsesTheSameWordingForEitherSetting() {
