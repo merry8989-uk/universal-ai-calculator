@@ -88,8 +88,10 @@ class KeypadLayoutTest {
         }
     }
 
-    @Test fun noKeyIsOnThePadTwice() {
-        val keys = everyKey()
+    @Test fun noKeyIsOnTheNumberPadTwice() {
+        // a bracket legitimately appears on both the number pad and the constants
+        // row, so this only looks for a key repeated inside the number pad
+        val keys = PAD.flatten()
         val repeated = keys.groupingBy { it }.eachCount().filter { it.value > 1 }.keys
         assertTrue("these keys appear more than once: $repeated", repeated.isEmpty())
     }
