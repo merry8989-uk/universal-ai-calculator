@@ -104,8 +104,9 @@ object NumberStyle {
         includeHi: Boolean,
         notation: IntervalNotation,
     ): String {
-        val loText = Format.number(lo)
-        val hiText = Format.number(hi)
+        // an end at infinity is written as the symbol, never as the word
+        val loText = if (lo.isFinite()) Format.number(lo) else infinity(false, notation)
+        val hiText = if (hi.isFinite()) Format.number(hi) else infinity(true, notation)
         val loClosed = includeLo && lo.isFinite()
         val hiClosed = includeHi && hi.isFinite()
 
@@ -135,10 +136,15 @@ object NumberStyle {
         second: String,
     ): String = "$first \u222A $second"
 
-    /** The sign to print for an infinity, which differs by style. */
-    fun infinity(positive: Boolean, notation: IntervalNotation): String = when (notation) {
-        IntervalNotation.PLAIN -> if (positive) "\u221E" else "-\u221E"
-        else -> if (positive) "+\u221E" else "-\u221E"
+    /**
+     * The sign to print for an infinity, which differs by style.
+     *
+     * The plain style leaves off the plus, the way most books write it.
+     */
+    fun infinity(positive: Boolean, notation: IntervalNotation): String = when {
+        !positive -> "-\u221E"
+        notation == IntervalNotation.PLAIN -> "\u221E"
+        else -> "+\u221E"
     }
 }
 

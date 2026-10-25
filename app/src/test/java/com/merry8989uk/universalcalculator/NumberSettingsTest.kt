@@ -60,7 +60,7 @@ class NumberSettingsTest {
     // ---------------- complex form ----------------
 
     @Test fun theRectangularFormIsTheUsualOne() {
-        assertEquals("3+4i", NumberStyle.complex(3.0, 4.0, ComplexFormat.RECTANGULAR))
+        assertEquals("3 + 4i", NumberStyle.complex(3.0, 4.0, ComplexFormat.RECTANGULAR))
         assertEquals("1", NumberStyle.complex(1.0, 0.0, ComplexFormat.RECTANGULAR))
     }
 
@@ -104,6 +104,14 @@ class NumberSettingsTest {
         assertEquals("[-2; 2]", interval(-2.0, 2.0, true, true, IntervalNotation.BRACKETED))
     }
 
+    @Test fun anInfinityIsWrittenAsASymbolNotAWord() {
+        for (n in IntervalNotation.entries) {
+            val open = interval(Double.NEGATIVE_INFINITY, 2.0, false, false, n)
+            assertFalse("$n spelled out the infinity: $open", open.contains("Infinity"))
+            assertTrue("$n lost the infinity: $open", open.contains("\u221E"))
+        }
+    }
+
     @Test fun anInfinityNeverGetsAClosedBracket() {
         for (n in IntervalNotation.entries) {
             val open = interval(Double.NEGATIVE_INFINITY, 2.0, true, true, n)
@@ -120,9 +128,7 @@ class NumberSettingsTest {
 
     @Test fun theUnionJoinsTheTwoHalves() {
         val left = interval(Double.NEGATIVE_INFINITY, -2.0, false, false, IntervalNotation.PARENTHESES)
-            .replace("-\u221E", NumberStyle.infinity(false, IntervalNotation.PARENTHESES))
         val right = interval(2.0, Double.POSITIVE_INFINITY, false, false, IntervalNotation.PARENTHESES)
-            .replace("\u221E", NumberStyle.infinity(true, IntervalNotation.PARENTHESES))
         assertEquals("(-\u221E, -2) \u222A (2, +\u221E)", NumberStyle.union(left, right))
     }
 

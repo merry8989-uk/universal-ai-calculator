@@ -189,13 +189,9 @@ object EquationSolver {
         val strictLess = if (a > 0) lessThan else !lessThan
         val symbol = if (strictLess) "<" else ">"
         val bracket = if (strictLess) {
-            NumberStyle.interval(
-                Double.NEGATIVE_INFINITY, bound, false, false, notation,
-            ).let { it.replace("-\u221E", NumberStyle.infinity(false, notation)) }
+            NumberStyle.interval(Double.NEGATIVE_INFINITY, bound, false, false, notation)
         } else {
-            NumberStyle.interval(
-                bound, Double.POSITIVE_INFINITY, false, false, notation,
-            ).let { it.replace("\u221E", NumberStyle.infinity(true, notation)) }
+            NumberStyle.interval(bound, Double.POSITIVE_INFINITY, false, false, notation)
         }
         return "x $symbol ${Format.number(bound)}\n$bracket"
     }
@@ -251,12 +247,8 @@ object EquationSolver {
             "$loText < x < $hiText\n" +
                 NumberStyle.interval(lo, hi, false, false, notation)
         } else {
-            val left = NumberStyle.interval(
-                Double.NEGATIVE_INFINITY, lo, false, false, notation,
-            ).replace("-\u221E", NumberStyle.infinity(false, notation))
-            val right = NumberStyle.interval(
-                hi, Double.POSITIVE_INFINITY, false, false, notation,
-            ).replace("\u221E", NumberStyle.infinity(true, notation))
+            val left = NumberStyle.interval(Double.NEGATIVE_INFINITY, lo, false, false, notation)
+            val right = NumberStyle.interval(hi, Double.POSITIVE_INFINITY, false, false, notation)
             "x < $loText or x > $hiText\n" + NumberStyle.union(left, right)
         }
     }
