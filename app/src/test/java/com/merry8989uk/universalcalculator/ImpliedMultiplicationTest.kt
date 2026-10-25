@@ -53,7 +53,7 @@ class ImpliedMultiplicationTest {
     // ---- what must not change ----
 
     @Test fun aMissingSignOnItsOwnIsTheSameEitherWay() {
-        for (expr in listOf("2pi", "3pi", "2(3)", "3(4+5)", "(2)(3)", "pi(2)")) {
+        for (expr in listOf("2pi", "3pi", "2(3)", "3(4+5)", "(2)(3)", "(2)pi")) {
             assertEquals(
                 "$expr changed with the setting",
                 of(expr, IM.SAME_PRECEDENCE), of(expr, IM.HIGHER_PRECEDENCE), 1e-12,
@@ -98,8 +98,11 @@ class ImpliedMultiplicationTest {
     }
 
     @Test fun aChainOfMissingSignsIsTheSameEitherWay() {
-        assertEquals(2 * PI * 3, of("2pi3", IM.SAME_PRECEDENCE), 1e-12)
-        assertEquals(2 * PI * 3, of("2pi3", IM.HIGHER_PRECEDENCE), 1e-12)
+        // a bracket then a name, with no sign either time
+        assertEquals(2 * PI, of("(2)pi", IM.SAME_PRECEDENCE), 1e-12)
+        assertEquals(2 * PI, of("(2)pi", IM.HIGHER_PRECEDENCE), 1e-12)
+        assertEquals(6 * PI, of("(2)(3)pi", IM.SAME_PRECEDENCE), 1e-12)
+        assertEquals(6 * PI, of("(2)(3)pi", IM.HIGHER_PRECEDENCE), 1e-12)
     }
 
     // ---- the settings round trip ----
