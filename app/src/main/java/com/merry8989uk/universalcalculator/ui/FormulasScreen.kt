@@ -62,13 +62,14 @@ import com.merry8989uk.universalcalculator.ui.theme.Violet
 private data class Tool(val id: String, val title: String, val subtitle: String)
 
 private val TOOLS = listOf(
-    Tool("reference", "Formula reference", "1663 formulas \u2014 identities, rules, tables and the numbered formulas from the maths handbooks."),
+    Tool("reference", "Formula reference", "Every formula the app knows \u2014 maths, physics and chemistry."),
     Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
     Tool("distributions", "Distributions & tests", "Normal/t/binomial/Poisson, t-tests and confidence intervals."),
     Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),
     Tool("rpn", "RPN (stack) calculator", "Reverse-Polish entry: push numbers, then apply operations."),
     Tool("matrix", "Matrix calculator", "Add, subtract, multiply, transpose, determinant and inverse."),
     Tool("handwriting", "Handwriting", "Write a calculation with a finger and let the app read it."),
+    Tool("solver", "Equation solver", "Linear to quintic, several equations in several unknowns, and inequalities."),
     Tool("symbolic", "Symbolic algebra", "Simplify, differentiate, integrate, factor and solve polynomials in x."),
     Tool("limits", "Limits", "The limit of an expression as x approaches a point, one side at a time, or at infinity."),
     Tool("partial", "Partial fractions", "Split a rational function into simple fractions."),
@@ -144,6 +145,7 @@ fun FormulasScreen(
         tool == "rpn" -> RpnScreen { tool = "" }
         tool == "matrix" -> MatrixScreen { tool = "" }
         tool == "handwriting" -> HandwritingScreen { tool = "" }
+        tool == "solver" -> EquationSolverScreen { tool = "" }
         tool == "symbolic" -> SymbolicScreen { tool = "" }
         tool == "limits" -> LimitsScreen { tool = "" }
         tool == "partial" -> PartialFractionsScreen { tool = "" }

@@ -229,7 +229,7 @@ internal val CLASSIC_PAGE_TWO: List<List<ClassicKey>> = listOf(
         ClassicKey("DATE", tool = "date", tone = ClassicTone.Function),
         ClassicKey("PROG", tool = "programmer", tone = ClassicTone.Function),
         ClassicKey("CURR", tool = "currency", tone = ClassicTone.Function),
-        ClassicKey("FORMS", tool = "reference", tone = ClassicTone.Function),
+        ClassicKey("SOLVE", tool = "solver", tone = ClassicTone.Function),
         ClassicKey("MENU", CLASSIC_MODE, tone = ClassicTone.Function),
     ),
     listOf(
@@ -457,6 +457,7 @@ internal val CALC_MODES: List<CalcMode> = listOf(
     CalcMode("distributions", "Distributions & tests", "Normal, t, binomial, Poisson, t-tests."),
     CalcMode("complex", "Complex numbers", "Arithmetic, magnitude, angle, roots."),
     CalcMode("rpn", "RPN stack", "Reverse-Polish entry."),
+    CalcMode("solver", "Equation solver", "Linear to quintic, several unknowns, inequalities."),
     CalcMode("symbolic", "Symbolic algebra", "Simplify, differentiate, integrate, factor."),
     CalcMode("limits", "Limits", "Limits from one side or at infinity."),
     CalcMode("partial", "Partial fractions", "Split a rational function."),
