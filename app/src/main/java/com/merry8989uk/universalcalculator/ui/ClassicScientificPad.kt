@@ -222,7 +222,7 @@ internal val CLASSIC_PAGE_TWO: List<List<ClassicKey>> = listOf(
         ClassicKey("PARTIAL", tool = "partial", tone = ClassicTone.Shift),
         ClassicKey("CALC", tool = "calculus", tone = ClassicTone.Shift),
         ClassicKey("GRAPH", tool = "graph", tone = ClassicTone.Shift),
-        ClassicKey("WRITE", tool = "handwriting", tone = ClassicTone.Shift),
+        ClassicKey("TABLE", tool = "table", tone = ClassicTone.Shift),
     ),
     listOf(
         ClassicKey("CONV", tool = "converter", tone = ClassicTone.Function),
@@ -468,6 +468,7 @@ internal val CALC_MODES: List<CalcMode> = listOf(
     CalcMode("complex", "Complex numbers", "Arithmetic, magnitude, angle, roots."),
     CalcMode("rpn", "RPN stack", "Reverse-Polish entry."),
     CalcMode("solver", "Equation solver", "Linear to quintic, several unknowns, inequalities."),
+    CalcMode("table", "Table of values", "What f(x) and g(x) do across a range."),
     CalcMode("symbolic", "Symbolic algebra", "Simplify, differentiate, integrate, factor."),
     CalcMode("limits", "Limits", "Limits from one side or at infinity."),
     CalcMode("partial", "Partial fractions", "Split a rational function."),

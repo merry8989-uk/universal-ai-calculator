@@ -70,6 +70,7 @@ private val TOOLS = listOf(
     Tool("matrix", "Matrix calculator", "Add, subtract, multiply, transpose, determinant and inverse."),
     Tool("handwriting", "Handwriting", "Write a calculation with a finger and let the app read it."),
     Tool("solver", "Equation solver", "Linear to quintic, several equations in several unknowns, and inequalities."),
+    Tool("table", "Table of values", "What f(x) and g(x) do across a range, row by row."),
     Tool("symbolic", "Symbolic algebra", "Simplify, differentiate, integrate, factor and solve polynomials in x."),
     Tool("limits", "Limits", "The limit of an expression as x approaches a point, one side at a time, or at infinity."),
     Tool("partial", "Partial fractions", "Split a rational function into simple fractions."),
@@ -146,6 +147,7 @@ fun FormulasScreen(
         tool == "matrix" -> MatrixScreen { tool = "" }
         tool == "handwriting" -> HandwritingScreen { tool = "" }
         tool == "solver" -> EquationSolverScreen { tool = "" }
+        tool == "table" -> TableScreen { tool = "" }
         tool == "symbolic" -> SymbolicScreen { tool = "" }
         tool == "limits" -> LimitsScreen { tool = "" }
         tool == "partial" -> PartialFractionsScreen { tool = "" }
