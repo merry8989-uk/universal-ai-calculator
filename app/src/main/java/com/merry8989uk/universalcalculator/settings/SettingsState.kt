@@ -19,6 +19,16 @@ data class SettingsState(
      * Gradians are the third unit the classic scientific calculators offer.
      */
     val angleUnit: String = "DEGREE",
+    /** 32 or 64 bits, for the programmer's keys. */
+    val bitWidth: String = "BITS_64",
+    /** Rectangular a+bi or polar r-angle. */
+    val complexFormat: String = "RECTANGULAR",
+    /** How an interval is written: [0, 1) or [0; 1) or [0; 1]. */
+    val intervalNotation: String = "PARENTHESES",
+    /** Show the frequency (n) column in the statistical editor. */
+    val frequencyColumn: Boolean = false,
+    /** Computer-algebra mode: when off, the symbolic tools are put away. */
+    val casMode: Boolean = true,
     /** What the divide key shows: the division sign, or a plain slash. */
     val divisionSign: String = "÷",
     /** What the multiply key shows: the multiplication sign, or an asterisk. */

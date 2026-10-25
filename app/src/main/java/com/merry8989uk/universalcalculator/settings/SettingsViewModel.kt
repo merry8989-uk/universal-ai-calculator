@@ -37,6 +37,12 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setAngleUnit(unit: String) = viewModelScope.launch { repo.setAngleUnit(unit) }
     fun setDecimalFormat(format: String) = viewModelScope.launch { repo.setDecimalFormat(format) }
     fun setPercentageMode(mode: String) = viewModelScope.launch { repo.setPercentageMode(mode) }
+    fun setBitWidth(width: String) = viewModelScope.launch { repo.setBitWidth(width) }
+    fun setComplexFormat(format: String) = viewModelScope.launch { repo.setComplexFormat(format) }
+    fun setIntervalNotation(notation: String) =
+        viewModelScope.launch { repo.setIntervalNotation(notation) }
+    fun setFrequencyColumn(enabled: Boolean) = viewModelScope.launch { repo.setFrequencyColumn(enabled) }
+    fun setCasMode(enabled: Boolean) = viewModelScope.launch { repo.setCasMode(enabled) }
     fun setDivisionSign(sign: String) = viewModelScope.launch { repo.setDivisionSign(sign) }
     fun setMultiplicationSign(sign: String) = viewModelScope.launch { repo.setMultiplicationSign(sign) }
     fun setKeyTextScale(scale: Float) = viewModelScope.launch { repo.setKeyTextScale(scale) }

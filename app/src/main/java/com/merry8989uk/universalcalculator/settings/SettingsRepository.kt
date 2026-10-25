@@ -34,6 +34,11 @@ class SettingsRepository(private val context: Context) {
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
         val ANGLE_UNIT = stringPreferencesKey("angle_unit")
+        val BIT_WIDTH = stringPreferencesKey("bit_width")
+        val COMPLEX_FORMAT = stringPreferencesKey("complex_format")
+        val INTERVAL_NOTATION = stringPreferencesKey("interval_notation")
+        val FREQUENCY_COLUMN = booleanPreferencesKey("frequency_column")
+        val CAS_MODE = booleanPreferencesKey("cas_mode")
         val DIVISION_SIGN = stringPreferencesKey("division_sign")
         val MULTIPLICATION_SIGN = stringPreferencesKey("multiplication_sign")
         val KEY_TEXT_SCALE = floatPreferencesKey("key_text_scale")
@@ -75,6 +80,11 @@ class SettingsRepository(private val context: Context) {
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
             angleUnit = p[Keys.ANGLE_UNIT] ?: "DEGREE",
+            bitWidth = p[Keys.BIT_WIDTH] ?: "BITS_64",
+            complexFormat = p[Keys.COMPLEX_FORMAT] ?: "RECTANGULAR",
+            intervalNotation = p[Keys.INTERVAL_NOTATION] ?: "PARENTHESES",
+            frequencyColumn = p[Keys.FREQUENCY_COLUMN] ?: false,
+            casMode = p[Keys.CAS_MODE] ?: true,
             divisionSign = p[Keys.DIVISION_SIGN] ?: "\u00F7",
             multiplicationSign = p[Keys.MULTIPLICATION_SIGN] ?: "\u00D7",
             keyTextScale = p[Keys.KEY_TEXT_SCALE] ?: 1f,
@@ -148,6 +158,11 @@ class SettingsRepository(private val context: Context) {
         put("decimalDigits", p[Keys.DECIMAL_DIGITS])
         put("percentageMode", p[Keys.PERCENTAGE_MODE])
         put("impliedMultiplication", p[Keys.IMPLIED_MULTIPLICATION])
+        put("bitWidth", p[Keys.BIT_WIDTH])
+        put("complexFormat", p[Keys.COMPLEX_FORMAT])
+        put("intervalNotation", p[Keys.INTERVAL_NOTATION])
+        put("frequencyColumn", p[Keys.FREQUENCY_COLUMN])
+        put("casMode", p[Keys.CAS_MODE])
         put("divisionSign", p[Keys.DIVISION_SIGN])
         put("multiplicationSign", p[Keys.MULTIPLICATION_SIGN])
         put("keyTextScale", p[Keys.KEY_TEXT_SCALE])
@@ -198,6 +213,11 @@ class SettingsRepository(private val context: Context) {
             num("decimalDigits", Keys.DECIMAL_DIGITS)
             str("percentageMode", Keys.PERCENTAGE_MODE)
             str("impliedMultiplication", Keys.IMPLIED_MULTIPLICATION)
+            str("bitWidth", Keys.BIT_WIDTH)
+            str("complexFormat", Keys.COMPLEX_FORMAT)
+            str("intervalNotation", Keys.INTERVAL_NOTATION)
+            bool("frequencyColumn", Keys.FREQUENCY_COLUMN)
+            bool("casMode", Keys.CAS_MODE)
             str("divisionSign", Keys.DIVISION_SIGN)
             str("multiplicationSign", Keys.MULTIPLICATION_SIGN)
             flt("keyTextScale", Keys.KEY_TEXT_SCALE)
@@ -255,6 +275,21 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setLayoutStyle(style: String) =
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setBitWidth(width: String) =
+        context.dataStore.edit { it[Keys.BIT_WIDTH] = width }
+
+    suspend fun setComplexFormat(format: String) =
+        context.dataStore.edit { it[Keys.COMPLEX_FORMAT] = format }
+
+    suspend fun setIntervalNotation(notation: String) =
+        context.dataStore.edit { it[Keys.INTERVAL_NOTATION] = notation }
+
+    suspend fun setFrequencyColumn(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.FREQUENCY_COLUMN] = enabled }
+
+    suspend fun setCasMode(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.CAS_MODE] = enabled }
 
     suspend fun setDivisionSign(sign: String) =
         context.dataStore.edit { it[Keys.DIVISION_SIGN] = sign }

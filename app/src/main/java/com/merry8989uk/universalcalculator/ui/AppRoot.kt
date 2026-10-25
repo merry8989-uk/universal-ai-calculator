@@ -384,6 +384,7 @@ fun AppRoot(settings: SettingsState) {
                 )
                 CONVERT_TAB -> ConvertScreen()
                 FORMULAS_TAB -> FormulasScreen(
+                    settings = settings,
                     resetSignal = resetTick,
                     requestedTool = requestedTool,
                     onToolRequestUsed = { requestedTool = "" },

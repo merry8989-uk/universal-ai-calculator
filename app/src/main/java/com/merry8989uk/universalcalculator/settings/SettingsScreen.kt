@@ -504,6 +504,101 @@ fun SettingsScreen(
                 valueRange = 0.75f..1.5f,
             )
 
+            // ---- the tools ----
+            Section(stringResource(R.string.section_tools))
+
+            val bitWidth = com.merry8989uk.universalcalculator.calc.BitWidth
+                .valueOf(state.bitWidth)
+            Text(stringResource(R.string.bit_width), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                com.merry8989uk.universalcalculator.calc.BitWidth.entries.forEach { w ->
+                    FilterChip(
+                        selected = w == bitWidth,
+                        onClick = { vm.setBitWidth(w.name) },
+                        label = { Text(w.label) },
+                    )
+                }
+            }
+            Text(
+                stringResource(R.string.bit_width_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            val cplx = com.merry8989uk.universalcalculator.calc.ComplexFormat
+                .valueOf(state.complexFormat)
+            Text(stringResource(R.string.complex_format), style = MaterialTheme.typography.bodyMedium)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                com.merry8989uk.universalcalculator.calc.ComplexFormat.entries.forEach { f ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { vm.setComplexFormat(f.name) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.RadioButton(
+                            selected = f == cplx,
+                            onClick = { vm.setComplexFormat(f.name) },
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(f.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(f.example, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+
+            val interval = com.merry8989uk.universalcalculator.calc.IntervalNotation
+                .valueOf(state.intervalNotation)
+            Text(stringResource(R.string.interval_notation), style = MaterialTheme.typography.bodyMedium)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                com.merry8989uk.universalcalculator.calc.IntervalNotation.entries.forEach { n ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { vm.setIntervalNotation(n.name) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.RadioButton(
+                            selected = n == interval,
+                            onClick = { vm.setIntervalNotation(n.name) },
+                        )
+                        Text(n.label, style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
+
+            ToggleRow(
+                stringResource(R.string.frequency_column),
+                state.frequencyColumn,
+                vm::setFrequencyColumn,
+            )
+            Text(
+                stringResource(R.string.frequency_column_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            ToggleRow(stringResource(R.string.cas_mode), state.casMode, vm::setCasMode)
+            Text(
+                stringResource(R.string.cas_mode_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text(
+                "${stringResource(R.string.display_text_size)}  \u00B7  ${(state.textScale * 100).toInt()}%",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Slider(
+                value = state.textScale,
+                onValueChange = { vm.setTextScale(it) },
+                valueRange = 0.75f..2.5f,
+            )
+
             // ---- the display ----
             Section(stringResource(R.string.section_display))
 

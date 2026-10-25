@@ -61,6 +61,9 @@ import com.merry8989uk.universalcalculator.ui.theme.Violet
 
 private data class Tool(val id: String, val title: String, val subtitle: String)
 
+/** The tools that need computer-algebra mode. */
+private val CAS_TOOLS = setOf("symbolic", "limits", "partial", "solver")
+
 private val TOOLS = listOf(
     Tool("reference", "Formula reference", "Every formula the app knows \u2014 maths, physics and chemistry."),
     Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
@@ -89,6 +92,9 @@ fun FormulasScreen(
     requestedTool: String = "",
     onToolRequestUsed: () -> Unit = {},
     onInnerChange: (Boolean) -> Unit = {},
+    /** The settings the tools inside read: bit width, complex form, and so on. */
+    settings: com.merry8989uk.universalcalculator.settings.SettingsState =
+        com.merry8989uk.universalcalculator.settings.SettingsState(),
 ) {
     val analyticsContext = androidx.compose.ui.platform.LocalContext.current
     fun analytics(key: String) = Analytics.event(analyticsContext, key)
@@ -112,6 +118,11 @@ fun FormulasScreen(
     // to leave it before it offers to exit. Leaving the tab clears the flag.
     LaunchedEffect(selected, tool) { onInnerChange(selected != null || tool.isNotEmpty()) }
     DisposableEffect(Unit) { onDispose { onInnerChange(false) } }
+
+    // Computer-algebra mode puts the symbolic tools away when it is switched off.
+    val shownTools = remember(settings.casMode) {
+        if (settings.casMode) TOOLS else TOOLS.filterNot { it.id in CAS_TOOLS }
+    }
 
     val context = androidx.compose.ui.platform.LocalContext.current
     var custom by remember { mutableStateOf(CustomCalcStore.load(context)) }
@@ -140,14 +151,37 @@ fun FormulasScreen(
         )
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
         tool == "reference" -> FormulaReferenceScreen { tool = "" }
-        tool == "statistics" -> StatisticsScreen { tool = "" }
+        tool == "statistics" -> StatisticsScreen(
+            onBack = { tool = "" },
+            frequencyColumn = settings.frequencyColumn,
+        )
         tool == "distributions" -> DistributionsScreen { tool = "" }
-        tool == "complex" -> ComplexScreen { tool = "" }
+        tool == "complex" -> ComplexScreen(
+            onBack = { tool = "" },
+            format = com.merry8989uk.universalcalculator.calc.ComplexFormat
+                .valueOf(settings.complexFormat),
+        )
         tool == "rpn" -> RpnScreen { tool = "" }
         tool == "matrix" -> MatrixScreen { tool = "" }
         tool == "handwriting" -> HandwritingScreen { tool = "" }
-        tool == "solver" -> EquationSolverScreen { tool = "" }
+        tool == "solver" -> EquationSolverScreen(
+            onClose = { tool = "" },
+            notation = com.merry8989uk.universalcalculator.calc.IntervalNotation
+                .valueOf(settings.intervalNotation),
+        )
         tool == "table" -> TableScreen { tool = "" }
+        // CAS mode off: the symbolic screens are unreachable, so send the user back
+        !settings.casMode && tool in CAS_TOOLS -> {
+            tool = ""
+            FormulaList(
+                custom = custom,
+                onCreate = { creating = true },
+                onEdit = { editing = it },
+                onDelete = { persist(custom.filterNot { c -> c.id == it.id }) },
+                onOpenTool = { tool = it },
+                onOpenCalculator = { selected = it },
+            )
+        }
         tool == "symbolic" -> SymbolicScreen { tool = "" }
         tool == "limits" -> LimitsScreen { tool = "" }
         tool == "partial" -> PartialFractionsScreen { tool = "" }
@@ -155,7 +189,11 @@ fun FormulasScreen(
         tool == "graph" -> GraphScreen { tool = "" }
         tool == "converter" -> ConverterScreen { tool = "" }
         tool == "date" -> DateScreen { tool = "" }
-        tool == "programmer" -> ProgrammerScreen { tool = "" }
+        tool == "programmer" -> ProgrammerScreen(
+            onBack = { tool = "" },
+            width = com.merry8989uk.universalcalculator.calc.BitWidth
+                .valueOf(settings.bitWidth),
+        )
         tool == "currency" -> CurrencyScreen { tool = "" }
         else -> FormulaList(
             custom = custom,
@@ -203,7 +241,7 @@ private fun FormulaList(
                 R.string.calculator_count,
                 FormulaLibrary.formulas.size,
                 custom.size,
-                TOOLS.size,
+                shownTools.size,
             ),
             style = MaterialTheme.typography.bodySmall,
         )
@@ -252,7 +290,7 @@ private fun FormulaList(
                 items(results) { f -> FormulaCard(f, onOpen) }
             } else {
                 if (category == "Tools") {
-                    itemsIndexed(TOOLS) { i, t ->
+                    itemsIndexed(shownTools) { i, t ->
                         ToolCard(
                             title = t.title,
                             subtitle = t.subtitle,

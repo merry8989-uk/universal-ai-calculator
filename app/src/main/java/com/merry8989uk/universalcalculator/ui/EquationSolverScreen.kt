@@ -45,7 +45,12 @@ import com.merry8989uk.universalcalculator.calc.ResultDetail
  * panel, which is where the prime factorisation and the other bases live.
  */
 @Composable
-internal fun EquationSolverScreen(onClose: () -> Unit) {
+internal fun EquationSolverScreen(
+    onClose: () -> Unit,
+    /** How the answer to an inequality is written. */
+    notation: com.merry8989uk.universalcalculator.calc.IntervalNotation =
+        com.merry8989uk.universalcalculator.calc.IntervalNotation.PARENTHESES,
+) {
     var kind by remember { mutableStateOf("poly") }
 
     Column(
@@ -356,9 +361,9 @@ private fun InequalitySolver() {
                 answer = ""
             } else {
                 answer = if (quadratic) {
-                    EquationSolver.quadraticInequality(av, bv, cv, lessThan)
+                    EquationSolver.quadraticInequality(av, bv, cv, lessThan, notation)
                 } else {
-                    EquationSolver.linearInequality(av, bv, lessThan)
+                    EquationSolver.linearInequality(av, bv, lessThan, notation)
                 }
             }
         },

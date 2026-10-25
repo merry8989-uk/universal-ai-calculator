@@ -27,7 +27,11 @@ import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Statistics
 
 @Composable
-fun StatisticsScreen(onBack: () -> Unit) {
+fun StatisticsScreen(
+    onBack: () -> Unit,
+    /** Show the frequency (n) column beside the values. */
+    frequencyColumn: Boolean = false,
+) {
     var data by remember { mutableStateOf("12, 15, 11, 18, 22, 15, 9, 25, 15, 30") }
     var xSeries by remember { mutableStateOf("1, 2, 3, 4, 5") }
     var ySeries by remember { mutableStateOf("2, 4, 5, 4, 5") }

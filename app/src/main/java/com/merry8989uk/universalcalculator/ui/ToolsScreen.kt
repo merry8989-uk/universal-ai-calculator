@@ -31,7 +31,12 @@ import com.merry8989uk.universalcalculator.calc.Programmer
 import java.time.LocalDate
 
 @Composable
-fun ProgrammerScreen(onBack: () -> Unit) {
+fun ProgrammerScreen(
+    onBack: () -> Unit,
+    /** 32 or 64 bits: the width the keys wrap at. */
+    width: com.merry8989uk.universalcalculator.calc.BitWidth =
+        com.merry8989uk.universalcalculator.calc.BitWidth.BITS_64,
+) {
     var input by remember { mutableStateOf("255") }
     var base by remember { mutableIntStateOf(10) }
 
@@ -47,18 +52,20 @@ fun ProgrammerScreen(onBack: () -> Unit) {
         }
     }
 
-    val result: String = remember(a, b, op) {
+    val result: String = remember(a, b, op, width) {
         val x = a.toLongOrNull()
         val y = b.toLongOrNull()
         if (x == null || y == null) "\u2014"
         else when (op) {
-            "AND" -> Programmer.and(x, y).toString()
-            "OR" -> Programmer.or(x, y).toString()
-            "XOR" -> Programmer.xor(x, y).toString()
-            "NOT a" -> Programmer.not(x).toString()
-            "a << b" -> Programmer.shl(x, y).toString()
-            "a >> b" -> Programmer.shr(x, y).toString()
-            "a >>> b" -> Programmer.ushr(x, y).toString()
+            // every result is fitted to the chosen width, so 32-bit NOT is -1
+            // and 32-bit 0xFFFFFFFF + 1 wraps to 0
+            "AND" -> width.fit(Programmer.and(x, y)).toString()
+            "OR" -> width.fit(Programmer.or(x, y)).toString()
+            "XOR" -> width.fit(Programmer.xor(x, y)).toString()
+            "NOT a" -> width.fit(Programmer.not(x)).toString()
+            "a << b" -> width.fit(Programmer.shl(x, y)).toString()
+            "a >> b" -> width.fit(Programmer.shr(x, y)).toString()
+            "a >>> b" -> width.fit(Programmer.ushr(x, y)).toString()
             "popcount a" -> Programmer.popcount(x).toString()
             else -> "\u2014"
         }
@@ -118,7 +125,15 @@ fun ProgrammerScreen(onBack: () -> Unit) {
                 FilterChip(selected = op == o, onClick = { op = o }, label = { Text(o) })
             }
         }
-        Text("Result: $result", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.titleLarge)
+        Text(
+            "Result: $result",
+            fontFamily = FontFamily.Monospace,
+            style = MaterialTheme.typography.titleLarge,
+        )
+        Text(
+            "Working in ${width.bits} bits.",
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 

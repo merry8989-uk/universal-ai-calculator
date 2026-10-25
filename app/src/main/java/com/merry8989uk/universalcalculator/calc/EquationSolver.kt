@@ -173,7 +173,12 @@ object EquationSolver {
     }
 
     /** The wording for a linear inequality `ax + b (op) 0`. */
-    fun linearInequality(a: Double, b: Double, lessThan: Boolean): String {
+    fun linearInequality(
+        a: Double,
+        b: Double,
+        lessThan: Boolean,
+        notation: IntervalNotation = IntervalNotation.PARENTHESES,
+    ): String {
         if (abs(a) < 1e-12) {
             // b on its own decides it
             val holds = if (lessThan) b < 0 else b > 0
@@ -183,8 +188,15 @@ object EquationSolver {
         val bound = -b / a
         val strictLess = if (a > 0) lessThan else !lessThan
         val symbol = if (strictLess) "<" else ">"
-        val bracket = if (strictLess) "(-\u221E, ${Format.number(bound)})" else
-            "(${Format.number(bound)}, \u221E)"
+        val bracket = if (strictLess) {
+            NumberStyle.interval(
+                Double.NEGATIVE_INFINITY, bound, false, false, notation,
+            ).let { it.replace("-\u221E", NumberStyle.infinity(false, notation)) }
+        } else {
+            NumberStyle.interval(
+                bound, Double.POSITIVE_INFINITY, false, false, notation,
+            ).let { it.replace("\u221E", NumberStyle.infinity(true, notation)) }
+        }
         return "x $symbol ${Format.number(bound)}\n$bracket"
     }
 
@@ -194,8 +206,14 @@ object EquationSolver {
      * The answer depends on which way the parabola opens and whether it meets
      * the axis at all, so each case is named rather than guessed.
      */
-    fun quadraticInequality(a: Double, b: Double, c: Double, lessThan: Boolean): String {
-        if (abs(a) < 1e-12) return linearInequality(b, c, lessThan)
+    fun quadraticInequality(
+        a: Double,
+        b: Double,
+        c: Double,
+        lessThan: Boolean,
+        notation: IntervalNotation = IntervalNotation.PARENTHESES,
+    ): String {
+        if (abs(a) < 1e-12) return linearInequality(b, c, lessThan, notation)
         val disc = b * b - 4 * a * c
 
         if (disc < -1e-12) {
@@ -230,9 +248,16 @@ object EquationSolver {
         // between the roots when the inequality agrees with the sign of a
         val between = if (a > 0) lessThan else !lessThan
         return if (between) {
-            "$loText < x < $hiText\n($loText, $hiText)"
+            "$loText < x < $hiText\n" +
+                NumberStyle.interval(lo, hi, false, false, notation)
         } else {
-            "x < $loText or x > $hiText\n(-\u221E, $loText) \u222A ($hiText, \u221E)"
+            val left = NumberStyle.interval(
+                Double.NEGATIVE_INFINITY, lo, false, false, notation,
+            ).replace("-\u221E", NumberStyle.infinity(false, notation))
+            val right = NumberStyle.interval(
+                hi, Double.POSITIVE_INFINITY, false, false, notation,
+            ).replace("\u221E", NumberStyle.infinity(true, notation))
+            "x < $loText or x > $hiText\n" + NumberStyle.union(left, right)
         }
     }
 

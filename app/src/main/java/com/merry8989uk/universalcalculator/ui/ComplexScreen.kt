@@ -26,7 +26,15 @@ import com.merry8989uk.universalcalculator.calc.Format
 
 /** Complex-number arithmetic: combine two numbers, or inspect one. */
 @Composable
-fun ComplexScreen(onBack: () -> Unit) {
+fun ComplexScreen(
+    onBack: () -> Unit,
+    /** Rectangular a+bi, or polar r-angle. */
+    format: com.merry8989uk.universalcalculator.calc.ComplexFormat =
+        com.merry8989uk.universalcalculator.calc.ComplexFormat.RECTANGULAR,
+) {
+    // every result is written the way the setting asks: a+bi, or r at an angle
+    fun show(c: com.merry8989uk.universalcalculator.calc.Complex) =
+        com.merry8989uk.universalcalculator.calc.NumberStyle.complex(c.re, c.im, format)
     var z1 by remember { mutableStateOf("3+4i") }
     var z2 by remember { mutableStateOf("1-2i") }
     var result by remember { mutableStateOf("") }
@@ -59,12 +67,12 @@ fun ComplexScreen(onBack: () -> Unit) {
         OutlinedTextField(value = z2, onValueChange = { z2 = it }, label = { Text("z2") }, modifier = Modifier.fillMaxWidth())
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { run { Complex.text(Complex.parse(z1) + Complex.parse(z2)) } }) { Text("z1 + z2") }
-            Button(onClick = { run { Complex.text(Complex.parse(z1) - Complex.parse(z2)) } }) { Text("z1 \u2212 z2") }
+            Button(onClick = { run { show(Complex.parse(z1) + Complex.parse(z2)) } }) { Text("z1 + z2") }
+            Button(onClick = { run { show(Complex.parse(z1) - Complex.parse(z2)) } }) { Text("z1 \u2212 z2") }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { run { Complex.text(Complex.parse(z1) * Complex.parse(z2)) } }) { Text("z1 \u00D7 z2") }
-            Button(onClick = { run { Complex.text(Complex.parse(z1) / Complex.parse(z2)) } }) { Text("z1 \u00F7 z2") }
+            Button(onClick = { run { show(Complex.parse(z1) * Complex.parse(z2)) } }) { Text("z1 \u00D7 z2") }
+            Button(onClick = { run { show(Complex.parse(z1) / Complex.parse(z2)) } }) { Text("z1 \u00F7 z2") }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = {
@@ -74,11 +82,11 @@ fun ComplexScreen(onBack: () -> Unit) {
                     "|z1| = ${Format.number(r)}\narg = ${Format.number(a)}\u00B0"
                 }
             }) { Text("Magnitude / angle") }
-            Button(onClick = { run { Complex.text(Complex.parse(z1).conj()) } }) { Text("Conjugate") }
+            Button(onClick = { run { show(Complex.parse(z1).conj()) } }) { Text("Conjugate") }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { run { Complex.text(Complex.parse(z1).pow(2)) } }) { Text("z1\u00B2") }
-            Button(onClick = { run { Complex.text(Complex.parse(z1).sqrt()) } }) { Text("\u221Az1") }
+            Button(onClick = { run { show(Complex.parse(z1).pow(2)) } }) { Text("z1\u00B2") }
+            Button(onClick = { run { show(Complex.parse(z1).sqrt()) } }) { Text("\u221Az1") }
         }
 
         Text(

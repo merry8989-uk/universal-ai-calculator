@@ -413,4 +413,14 @@
     <string name="clear_on_exit_help">कैलकुलेटर से किसी और स्क्रीन पर जाने पर व्यंजक खाली हो जाता है, ताकि लौटने पर वह वहीं पड़ा न मिले।</string>
     <string name="show_calc_info">गणना की जानकारी दिखाएँ</string>
     <string name="show_calc_info_help">परिणाम के नीचे छोटी टिप्पणी कि उसे कैसे पढ़ा गया, जैसे प्रतिशत किसका लिया गया।</string>
+    <string name="section_tools">औज़ार</string>
+    <string name="bit_width">बिट चौड़ाई</string>
+    <string name="bit_width_help">प्रोग्रामर की कुंजियाँ इसी चौड़ाई पर लपेटती हैं। 32 बिट पर NOT 0 का मान −1 है और 0xFFFFFFFF + 1 का 0।</string>
+    <string name="complex_format">सम्मिश्र संख्या प्रारूप</string>
+    <string name="interval_notation">अंतराल संकेतन</string>
+    <string name="frequency_column">आवृत्ति स्तंभ</string>
+    <string name="frequency_column_help">सांख्यिकी संपादक में मानों के बगल में n स्तंभ दिखाएँ, ताकि चार बार आया मान चार बार गिना जाए।</string>
+    <string name="cas_mode">CAS मोड</string>
+    <string name="cas_mode_help">कंप्यूटर बीजगणित: प्रतीकात्मक सरलीकरण, सीमाएँ और आंशिक भिन्न। बंद करने पर ये औज़ार हट जाते हैं।</string>
+    <string name="display_text_size">डिस्प्ले अक्षर आकार</string>
 </resources>
