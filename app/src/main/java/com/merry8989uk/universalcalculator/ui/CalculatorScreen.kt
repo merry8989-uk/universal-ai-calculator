@@ -323,15 +323,6 @@ fun CalculatorScreen(
     var sciOpen by rememberSaveable { mutableStateOf(false) }
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.
-    // "Clear the screen before exiting": the root bumps clearSignal on the way out.
-    LaunchedEffect(clearSignal) {
-        if (clearSignal > 0 && settings.clearOnExit) {
-            expr = TextFieldValue("")
-            preview = ""
-            aiText = ""
-        }
-    }
-
     var classicLayerName by rememberSaveable { mutableStateOf(ClassicLayer.NORMAL.name) }
     val classicLayer = ClassicLayer.valueOf(classicLayerName)
     // 2nd turns the pad over; 0 is the arithmetic page, 1 is the tools page.
@@ -404,6 +395,15 @@ fun CalculatorScreen(
         }
     } catch (e: Exception) {
         ""
+    }
+
+    // "Clear the screen before exiting": the root bumps clearSignal on the way
+    // out, and this empties the expression so it is not waiting when you return.
+    LaunchedEffect(clearSignal) {
+        if (clearSignal > 0 && settings.clearOnExit) {
+            expr = TextFieldValue("")
+            aiText = ""
+        }
     }
 
     fun insert(snippet: String) {
