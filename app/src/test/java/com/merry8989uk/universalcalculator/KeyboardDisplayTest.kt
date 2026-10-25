@@ -174,7 +174,7 @@ class KeyboardDisplayTest {
         val body = text.substring(classic, next)
         for (name in listOf(
             "R.string.angle_unit",
-            "R.string.decimal_format",
+            "R.string.decimal_number_format",
             "R.string.percentage_type",
             "R.string.implied_multiplication",
         )) {
