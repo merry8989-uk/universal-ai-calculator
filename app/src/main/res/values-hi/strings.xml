@@ -389,4 +389,13 @@
     <string name="classic_angle">कोण इकाई</string>
     <string name="classic_caret_l">कर्सर बाएँ</string>
     <string name="classic_caret_r">कर्सर दाएँ</string>
+    <string name="downloading_percent">डाउनलोड हो रहा है… %1$d%%</string>
+    <string name="update_ready">%1$s पर अपडेट करें</string>
+    <string name="update_download_install">डाउनलोड करके इंस्टॉल करें</string>
+    <string name="update_later">बाद में</string>
+    <string name="update_downloading_title">अपडेट डाउनलोड हो रहा है</string>
+    <string name="update_downloading_hint">फ़ाइल पूरी होते ही इंस्टॉलर अपने आप खुल जाएगा।</string>
+    <string name="update_failed_title">अपडेट पूरा नहीं हुआ</string>
+    <string name="update_failed_help">आपका ऐप सुरक्षित है और पहले वाले वर्शन पर ही है। सेटिंग्स से दोबारा कोशिश कर सकते हैं।</string>
+    <string name="update_close">बंद करें</string>
 </resources>

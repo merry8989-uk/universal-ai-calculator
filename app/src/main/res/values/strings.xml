@@ -391,4 +391,13 @@
     <string name="classic_angle">angle unit</string>
     <string name="classic_caret_l">move the cursor left</string>
     <string name="classic_caret_r">move the cursor right</string>
+    <string name="downloading_percent">Downloading… %1$d%%</string>
+    <string name="update_ready">Update to %1$s</string>
+    <string name="update_download_install">Download and install</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading_title">Downloading the update</string>
+    <string name="update_downloading_hint">The installer opens by itself when the file is complete.</string>
+    <string name="update_failed_title">The update did not finish</string>
+    <string name="update_failed_help">Your app is untouched and still on the version you had. You can try again from Settings.</string>
+    <string name="update_close">Close</string>
 </resources>

@@ -400,7 +400,7 @@ fun SettingsScreen(
                         Text("Update now")
                     }
                 }
-                UpdateUiState.Downloading -> Row(
+                is UpdateUiState.Downloading -> Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {

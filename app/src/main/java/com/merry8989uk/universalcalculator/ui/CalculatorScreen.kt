@@ -984,7 +984,9 @@ when (key) {
                             else -> "DEGREE"
                         }
                     },
-                    modifier = Modifier.weight(PAD_WEIGHT_CLASSIC),
+                    // Compact keys: the pad asks for what it needs and no more.
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    rowHeight = CLASSIC_KEY_HEIGHT,
                 )
             } else if (functionKeys.isNotEmpty()) {
                 // One handle instead of two scrolling rows: it slides the whole
@@ -1101,13 +1103,13 @@ when (key) {
 }
 
 /**
- * How the vertical space is split when the classic pad is showing.
- *
- * The pad carries sixty keys, so it gets the larger share; the display keeps
- * just enough to read the expression and the answer without crowding them.
+ * The classic pad keeps its keys small on purpose: fifty-four compact keys read
+ * better than a few fat ones, and it is what a real scientific calculator looks
+ * like. The display takes whatever room is left over.
  */
-internal const val DISPLAY_WEIGHT_CLASSIC = 0.42f
-internal const val PAD_WEIGHT_CLASSIC = 1.8f
+internal const val CLASSIC_KEY_HEIGHT = 40.dp
+internal const val DISPLAY_WEIGHT_CLASSIC = 1f
+internal const val PAD_WEIGHT_CLASSIC = 1f
 
 /** Adds thousands separators to the integer part when the user wants them. */
 /**
