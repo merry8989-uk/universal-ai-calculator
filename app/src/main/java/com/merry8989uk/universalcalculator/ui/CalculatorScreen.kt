@@ -347,6 +347,9 @@ fun CalculatorScreen(
     val aiVisible = aiIsVisible(settings.aiEnabled, settings.minimalMode)
     // How results are written out: Normal, Fixed, Scientific, Engineering, SI.
     val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(settings.decimalFormat)
+    // What + and - do with a percent sign.
+    val percentageMode =
+        com.merry8989uk.universalcalculator.calc.PercentageMode.of(settings.percentageMode)
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
@@ -360,7 +363,14 @@ fun CalculatorScreen(
                                             )
             if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
         } else {
-            Format.number(Evaluator.evaluate(balanced, vars = mapOf("ans" to ans, "x" to xValue), unit = angle))
+            Format.number(
+                Evaluator.evaluate(
+                    balanced,
+                    vars = mapOf("ans" to ans, "x" to xValue),
+                    unit = angle,
+                    percentage = percentageMode,
+                ),
+            )
         }
     } catch (e: Exception) {
         ""
@@ -416,7 +426,12 @@ fun CalculatorScreen(
                     ready, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
                     mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
                 ).abs()
-            else -> Evaluator.evaluate(ready, vars = mapOf("ans" to ans, "x" to xValue), unit = angle)
+            else -> Evaluator.evaluate(
+                ready,
+                vars = mapOf("ans" to ans, "x" to xValue),
+                unit = angle,
+                percentage = percentageMode,
+            )
         }
     } catch (e: Exception) {
         ans
@@ -460,7 +475,12 @@ when (key) {
                                                     Complex.text(r)
                                                 }
                                             } else {
-                                                val value = Evaluator.evaluate(ready, vars = mapOf("ans" to ans, "x" to xValue), unit = angle)
+                                                val value = Evaluator.evaluate(
+                                                    ready,
+                                                    vars = mapOf("ans" to ans, "x" to xValue),
+                                                    unit = angle,
+                                                    percentage = percentageMode,
+                                                )
                                                 ans = value
                                                 exactResult = value
                                                 // Shown at the number of decimals the user chose.

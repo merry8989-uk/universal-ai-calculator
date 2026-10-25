@@ -346,6 +346,39 @@ fun SettingsScreen(
                 )
             }
 
+            // ---- how a percent after + or - is read ----
+            val pctMode = com.merry8989uk.universalcalculator.calc.PercentageMode.of(state.percentageMode)
+            Text(
+                stringResource(R.string.percentage_type),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                stringResource(R.string.percentage_type_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                com.merry8989uk.universalcalculator.calc.PercentageMode.all.forEach { mode ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { vm.setPercentageMode(mode.name) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.RadioButton(
+                            selected = mode == pctMode,
+                            onClick = { vm.setPercentageMode(mode.name) },
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(mode.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(mode.example, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+
             var decimalDialog by remember { mutableStateOf(false) }
             val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(state.decimalFormat)
             Row(

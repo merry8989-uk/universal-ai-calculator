@@ -35,11 +35,13 @@ import kotlin.math.tanh
  * A small, dependency-free recursive-descent expression evaluator.
  *
  * Supports + - * / ^, parentheses, unary minus, postfix factorial (!) and a
- * proper percentage key (%):
- *   - `200 + 10%` = 220      (10% of 200, added)
- *   - `200 - 10%` = 180
- *   - `200 * 10%` = 20
- *   - `50%`       = 0.5
+ * proper percentage key (%).
+ *
+ * What `+` and `-` do with a percent is the caller's choice, see
+ * [PercentageMode]:
+ *   - multiplicative (the default)  200 + 10% = 220,  200 - 10% = 180
+ *   - additive                      200 + 10% = 200.1, 200 - 10% = 199.9
+ * `*` and `/` are the same either way: 200 * 10% = 20, and 50% = 0.5.
  * Use `mod(a, b)` for a remainder.
  */
 object Evaluator {
@@ -57,8 +59,14 @@ object Evaluator {
         degrees: Boolean = false,
         vars: Map<String, Double> = emptyMap(),
         unit: AngleUnit? = null,
+        percentage: PercentageMode = PercentageMode.MULTIPLICATIVE,
     ): Double {
-        val parser = Parser(expression, unit ?: if (degrees) AngleUnit.DEGREE else AngleUnit.RADIAN, vars)
+        val parser = Parser(
+            expression,
+            unit ?: if (degrees) AngleUnit.DEGREE else AngleUnit.RADIAN,
+            vars,
+            percentage,
+        )
         val v = parser.parseExpression()
         parser.expectEnd()
         if (v.isNaN()) throw EvalException("Result is not a number")
@@ -69,6 +77,7 @@ object Evaluator {
     private class Parser(
         private val s: String,
         private val angle: AngleUnit,
+        private val percentage: PercentageMode,
         private val vars: Map<String, Double>,
     ) {
         private var i = 0
@@ -93,7 +102,17 @@ object Evaluator {
                         i++
                         val r = parseTerm()
                         acc = Operand(
-                            if (r.isPercent) acc.value + acc.value * r.value else acc.value + r.value,
+                            if (r.isPercent) {
+                                // multiplicative takes the percent of what is there
+                                // already; additive treats it as a plain number
+                                if (percentage == PercentageMode.MULTIPLICATIVE) {
+                                    acc.value + acc.value * r.value
+                                } else {
+                                    acc.value + r.value
+                                }
+                            } else {
+                                acc.value + r.value
+                            },
                             false,
                         )
                     }
@@ -101,7 +120,15 @@ object Evaluator {
                         i++
                         val r = parseTerm()
                         acc = Operand(
-                            if (r.isPercent) acc.value - acc.value * r.value else acc.value - r.value,
+                            if (r.isPercent) {
+                                if (percentage == PercentageMode.MULTIPLICATIVE) {
+                                    acc.value - acc.value * r.value
+                                } else {
+                                    acc.value - r.value
+                                }
+                            } else {
+                                acc.value - r.value
+                            },
                             false,
                         )
                     }

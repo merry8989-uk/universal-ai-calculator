@@ -401,4 +401,6 @@
     <string name="update_failed_help">Your app is untouched and still on the version you had. You can try again from Settings.</string>
     <string name="update_close">Close</string>
     <string name="decimal_number_format">Decimal number format</string>
+    <string name="percentage_type">Percentage calculation type</string>
+    <string name="percentage_type_help">What a percent sign means after + or -. Multiplication and division are the same either way.</string>
 </resources>

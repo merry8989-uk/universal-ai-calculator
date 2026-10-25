@@ -399,4 +399,6 @@
     <string name="update_failed_help">आपका ऐप सुरक्षित है और पहले वाले वर्शन पर ही है। सेटिंग्स से दोबारा कोशिश कर सकते हैं।</string>
     <string name="update_close">बंद करें</string>
     <string name="decimal_number_format">दशमलव संख्या प्रारूप</string>
+    <string name="percentage_type">प्रतिशत गणना का तरीका</string>
+    <string name="percentage_type_help">+ या − के बाद प्रतिशत चिह्न का क्या मतलब है। गुणा और भाग दोनों तरीकों में एक जैसे रहते हैं।</string>
 </resources>
