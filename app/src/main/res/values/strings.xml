@@ -400,4 +400,5 @@
     <string name="update_failed_title">The update did not finish</string>
     <string name="update_failed_help">Your app is untouched and still on the version you had. You can try again from Settings.</string>
     <string name="update_close">Close</string>
+    <string name="decimal_number_format">Decimal number format</string>
 </resources>

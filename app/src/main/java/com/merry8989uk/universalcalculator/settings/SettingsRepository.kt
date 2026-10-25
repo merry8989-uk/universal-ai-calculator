@@ -34,6 +34,8 @@ class SettingsRepository(private val context: Context) {
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
         val ANGLE_UNIT = stringPreferencesKey("angle_unit")
+        val DECIMAL_FORMAT = stringPreferencesKey("decimal_format")
+        val DECIMAL_DIGITS = intPreferencesKey("decimal_digits")
         val AUTO_CLOSE = booleanPreferencesKey("auto_close_brackets")
         val IGNORE_TRAILING = booleanPreferencesKey("ignore_trailing_operator")
         val NUMBER_FORMAT = stringPreferencesKey("number_format")
@@ -65,6 +67,8 @@ class SettingsRepository(private val context: Context) {
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
             angleUnit = p[Keys.ANGLE_UNIT] ?: "DEGREE",
+            decimalFormat = p[Keys.DECIMAL_FORMAT] ?: "NORMAL",
+            decimalDigits = p[Keys.DECIMAL_DIGITS] ?: 10,
             autoCloseBrackets = p[Keys.AUTO_CLOSE] ?: true,
             ignoreTrailingOperator = p[Keys.IGNORE_TRAILING] ?: true,
             numberFormat = p[Keys.NUMBER_FORMAT] ?: "Indian",
@@ -209,6 +213,12 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setLayoutStyle(style: String) =
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setDecimalFormat(format: String) =
+        context.dataStore.edit { it[Keys.DECIMAL_FORMAT] = format }
+
+    suspend fun setDecimalDigits(digits: Int) =
+        context.dataStore.edit { it[Keys.DECIMAL_DIGITS] = digits.coerceIn(0, 16) }
 
     suspend fun setAutoCloseBrackets(enabled: Boolean) =
         context.dataStore.edit { it[Keys.AUTO_CLOSE] = enabled }

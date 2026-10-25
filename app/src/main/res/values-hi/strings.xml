@@ -398,4 +398,5 @@
     <string name="update_failed_title">अपडेट पूरा नहीं हुआ</string>
     <string name="update_failed_help">आपका ऐप सुरक्षित है और पहले वाले वर्शन पर ही है। सेटिंग्स से दोबारा कोशिश कर सकते हैं।</string>
     <string name="update_close">बंद करें</string>
+    <string name="decimal_number_format">दशमलव संख्या प्रारूप</string>
 </resources>

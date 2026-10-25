@@ -1,6 +1,7 @@
 package com.merry8989uk.universalcalculator.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
@@ -341,6 +343,43 @@ fun SettingsScreen(
                     selected = !state.fractionsEnabled,
                     onClick = { vm.setFractionsEnabled(false) },
                     label = { Text(stringResource(R.string.output_decimal)) },
+                )
+            }
+
+            var decimalDialog by remember { mutableStateOf(false) }
+            val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(state.decimalFormat)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { decimalDialog = true }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.decimal_number_format),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        decimalMode.label +
+                            if (decimalMode != com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL) {
+                                "  \u00B7  ${state.decimalDigits} digits"
+                            } else {
+                                ""
+                            },
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Text("\u203A", style = MaterialTheme.typography.titleLarge)
+            }
+            if (decimalDialog) {
+                com.merry8989uk.universalcalculator.ui.DecimalFormatDialog(
+                    current = decimalMode,
+                    digits = state.decimalDigits,
+                    onPick = { vm.setDecimalFormat(it.name) },
+                    onDigits = { vm.setDecimalDigits(it) },
+                    onDismiss = { decimalDialog = false },
                 )
             }
 

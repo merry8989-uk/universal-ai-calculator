@@ -19,6 +19,10 @@ data class SettingsState(
      * Gradians are the third unit the classic scientific calculators offer.
      */
     val angleUnit: String = "DEGREE",
+    /** Normal, Fixed, Scientific, Engineering or Engineering SI. */
+    val decimalFormat: String = "NORMAL",
+    /** How many digits after the point, for the formats that take a count. */
+    val decimalDigits: Int = 10,
     /** Close any bracket the user has not closed before working it out. */
     val autoCloseBrackets: Boolean = true,
     /** Ignore a plus or minus left dangling at the end of the input. */

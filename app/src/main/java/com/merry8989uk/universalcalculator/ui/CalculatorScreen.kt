@@ -345,6 +345,8 @@ fun CalculatorScreen(
     val classic = settings.layoutStyle == "Classic"
     // One rule, shared with the tab bar, so the two can never disagree.
     val aiVisible = aiIsVisible(settings.aiEnabled, settings.minimalMode)
+    // How results are written out: Normal, Fixed, Scientific, Engineering, SI.
+    val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(settings.decimalFormat)
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
@@ -449,7 +451,11 @@ when (key) {
                                                 if (r.isReal(1e-10)) {
                                                     ans = r.re
                                                     exactResult = r.re
-                                                    pretty(Format.number(r.re), settings.numberFormat, settings.decimals)
+                                                    pretty(
+                                                        Format.number(r.re), settings.numberFormat,
+                                                        settings.decimals,
+                                                        decimalMode, settings.decimalDigits,
+                                                    )
                                                 } else {
                                                     Complex.text(r)
                                                 }
@@ -458,7 +464,11 @@ when (key) {
                                                 ans = value
                                                 exactResult = value
                                                 // Shown at the number of decimals the user chose.
-                                                pretty(Format.number(value), settings.numberFormat, settings.decimals)
+                                                pretty(
+                                                    Format.number(value), settings.numberFormat,
+                                                    settings.decimals,
+                                                    decimalMode, settings.decimalDigits,
+                                                )
                                             }
                                         } catch (e: Exception) {
                                             // Say why rather than just "error".
@@ -626,7 +636,8 @@ when (key) {
                         Text(text, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(top = 12.dp))
                         if (preview.isNotEmpty()) {
-                            Text("= ${pretty(preview, settings.numberFormat, settings.decimals)}",
+                            Text(
+                                "= ${pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)}",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium)
                         }
@@ -839,7 +850,7 @@ when (key) {
                 val resultSpoken = if (preview.isNotEmpty())
                     stringResource(
                         R.string.result_a11y,
-                        pretty(preview, settings.numberFormat, settings.decimals),
+                        pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits),
                     )
                 else ""
 
@@ -849,7 +860,7 @@ when (key) {
                     } else null
                     AutoSizeText(
                         text = if (preview.isNotEmpty())
-                            "= ${pretty(preview, settings.numberFormat, settings.decimals)}" +
+                            "= ${pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)}" +
                                 (asFraction?.let { "   ($it)" } ?: "")
                         else "",
                         style = MaterialTheme.typography.titleLarge,
@@ -1121,6 +1132,20 @@ internal const val PAD_WEIGHT_CLASSIC = 1f
  *   European       3.000.000,5
  *   None           3000000.5
  */
-private fun pretty(text: String, format: String, decimals: Int): String =
-    Format.grouped(text, format, decimals)
+private fun pretty(
+    text: String,
+    format: String,
+    decimals: Int,
+    mode: com.merry8989uk.universalcalculator.calc.DecimalFormat =
+        com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL,
+    digits: Int = 10,
+): String {
+    // Normal keeps the existing behaviour; the other four rewrite the number
+    // first and then only group it.
+    if (mode == com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL) {
+        return Format.grouped(text, format, decimals)
+    }
+    val value = text.toDoubleOrNull() ?: return text
+    return Format.grouped(Format.number(value, mode, digits), format, -1)
+}
 
