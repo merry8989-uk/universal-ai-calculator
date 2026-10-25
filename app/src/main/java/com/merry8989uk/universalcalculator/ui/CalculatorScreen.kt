@@ -887,7 +887,7 @@ when (key) {
                         SolidColor(MaterialTheme.colorScheme.primary)
                     } else {
                         SolidColor(Color.Transparent)
-                    }
+                    },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
