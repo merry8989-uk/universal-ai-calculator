@@ -17,6 +17,7 @@ object Spoken {
     /** The English wording, and the source of truth for which keys are labelled. */
     internal val WORDS = mapOf(
         // Digits and the basic pad
+        "\u271B" to "direction pad",
         "." to "decimal point",
         "00" to "double zero",
         "C" to "clear",
