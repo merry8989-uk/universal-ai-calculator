@@ -115,14 +115,26 @@ class BoxExpressionTest {
         assertEquals(2, cursor)
     }
 
-    @Test fun aFilledShapeHasNothingLeftToEmpty() {
+    @Test fun aFilledHoleAlwaysGoesBackToBeingAHole() {
+        // even the last one: a hole is a hole, and emptying it is what backspace
+        // means there. Only once every hole is empty does it start deleting.
         var (e, cursor) = start("x/y")
         val (a, c1) = e.type(cursor, "3")
         val (b, _) = a.type(c1, "4")
         assertFalse(b.hasEmptySlot())
-        // so backspace deletes as usual
-        val (c, _) = b.backspace(3)
-        assertEquals("3/", c.text)
+        val (c, at) = b.backspace(3)
+        assertEquals("3/$box", c.text)
+        assertEquals(2, at)
+    }
+
+    @Test fun onceEveryHoleIsEmptyItDeletes() {
+        var (e, cursor) = start("x/y")
+        val (a, c1) = e.type(cursor, "3")
+        val (b, _) = a.type(c1, "4")
+        val (c, c3) = b.backspace(3)
+        val (d, c4) = c.backspace(c3)
+        assertEquals("$box/$box", d.text)
+        assertEquals(0, c4)
     }
 
     // ---------------- with the rest of the expression ----------------

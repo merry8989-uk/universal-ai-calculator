@@ -77,7 +77,15 @@ class ClassicPadTest {
     private fun isToolOnly(key: ClassicKey) =
         key.tool != null && (key.action.isEmpty() || key.action.startsWith("@"))
 
-    private fun isPadLocal(action: String) = action.startsWith("@")
+    /**
+     * Whether the key is the pad's own business rather than the engine's.
+     *
+     * A shape key like x/y is neither: it types nothing the evaluator knows, it
+     * puts down a template that [com.merry8989uk.universalcalculator.calc.BoxExpression]
+     * turns into a real expression.
+     */
+    private fun isPadLocal(action: String) =
+        action.startsWith("@") || action in com.merry8989uk.universalcalculator.calc.BoxExpression.TEMPLATES
 
     // ---- shape ----
 
