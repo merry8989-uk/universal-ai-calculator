@@ -33,6 +33,7 @@ fun MatrixScreen(onBack: () -> Unit) {
     var bText by remember { mutableStateOf("1 0\n0 1") }
     var vText by remember { mutableStateOf("2\n4\n6") }
     var result by remember { mutableStateOf("") }
+    var power by remember { mutableStateOf("3") }
 
     fun run(block: () -> String) {
         result = try { block() } catch (e: Exception) { "Error: ${e.message}" }
