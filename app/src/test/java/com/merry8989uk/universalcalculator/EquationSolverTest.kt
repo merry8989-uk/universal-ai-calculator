@@ -239,7 +239,7 @@ class EquationSolverTest {
         assertEquals("No value of x works", EquationSolver.quadraticInequality(-1.0, 0.0, -1.0, lessThan = false))
     }
 
-    @Test fun aQuadraticWithARepeatedRoot() {
+    @Test fun anInequalityWithARepeatedRoot() {
         // (x-2)^2 touches the axis at 2 and is positive everywhere else
         assertEquals(
             "True for every x except x = 2",
