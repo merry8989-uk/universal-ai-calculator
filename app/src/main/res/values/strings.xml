@@ -425,4 +425,5 @@
     <string name="cas_mode">CAS mode</string>
     <string name="cas_mode_help">Computer algebra: symbolic simplification, limits and partial fractions. Off puts those tools away.</string>
     <string name="display_text_size">Display text size</string>
+    <string name="dpad_spoken">direction pad</string>
 </resources>

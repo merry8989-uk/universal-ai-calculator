@@ -412,4 +412,5 @@
     <string name="cas_mode">সিএএস মোড</string>
     <string name="cas_mode_help">কম্পিউটার অ্যালজেব্রা: সিম্বলিক সিম্প্লিফিকেশন, লিমিটস এবং আংশিক ভগ্নাংশ। অফ করলে সেই টুলসগুলো সরিয়ে ফেলা হয়।</string>
     <string name="display_text_size">ডিসপ্লে টেক্সটের সাইজ</string>
+    <string name="dpad_spoken">দিক প্যাড</string>
 </resources>

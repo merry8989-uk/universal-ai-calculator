@@ -154,6 +154,8 @@ object Spoken {
 
     /** Resource ids for the spoken key labels, so TalkBack speaks Hindi too. */
     val SPOKEN_RES: Map<String, Int> = mapOf(
+        // the direction pad carries four arrows, not one label
+        "\u271B" to R.string.dpad_spoken,
         "." to R.string.key_decimal_point,
         "00" to R.string.key_double_zero,
         "C" to R.string.key_clear,

@@ -38,9 +38,13 @@ class ClassicLayoutTest {
 
     @Test fun everyRowOnEveryPageIsTheSameWidth() {
         for ((name, page) in listOf("one" to CLASSIC_PAGE_ONE, "two" to CLASSIC_PAGE_TWO)) {
-            val width = page.first().size
+            // a row is as wide as its spans add up to, not as many keys as it holds
+            val width = page.first().sumOf { it.span }
             page.forEachIndexed { i, row ->
-                assertEquals("page $name row $i is a different width", width, row.size)
+                assertEquals(
+                    "page $name row $i is a different width",
+                    width, row.sumOf { it.span },
+                )
             }
         }
     }

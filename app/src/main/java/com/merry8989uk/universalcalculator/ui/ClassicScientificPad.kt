@@ -167,7 +167,7 @@ private fun modifierBar(pageLabel: String) = listOf(
     ClassicKey("SHIFT", CLASSIC_SHIFT, tone = ClassicTone.Accent),
     ClassicKey("ALPHA", CLASSIC_ALPHA, tone = ClassicTone.Shift),
     // the direction pad, which the reference puts in the middle of this row
-    ClassicKey("", CLASSIC_DPAD, tone = ClassicTone.Function, span = 2),
+    ClassicKey("\u271B", CLASSIC_DPAD, tone = ClassicTone.Function, span = 2),
     ClassicKey("MODE", CLASSIC_MODE, tone = ClassicTone.Function),
     ClassicKey(pageLabel, CLASSIC_PAGE, tone = ClassicTone.Function),
 )

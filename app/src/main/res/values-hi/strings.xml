@@ -425,4 +425,5 @@
     <string name="cas_mode">CAS मोड</string>
     <string name="cas_mode_help">कंप्यूटर बीजगणित: प्रतीकात्मक सरलीकरण, सीमाएँ और आंशिक भिन्न। बंद करने पर ये औज़ार हट जाते हैं।</string>
     <string name="display_text_size">डिस्प्ले अक्षर आकार</string>
+    <string name="dpad_spoken">दिशा पैड</string>
 </resources>

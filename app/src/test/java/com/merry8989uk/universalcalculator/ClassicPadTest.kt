@@ -85,10 +85,13 @@ class ClassicPadTest {
         // page one carries the digits and the rules; page two is the functions
         // that do not fit, so the two are not the same height and need not be
         for ((name, page) in listOf("one" to CLASSIC_PAGE_ONE, "two" to CLASSIC_PAGE_TWO)) {
-            val width = page.first().size
-            assertEquals("page $name is not six across", 6, width)
+            // six columns, counted in spans, because the direction pad is two
+            assertEquals("page $name is not six across", 6, page.first().sumOf { it.span })
             page.forEach { row ->
-                assertEquals("a row on page $name is a different width", width, row.size)
+                assertEquals(
+                    "a row on page $name is a different width",
+                    6, row.sumOf { it.span },
+                )
             }
         }
     }
@@ -262,9 +265,12 @@ class ClassicPadTest {
 
     @Test fun onlyTheDirectionPadSpansMoreThanOneColumn() {
         // every other key is one column, or the rows stop lining up
-        val wide = everyKey().filter { it.span != 1 }.map { it.label }
-        assertEquals("these keys are wider than one column: $wide", 1, wide.size)
-        assertTrue(wide.first().isEmpty())
+        val wide = everyKey().filter { it.span != 1 }
+        assertEquals("these keys are wider than one column: $wide", 2, wide.size)
+        assertTrue(
+            "only the direction pad may be wider than one column",
+            wide.all { it.action == CLASSIC_DPAD },
+        )
     }
 
     @Test fun theModifierRowStillAddsUpToSixColumns() {
