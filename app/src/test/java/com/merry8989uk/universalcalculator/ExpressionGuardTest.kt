@@ -46,7 +46,8 @@ class ExpressionGuardTest {
     @Test fun aFunctionWithNothingAfterItIsRefused() {
         assertTrue(warns("sin").contains("value"))
         assertTrue(warns("2+sin").contains("value"))
-        assertTrue(warns("cos(").contains("cos"))
+        // an open bracket is half-typed rather than wrong, which isUnfinished says
+        assertTrue(ExpressionGuard.isUnfinished("cos("))
     }
 
     @Test fun aFunctionFollowedByANameIsRefused() {
