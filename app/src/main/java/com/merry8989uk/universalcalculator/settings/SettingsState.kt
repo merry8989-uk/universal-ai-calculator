@@ -19,6 +19,8 @@ data class SettingsState(
      * Gradians are the third unit the classic scientific calculators offer.
      */
     val angleUnit: String = "DEGREE",
+    /** Same precedence as x, or binding tighter: 1/2pi = (1/2)pi or 1/(2pi). */
+    val impliedMultiplication: String = "SAME_PRECEDENCE",
     /** Multiplicative (100+20% = 120) or Additive (100+20% = 100.2). */
     val percentageMode: String = "MULTIPLICATIVE",
     /** Normal, Fixed, Scientific, Engineering or Engineering SI. */

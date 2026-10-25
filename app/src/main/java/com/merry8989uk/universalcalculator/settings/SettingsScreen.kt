@@ -346,6 +346,40 @@ fun SettingsScreen(
                 )
             }
 
+            // ---- what a missing multiplication sign means ----
+            val impMode = com.merry8989uk.universalcalculator.calc.ImpliedMultiplication
+                .of(state.impliedMultiplication)
+            Text(
+                stringResource(R.string.implied_multiplication),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                stringResource(R.string.implied_multiplication_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                com.merry8989uk.universalcalculator.calc.ImpliedMultiplication.all.forEach { mode ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { vm.setImpliedMultiplication(mode.name) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.RadioButton(
+                            selected = mode == impMode,
+                            onClick = { vm.setImpliedMultiplication(mode.name) },
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(mode.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(mode.example, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+
             // ---- how a percent after + or - is read ----
             val pctMode = com.merry8989uk.universalcalculator.calc.PercentageMode.of(state.percentageMode)
             Text(

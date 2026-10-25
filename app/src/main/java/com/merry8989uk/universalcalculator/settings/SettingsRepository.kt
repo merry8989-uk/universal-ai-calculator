@@ -34,6 +34,7 @@ class SettingsRepository(private val context: Context) {
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
         val ANGLE_UNIT = stringPreferencesKey("angle_unit")
+        val IMPLIED_MULTIPLICATION = stringPreferencesKey("implied_multiplication")
         val PERCENTAGE_MODE = stringPreferencesKey("percentage_mode")
         val DECIMAL_FORMAT = stringPreferencesKey("decimal_format")
         val DECIMAL_DIGITS = intPreferencesKey("decimal_digits")
@@ -68,6 +69,7 @@ class SettingsRepository(private val context: Context) {
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
             angleUnit = p[Keys.ANGLE_UNIT] ?: "DEGREE",
+            impliedMultiplication = p[Keys.IMPLIED_MULTIPLICATION] ?: "SAME_PRECEDENCE",
             percentageMode = p[Keys.PERCENTAGE_MODE] ?: "MULTIPLICATIVE",
             decimalFormat = p[Keys.DECIMAL_FORMAT] ?: "NORMAL",
             decimalDigits = p[Keys.DECIMAL_DIGITS] ?: 10,
@@ -215,6 +217,9 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setLayoutStyle(style: String) =
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setImpliedMultiplication(mode: String) =
+        context.dataStore.edit { it[Keys.IMPLIED_MULTIPLICATION] = mode }
 
     suspend fun setPercentageMode(mode: String) =
         context.dataStore.edit { it[Keys.PERCENTAGE_MODE] = mode }

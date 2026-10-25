@@ -350,6 +350,9 @@ fun CalculatorScreen(
     // What + and - do with a percent sign.
     val percentageMode =
         com.merry8989uk.universalcalculator.calc.PercentageMode.of(settings.percentageMode)
+    // Where a multiplication sign that was not written down sits.
+    val impliedMode = com.merry8989uk.universalcalculator.calc.ImpliedMultiplication
+        .of(settings.impliedMultiplication)
 
     // Half-typed input is completed rather than refused, so the preview shows a
     // number while you are still typing instead of going blank.
@@ -369,6 +372,7 @@ fun CalculatorScreen(
                     vars = mapOf("ans" to ans, "x" to xValue),
                     unit = angle,
                     percentage = percentageMode,
+                    implied = impliedMode,
                 ),
             )
         }
@@ -431,6 +435,7 @@ fun CalculatorScreen(
                 vars = mapOf("ans" to ans, "x" to xValue),
                 unit = angle,
                 percentage = percentageMode,
+                implied = impliedMode,
             )
         }
     } catch (e: Exception) {
@@ -480,6 +485,7 @@ when (key) {
                                                     vars = mapOf("ans" to ans, "x" to xValue),
                                                     unit = angle,
                                                     percentage = percentageMode,
+                                                    implied = impliedMode,
                                                 )
                                                 ans = value
                                                 exactResult = value

@@ -401,4 +401,6 @@
     <string name="decimal_number_format">दशमलव संख्या प्रारूप</string>
     <string name="percentage_type">प्रतिशत गणना का तरीका</string>
     <string name="percentage_type_help">+ या − के बाद प्रतिशत चिह्न का क्या मतलब है। गुणा और भाग दोनों तरीकों में एक जैसे रहते हैं।</string>
+    <string name="implied_multiplication">छिपा हुआ गुणन</string>
+    <string name="implied_multiplication_help">जहाँ गुणा का चिह्न नहीं लिखा हो, जैसे 2π या 3(4+5), वहाँ उसका क्या मतलब है। यह तभी मायने रखता है जब पास में भाग हो।</string>
 </resources>

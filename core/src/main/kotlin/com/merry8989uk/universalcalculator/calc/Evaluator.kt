@@ -60,11 +60,13 @@ object Evaluator {
         vars: Map<String, Double> = emptyMap(),
         unit: AngleUnit? = null,
         percentage: PercentageMode = PercentageMode.MULTIPLICATIVE,
+        implied: ImpliedMultiplication = ImpliedMultiplication.SAME_PRECEDENCE,
     ): Double {
         val parser = Parser(
             expression,
             unit ?: if (degrees) AngleUnit.DEGREE else AngleUnit.RADIAN,
             percentage,
+            implied,
             vars,
         )
         val v = parser.parseExpression()
@@ -78,6 +80,7 @@ object Evaluator {
         private val s: String,
         private val angle: AngleUnit,
         private val percentage: PercentageMode,
+        private val implied: ImpliedMultiplication,
         private val vars: Map<String, Double>,
     ) {
         private var i = 0
@@ -138,14 +141,20 @@ object Evaluator {
         }
 
         private fun parseTerm(): Operand {
-            var acc = parseUnary()
+            // When a missing sign binds tighter, the operands of * and / are read
+            // one level down, so 1/2pi becomes 1/(2pi) rather than (1/2)pi.
+            var acc = if (implied == ImpliedMultiplication.HIGHER_PRECEDENCE) parseImplicit() else parseUnary()
             while (true) {
                 skipSpaces()
                 when (peek()) {
-                    '*' -> { i++; val r = parseUnary(); acc = Operand(acc.value * r.value, false) }
+                    '*' -> {
+                        i++
+                        val r = if (implied == ImpliedMultiplication.HIGHER_PRECEDENCE) parseImplicit() else parseUnary()
+                        acc = Operand(acc.value * r.value, false)
+                    }
                     '/' -> {
                         i++
-                        val r = parseUnary()
+                        val r = if (implied == ImpliedMultiplication.HIGHER_PRECEDENCE) parseImplicit() else parseUnary()
                         if (r.value == 0.0) throw EvalException("Division by zero")
                         acc = Operand(acc.value / r.value, false)
                     }
@@ -153,10 +162,31 @@ object Evaluator {
                     null -> return acc
                     else -> {
                         if (peek()!!.isLetter() || peek() == '(') {
+                            if (implied == ImpliedMultiplication.HIGHER_PRECEDENCE) return acc
                             val r = parseUnary()
                             acc = Operand(acc.value * r.value, false)
                         } else return acc
                     }
+                }
+            }
+        }
+
+        /**
+         * Multiplication that was not written down: `2pi`, `3(4+5)`, `(2)(3)`.
+         *
+         * Only reached when the setting says a missing sign binds tighter than an
+         * explicit one, in which case this sits between * / and unary minus.
+         */
+        private fun parseImplicit(): Operand {
+            var acc = parseUnary()
+            while (true) {
+                skipSpaces()
+                val c = peek() ?: return acc
+                if (c.isLetter() || c == '(') {
+                    val r = parseUnary()
+                    acc = Operand(acc.value * r.value, false)
+                } else {
+                    return acc
                 }
             }
         }

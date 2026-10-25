@@ -403,4 +403,6 @@
     <string name="decimal_number_format">Decimal number format</string>
     <string name="percentage_type">Percentage calculation type</string>
     <string name="percentage_type_help">What a percent sign means after + or -. Multiplication and division are the same either way.</string>
+    <string name="implied_multiplication">Implied multiplication</string>
+    <string name="implied_multiplication_help">What a missing multiplication sign means, as in 2π or 3(4+5). This only matters when a division is nearby.</string>
 </resources>

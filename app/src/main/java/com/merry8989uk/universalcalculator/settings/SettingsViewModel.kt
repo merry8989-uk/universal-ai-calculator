@@ -37,6 +37,8 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setAngleUnit(unit: String) = viewModelScope.launch { repo.setAngleUnit(unit) }
     fun setDecimalFormat(format: String) = viewModelScope.launch { repo.setDecimalFormat(format) }
     fun setPercentageMode(mode: String) = viewModelScope.launch { repo.setPercentageMode(mode) }
+    fun setImpliedMultiplication(mode: String) =
+        viewModelScope.launch { repo.setImpliedMultiplication(mode) }
     fun setDecimalDigits(digits: Int) = viewModelScope.launch { repo.setDecimalDigits(digits) }
     fun setAutoCloseBrackets(enabled: Boolean) = viewModelScope.launch { repo.setAutoCloseBrackets(enabled) }
     fun setIgnoreTrailingOperator(enabled: Boolean) =
