@@ -6792,11 +6792,6 @@
   },
   {
    "c": "Financial Derivatives",
-   "t": "Put-call parity",
-   "f": "c − p = F^P(t,T) − K·e^{−r(T−t)}"
-  },
-  {
-   "c": "Financial Derivatives",
    "t": "Put-call parity (no dividend)",
    "f": "c − p = S(t) − K·e^{−r(T−t)}"
   },

@@ -85,11 +85,11 @@ class FormulaReferenceTest {
             "Matrices & Determinants", "Vectors", "Analytic Geometry",
             "Differential Calculus", "Integral Calculus", "Differential Equations",
             "Series", "Probability & Combinatorics", "Finance & Economics",
-            "Physics", "Chemistry",
+            "Physics", "Chemistry", "Financial Derivatives",
         )) {
             assertTrue("missing category '$expected'", expected in cats)
         }
-        assertEquals(15, cats.size)
+        assertEquals(16, cats.size)
     }
 
     @Test fun searchFindsThings() {
