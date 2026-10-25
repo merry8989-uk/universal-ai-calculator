@@ -67,7 +67,12 @@ internal fun TableScreen(onClose: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text("Table", style = MaterialTheme.typography.titleMedium)
-            FilterChip(withG, { withG = it; if (!it) g = "" }, { Text("with g(x)") })
+            // onClick takes no argument, so the switch is flipped by hand
+            FilterChip(
+                selected = withG,
+                onClick = { withG = !withG; if (!withG) g = "" },
+                label = { Text("with g(x)") },
+            )
         }
 
         Row(
