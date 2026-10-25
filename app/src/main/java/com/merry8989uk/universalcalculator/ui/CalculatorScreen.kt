@@ -13,7 +13,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -330,6 +332,9 @@ fun CalculatorScreen(
     var sciOpen by rememberSaveable { mutableStateOf(false) }
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.
+    // The history line the user is holding, and the working they asked to see.
+    var historyMenu by remember { mutableStateOf<String?>(null) }
+    var workingFor by remember { mutableStateOf<String?>(null) }
     // Which characters of the expression are fill-in holes, and which are what
     // was typed into them. A digit that filled a hole looks exactly like one
     // typed freely, so this has to be remembered rather than worked out.
@@ -980,7 +985,17 @@ when (key) {
                             val sum = if (cut > 0) entry.substring(0, cut) else entry
                             val answer = if (cut > 0) entry.substring(cut + 3) else ""
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    // holding an entry offers what can be done with it
+                                    .combinedClickable(
+                                        onClick = {
+                                            expr = TextFieldValue(sum, TextRange(sum.length))
+                                            exactResult = null
+                                        },
+                                        onLongClick = { historyMenu = entry },
+                                    )
+                                    .padding(vertical = 1.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
@@ -1350,6 +1365,43 @@ when (key) {
                 onOpenMode(id)
             },
             onDismiss = { modeDialog = false },
+        )
+    }
+
+    // What can be done with one history line, on a long press.
+    val held = historyMenu
+    if (held != null) {
+        val heldSum = held.substringBeforeLast(" = ").trim()
+        val heldAnswer = held.substringAfterLast(" = ").trim().toDoubleOrNull()
+        HistoryEntrySheet(
+            entry = held,
+            onSteps = { workingFor = held; historyMenu = null },
+            onDelete = { historyVm.remove(held); historyMenu = null },
+            onCopy = { historyMenu = null },
+            onShare = { historyMenu = null },
+            onAskAi = {
+                historyMenu = null
+                onAskAiNow("Explain how this was worked out: $heldSum = ${held.substringAfterLast(" = ")}")
+            },
+            onUse = {
+                historyMenu = null
+                expr = TextFieldValue(heldSum, TextRange(heldSum.length))
+                exactResult = heldAnswer
+            },
+            onDismiss = { historyMenu = null },
+        )
+    }
+
+    // The working, when it can be shown honestly.
+    val working = workingFor
+    if (working != null) {
+        val sum = working.substringBeforeLast(" = ").trim()
+        val answer = working.substringAfterLast(" = ").trim().toDoubleOrNull()
+        StepsDialog(
+            expression = sum,
+            answer = answer,
+            degrees = angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
+            onClose = { workingFor = null },
         )
     }
 }

@@ -413,4 +413,14 @@
     <string name="cas_mode_help">কম্পিউটার অ্যালজেব্রা: সিম্বলিক সিম্প্লিফিকেশন, লিমিটস এবং আংশিক ভগ্নাংশ। অফ করলে সেই টুলসগুলো সরিয়ে ফেলা হয়।</string>
     <string name="display_text_size">ডিসপ্লে টেক্সটের সাইজ</string>
     <string name="dpad_spoken">দিক প্যাড</string>
+    <string name="cancel">বাতিল</string>
+    <string name="history_steps">ধাপে ধাপে</string>
+    <string name="history_use">আবার ব্যবহার করুন</string>
+    <string name="history_copy">কপি</string>
+    <string name="history_share">শেয়ার</string>
+    <string name="history_ask_ai">অ্যাসিস্ট্যান্টকে জিজ্ঞাসা করুন</string>
+    <string name="history_delete">এই লাইনটি মুছে ফেলুন</string>
+    <string name="steps_title">ধাপে ধাপে</string>
+    <string name="steps_none">এই হিসাবটি ধাপে ধাপে দেখানো যাবে না। ওপরের উত্তরটি সঠিক।</string>
+    <string name="steps_result">ফলাফল:</string>
 </resources>

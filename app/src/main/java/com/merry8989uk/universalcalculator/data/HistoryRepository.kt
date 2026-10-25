@@ -33,6 +33,24 @@ class HistoryRepository(private val context: Context) {
         }
     }
 
+    /**
+     * Drops one entry, leaving the rest alone.
+     *
+     * The clear button wipes everything, which is right for a fresh start and
+     * useless for one wrong line. This is the other half.
+     */
+    suspend fun remove(entry: String) {
+        context.historyStore.edit { prefs ->
+            val current = prefs[KEY] ?: ""
+            val lines = current.split("\n").filter { it.isNotBlank() }
+            val at = lines.indexOfLast { it == entry }
+            if (at >= 0) {
+                lines.removeAt(at)
+                prefs[KEY] = lines.joinToString("\n")
+            }
+        }
+    }
+
     /** Wipes the history — only the user does this. */
     suspend fun clear() {
         context.historyStore.edit { it[KEY] = "" }

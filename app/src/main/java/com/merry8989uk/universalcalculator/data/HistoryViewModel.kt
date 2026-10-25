@@ -19,4 +19,7 @@ class HistoryViewModel(app: Application) : AndroidViewModel(app) {
     fun append(entry: String) = viewModelScope.launch { repo.append(entry) }
 
     fun clear() = viewModelScope.launch { repo.clear() }
+
+    /** Drops one entry, so a single wrong line can go without losing the rest. */
+    fun remove(entry: String) = viewModelScope.launch { repo.remove(entry) }
 }

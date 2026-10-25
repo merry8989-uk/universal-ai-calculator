@@ -426,4 +426,14 @@
     <string name="cas_mode_help">Computer algebra: symbolic simplification, limits and partial fractions. Off puts those tools away.</string>
     <string name="display_text_size">Display text size</string>
     <string name="dpad_spoken">direction pad</string>
+    <string name="cancel">Cancel</string>
+    <string name="history_steps">Step by step</string>
+    <string name="history_use">Use this again</string>
+    <string name="history_copy">Copy</string>
+    <string name="history_share">Share</string>
+    <string name="history_ask_ai">Ask the assistant</string>
+    <string name="history_delete">Delete this line</string>
+    <string name="steps_title">Step by step</string>
+    <string name="steps_none">This calculation cannot be shown step by step. The answer above is still correct.</string>
+    <string name="steps_result">Result:</string>
 </resources>
