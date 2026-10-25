@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -82,6 +83,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
@@ -878,10 +880,50 @@ when (key) {
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.End,
             ) {
-                history.split("\n").filter { it.isNotBlank() }.takeLast(3).forEach {
-                    Text(it, style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth())
+                // The recent calculations, the way the reference shows them: the
+                // expression on the left and what it came to on the right, newest
+                // at the bottom. It scrolls, so nothing is lost off the top.
+                val recent = history.split("\n").filter { it.isNotBlank() }
+                if (recent.isNotEmpty()) {
+                    val tape = rememberScrollState()
+                    LaunchedEffect(recent.size) {
+                        // keep the newest in view as entries arrive
+                        tape.animateScrollTo(tape.maxValue)
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = if (classicScientific) 74.dp else 130.dp)
+                            .verticalScroll(tape),
+                        verticalArrangement = Arrangement.spacedBy(1.dp),
+                    ) {
+                        recent.takeLast(40).forEach { entry ->
+                            val cut = entry.lastIndexOf(" = ")
+                            val sum = if (cut > 0) entry.substring(0, cut) else entry
+                            val answer = if (cut > 0) entry.substring(cut + 3) else ""
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    sum,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Text(
+                                    answer,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // Said in words, under the expression, so the user knows why nothing

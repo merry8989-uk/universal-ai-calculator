@@ -112,6 +112,167 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // ---- Sci Classic, first, because it is a whole calculator ----
+            Section("Sci Classic")
+            Text(
+                "The classic scientific pad has its own settings. They do not change " +
+                    "the Standard or the modern Scientific keypad.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text(stringResource(R.string.angle_unit), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("DEGREE", "RADIAN", "GRADIAN").forEach { unit ->
+                    FilterChip(
+                        selected = state.angleUnit == unit,
+                        onClick = { vm.setAngleUnit(unit) },
+                        label = { Text(unit.lowercase().replaceFirstChar { it.uppercase() }) },
+                    )
+                }
+            }
+            Text(
+                "A full turn is 360, 2\u03C0 or 400. The DEG key cycles through all three.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Text(stringResource(R.string.default_output), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = state.fractionsEnabled,
+                    onClick = { vm.setFractionsEnabled(true) },
+                    label = { Text(stringResource(R.string.output_fraction)) },
+                )
+                FilterChip(
+                    selected = !state.fractionsEnabled,
+                    onClick = { vm.setFractionsEnabled(false) },
+                    label = { Text(stringResource(R.string.output_decimal)) },
+                )
+            }
+
+            // ---- what a missing multiplication sign means ----
+            val impMode = com.merry8989uk.universalcalculator.calc.ImpliedMultiplication
+                .of(state.impliedMultiplication)
+            Text(
+                stringResource(R.string.implied_multiplication),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                stringResource(R.string.implied_multiplication_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                com.merry8989uk.universalcalculator.calc.ImpliedMultiplication.all.forEach { mode ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { vm.setImpliedMultiplication(mode.name) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.RadioButton(
+                            selected = mode == impMode,
+                            onClick = { vm.setImpliedMultiplication(mode.name) },
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(mode.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(mode.example, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+
+            // ---- how a percent after + or - is read ----
+            val pctMode = com.merry8989uk.universalcalculator.calc.PercentageMode.of(state.percentageMode)
+            Text(
+                stringResource(R.string.percentage_type),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                stringResource(R.string.percentage_type_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                com.merry8989uk.universalcalculator.calc.PercentageMode.all.forEach { mode ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { vm.setPercentageMode(mode.name) }
+                            .padding(horizontal = 6.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        androidx.compose.material3.RadioButton(
+                            selected = mode == pctMode,
+                            onClick = { vm.setPercentageMode(mode.name) },
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(mode.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(mode.example, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+
+            var decimalDialog by remember { mutableStateOf(false) }
+            val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(state.decimalFormat)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { decimalDialog = true }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.decimal_number_format),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        decimalMode.label +
+                            if (decimalMode != com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL) {
+                                "  \u00B7  ${state.decimalDigits} digits"
+                            } else {
+                                ""
+                            },
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Text("\u203A", style = MaterialTheme.typography.titleLarge)
+            }
+            if (decimalDialog) {
+                com.merry8989uk.universalcalculator.ui.DecimalFormatDialog(
+                    current = decimalMode,
+                    digits = state.decimalDigits,
+                    onPick = { vm.setDecimalFormat(it.name) },
+                    onDigits = { vm.setDecimalDigits(it) },
+                    onDismiss = { decimalDialog = false },
+                )
+            }
+
+            ToggleRow(
+                stringResource(R.string.auto_close_brackets),
+                state.autoCloseBrackets,
+                vm::setAutoCloseBrackets,
+            )
+            Text(
+                stringResource(R.string.auto_close_brackets_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            ToggleRow(
+                stringResource(R.string.ignore_trailing_operator),
+                state.ignoreTrailingOperator,
+                vm::setIgnoreTrailingOperator,
+            )
+            Text(
+                stringResource(R.string.ignore_trailing_operator_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            // ---- the keyboard ----
             Section(stringResource(R.string.section_appearance))
 
             Text("Theme")
@@ -310,167 +471,6 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            // ---- Sci Classic ----
-            Section("Sci Classic")
-            Text(
-                "These apply to the classic scientific pad. They do not change the " +
-                    "Standard or the modern Scientific keypad.",
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            Text(stringResource(R.string.angle_unit), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("DEGREE", "RADIAN", "GRADIAN").forEach { unit ->
-                    FilterChip(
-                        selected = state.angleUnit == unit,
-                        onClick = { vm.setAngleUnit(unit) },
-                        label = { Text(unit.lowercase().replaceFirstChar { it.uppercase() }) },
-                    )
-                }
-            }
-            Text(
-                "A full turn is 360, 2\u03C0 or 400. The DEG key cycles through all three.",
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            Text(stringResource(R.string.default_output), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = state.fractionsEnabled,
-                    onClick = { vm.setFractionsEnabled(true) },
-                    label = { Text(stringResource(R.string.output_fraction)) },
-                )
-                FilterChip(
-                    selected = !state.fractionsEnabled,
-                    onClick = { vm.setFractionsEnabled(false) },
-                    label = { Text(stringResource(R.string.output_decimal)) },
-                )
-            }
-
-            // ---- what a missing multiplication sign means ----
-            val impMode = com.merry8989uk.universalcalculator.calc.ImpliedMultiplication
-                .of(state.impliedMultiplication)
-            Text(
-                stringResource(R.string.implied_multiplication),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                stringResource(R.string.implied_multiplication_help),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                com.merry8989uk.universalcalculator.calc.ImpliedMultiplication.all.forEach { mode ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable { vm.setImpliedMultiplication(mode.name) }
-                            .padding(horizontal = 6.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = mode == impMode,
-                            onClick = { vm.setImpliedMultiplication(mode.name) },
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(mode.label, style = MaterialTheme.typography.bodyLarge)
-                            Text(mode.example, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-
-            // ---- how a percent after + or - is read ----
-            val pctMode = com.merry8989uk.universalcalculator.calc.PercentageMode.of(state.percentageMode)
-            Text(
-                stringResource(R.string.percentage_type),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                stringResource(R.string.percentage_type_help),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                com.merry8989uk.universalcalculator.calc.PercentageMode.all.forEach { mode ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable { vm.setPercentageMode(mode.name) }
-                            .padding(horizontal = 6.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = mode == pctMode,
-                            onClick = { vm.setPercentageMode(mode.name) },
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(mode.label, style = MaterialTheme.typography.bodyLarge)
-                            Text(mode.example, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-
-            var decimalDialog by remember { mutableStateOf(false) }
-            val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(state.decimalFormat)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable { decimalDialog = true }
-                    .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        stringResource(R.string.decimal_number_format),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Text(
-                        decimalMode.label +
-                            if (decimalMode != com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL) {
-                                "  \u00B7  ${state.decimalDigits} digits"
-                            } else {
-                                ""
-                            },
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Text("\u203A", style = MaterialTheme.typography.titleLarge)
-            }
-            if (decimalDialog) {
-                com.merry8989uk.universalcalculator.ui.DecimalFormatDialog(
-                    current = decimalMode,
-                    digits = state.decimalDigits,
-                    onPick = { vm.setDecimalFormat(it.name) },
-                    onDigits = { vm.setDecimalDigits(it) },
-                    onDismiss = { decimalDialog = false },
-                )
-            }
-
-            ToggleRow(
-                stringResource(R.string.auto_close_brackets),
-                state.autoCloseBrackets,
-                vm::setAutoCloseBrackets,
-            )
-            Text(
-                stringResource(R.string.auto_close_brackets_help),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            ToggleRow(
-                stringResource(R.string.ignore_trailing_operator),
-                state.ignoreTrailingOperator,
-                vm::setIgnoreTrailingOperator,
-            )
-            Text(
-                stringResource(R.string.ignore_trailing_operator_help),
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            // ---- the keyboard ----
             Section(stringResource(R.string.section_keyboard))
 
             Text(stringResource(R.string.division_sign), style = MaterialTheme.typography.bodyMedium)
