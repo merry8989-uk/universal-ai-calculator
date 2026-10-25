@@ -177,9 +177,9 @@ fun FormulasScreen(
                 custom = custom,
                 onCreate = { creating = true },
                 onEdit = { editing = it },
-                onDelete = { persist(custom.filterNot { c -> c.id == it.id }) },
-                onOpenTool = { tool = it },
-                onOpenCalculator = { selected = it },
+                onOpen = { selected = it },
+                onTool = { tool = it },
+                tools = shownTools,
             )
         }
         tool == "symbolic" -> SymbolicScreen { tool = "" }
@@ -199,6 +199,7 @@ fun FormulasScreen(
             custom = custom,
             onCreate = { creating = true },
             onEdit = { editing = it },
+            tools = shownTools,
             onOpen = {
                 selected = it
                 analytics(it.id)
@@ -218,6 +219,8 @@ private fun FormulaList(
     onEdit: (CustomCalculator) -> Unit,
     onOpen: (Formula) -> Unit,
     onTool: (String) -> Unit,
+    /** The tools on offer, after CAS mode has had its say. */
+    tools: List<Tool> = TOOLS,
 ) {
     var category by remember { mutableStateOf("Tools") }
     var query by remember { mutableStateOf("") }

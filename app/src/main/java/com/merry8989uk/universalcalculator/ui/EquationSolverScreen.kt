@@ -73,7 +73,7 @@ internal fun EquationSolverScreen(
         when (kind) {
             "poly" -> PolynomialSolver()
             "system" -> SimultaneousSolver()
-            else -> InequalitySolver()
+            else -> InequalitySolver(notation)
         }
 
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Back to the tools") }
@@ -308,7 +308,9 @@ private fun SimultaneousSolver() {
 // ---------------- inequality ----------------
 
 @Composable
-private fun InequalitySolver() {
+private fun InequalitySolver(
+    notation: com.merry8989uk.universalcalculator.calc.IntervalNotation,
+) {
     var quadratic by remember { mutableStateOf(true) }
     var a by remember { mutableStateOf("1") }
     var b by remember { mutableStateOf("0") }
