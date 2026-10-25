@@ -62,11 +62,12 @@ private fun themeName(theme: com.merry8989uk.universalcalculator.ui.theme.AppThe
         com.merry8989uk.universalcalculator.ui.theme.AppTheme.DYNAMIC -> stringResource(R.string.theme_dynamic)
     }
 
-private val LANGUAGES = listOf("system", "en", "hi")
+private val LANGUAGES = listOf("system", "en", "hi", "bn")
 
 /** Friendly names for the language chips. */
 @Composable
 private fun languageName(code: String): String = when (code) {
+    "bn" -> "\u09AC\u09BE\u0982\u09B2\u09BE"
     "en" -> stringResource(R.string.lang_en)
     "hi" -> stringResource(R.string.lang_hi)
     else -> stringResource(R.string.lang_system)
