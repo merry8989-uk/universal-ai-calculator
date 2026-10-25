@@ -105,7 +105,11 @@ internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
     R.string.fn_group_hyper to listOf("sinh", "cosh", "tanh", "coth", "sech", "csch"),
     R.string.fn_group_invhyper to listOf("asinh", "acosh", "atanh", "acoth", "asech", "acsch"),
     R.string.fn_group_log to listOf("ln", "log", "log2", "log10", "exp", "exp2", "log1p", "expm1"),
-    R.string.fn_group_power to listOf("x^2", "x^3", "x^y", "sqrt", "cbrt", "nthroot", "1/x", "hypot"),
+    R.string.fn_group_power to listOf(
+        "x^2", "x^3", "x^y", "sqrt", "cbrt", "nthroot", "1/x", "hypot",
+        // the memory row took their place on the number pad
+        "^", "neg", "ans",
+    ),
     R.string.fn_group_round to listOf("round", "floor", "ceil", "trunc", "frac", "sign", "rint", "mround"),
     R.string.fn_group_number to listOf(
         "abs", "gcd", "lcm", "mod", "isprime", "nextprime", "totient", "isqrt", "fib", "catalan",

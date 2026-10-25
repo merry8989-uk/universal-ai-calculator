@@ -132,16 +132,6 @@ internal val PAD = listOf(
     listOf("0", "00", ".", "+", "="),
 )
 
-/** First scientific row — always visible. */
-internal val SCI_ROW_A = listOf("sin", "cos", "tan", "ln", "log", "sqrt", "x^2", "x^y", "pi", "e", "!")
-/** Second scientific row — revealed by the one "more / less" button. */
-internal val SCI_ROW_B = listOf(
-    "asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs",
-    "nCr", "nPr", "round", "deg", "i", "x", "swap",
-    // these two lived on the number pad until the memory row took their place
-    "neg", "ans", "^",
-)
-
 private val LABELS = mapOf(
     "del" to "\u232B", "/" to "\u00F7", "*" to "\u00D7", "-" to "\u2212",
     "neg" to "\u00B1", "x^2" to "x\u00B2", "x^3" to "x\u00B3", "x^y" to "x\u02B8", "pi" to "\u03C0",

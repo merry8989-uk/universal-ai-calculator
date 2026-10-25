@@ -1,8 +1,7 @@
 package com.merry8989uk.universalcalculator
 
 import com.merry8989uk.universalcalculator.ui.PAD
-import com.merry8989uk.universalcalculator.ui.SCI_ROW_A
-import com.merry8989uk.universalcalculator.ui.SCI_ROW_B
+import com.merry8989uk.universalcalculator.ui.SCIENTIFIC_KEYS
 import com.merry8989uk.universalcalculator.ui.label
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -17,7 +16,7 @@ import org.junit.Test
  */
 class KeypadLayoutTest {
 
-    private fun everyKey(): List<String> = PAD.flatten() + SCI_ROW_A + SCI_ROW_B
+    private fun everyKey(): List<String> = PAD.flatten() + SCIENTIFIC_KEYS
 
     @Test fun everyRowIsTheSameWidth() {
         val width = PAD.first().size
@@ -83,7 +82,7 @@ class KeypadLayoutTest {
 
     @Test fun theKeysThatMovedOffThePadAreStillReachable() {
         // the memory row took their place on the number pad
-        val sci = SCI_ROW_A + SCI_ROW_B
+        val sci = SCIENTIFIC_KEYS
         for (k in listOf("neg", "ans", "^")) {
             assertTrue("$k cannot be typed any more", k in sci)
         }
