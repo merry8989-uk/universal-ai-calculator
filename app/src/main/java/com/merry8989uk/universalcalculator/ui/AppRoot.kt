@@ -75,8 +75,9 @@ private const val SCI_CLASSIC_TAB = 6
  * The five the minimal bar shows, in order, with no assistant anywhere.
  */
 private val MINIMAL_TABS = listOf(
-    STANDARD_TAB, SCIENTIFIC_TAB, SCI_CLASSIC_TAB, CONVERT_TAB, FORMULAS_TAB,
-)
+    STANDARD_TAB, SCIENTIFIC_TAB, CONVERT_TAB, FORMULAS_TAB,
+).let { if (Features.SCI_CLASSIC) it + SCI_CLASSIC_TAB else it }
+    .sorted()
 
 /** Two tabs on each side of the assistant button, so it sits dead centre. */
 private val LEFT_TABS = listOf(0, 1)
@@ -146,7 +147,8 @@ internal val SCIENTIFIC_GROUPS: List<Pair<Int, List<String>>> = listOf(
 internal fun modeTarget(id: String, minimal: Boolean): String = when (id) {
     "standard" -> "tab:0"
     "scientific" -> "tab:1"
-    "classic" -> if (minimal) "tab:$SCI_CLASSIC_TAB" else "tab:1"
+    // the classic pad is switched off, so a classic pick lands on Scientific
+    "classic" -> if (minimal && Features.SCI_CLASSIC) "tab:$SCI_CLASSIC_TAB" else "tab:1"
     else -> "tool:$id"
 }
 
@@ -156,7 +158,7 @@ internal fun usesClassicPad(
     layout: String,
     isScientificTab: Boolean,
     minimal: Boolean = false,
-): Boolean = !minimal && isScientificTab && layout == "Classic Scientific"
+): Boolean = Features.SCI_CLASSIC && !minimal && isScientificTab && layout == "Classic Scientific"
 
 /** The flat list, for tests and for anything that just wants every key. */
 internal val SCIENTIFIC_KEYS: List<String> = SCIENTIFIC_GROUPS.flatMap { it.second }
@@ -206,7 +208,8 @@ fun AppRoot(settings: SettingsState) {
 
     val analyticsContext = LocalContext.current
     /** The tabs that are a calculator, and so can be cleared on the way out. */
-    val calculatorTabs = listOf(STANDARD_TAB, SCIENTIFIC_TAB, SCI_CLASSIC_TAB)
+    val calculatorTabs = listOf(STANDARD_TAB, SCIENTIFIC_TAB) +
+        (if (Features.SCI_CLASSIC) listOf(SCI_CLASSIC_TAB) else emptyList())
 
     fun selectTab(i: Int) {
         if (tab == i) {

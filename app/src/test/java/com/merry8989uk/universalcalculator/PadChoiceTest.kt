@@ -1,43 +1,52 @@
 package com.merry8989uk.universalcalculator
 
+import com.merry8989uk.universalcalculator.ui.Features
+import com.merry8989uk.universalcalculator.ui.modeTarget
 import com.merry8989uk.universalcalculator.ui.usesClassicPad
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The rules the tab bar follows.
+ * The classic scientific pad is built and tested but switched off.
  *
- * Outside minimal mode the classic pad takes the Scientific tab's place, and it
- * never touches Standard. Inside minimal mode nothing is replaced — the classic
- * pad gets its own tab beside the modern one, so all the calculators are there.
+ * The rules it used to follow are still in the code, behind the flag, so that
+ * turning it back on restores them exactly. These tests pin the *off* state, so
+ * nobody turns it on by accident — and the pad's own tests keep the code honest
+ * while it waits.
  */
 class PadChoiceTest {
 
-    @Test fun theScientificTabSwapsWhenTheSettingIsOn() {
-        assertTrue(usesClassicPad("Classic Scientific", isScientificTab = true, minimal = false))
+    @Test fun theClassicPadIsSwitchedOff() {
+        assertFalse(
+            "the classic pad is meant to be off for now; turning it on should be a deliberate change",
+            Features.SCI_CLASSIC,
+        )
     }
 
-    @Test fun theStandardTabNeverSwaps() {
-        assertFalse(usesClassicPad("Classic Scientific", isScientificTab = false, minimal = false))
-    }
-
-    @Test fun theOtherLayoutsLeaveBothTabsAlone() {
-        for (layout in listOf("Modern", "Classic", "")) {
-            assertFalse(layout, usesClassicPad(layout, isScientificTab = true, minimal = false))
-            assertFalse(layout, usesClassicPad(layout, isScientificTab = false, minimal = false))
+    @Test fun nothingSwapsWhileItIsOff() {
+        for (layout in listOf("Modern", "Classic", "Classic Scientific", "")) {
+            for (scientific in listOf(true, false)) {
+                for (minimal in listOf(true, false)) {
+                    assertFalse(
+                        "$layout / scientific=$scientific / minimal=$minimal should not swap",
+                        usesClassicPad(layout, isScientificTab = scientific, minimal = minimal),
+                    )
+                }
+            }
         }
     }
 
-    @Test fun minimalModeNeverReplacesTheScientificTab() {
-        // In minimal mode the scientific pad and the classic pad both have a tab,
-        // so the setting must not make one of them disappear.
-        assertFalse(usesClassicPad("Classic Scientific", isScientificTab = true, minimal = true))
-        assertFalse(usesClassicPad("Classic Scientific", isScientificTab = false, minimal = true))
+    @Test fun aClassicPickLandsOnTheScientificTab() {
+        // the MODE list still offers "classic"; it must go somewhere sensible
+        assertEquals("tab:1", modeTarget("classic", minimal = false))
+        assertEquals("tab:1", modeTarget("classic", minimal = true))
     }
 
-    @Test fun minimalIsTheDefaultForNothing() {
-        // the two-argument call still means "not minimal"
-        assertTrue(usesClassicPad("Classic Scientific", isScientificTab = true))
+    @Test fun theOtherPicksAreUntouched() {
+        assertEquals("tab:0", modeTarget("standard", minimal = false))
+        assertEquals("tab:1", modeTarget("scientific", minimal = false))
+        assertEquals("tool:matrix", modeTarget("matrix", minimal = false))
+        assertEquals("tool:matrix", modeTarget("matrix", minimal = true))
     }
 }

@@ -444,7 +444,10 @@ fun SettingsScreen(
 
             Text(stringResource(R.string.keypad_layout), style = MaterialTheme.typography.bodyMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Modern", "Classic", "Classic Scientific").forEach { style ->
+                // the classic pad is switched off for now, so it is not offered
+                listOf("Modern", "Classic")
+                    .let { if (com.merry8989uk.universalcalculator.ui.Features.SCI_CLASSIC) it + "Classic Scientific" else it }
+                    .forEach { style ->
                     FilterChip(
                         selected = state.layoutStyle == style,
                         onClick = { vm.setLayoutStyle(style) },

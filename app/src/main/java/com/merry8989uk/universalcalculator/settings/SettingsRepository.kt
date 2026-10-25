@@ -105,7 +105,12 @@ class SettingsRepository(private val context: Context) {
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
             aiEnabled = p[Keys.AI_ENABLED] ?: true,
             fractionsEnabled = p[Keys.FRACTIONS] ?: false,
-            layoutStyle = p[Keys.LAYOUT_STYLE] ?: "Modern",
+            // a device that had the classic pad chosen falls back to the modern
+            // one while that feature is switched off, rather than showing a pad
+            // the app no longer offers
+            layoutStyle = (p[Keys.LAYOUT_STYLE] ?: "Modern").let {
+                if (it == "Classic Scientific" && !com.merry8989uk.universalcalculator.ui.Features.SCI_CLASSIC) "Modern" else it
+            },
             minimalMode = p[Keys.MINIMAL_MODE] ?: false,
             keepScreenOn = p[Keys.KEEP_SCREEN_ON] ?: false,
             saveState = p[Keys.SAVE_STATE] ?: true,
