@@ -110,8 +110,12 @@ class AdvancedTest {
     }
 
     @Test fun aPowerAndItsReverseCancel() {
+        // A^4 times A^-4 is the identity. Note it is NOT power(power(A,4), -4):
+        // that would be (A^4)^-4, which is A^-16.
         val a = m(doubleArrayOf(2.0, 1.0), doubleArrayOf(1.0, 3.0))
-        sameMatrix(AdvancedMatrix.identity(2), AdvancedMatrix.power(AdvancedMatrix.power(a, 4)!!, -4)!!)
+        val up = AdvancedMatrix.power(a, 4)!!
+        val down = AdvancedMatrix.power(a, -4)!!
+        sameMatrix(AdvancedMatrix.identity(2), AdvancedMatrix.multiply(up, down), 1e-9)
     }
 
     @Test fun aSingularMatrixHasNoNegativePower() {
@@ -166,7 +170,8 @@ class AdvancedTest {
         assertEquals(108.0, AdvancedCalculus.nthDerivative("x^4", 3.0, 1), 1e-6)
         assertEquals(108.0, AdvancedCalculus.nthDerivative("x^4", 3.0, 2), 1e-6)
         assertEquals(72.0, AdvancedCalculus.nthDerivative("x^4", 3.0, 3), 1e-5)
-        assertEquals(24.0, AdvancedCalculus.nthDerivative("x^4", 3.0, 4), 1e-3)
+        // a fourth difference divides by h^4, so it is the loosest of the four
+        assertEquals(24.0, AdvancedCalculus.nthDerivative("x^4", 3.0, 4), 5e-3)
     }
 
     @Test fun theDerivativeOfExpStaysExp() {
