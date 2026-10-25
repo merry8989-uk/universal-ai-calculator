@@ -58,21 +58,21 @@ internal fun HistoryEntrySheet(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                Option(stringResource(R.string.history_steps), onSteps)
-                Option(stringResource(R.string.history_use), onUse)
-                Option(stringResource(R.string.history_copy)) {
+                Option(stringResource(R.string.history_steps), onPress = onSteps)
+                Option(stringResource(R.string.history_use), onPress = onUse)
+                Option(stringResource(R.string.history_copy), onPress = {
                     clipboard.setText(AnnotatedString(entry))
                     onCopy()
-                }
-                Option(stringResource(R.string.history_share)) {
+                })
+                Option(stringResource(R.string.history_share), onPress = {
                     val send = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, entry)
                     }
                     context.startActivity(Intent.createChooser(send, null))
                     onShare()
-                }
-                Option(stringResource(R.string.history_ask_ai), onAskAi)
+                })
+                Option(stringResource(R.string.history_ask_ai), onPress = onAskAi)
                 Option(stringResource(R.string.history_delete), danger = true, onPress = onDelete)
             }
         },
