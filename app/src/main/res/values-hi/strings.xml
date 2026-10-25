@@ -436,4 +436,16 @@
     <string name="steps_title">स्टेप बाय स्टेप</string>
     <string name="steps_none">इस कैलकुलेशन को स्टेप बाय स्टेप नहीं दिखाया जा सकता। ऊपर दिया गया जवाब अभी भी सही है।</string>
     <string name="steps_result">नतीजा:</string>
+    <string name="key_ac">सब मिटाएँ</string>
+    <string name="key_ce">इस एंट्री को मिटाएँ</string>
+    <string name="key_gt">ग्रैंड टोटल</string>
+    <string name="key_mu">मार्क-अप</string>
+    <string name="key_m_minus">मेमोरी घटाएँ</string>
+    <string name="markup_title">मार्क-अप</string>
+    <string name="markup_help">मार्जिन कीमत का हिस्सा होता है, लागत का नहीं।</string>
+    <string name="markup_cost">लागत</string>
+    <string name="markup_margin">मार्जिन %</string>
+    <string name="markup_price">बिक्री मूल्य:</string>
+    <string name="markup_profit">लाभ:</string>
+    <string name="markup_impossible">100% या उससे ज़्यादा मार्जिन से कोई कीमत नहीं बचती।</string>
 </resources>

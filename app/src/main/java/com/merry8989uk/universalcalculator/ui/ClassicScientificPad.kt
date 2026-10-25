@@ -193,7 +193,7 @@ internal val CLASSIC_PAGE_ONE: List<List<ClassicKey>> = listOf(
             alpha = "catalan", alphaAction = "catalan", tone = ClassicTone.Function),
         ClassicKey("\u221Ax", "sqrt", shift = "\u221Bx", shiftAction = "cbrt",
             alpha = "fib", alphaAction = "fib", tone = ClassicTone.Function),
-        ClassicKey("x\u00B2", "x^2", shift = "x\u00B3", shiftAction = "x^3",
+        ClassicKey("x\u00B2", "x^2", shift = "^", shiftAction = "^",
             alpha = "isqrt", alphaAction = "isqrt", tone = ClassicTone.Function),
         ClassicKey("x\u02B8", "x^y", shift = "y\u221Ax", shiftAction = "nthroot",
             alpha = "nextprime", alphaAction = "nextprime", tone = ClassicTone.Function),

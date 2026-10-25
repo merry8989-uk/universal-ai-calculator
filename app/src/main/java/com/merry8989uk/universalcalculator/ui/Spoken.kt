@@ -18,6 +18,11 @@ object Spoken {
     internal val WORDS = mapOf(
         // Digits and the basic pad
         "\u271B" to "direction pad",
+        "AC" to "clear everything",
+        "CE" to "clear this entry",
+        "GT" to "grand total",
+        "MU" to "mark-up",
+        "M-" to "memory subtract",
         "." to "decimal point",
         "00" to "double zero",
         "C" to "clear",
@@ -157,6 +162,11 @@ object Spoken {
     val SPOKEN_RES: Map<String, Int> = mapOf(
         // the direction pad carries four arrows, not one label
         "\u271B" to R.string.dpad_spoken,
+        "AC" to R.string.key_ac,
+        "CE" to R.string.key_ce,
+        "GT" to R.string.key_gt,
+        "MU" to R.string.key_mu,
+        "M-" to R.string.key_m_minus,
         "." to R.string.key_decimal_point,
         "00" to R.string.key_double_zero,
         "C" to R.string.key_clear,

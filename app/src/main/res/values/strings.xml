@@ -443,4 +443,9 @@
     <string name="markup_price">Selling price:</string>
     <string name="markup_profit">Profit:</string>
     <string name="markup_impossible">A margin of 100% or more leaves no price at all.</string>
+    <string name="key_ac">clear everything</string>
+    <string name="key_ce">clear this entry</string>
+    <string name="key_gt">grand total</string>
+    <string name="key_mu">mark-up</string>
+    <string name="key_m_minus">memory subtract</string>
 </resources>
