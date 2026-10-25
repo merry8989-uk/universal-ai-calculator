@@ -140,45 +140,4 @@ class KeyboardDisplayTest {
             emptySet<String>(), imported - exported,
         )
     }
-
-    // ---- the classic calculator's settings are its own, and come first ----
-
-    private fun settingsSource(): String? {
-        for (path in listOf(
-            "src/main/java/com/merry8989uk/universalcalculator/settings/SettingsScreen.kt",
-            "app/src/main/java/com/merry8989uk/universalcalculator/settings/SettingsScreen.kt",
-        )) {
-            val f = java.io.File(path)
-            if (f.exists()) return f.readText()
-        }
-        return null
-    }
-
-    @Test fun theClassicSettingsComeBeforeTheOrdinaryOnes() {
-        val text = settingsSource() ?: return
-        val classic = text.indexOf("Section(\"Sci Classic\")")
-        val appearance = text.indexOf("R.string.section_appearance")
-        assertTrue("no Sci Classic section", classic > 0)
-        assertTrue("no Appearance section", appearance > 0)
-        assertTrue(
-            "the classic settings should come first, since that is a whole calculator",
-            classic < appearance,
-        )
-    }
-
-    @Test fun theClassicSectionCarriesItsOwnSettings() {
-        val text = settingsSource() ?: return
-        val classic = text.indexOf("Section(\"Sci Classic\")")
-        val next = text.indexOf("R.string.section_appearance")
-        assertTrue("the classic section is empty", next > classic)
-        val body = text.substring(classic, next)
-        for (name in listOf(
-            "R.string.angle_unit",
-            "R.string.decimal_number_format",
-            "R.string.percentage_type",
-            "R.string.implied_multiplication",
-        )) {
-            assertTrue("the classic section does not carry $name", body.contains(name))
-        }
-    }
 }

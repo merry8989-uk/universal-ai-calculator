@@ -436,4 +436,11 @@
     <string name="steps_title">Step by step</string>
     <string name="steps_none">This calculation cannot be shown step by step. The answer above is still correct.</string>
     <string name="steps_result">Result:</string>
+    <string name="markup_title">Mark-up</string>
+    <string name="markup_help">A margin is a share of the price, not of the cost.</string>
+    <string name="markup_cost">Cost</string>
+    <string name="markup_margin">Margin %</string>
+    <string name="markup_price">Selling price:</string>
+    <string name="markup_profit">Profit:</string>
+    <string name="markup_impossible">A margin of 100% or more leaves no price at all.</string>
 </resources>

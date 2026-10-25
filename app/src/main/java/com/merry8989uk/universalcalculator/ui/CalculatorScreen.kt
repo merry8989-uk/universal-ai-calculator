@@ -122,11 +122,14 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal val PAD = listOf(
-    listOf("C", "del", "%", "/", "^"),
-    listOf("7", "8", "9", "*", "("),
-    listOf("4", "5", "6", "-", ")"),
-    listOf("1", "2", "3", "+", "neg"),
-    listOf("0", "00", ".", "=", "ans"),
+    // the clearing row, at the top where it belongs
+    listOf("C", "AC", "CE", "del", "%"),
+    // then the memory keys, directly above the digits
+    listOf("MC", "M+", "M-", "MR", "GT"),
+    listOf("7", "8", "9", "/", "MU"),
+    listOf("4", "5", "6", "*", "("),
+    listOf("1", "2", "3", "-", ")"),
+    listOf("0", "00", ".", "+", "="),
 )
 
 /** First scientific row — always visible. */
@@ -135,6 +138,8 @@ internal val SCI_ROW_A = listOf("sin", "cos", "tan", "ln", "log", "sqrt", "x^2",
 internal val SCI_ROW_B = listOf(
     "asin", "acos", "atan", "sinh", "cosh", "tanh", "cbrt", "1/x", "abs",
     "nCr", "nPr", "round", "deg", "i", "x", "swap",
+    // these two lived on the number pad until the memory row took their place
+    "neg", "ans", "^",
 )
 
 private val LABELS = mapOf(
@@ -142,6 +147,7 @@ private val LABELS = mapOf(
     "neg" to "\u00B1", "x^2" to "x\u00B2", "x^3" to "x\u00B3", "x^y" to "x\u02B8", "pi" to "\u03C0",
     "sqrt" to "\u221A", "deg" to "\u00B0", "cbrt" to "\u221B",
     "swap" to "\u21C4", "x" to "x",
+    "AC" to "AC", "CE" to "CE", "GT" to "GT", "MU" to "MU", "M-" to "M\u2212",
 )
 
 /**
@@ -160,7 +166,7 @@ internal fun label(
     else -> LABELS[k] ?: k
 }
 private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
-private fun isClear(k: String) = k == "C" || k == "del"
+private fun isClear(k: String) = k == "C" || k == "del" || k == "AC" || k == "CE"
 
 /**
  * What a key puts on the board.
@@ -334,6 +340,9 @@ fun CalculatorScreen(
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.
     // The history line the user is holding, and the working they asked to see.
+    // GT shows the sum of the history; MU opens the mark-up tool.
+    var grandTotal by remember { mutableStateOf<Double?>(null) }
+    var markupOpen by remember { mutableStateOf(false) }
     var historyMenu by remember { mutableStateOf<String?>(null) }
     var workingFor by remember { mutableStateOf<String?>(null) }
     // Which characters of the expression are fill-in holes, and which are what
@@ -539,7 +548,32 @@ fun CalculatorScreen(
 
     fun pressKey(key: String) {
 when (key) {
-                                    "C" -> { exactResult = null; expr = TextFieldValue("") }
+                                    // C clears what is being typed now
+                                    "C" -> {
+                                        exactResult = null
+                                        expr = TextFieldValue("")
+                                        slots = emptyList()
+                                    }
+                                    // CE clears the entry the cursor is in, leaving the
+                                    // rest of the expression alone
+                                    "CE" -> {
+                                        exactResult = null
+                                        val at = expr.selection.max
+                                        val startOfEntry = expr.text.lastIndexOfAny(
+                                            charArrayOf('+', '-', '*', '/', '(', '^'), at - 1,
+                                        ) + 1
+                                        val kept = expr.text.substring(0, startOfEntry)
+                                        expr = TextFieldValue(kept, TextRange(kept.length))
+                                        slots = slots.filter { it < startOfEntry }
+                                    }
+                                    // AC clears everything: the expression, and the tape
+                                    // of what has been worked out above it
+                                    "AC" -> {
+                                        exactResult = null
+                                        expr = TextFieldValue("")
+                                        slots = emptyList()
+                                        historyVm.clear()
+                                    }
                                     "del" -> backspace()
                                     "=" -> {
                                         // Refuse nonsense rather than work out a wrong answer:
@@ -610,7 +644,18 @@ when (key) {
                                     "swap" -> swapOperands()
                                     "MR" -> insert(Format.number(memory))
                                     "M+" -> memory += currentValue()
+                                    "M-" -> memory -= currentValue()
+                                    "MC" -> memory = 0.0
                                     "MS" -> memory = currentValue()
+                                    // GT adds up everything in the history so far
+                                    "GT" -> {
+                                        val total = history.split("\n")
+                                            .filter { it.isNotBlank() }
+                                            .mapNotNull { it.substringAfterLast(" = ").trim().toDoubleOrNull() }
+                                            .sum()
+                                        grandTotal = total
+                                    }
+                                    "MU" -> markupOpen = true
                                     "neg" -> {
                                         exactResult = null
                                         val next = ExpressionFix.negate(expr.text)
@@ -865,35 +910,29 @@ when (key) {
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val memClearSpoken = stringResource(R.string.key_memory_clear)
-                val memAddSpoken = stringResource(R.string.key_memory_add)
-                val memSubSpoken = stringResource(R.string.key_memory_subtract)
-                val memRecallSpoken = stringResource(R.string.key_memory_recall)
-                FilledTonalButton(
-                    onClick = { memory = 0.0 },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = memClearSpoken },
-                ) { Text("MC") }
-                FilledTonalButton(
-                    onClick = { memory += currentValue() },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = memAddSpoken },
-                ) { Text("M+") }
-                FilledTonalButton(
-                    onClick = { memory -= currentValue() },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = memSubSpoken },
-                ) { Text("M\u2212") }
-                FilledTonalButton(
-                    onClick = { insert(Format.number(memory)) },
-                    modifier = Modifier.weight(1f).semantics { contentDescription = memRecallSpoken },
-                ) { Text("MR") }
-            }
-            if (memory != 0.0) {
-                Text("M = ${Format.number(memory)}", style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary)
+            // Memory and the grand total, said in one line rather than four buttons.
+            if (memory != 0.0 || grandTotal != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    if (memory != 0.0) {
+                        Text(
+                            "M = ${Format.number(memory)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    grandTotal?.let {
+                        Text(
+                            "GT = ${Format.number(it)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.End,
+                        )
+                    }
+                }
             }
 
             val ripple = remember { Animatable(0f) }
@@ -1358,6 +1397,9 @@ when (key) {
     }
     if (showAppInfo) {
         AppInfoDialog(onClose = { showAppInfo = false })
+    }
+    if (markupOpen) {
+        MarkupDialog(onClose = { markupOpen = false })
     }
     if (modeDialog) {
         ClassicModeDialog(
