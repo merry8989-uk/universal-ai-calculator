@@ -19,6 +19,18 @@ data class SettingsState(
      * Gradians are the third unit the classic scientific calculators offer.
      */
     val angleUnit: String = "DEGREE",
+    /** What the divide key shows: the division sign, or a plain slash. */
+    val divisionSign: String = "÷",
+    /** What the multiply key shows: the multiplication sign, or an asterisk. */
+    val multiplicationSign: String = "×",
+    /** How large the key labels are drawn, as a multiple of the default. */
+    val keyTextScale: Float = 1f,
+    /** Show the caret in the expression. */
+    val blinkCursor: Boolean = true,
+    /** Clear the expression when the user leaves the calculator. */
+    val clearOnExit: Boolean = false,
+    /** Show a note under the result saying how it was read. */
+    val showCalcInfo: Boolean = true,
     /** Same precedence as x, or binding tighter: 1/2pi = (1/2)pi or 1/(2pi). */
     val impliedMultiplication: String = "SAME_PRECEDENCE",
     /** Multiplicative (100+20% = 120) or Additive (100+20% = 100.2). */

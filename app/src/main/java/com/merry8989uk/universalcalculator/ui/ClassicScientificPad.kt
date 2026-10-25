@@ -292,6 +292,10 @@ internal fun ClassicScientificPad(
     modifier: Modifier = Modifier,
     /** How tall one row of keys is. Kept compact on purpose. */
     rowHeight: Dp = 40.dp,
+    /** What the divide key shows, so it can match the modern pad. */
+    divisionSign: String = "\u00F7",
+    /** What the multiply key shows. */
+    multiplicationSign: String = "\u00D7",
 ) {
     val rows = if (page == 1) CLASSIC_PAGE_TWO else CLASSIC_PAGE_ONE
     Column(
@@ -322,8 +326,14 @@ internal fun ClassicScientificPad(
                     } else {
                         spokenKey(active.action)
                     }
+                    // the two operator keys follow the keyboard setting
+                    val shownLabel = when (key.action) {
+                        "/" -> divisionSign
+                        "*" -> multiplicationSign
+                        else -> key.label
+                    }
                     ClassicKeyView(
-                        label = key.label,
+                        label = shownLabel,
                         shift = key.shift,
                         alpha = key.alpha,
                         tone = key.tone,

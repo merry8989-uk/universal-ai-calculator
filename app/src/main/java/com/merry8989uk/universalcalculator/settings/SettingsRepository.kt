@@ -34,6 +34,12 @@ class SettingsRepository(private val context: Context) {
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
         val ANGLE_UNIT = stringPreferencesKey("angle_unit")
+        val DIVISION_SIGN = stringPreferencesKey("division_sign")
+        val MULTIPLICATION_SIGN = stringPreferencesKey("multiplication_sign")
+        val KEY_TEXT_SCALE = floatPreferencesKey("key_text_scale")
+        val BLINK_CURSOR = booleanPreferencesKey("blink_cursor")
+        val CLEAR_ON_EXIT = booleanPreferencesKey("clear_on_exit")
+        val SHOW_CALC_INFO = booleanPreferencesKey("show_calc_info")
         val IMPLIED_MULTIPLICATION = stringPreferencesKey("implied_multiplication")
         val PERCENTAGE_MODE = stringPreferencesKey("percentage_mode")
         val DECIMAL_FORMAT = stringPreferencesKey("decimal_format")
@@ -69,6 +75,12 @@ class SettingsRepository(private val context: Context) {
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
             angleUnit = p[Keys.ANGLE_UNIT] ?: "DEGREE",
+            divisionSign = p[Keys.DIVISION_SIGN] ?: "\u00F7",
+            multiplicationSign = p[Keys.MULTIPLICATION_SIGN] ?: "\u00D7",
+            keyTextScale = p[Keys.KEY_TEXT_SCALE] ?: 1f,
+            blinkCursor = p[Keys.BLINK_CURSOR] ?: true,
+            clearOnExit = p[Keys.CLEAR_ON_EXIT] ?: false,
+            showCalcInfo = p[Keys.SHOW_CALC_INFO] ?: true,
             impliedMultiplication = p[Keys.IMPLIED_MULTIPLICATION] ?: "SAME_PRECEDENCE",
             percentageMode = p[Keys.PERCENTAGE_MODE] ?: "MULTIPLICATIVE",
             decimalFormat = p[Keys.DECIMAL_FORMAT] ?: "NORMAL",
@@ -129,6 +141,19 @@ class SettingsRepository(private val context: Context) {
         put("fractions", p[Keys.FRACTIONS])
         put("layoutStyle", p[Keys.LAYOUT_STYLE])
         put("minimalMode", p[Keys.MINIMAL_MODE])
+        put("angleUnit", p[Keys.ANGLE_UNIT])
+        put("autoCloseBrackets", p[Keys.AUTO_CLOSE])
+        put("ignoreTrailingOperator", p[Keys.IGNORE_TRAILING])
+        put("decimalFormat", p[Keys.DECIMAL_FORMAT])
+        put("decimalDigits", p[Keys.DECIMAL_DIGITS])
+        put("percentageMode", p[Keys.PERCENTAGE_MODE])
+        put("impliedMultiplication", p[Keys.IMPLIED_MULTIPLICATION])
+        put("divisionSign", p[Keys.DIVISION_SIGN])
+        put("multiplicationSign", p[Keys.MULTIPLICATION_SIGN])
+        put("keyTextScale", p[Keys.KEY_TEXT_SCALE])
+        put("blinkCursor", p[Keys.BLINK_CURSOR])
+        put("clearOnExit", p[Keys.CLEAR_ON_EXIT])
+        put("showCalcInfo", p[Keys.SHOW_CALC_INFO])
         put("keepScreenOn", p[Keys.KEEP_SCREEN_ON])
         put("saveState", p[Keys.SAVE_STATE])
         return out
@@ -166,6 +191,19 @@ class SettingsRepository(private val context: Context) {
             bool("fractions", Keys.FRACTIONS)
             str("layoutStyle", Keys.LAYOUT_STYLE)
             bool("minimalMode", Keys.MINIMAL_MODE)
+            str("angleUnit", Keys.ANGLE_UNIT)
+            bool("autoCloseBrackets", Keys.AUTO_CLOSE)
+            bool("ignoreTrailingOperator", Keys.IGNORE_TRAILING)
+            str("decimalFormat", Keys.DECIMAL_FORMAT)
+            num("decimalDigits", Keys.DECIMAL_DIGITS)
+            str("percentageMode", Keys.PERCENTAGE_MODE)
+            str("impliedMultiplication", Keys.IMPLIED_MULTIPLICATION)
+            str("divisionSign", Keys.DIVISION_SIGN)
+            str("multiplicationSign", Keys.MULTIPLICATION_SIGN)
+            flt("keyTextScale", Keys.KEY_TEXT_SCALE)
+            bool("blinkCursor", Keys.BLINK_CURSOR)
+            bool("clearOnExit", Keys.CLEAR_ON_EXIT)
+            bool("showCalcInfo", Keys.SHOW_CALC_INFO)
             bool("keepScreenOn", Keys.KEEP_SCREEN_ON)
             bool("saveState", Keys.SAVE_STATE)
         }
@@ -217,6 +255,42 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setLayoutStyle(style: String) =
         context.dataStore.edit { it[Keys.LAYOUT_STYLE] = style }
+
+    suspend fun setDivisionSign(sign: String) =
+        context.dataStore.edit { it[Keys.DIVISION_SIGN] = sign }
+
+    suspend fun setMultiplicationSign(sign: String) =
+        context.dataStore.edit { it[Keys.MULTIPLICATION_SIGN] = sign }
+
+    suspend fun setKeyTextScale(scale: Float) =
+        context.dataStore.edit { it[Keys.KEY_TEXT_SCALE] = scale.coerceIn(0.75f, 1.5f) }
+
+    suspend fun setBlinkCursor(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.BLINK_CURSOR] = enabled }
+
+    suspend fun setClearOnExit(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.CLEAR_ON_EXIT] = enabled }
+
+    suspend fun setShowCalcInfo(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.SHOW_CALC_INFO] = enabled }
+
+    suspend fun setDivisionSign(sign: String) =
+        context.dataStore.edit { it[Keys.DIVISION_SIGN] = sign }
+
+    suspend fun setMultiplicationSign(sign: String) =
+        context.dataStore.edit { it[Keys.MULTIPLICATION_SIGN] = sign }
+
+    suspend fun setKeyTextScale(scale: Float) =
+        context.dataStore.edit { it[Keys.KEY_TEXT_SCALE] = scale.coerceIn(0.75f, 1.5f) }
+
+    suspend fun setBlinkCursor(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.BLINK_CURSOR] = enabled }
+
+    suspend fun setClearOnExit(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.CLEAR_ON_EXIT] = enabled }
+
+    suspend fun setShowCalcInfo(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.SHOW_CALC_INFO] = enabled }
 
     suspend fun setImpliedMultiplication(mode: String) =
         context.dataStore.edit { it[Keys.IMPLIED_MULTIPLICATION] = mode }

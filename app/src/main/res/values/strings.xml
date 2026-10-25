@@ -405,4 +405,14 @@
     <string name="percentage_type_help">What a percent sign means after + or -. Multiplication and division are the same either way.</string>
     <string name="implied_multiplication">Implied multiplication</string>
     <string name="implied_multiplication_help">What a missing multiplication sign means, as in 2π or 3(4+5). This only matters when a division is nearby.</string>
+    <string name="section_keyboard">Keyboard</string>
+    <string name="section_display">Display</string>
+    <string name="division_sign">Division sign</string>
+    <string name="multiplication_sign">Multiplication sign</string>
+    <string name="key_text_size">Key text size</string>
+    <string name="blink_cursor">Blink cursor</string>
+    <string name="clear_on_exit">Clear the screen on exit</string>
+    <string name="clear_on_exit_help">Leaving the calculator for another screen empties the expression, so it is not waiting there when you come back.</string>
+    <string name="show_calc_info">Show calculation information</string>
+    <string name="show_calc_info_help">A short note under the result saying how it was read, such as what a percentage was taken of.</string>
 </resources>

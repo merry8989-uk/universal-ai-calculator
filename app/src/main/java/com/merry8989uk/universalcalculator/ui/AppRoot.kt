@@ -199,12 +199,23 @@ fun AppRoot(settings: SettingsState) {
 
     // Pressing the tab you are already on takes that tab back to its own home.
     var resetTick by rememberSaveable { mutableIntStateOf(0) }
+    // Bumped when the user leaves a calculator, for "clear the screen on exit".
+    var clearTick by rememberSaveable { mutableIntStateOf(0) }
     // True while a tab is showing one of its inner screens.
     var innerOpen by remember { mutableStateOf(false) }
 
     val analyticsContext = LocalContext.current
+    /** The tabs that are a calculator, and so can be cleared on the way out. */
+    val calculatorTabs = listOf(STANDARD_TAB, SCIENTIFIC_TAB, SCI_CLASSIC_TAB)
+
     fun selectTab(i: Int) {
-        if (tab == i) resetTick++ else tab = i
+        if (tab == i) {
+            resetTick++
+        } else {
+            // leaving a calculator for somewhere else clears it, if asked
+            if (settings.clearOnExit && tab in calculatorTabs && i !in calculatorTabs) clearTick++
+            tab = i
+        }
         Analytics.event(analyticsContext, "tab:" + TAB_LABELS[i].toString())
     }
 
@@ -341,6 +352,7 @@ fun AppRoot(settings: SettingsState) {
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                     onOpenMode = { id -> openMode(id) },
+                    clearSignal = clearTick,
                 )
                 SCIENTIFIC_TAB -> CalculatorScreen(
                     // With "Classic Scientific" chosen the classic pad takes this
@@ -354,6 +366,7 @@ fun AppRoot(settings: SettingsState) {
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                     onOpenMode = { id -> openMode(id) },
+                    clearSignal = clearTick,
                 )
                 SCI_CLASSIC_TAB -> CalculatorScreen(
                     // Only reachable in minimal mode, where the classic pad sits
@@ -367,6 +380,7 @@ fun AppRoot(settings: SettingsState) {
                     onOpenSettings = { selectTab(SETTINGS_TAB) },
                     onOpenTool = { t -> requestedTool = t; selectTab(FORMULAS_TAB) },
                     onOpenMode = { id -> openMode(id) },
+                    clearSignal = clearTick,
                 )
                 CONVERT_TAB -> ConvertScreen()
                 FORMULAS_TAB -> FormulasScreen(

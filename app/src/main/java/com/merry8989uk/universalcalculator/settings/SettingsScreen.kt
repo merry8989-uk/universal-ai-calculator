@@ -469,6 +469,56 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
+            // ---- the keyboard ----
+            Section(stringResource(R.string.section_keyboard))
+
+            Text(stringResource(R.string.division_sign), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("\u00F7" to "\u00F7", "/" to "/").forEach { (value, shown) ->
+                    FilterChip(
+                        selected = state.divisionSign == value,
+                        onClick = { vm.setDivisionSign(value) },
+                        label = { Text(shown) },
+                    )
+                }
+            }
+
+            Text(stringResource(R.string.multiplication_sign), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("\u00D7" to "\u00D7", "*" to "*").forEach { (value, shown) ->
+                    FilterChip(
+                        selected = state.multiplicationSign == value,
+                        onClick = { vm.setMultiplicationSign(value) },
+                        label = { Text(shown) },
+                    )
+                }
+            }
+
+            Text(
+                "${stringResource(R.string.key_text_size)}  \u00B7  ${(state.keyTextScale * 100).toInt()}%",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Slider(
+                value = state.keyTextScale,
+                onValueChange = { vm.setKeyTextScale(it) },
+                valueRange = 0.75f..1.5f,
+            )
+
+            // ---- the display ----
+            Section(stringResource(R.string.section_display))
+
+            ToggleRow(stringResource(R.string.blink_cursor), state.blinkCursor, vm::setBlinkCursor)
+            ToggleRow(stringResource(R.string.clear_on_exit), state.clearOnExit, vm::setClearOnExit)
+            Text(
+                stringResource(R.string.clear_on_exit_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            ToggleRow(stringResource(R.string.show_calc_info), state.showCalcInfo, vm::setShowCalcInfo)
+            Text(
+                stringResource(R.string.show_calc_info_help),
+                style = MaterialTheme.typography.bodySmall,
+            )
+
             Text(stringResource(R.string.home_screen_widget), style = MaterialTheme.typography.bodyMedium)
             Text(
                 "Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. " +

@@ -403,4 +403,14 @@
     <string name="percentage_type_help">+ या − के बाद प्रतिशत चिह्न का क्या मतलब है। गुणा और भाग दोनों तरीकों में एक जैसे रहते हैं।</string>
     <string name="implied_multiplication">छिपा हुआ गुणन</string>
     <string name="implied_multiplication_help">जहाँ गुणा का चिह्न नहीं लिखा हो, जैसे 2π या 3(4+5), वहाँ उसका क्या मतलब है। यह तभी मायने रखता है जब पास में भाग हो।</string>
+    <string name="section_keyboard">कीबोर्ड</string>
+    <string name="section_display">डिस्प्ले</string>
+    <string name="division_sign">भाग का चिह्न</string>
+    <string name="multiplication_sign">गुणा का चिह्न</string>
+    <string name="key_text_size">की का अक्षर आकार</string>
+    <string name="blink_cursor">कर्सर झपकाएँ</string>
+    <string name="clear_on_exit">बाहर निकलने पर स्क्रीन साफ़ करें</string>
+    <string name="clear_on_exit_help">कैलकुलेटर से किसी और स्क्रीन पर जाने पर व्यंजक खाली हो जाता है, ताकि लौटने पर वह वहीं पड़ा न मिले।</string>
+    <string name="show_calc_info">गणना की जानकारी दिखाएँ</string>
+    <string name="show_calc_info_help">परिणाम के नीचे छोटी टिप्पणी कि उसे कैसे पढ़ा गया, जैसे प्रतिशत किसका लिया गया।</string>
 </resources>

@@ -89,6 +89,7 @@ import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.calc.CalcInfo
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.ExpressionFix
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
@@ -136,7 +137,21 @@ private val LABELS = mapOf(
     "swap" to "\u21C4", "x" to "x",
 )
 
-internal fun label(k: String) = LABELS[k] ?: k
+/**
+ * What a key shows.
+ *
+ * The divide and multiply keys are the two the user gets a say in: some people
+ * want the printed signs, some want the plain ASCII ones they will type anyway.
+ */
+internal fun label(
+    k: String,
+    divisionSign: String = "\u00F7",
+    multiplicationSign: String = "\u00D7",
+) = when (k) {
+    "/" -> divisionSign
+    "*" -> multiplicationSign
+    else -> LABELS[k] ?: k
+}
 private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
 private fun isClear(k: String) = k == "C" || k == "del"
 
@@ -277,6 +292,8 @@ fun CalculatorScreen(
     onOpenTool: (String) -> Unit = {},
     /** Opens a kind of calculation picked from the MODE list. */
     onOpenMode: (String) -> Unit = {},
+    /** Bumped when the user leaves, so the expression can be cleared if asked. */
+    clearSignal: Int = 0,
     /**
      * Show the classic scientific pad instead of the modern one.
      *
@@ -306,6 +323,15 @@ fun CalculatorScreen(
     var sciOpen by rememberSaveable { mutableStateOf(false) }
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.
+    // "Clear the screen before exiting": the root bumps clearSignal on the way out.
+    LaunchedEffect(clearSignal) {
+        if (clearSignal > 0 && settings.clearOnExit) {
+            expr = TextFieldValue("")
+            preview = ""
+            aiText = ""
+        }
+    }
+
     var classicLayerName by rememberSaveable { mutableStateOf(ClassicLayer.NORMAL.name) }
     val classicLayer = ClassicLayer.valueOf(classicLayerName)
     // 2nd turns the pad over; 0 is the arithmetic page, 1 is the tools page.
@@ -855,7 +881,13 @@ when (key) {
                         textAlign = TextAlign.End,
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    // The caret can be switched off for anyone who finds it a
+                    // distraction; it is not a real cursor either way.
+                    cursorBrush = if (settings.blinkCursor) {
+                        SolidColor(MaterialTheme.colorScheme.primary)
+                    } else {
+                        SolidColor(Color.Transparent)
+                    }
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -898,6 +930,20 @@ when (key) {
                         },
                     )
                 }
+                // How the expression was read, when that is not the obvious way.
+                if (settings.showCalcInfo && preview.isNotEmpty()) {
+                    val note = CalcInfo.explain(text, percentageMode, impliedMode)
+                    if (note.isNotEmpty()) {
+                        Text(
+                            note,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+
                 // Voice, photo and "ask about this" are all the assistant, so
                 // they go when it is switched off or minimal mode is on.
                 if (aiVisible) Row(
@@ -994,6 +1040,8 @@ when (key) {
                 ClassicScientificPad(
                     layer = classicLayer,
                     page = classicPage,
+                    divisionSign = settings.divisionSign,
+                    multiplicationSign = settings.multiplicationSign,
                     // one tap locks the layer on, another tap lets it go
                     onShift = {
                         classicLayerName = if (classicLayer == ClassicLayer.SHIFT) {
@@ -1073,7 +1121,7 @@ when (key) {
                             MaterialTheme.colorScheme.onSurface
                         }
                         KeyButton(
-                            label = label(key),
+                            label = label(key, settings.divisionSign, settings.multiplicationSign),
                             colors = colors,
                             contentColor = content,
                             modifier = Modifier.weight(1f).height(56.dp),
