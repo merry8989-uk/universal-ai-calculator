@@ -92,7 +92,7 @@ import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
-import com.merry8989uk.universalcalculator.calc.AnswerStyle
+import com.merry8989uk.universalcalculator.calc.BoxExpression
 import com.merry8989uk.universalcalculator.calc.CalcInfo
 import com.merry8989uk.universalcalculator.calc.ExpressionGuard
 import com.merry8989uk.universalcalculator.calc.Evaluator
@@ -167,6 +167,8 @@ private fun isClear(k: String) = k == "C" || k == "del"
  * `csc(` ready for an argument. Everything else inserts itself.
  */
 internal fun insertFor(key: String): String = when (key) {
+    // a shape key is passed through whole, so insert() can put its holes down
+    in BoxExpression.TEMPLATES -> key
     in FUNCTION_KEYS -> "$key("
     "x^2" -> "^2"
     "x^3" -> "^3"
@@ -328,6 +330,10 @@ fun CalculatorScreen(
     var sciOpen by rememberSaveable { mutableStateOf(false) }
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.
+    // Which characters of the expression are fill-in holes, and which are what
+    // was typed into them. A digit that filled a hole looks exactly like one
+    // typed freely, so this has to be remembered rather than worked out.
+    var slots by remember { mutableStateOf(listOf<Int>()) }
     // How far back the direction pad has walked through the history.
     var recallAt by rememberSaveable { mutableIntStateOf(0) }
     var classicLayerName by rememberSaveable { mutableStateOf(ClassicLayer.NORMAL.name) }
@@ -424,6 +430,7 @@ fun CalculatorScreen(
         val pending = exactResult
         if (pending != null) {
             exactResult = null
+            slots = emptyList()
             val continues = snippet.isNotEmpty() && snippet[0] in "+-*/^%!)°"
             expr = if (continues) {
                 val exact = Format.number(pending)
@@ -436,7 +443,35 @@ fun CalculatorScreen(
         val t = expr.text
         val start = expr.selection.min
         val end = expr.selection.max
+
+        // A key like x^y puts down a shape with holes in it, not just a caret.
+        val template = BoxExpression.templateFor(snippet)
+        if (template != null) {
+            val (next, cursor) = BoxExpression(t, slots).template(start, template)
+            slots = next.slots
+            expr = TextFieldValue(next.text, TextRange(cursor))
+            return
+        }
+
+        // A selection is replaced outright, holes and all.
+        if (start != end) {
+            val next = t.substring(0, start) + snippet + t.substring(end)
+            slots = slots.filter { it < start || it >= end }
+                .map { if (it >= end) it - (end - start) + snippet.length else it }
+            expr = TextFieldValue(next, TextRange(start + snippet.length))
+            return
+        }
+
+        // Typing onto a hole fills it and moves on to the next one.
+        if (start in slots && snippet.length == 1) {
+            val (next, cursor) = BoxExpression(t, slots).type(start, snippet)
+            slots = next.slots
+            expr = TextFieldValue(next.text, TextRange(cursor))
+            return
+        }
+
         val next = t.substring(0, start) + snippet + t.substring(end)
+        slots = slots.map { if (it >= start) it + snippet.length else it }
         expr = TextFieldValue(next, TextRange(start + snippet.length))
     }
 
@@ -452,11 +487,17 @@ fun CalculatorScreen(
         val t = expr.text
         val start = expr.selection.min
         val end = expr.selection.max
-        expr = when {
-            start != end -> TextFieldValue(t.substring(0, start) + t.substring(end), TextRange(start))
-            start > 0 -> TextFieldValue(t.substring(0, start - 1) + t.substring(start), TextRange(start - 1))
-            else -> expr
+        if (start != end) {
+            slots = slots.filter { it < start || it >= end }
+                .map { if (it >= end) it - (end - start) else it }
+            expr = TextFieldValue(t.substring(0, start) + t.substring(end), TextRange(start))
+            return
         }
+        // A filled hole goes back to being a hole before anything is deleted,
+        // so a shape can be taken apart without losing it.
+        val (next, cursor) = BoxExpression(t, slots).backspace(start)
+        slots = next.slots
+        expr = TextFieldValue(next.text, TextRange(cursor))
     }
 
     fun currentValue(): Double = try {
@@ -1025,15 +1066,9 @@ when (key) {
                     val asFraction = if (settings.fractionsEnabled && preview.isNotEmpty()) {
                         preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
                     } else null
-                    // A big answer is shown twice: the whole number, and beneath it
-                    // the same number in scientific form. 28 14 74 97 67 10 656 says
-                    // exactly what it is; = 2.814 749 767 11x10^14 says how big.
                     val written = if (preview.isNotEmpty())
                         pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)
                     else ""
-                    val twoLines = if (preview.isNotEmpty()) {
-                        preview.toDoubleOrNull()?.let { AnswerStyle.lines(it, written) }
-                    } else null
                     AutoSizeText(
                         text = if (preview.isNotEmpty())
                             "= $written" + (asFraction?.let { "   ($it)" } ?: "")
@@ -1046,15 +1081,6 @@ when (key) {
                             contentDescription = resultSpoken
                         },
                     )
-                    if (twoLines != null && twoLines.isTwoLines) {
-                        Text(
-                            twoLines.scientific,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
                 }
                 // How the expression was read, when that is not the obvious way.
                 if (settings.showCalcInfo && preview.isNotEmpty()) {

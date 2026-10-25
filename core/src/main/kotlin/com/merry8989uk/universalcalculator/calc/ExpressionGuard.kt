@@ -70,6 +70,11 @@ object ExpressionGuard {
         val t = text.trim()
         if (t.isEmpty()) return null
 
+        // a shape with a hole in it is not wrong, it is unfinished
+        if (t.contains(BoxExpression.BOX)) {
+            return "There is an empty box. Put a number in it."
+        }
+
         // 1. a symbol the calculator has no use for
         val unknown = t.firstOrNull { it !in ALLOWED && !it.isLetter() }
         if (unknown != null) return "'$unknown' is not a symbol this calculator knows."
