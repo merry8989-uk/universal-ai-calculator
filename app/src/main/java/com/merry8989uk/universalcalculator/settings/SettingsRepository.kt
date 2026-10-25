@@ -274,23 +274,11 @@ class SettingsRepository(private val context: Context) {
     suspend fun setShowCalcInfo(enabled: Boolean) =
         context.dataStore.edit { it[Keys.SHOW_CALC_INFO] = enabled }
 
-    suspend fun setDivisionSign(sign: String) =
-        context.dataStore.edit { it[Keys.DIVISION_SIGN] = sign }
 
-    suspend fun setMultiplicationSign(sign: String) =
-        context.dataStore.edit { it[Keys.MULTIPLICATION_SIGN] = sign }
 
-    suspend fun setKeyTextScale(scale: Float) =
-        context.dataStore.edit { it[Keys.KEY_TEXT_SCALE] = scale.coerceIn(0.75f, 1.5f) }
 
-    suspend fun setBlinkCursor(enabled: Boolean) =
-        context.dataStore.edit { it[Keys.BLINK_CURSOR] = enabled }
 
-    suspend fun setClearOnExit(enabled: Boolean) =
-        context.dataStore.edit { it[Keys.CLEAR_ON_EXIT] = enabled }
 
-    suspend fun setShowCalcInfo(enabled: Boolean) =
-        context.dataStore.edit { it[Keys.SHOW_CALC_INFO] = enabled }
 
     suspend fun setImpliedMultiplication(mode: String) =
         context.dataStore.edit { it[Keys.IMPLIED_MULTIPLICATION] = mode }
