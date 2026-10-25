@@ -244,7 +244,7 @@ private fun FormulaList(
                 R.string.calculator_count,
                 FormulaLibrary.formulas.size,
                 custom.size,
-                shownTools.size,
+                tools.size,
             ),
             style = MaterialTheme.typography.bodySmall,
         )
@@ -293,7 +293,7 @@ private fun FormulaList(
                 items(results) { f -> FormulaCard(f, onOpen) }
             } else {
                 if (category == "Tools") {
-                    itemsIndexed(shownTools) { i, t ->
+                    itemsIndexed(tools) { i, t ->
                         ToolCard(
                             title = t.title,
                             subtitle = t.subtitle,
