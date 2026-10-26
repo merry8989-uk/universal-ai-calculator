@@ -327,6 +327,8 @@ fun CalculatorScreen(
     val xValue = xText.toDoubleOrNull() ?: 0.0
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var historyOpen by rememberSaveable { mutableStateOf(false) }
+    // Where the archive lives on this device.
+    val ctx = LocalContext.current
     var sciOpen by rememberSaveable { mutableStateOf(false) }
     // Which printed layer the classic pad is reading from. SHIFT and ALPHA
     // both lock: one tap holds the layer on, another lets it go.

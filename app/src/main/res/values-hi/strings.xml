@@ -448,4 +448,14 @@
     <string name="markup_price">बिक्री मूल्य:</string>
     <string name="markup_profit">लाभ:</string>
     <string name="markup_impossible">100% या उससे ज़्यादा मार्जिन से कोई कीमत नहीं बचती।</string>
+    <string name="archive_title">कैलकुलेशन आर्काइव</string>
+    <string name="archive_where">यहाँ सेव किया गया:</string>
+    <string name="archive_kept">हिस्ट्री क्लियर करने पर भी सेव रहता है, और उससे अलग रहता है।</string>
+    <string name="archive_empty">अभी तक कुछ भी रिकॉर्ड नहीं हुआ है। अब से हर जवाब यहीं सेव होगा।</string>
+    <string name="archive_month_total">इस महीने: %1$d कैलकुलेशन</string>
+    <string name="archive_month_sum">%1$d प्लेन-नंबर रिज़ल्ट्स का जोड़ %2$s है</string>
+    <string name="archive_sum_note">%1$d रिज़ल्ट्स प्लेन नंबर नहीं थे, इसलिए उन्हें गिना तो गया है लेकिन जोड़ा नहीं गया है।</string>
+    <string name="archive_year_total">इस वित्तीय वर्ष: %1$d कैलकुलेशन</string>
+    <string name="archive_export">आर्काइव शेयर करें</string>
+    <string name="archive_refresh">समरी फिर से बनाएँ</string>
 </resources>

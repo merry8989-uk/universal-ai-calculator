@@ -66,6 +66,7 @@ private val CAS_TOOLS = setOf("symbolic", "limits", "partial", "solver")
 
 private val TOOLS = listOf(
     Tool("reference", "Formula reference", "Every formula the app knows \u2014 maths, physics and chemistry."),
+    Tool("archive", "Calculation archive", "Every answer ever worked out, day by day, kept apart from the history."),
     Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
     Tool("distributions", "Distributions & tests", "Normal/t/binomial/Poisson, t-tests and confidence intervals."),
     Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),
@@ -195,6 +196,7 @@ fun FormulasScreen(
                 .valueOf(settings.bitWidth),
         )
         tool == "currency" -> CurrencyScreen { tool = "" }
+        tool == "archive" -> ArchiveScreen { tool = "" }
         else -> FormulaList(
             custom = custom,
             onCreate = { creating = true },

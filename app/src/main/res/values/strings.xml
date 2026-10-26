@@ -448,4 +448,14 @@
     <string name="key_gt">grand total</string>
     <string name="key_mu">mark-up</string>
     <string name="key_m_minus">memory subtract</string>
+    <string name="archive_title">Calculation archive</string>
+    <string name="archive_where">Saved in:</string>
+    <string name="archive_kept">Kept even when you clear the history, and separate from it.</string>
+    <string name="archive_empty">Nothing recorded yet. Every answer is kept here from now on.</string>
+    <string name="archive_month_total">This month: %1$d calculations</string>
+    <string name="archive_month_sum">The %1$d plain-number results add up to %2$s</string>
+    <string name="archive_sum_note">%1$d results were not plain numbers, so they are counted but not added.</string>
+    <string name="archive_year_total">This financial year: %1$d calculations</string>
+    <string name="archive_export">Share the archive</string>
+    <string name="archive_refresh">Rebuild summaries</string>
 </resources>
