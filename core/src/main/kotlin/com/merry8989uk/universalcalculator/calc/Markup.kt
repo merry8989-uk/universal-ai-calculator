@@ -8,6 +8,27 @@ package com.merry8989uk.universalcalculator.calc
  * Keeping it here, in one place with its own test, means the difference is
  * written down rather than rediscovered.
  */
+/**
+ * The grand total: every answer added up, the way a shop calculator's GT works.
+ *
+ * Nothing here parses a printed number. The old version tried to read the answer
+ * back out of the grouped text on screen, which fails the moment a result is
+ * written as `1 234` or `2.8x10^14` — so the total quietly stayed at zero.
+ */
+object GrandTotal {
+
+    /** [total] with [answer] added, or [total] unchanged when there is no number. */
+    fun add(total: Double, answer: Double?): Double {
+        if (answer == null || !answer.isFinite()) return total
+        val sum = total + answer
+        return if (sum.isFinite()) sum else total
+    }
+
+    /** What pressing GT shows. Pressed again, the total goes back to zero. */
+    fun afterPress(total: Double, justPressed: Boolean): Double =
+        if (justPressed) 0.0 else total
+}
+
 object Markup {
 
     /**

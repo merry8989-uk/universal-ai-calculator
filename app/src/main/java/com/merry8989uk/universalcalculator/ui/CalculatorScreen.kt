@@ -101,6 +101,7 @@ import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.ExpressionFix
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
 import com.merry8989uk.universalcalculator.calc.Format
+import com.merry8989uk.universalcalculator.calc.GrandTotal
 import com.merry8989uk.universalcalculator.calc.Complex
 import com.merry8989uk.universalcalculator.calc.ComplexEvaluator
 import com.merry8989uk.universalcalculator.calc.Fractions
@@ -331,7 +332,10 @@ fun CalculatorScreen(
     // both lock: one tap holds the layer on, another lets it go.
     // The history line the user is holding, and the working they asked to see.
     // GT shows the sum of the history; MU opens the mark-up tool.
-    var grandTotal by remember { mutableStateOf<Double?>(null) }
+    // The grand total: every "=" adds its answer to it, the way a shop
+    // calculator's GT works. Pressing GT shows it, pressing it again clears it.
+    var grandTotal by rememberSaveable { mutableStateOf(0.0) }
+    var gtJustPressed by remember { mutableStateOf(false) }
     var markupOpen by remember { mutableStateOf(false) }
     var historyMenu by remember { mutableStateOf<String?>(null) }
     var workingFor by remember { mutableStateOf<String?>(null) }
@@ -620,6 +624,9 @@ when (key) {
                                             // Say why rather than just "error".
                                             e.message?.takeIf { it.isNotBlank() } ?: "error"
                                         }
+                                        // the answer joins the grand total
+                                        grandTotal = GrandTotal.add(grandTotal, exactResult)
+                                        gtJustPressed = false
                                         DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
                                         if (settings.historyEnabled) {
                                             historyVm.append("${text.ifBlank { "0" }} = $shown")
@@ -637,13 +644,22 @@ when (key) {
                                     "M-" -> memory -= currentValue()
                                     "MC" -> memory = 0.0
                                     "MS" -> memory = currentValue()
-                                    // GT adds up everything in the history so far
+                                    // GT shows the running total. Pressed twice, it
+                                    // starts again from zero, which is what a shop
+                                    // calculator does.
                                     "GT" -> {
-                                        val total = history.split("\n")
-                                            .filter { it.isNotBlank() }
-                                            .mapNotNull { it.substringAfterLast(" = ").trim().toDoubleOrNull() }
-                                            .sum()
-                                        grandTotal = total
+                                        exactResult = null
+                                        grandTotal = GrandTotal.afterPress(grandTotal, gtJustPressed)
+                                        if (gtJustPressed) {
+                                            expr = TextFieldValue("")
+                                            slots = emptyList()
+                                            gtJustPressed = false
+                                        } else {
+                                            val shownTotal = Format.number(grandTotal)
+                                            expr = TextFieldValue(shownTotal, TextRange(shownTotal.length))
+                                            exactResult = grandTotal
+                                            gtJustPressed = true
+                                        }
                                     }
                                     "MU" -> markupOpen = true
                                     "neg" -> {
@@ -901,7 +917,7 @@ when (key) {
             }
 
             // Memory and the grand total, said in one line rather than four buttons.
-            if (memory != 0.0 || grandTotal != null) {
+            if (memory != 0.0 || grandTotal != 0.0) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -913,9 +929,9 @@ when (key) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    grandTotal?.let {
+                    if (grandTotal != 0.0) {
                         Text(
-                            "GT = ${Format.number(it)}",
+                            "GT = ${Format.number(grandTotal)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.weight(1f),
