@@ -89,6 +89,14 @@ fun SettingsScreen(
     val state by vm.state.collectAsState()
     val context = LocalContext.current
     val scroll = rememberScrollState()
+    // The archive is opened from here, so it sits with the other settings
+    // rather than among the formulas.
+    var showArchive by remember { mutableStateOf(false) }
+
+    if (showArchive) {
+        ArchiveScreen(onBack = { showArchive = false })
+        return
+    }
 
     // Pressing the Settings tab again returns to the top of this screen.
     LaunchedEffect(resetSignal) {
@@ -161,6 +169,28 @@ fun SettingsScreen(
                 valueRange = 0.80f..1.20f,
             )
 
+            // ---- the calculation archive ----
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { showArchive = true }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.archive_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        stringResource(R.string.archive_kept),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Text("\u203A", style = MaterialTheme.typography.titleLarge)
+            }
+
             Section(stringResource(R.string.section_general))
 
             Text(stringResource(R.string.language))
@@ -220,22 +250,6 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Text(stringResource(R.string.measuring_units), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Metric", "Imperial").forEach { sys ->
-                    FilterChip(
-                        selected = state.unitSystem == sys,
-                        onClick = { vm.setUnitSystem(sys) },
-                        label = { Text(sys) },
-                    )
-                }
-            }
-            Text(
-                if (state.unitSystem == "Imperial")
-                    "Converters open on imperial units (miles, pounds, gallons)."
-                else "Converters open on metric units (kilometres, kilograms, litres).",
-                style = MaterialTheme.typography.bodySmall,
-            )
             ToggleRow(stringResource(R.string.calculation_history), state.historyEnabled, vm::setHistoryEnabled)
             ToggleRow(stringResource(R.string.haptic_feedback), state.hapticsEnabled, vm::setHapticsEnabled)
 
@@ -312,118 +326,8 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Section(stringResource(R.string.section_keyboard))
-
-            Text(stringResource(R.string.division_sign), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("\u00F7" to "\u00F7", "/" to "/").forEach { (value, shown) ->
-                    FilterChip(
-                        selected = state.divisionSign == value,
-                        onClick = { vm.setDivisionSign(value) },
-                        label = { Text(shown) },
-                    )
-                }
-            }
-
-            Text(stringResource(R.string.multiplication_sign), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("\u00D7" to "\u00D7", "*" to "*").forEach { (value, shown) ->
-                    FilterChip(
-                        selected = state.multiplicationSign == value,
-                        onClick = { vm.setMultiplicationSign(value) },
-                        label = { Text(shown) },
-                    )
-                }
-            }
-
-            Text(
-                "${stringResource(R.string.key_text_size)}  \u00B7  ${(state.keyTextScale * 100).toInt()}%",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Slider(
-                value = state.keyTextScale,
-                onValueChange = { vm.setKeyTextScale(it) },
-                valueRange = 0.75f..1.5f,
-            )
-
             // ---- the tools ----
             Section(stringResource(R.string.section_tools))
-
-            val bitWidth = com.merry8989uk.universalcalculator.calc.BitWidth
-                .valueOf(state.bitWidth)
-            Text(stringResource(R.string.bit_width), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                com.merry8989uk.universalcalculator.calc.BitWidth.entries.forEach { w ->
-                    FilterChip(
-                        selected = w == bitWidth,
-                        onClick = { vm.setBitWidth(w.name) },
-                        label = { Text(w.label) },
-                    )
-                }
-            }
-            Text(
-                stringResource(R.string.bit_width_help),
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            val cplx = com.merry8989uk.universalcalculator.calc.ComplexFormat
-                .valueOf(state.complexFormat)
-            Text(stringResource(R.string.complex_format), style = MaterialTheme.typography.bodyMedium)
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                com.merry8989uk.universalcalculator.calc.ComplexFormat.entries.forEach { f ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable { vm.setComplexFormat(f.name) }
-                            .padding(horizontal = 6.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = f == cplx,
-                            onClick = { vm.setComplexFormat(f.name) },
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(f.label, style = MaterialTheme.typography.bodyLarge)
-                            Text(f.example, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-
-            val interval = com.merry8989uk.universalcalculator.calc.IntervalNotation
-                .valueOf(state.intervalNotation)
-            Text(stringResource(R.string.interval_notation), style = MaterialTheme.typography.bodyMedium)
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                com.merry8989uk.universalcalculator.calc.IntervalNotation.entries.forEach { n ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable { vm.setIntervalNotation(n.name) }
-                            .padding(horizontal = 6.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = n == interval,
-                            onClick = { vm.setIntervalNotation(n.name) },
-                        )
-                        Text(n.label, style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
-
-            ToggleRow(
-                stringResource(R.string.frequency_column),
-                state.frequencyColumn,
-                vm::setFrequencyColumn,
-            )
-            Text(
-                stringResource(R.string.frequency_column_help),
-                style = MaterialTheme.typography.bodySmall,
-            )
 
             ToggleRow(stringResource(R.string.cas_mode), state.casMode, vm::setCasMode)
             Text(
@@ -431,15 +335,6 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Text(
-                "${stringResource(R.string.display_text_size)}  \u00B7  ${(state.textScale * 100).toInt()}%",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Slider(
-                value = state.textScale,
-                onValueChange = { vm.setTextScale(it) },
-                valueRange = 0.75f..2.5f,
-            )
 
             // ---- the display ----
             Section(stringResource(R.string.section_display))
