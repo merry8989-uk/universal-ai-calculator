@@ -80,6 +80,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
@@ -106,6 +107,8 @@ import com.merry8989uk.universalcalculator.calc.Complex
 import com.merry8989uk.universalcalculator.calc.ComplexEvaluator
 import com.merry8989uk.universalcalculator.calc.Fractions
 import com.merry8989uk.universalcalculator.calc.SpeechMath
+import com.merry8989uk.universalcalculator.calc.ArchiveEntry
+import com.merry8989uk.universalcalculator.data.ArchiveStore
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.settings.SettingsState
@@ -625,6 +628,21 @@ when (key) {
                                         } catch (e: Exception) {
                                             // Say why rather than just "error".
                                             e.message?.takeIf { it.isNotBlank() } ?: "error"
+                                        }
+                                        // The archive keeps the record. It is
+                                        // written even when the history is off,
+                                        // and clearing the history never touches it.
+                                        runCatching {
+                                            ArchiveStore.append(
+                                                ctx,
+                                                ArchiveEntry(
+                                                    at = ArchiveStore.now(),
+                                                    kind = title,
+                                                    expression = text.ifBlank { "0" },
+                                                    result = shown,
+                                                    value = exactResult,
+                                                ),
+                                            )
                                         }
                                         // the answer joins the grand total
                                         grandTotal = GrandTotal.add(grandTotal, exactResult)
