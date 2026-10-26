@@ -33,8 +33,15 @@ class GrandTotalTest {
         assertEquals(50.0, GrandTotal.add(50.0, Double.POSITIVE_INFINITY), 1e-12)
     }
 
-    @Test fun anOverflowDoesNotWreckTheTotal() {
-        assertEquals(10.0, GrandTotal.add(10.0, Double.MAX_VALUE), 1e-12)
+    @Test fun anOverflowLeavesTheTotalWhereItWas() {
+        // MAX_VALUE plus MAX_VALUE is infinity, which would make every later
+        // addition useless, so the total stays put instead
+        assertEquals(Double.MAX_VALUE, GrandTotal.add(Double.MAX_VALUE, Double.MAX_VALUE), 1e-12)
+    }
+
+    @Test fun aHugeButFiniteAnswerIsStillAdded() {
+        // 10 + MAX_VALUE does not overflow, it simply swallows the 10
+        assertEquals(Double.MAX_VALUE, GrandTotal.add(10.0, Double.MAX_VALUE), 1e-12)
     }
 
     @Test fun pressingAgainStartsFromZero() {
