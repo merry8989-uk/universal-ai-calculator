@@ -34,7 +34,6 @@ data class SettingsState(
     /** What the multiply key shows: the multiplication sign, or an asterisk. */
     val multiplicationSign: String = "×",
     /** How large the key labels are drawn, as a multiple of the default. */
-    val keyTextScale: Float = 1f,
     /** Show the caret in the expression. */
     val blinkCursor: Boolean = true,
     /** Clear the expression when the user leaves the calculator. */
@@ -61,7 +60,6 @@ data class SettingsState(
     /** Key tone: Off, Click, Bubble or Pop. */
     val keySound: String = "Off",
     /** Preferred measurement system for the converters. */
-    val unitSystem: String = "Metric",
     /** Keep a history of calculations. */
     val historyEnabled: Boolean = true,
     /** Haptic feedback on key press. */

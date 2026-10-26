@@ -23,8 +23,6 @@
     <string name="history_a11y">calculation history</string>
     <string name="degrees_mode">DEG</string>
     <string name="radians_mode">RAD</string>
-    <string name="degrees_a11y">degrees mode, tap for radians</string>
-    <string name="radians_a11y">radians mode, tap for degrees</string>
     <string name="speak">Speak</string>
     <string name="speak_a11y">speak a calculation</string>
     <string name="photo">Photo</string>
@@ -35,8 +33,6 @@
     <string name="explain_with_ai_a11y">explain with AI</string>
     <string name="x_value_used">used wherever x appears</string>
     <string name="x_equals">x =</string>
-    <string name="show_more_functions">show more functions</string>
-    <string name="show_fewer_functions">show fewer functions</string>
     <string name="calc_a11y">calculation, %1$s</string>
     <string name="calc_empty">empty</string>
     <string name="result_a11y">result %1$s</string>
@@ -72,7 +68,6 @@
     <string name="section_general">General</string>
     <string name="section_ai">AI assistant</string>
     <string name="section_updates">Updates</string>
-    <string name="section_diagnostics">Diagnostics</string>
     <string name="section_reset">Reset</string>
     <string name="section_feedback">Feedback</string>
     <string name="settings_title">Settings</string>
@@ -94,13 +89,9 @@
     <string name="keypad_layout">Keypad layout</string>
     <string name="theme_label">Theme</string>
     <string name="home_screen_widget">Home screen widget</string>
-    <string name="home_screen_widget_help">Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. While adding it you can pick a solid, dimmed or fully transparent background.</string>
     <string name="lang_system">System</string>
     <string name="lang_en">English</string>
     <string name="lang_hi">हिन्दी</string>
-    <string name="metric">Metric</string>
-    <string name="imperial">Imperial</string>
-    <string name="auto">Auto</string>
     <!-- Overflow menu -->
     <string name="more_options">More options</string>
     <string name="menu_settings">Settings</string>
@@ -142,8 +133,6 @@
     <string name="diag_crashes">Crashes recorded: %1$d</string>
     <string name="diag_crashes_none">No crashes recorded.</string>
     <string name="diag_view_crashes">View crash reports</string>
-    <string name="diag_logs_cleared">Logs cleared</string>
-    <string name="diag_counters_reset">Counters reset</string>
     <string name="diag_anr">App not responding (ANR): %1$d</string>
     <string name="theme_cyberpunk">Cyberpunk Neon</string>
     <string name="theme_emerald">Emerald Mint</string>
@@ -155,7 +144,6 @@
     <string name="history_see_all">See all</string>
     <string name="history_empty">Nothing yet. Your calculations appear here.</string>
     <string name="history_grabber_a11y">drag to open or close the history tape</string>
-    <string name="history_tape_a11y">history tape</string>
     <string name="functions">Functions</string>
     <string name="functions_drawer_a11y">open the scientific functions</string>
     <string name="key_decimal_point">decimal point</string>
@@ -222,7 +210,6 @@
     <string name="calc_preview">Preview with the defaults</string>
     <string name="calc_save">Save</string>
     <string name="calc_delete">Delete this calculator</string>
-    <string name="calc_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
     <string name="no_custom_yet">You have not made any yet.</string>
     <string name="calculator_count">%1$d built-in calculators, %2$d of your own, %3$d tools</string>
     <string name="limits_title">Limits</string>
@@ -380,31 +367,10 @@
     <string name="enable_ask_ai">Ask AI</string>
     <string name="enable_ask_ai_help">Off hides the assistant everywhere: its button in the bar, the magic button above the keypad, the voice and photo row, and its own screen. The calculators are untouched.</string>
     <string name="gradians_mode">Gradians</string>
-    <string name="angle_unit">Angle unit</string>
-    <string name="default_output">Default output</string>
-    <string name="output_fraction">Fraction</string>
-    <string name="output_decimal">Decimal</string>
-    <string name="auto_close_brackets">Complete brackets automatically</string>
-    <string name="auto_close_brackets_help">sin(30 is worked out as sin(30). Turn this off to be told a bracket is missing instead.</string>
-    <string name="ignore_trailing_operator">Ignore a trailing operator</string>
-    <string name="ignore_trailing_operator_help">3+4+ is treated as 3+4. Turn this off to be told the expression is unfinished.</string>
     <string name="classic_angle">angle unit</string>
     <string name="classic_caret_l">move the cursor left</string>
     <string name="classic_caret_r">move the cursor right</string>
     <string name="downloading_percent">Downloading… %1$d%%</string>
-    <string name="update_ready">Update to %1$s</string>
-    <string name="update_download_install">Download and install</string>
-    <string name="update_later">Later</string>
-    <string name="update_downloading_title">Downloading the update</string>
-    <string name="update_downloading_hint">The installer opens by itself when the file is complete.</string>
-    <string name="update_failed_title">The update did not finish</string>
-    <string name="update_failed_help">Your app is untouched and still on the version you had. You can try again from Settings.</string>
-    <string name="update_close">Close</string>
-    <string name="decimal_number_format">Decimal number format</string>
-    <string name="percentage_type">Percentage calculation type</string>
-    <string name="percentage_type_help">What a percent sign means after + or -. Multiplication and division are the same either way.</string>
-    <string name="implied_multiplication">Implied multiplication</string>
-    <string name="implied_multiplication_help">What a missing multiplication sign means, as in 2π or 3(4+5). This only matters when a division is nearby.</string>
     <string name="section_keyboard">Keyboard</string>
     <string name="section_display">Display</string>
     <string name="division_sign">Division sign</string>
@@ -417,11 +383,9 @@
     <string name="show_calc_info_help">A short note under the result saying how it was read, such as what a percentage was taken of.</string>
     <string name="section_tools">Tools</string>
     <string name="bit_width">Bit width</string>
-    <string name="bit_width_help">The width the programmer’s keys wrap at. At 32 bits NOT 0 is −1 and 0xFFFFFFFF + 1 is 0.</string>
     <string name="complex_format">Complex number format</string>
     <string name="interval_notation">Interval notation</string>
     <string name="frequency_column">Frequency column</string>
-    <string name="frequency_column_help">Show the n column beside the values in the statistical editor, so a value seen four times counts four times.</string>
     <string name="cas_mode">CAS mode</string>
     <string name="cas_mode_help">Computer algebra: symbolic simplification, limits and partial fractions. Off puts those tools away.</string>
     <string name="display_text_size">Display text size</string>

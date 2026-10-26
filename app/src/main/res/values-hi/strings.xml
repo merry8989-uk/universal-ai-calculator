@@ -23,8 +23,6 @@
     <string name="history_a11y">गणना का इतिहास</string>
     <string name="degrees_mode">अंश</string>
     <string name="radians_mode">रेडियन</string>
-    <string name="degrees_a11y">अंश मोड, रेडियन के लिए टैप करें</string>
-    <string name="radians_a11y">रेडियन मोड, अंश के लिए टैप करें</string>
     <string name="speak">बोलें</string>
     <string name="speak_a11y">गणना बोलें</string>
     <string name="photo">फ़ोटो</string>
@@ -35,8 +33,6 @@
     <string name="explain_with_ai_a11y">AI से समझाएँ</string>
     <string name="x_value_used">जहाँ भी x आए वहाँ यह मान लगेगा</string>
     <string name="x_equals">x =</string>
-    <string name="show_more_functions">और फ़ंक्शन दिखाएँ</string>
-    <string name="show_fewer_functions">कम फ़ंक्शन दिखाएँ</string>
     <string name="calc_a11y">गणना, %1$s</string>
     <string name="calc_empty">खाली</string>
     <string name="result_a11y">परिणाम %1$s</string>
@@ -72,7 +68,6 @@
     <string name="section_general">सामान्य</string>
     <string name="section_ai">AI सहायक</string>
     <string name="section_updates">अपडेट</string>
-    <string name="section_diagnostics">डायग्नोस्टिक्स</string>
     <string name="section_reset">रीसेट</string>
     <string name="section_feedback">फ़ीडबैक</string>
     <string name="settings_title">सेटिंग</string>
@@ -94,13 +89,9 @@
     <string name="keypad_layout">कीपैड लेआउट</string>
     <string name="theme_label">थीम</string>
     <string name="home_screen_widget">होम स्क्रीन विजेट</string>
-    <string name="home_screen_widget_help">होम स्क्रीन पर खाली जगह दबाकर रखें, विजेट चुनें, फिर Nexus Calc। जोड़ते समय आप ठोस, धुँधला या पूरी तरह पारदर्शी बैकग्राउंड चुन सकते हैं।</string>
     <string name="lang_system">सिस्टम</string>
     <string name="lang_en">English</string>
     <string name="lang_hi">हिन्दी</string>
-    <string name="metric">मीट्रिक</string>
-    <string name="imperial">इम्पीरियल</string>
-    <string name="auto">स्वतः</string>
     <!-- Overflow menu -->
     <string name="more_options">और विकल्प</string>
     <string name="menu_settings">सेटिंग</string>
@@ -142,8 +133,6 @@
     <string name="diag_crashes">दर्ज क्रैश: %1$d</string>
     <string name="diag_crashes_none">कोई क्रैश दर्ज नहीं हुआ।</string>
     <string name="diag_view_crashes">क्रैश रिपोर्ट देखें</string>
-    <string name="diag_logs_cleared">लॉग साफ़ हो गए</string>
-    <string name="diag_counters_reset">गणक रीसेट हो गए</string>
     <string name="diag_anr">ऐप प्रतिक्रिया नहीं दे रहा (ANR): %1$d</string>
     <string name="theme_cyberpunk">साइबरपंक नियॉन</string>
     <string name="theme_emerald">एमराल्ड मिंट</string>
@@ -155,7 +144,6 @@
     <string name="history_see_all">सब देखें</string>
     <string name="history_empty">अभी कुछ नहीं। आपकी गणनाएँ यहाँ दिखेंगी।</string>
     <string name="history_grabber_a11y">इतिहास टेप खोलने या बंद करने के लिए खींचें</string>
-    <string name="history_tape_a11y">इतिहास टेप</string>
     <string name="functions">फ़ंक्शन</string>
     <string name="functions_drawer_a11y">वैज्ञानिक फ़ंक्शन खोलें</string>
     <string name="key_decimal_point">दशमलव बिंदु</string>
@@ -222,7 +210,6 @@
     <string name="calc_preview">डिफ़ॉल्ट मानों के साथ झलक</string>
     <string name="calc_save">सहेजें</string>
     <string name="calc_delete">यह कैलकुलेटर हटाएँ</string>
-    <string name="calc_delete_confirm">"%1$s" हटाएँ? इसे वापस नहीं लाया जा सकता।</string>
     <string name="no_custom_yet">आपने अभी तक कोई नहीं बनाया।</string>
     <string name="calculator_count">%1$d बने-बनाए कैलकुलेटर, %2$d आपके अपने, %3$d औज़ार</string>
     <string name="limits_title">सीमाएँ</string>
@@ -380,31 +367,10 @@
     <string name="enable_ask_ai">Ask AI</string>
     <string name="enable_ask_ai_help">बंद करने पर असिस्टेंट हर जगह से छिप जाता है: बार का बटन, कीपैड के ऊपर का जादुई बटन, आवाज़ और फ़ोटो वाली पंक्ति, और उसकी अपनी स्क्रीन। कैलकुलेटर पर कोई फ़र्क़ नहीं पड़ता।</string>
     <string name="gradians_mode">ग्रेडियन</string>
-    <string name="angle_unit">कोण इकाई</string>
-    <string name="default_output">डिफ़ॉल्ट परिणाम</string>
-    <string name="output_fraction">भिन्न</string>
-    <string name="output_decimal">दशमलव</string>
-    <string name="auto_close_brackets">कोष्ठक अपने आप बंद करें</string>
-    <string name="auto_close_brackets_help">sin(30 को sin(30) मानकर हल किया जाता है। बंद करने पर कोष्ठक छूटने का संदेश आएगा।</string>
-    <string name="ignore_trailing_operator">अंत का चिह्न अनदेखा करें</string>
-    <string name="ignore_trailing_operator_help">3+4+ को 3+4 माना जाता है। बंद करने पर अधूरे व्यंजक का संदेश आएगा।</string>
     <string name="classic_angle">कोण इकाई</string>
     <string name="classic_caret_l">कर्सर बाएँ</string>
     <string name="classic_caret_r">कर्सर दाएँ</string>
     <string name="downloading_percent">डाउनलोड हो रहा है… %1$d%%</string>
-    <string name="update_ready">%1$s पर अपडेट करें</string>
-    <string name="update_download_install">डाउनलोड करके इंस्टॉल करें</string>
-    <string name="update_later">बाद में</string>
-    <string name="update_downloading_title">अपडेट डाउनलोड हो रहा है</string>
-    <string name="update_downloading_hint">फ़ाइल पूरी होते ही इंस्टॉलर अपने आप खुल जाएगा।</string>
-    <string name="update_failed_title">अपडेट पूरा नहीं हुआ</string>
-    <string name="update_failed_help">आपका ऐप सुरक्षित है और पहले वाले वर्शन पर ही है। सेटिंग्स से दोबारा कोशिश कर सकते हैं।</string>
-    <string name="update_close">बंद करें</string>
-    <string name="decimal_number_format">दशमलव संख्या प्रारूप</string>
-    <string name="percentage_type">प्रतिशत गणना का तरीका</string>
-    <string name="percentage_type_help">+ या − के बाद प्रतिशत चिह्न का क्या मतलब है। गुणा और भाग दोनों तरीकों में एक जैसे रहते हैं।</string>
-    <string name="implied_multiplication">छिपा हुआ गुणन</string>
-    <string name="implied_multiplication_help">जहाँ गुणा का चिह्न नहीं लिखा हो, जैसे 2π या 3(4+5), वहाँ उसका क्या मतलब है। यह तभी मायने रखता है जब पास में भाग हो।</string>
     <string name="section_keyboard">कीबोर्ड</string>
     <string name="section_display">डिस्प्ले</string>
     <string name="division_sign">भाग का चिह्न</string>
@@ -417,11 +383,9 @@
     <string name="show_calc_info_help">परिणाम के नीचे छोटी टिप्पणी कि उसे कैसे पढ़ा गया, जैसे प्रतिशत किसका लिया गया।</string>
     <string name="section_tools">औज़ार</string>
     <string name="bit_width">बिट चौड़ाई</string>
-    <string name="bit_width_help">प्रोग्रामर की कुंजियाँ इसी चौड़ाई पर लपेटती हैं। 32 बिट पर NOT 0 का मान −1 है और 0xFFFFFFFF + 1 का 0।</string>
     <string name="complex_format">सम्मिश्र संख्या प्रारूप</string>
     <string name="interval_notation">अंतराल संकेतन</string>
     <string name="frequency_column">आवृत्ति स्तंभ</string>
-    <string name="frequency_column_help">सांख्यिकी संपादक में मानों के बगल में n स्तंभ दिखाएँ, ताकि चार बार आया मान चार बार गिना जाए।</string>
     <string name="cas_mode">CAS मोड</string>
     <string name="cas_mode_help">कंप्यूटर बीजगणित: प्रतीकात्मक सरलीकरण, सीमाएँ और आंशिक भिन्न। बंद करने पर ये औज़ार हट जाते हैं।</string>
     <string name="display_text_size">डिस्प्ले अक्षर आकार</string>

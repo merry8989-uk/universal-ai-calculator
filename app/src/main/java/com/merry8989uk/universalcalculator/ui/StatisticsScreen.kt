@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Statistics
+import com.merry8989uk.universalcalculator.calc.WeightedStatistics
 
 @Composable
 fun StatisticsScreen(
@@ -33,11 +34,26 @@ fun StatisticsScreen(
     frequencyColumn: Boolean = false,
 ) {
     var data by remember { mutableStateOf("12, 15, 11, 18, 22, 15, 9, 25, 15, 30") }
+    // The frequency column: a value of 15 seen three times counts three times.
+    // This was a setting that reached the screen and was then ignored, so the
+    // switch did nothing at all.
+    var weights by remember { mutableStateOf("") }
     var xSeries by remember { mutableStateOf("1, 2, 3, 4, 5") }
     var ySeries by remember { mutableStateOf("2, 4, 5, 4, 5") }
 
     val values = Statistics.parse(data)
-    val summary = Statistics.summary(values)
+    val parsedWeights = if (frequencyColumn) Statistics.parse(weights) else emptyList()
+    val weighted = frequencyColumn && parsedWeights.size == values.size && parsedWeights.isNotEmpty()
+    val summary = if (weighted) {
+        // the weighted mean and spread replace the plain ones
+        val out = Statistics.summary(values).toMutableMap()
+        out["Count (weighted)"] = WeightedStatistics.count(values, parsedWeights)
+        out["Mean (weighted)"] = WeightedStatistics.mean(values, parsedWeights)
+        out["Variance (weighted)"] = WeightedStatistics.variance(values, parsedWeights)
+        LinkedHashMap(out)
+    } else {
+        Statistics.summary(values)
+    }
     val reg = Statistics.linearRegression(Statistics.parse(xSeries), Statistics.parse(ySeries))
 
     Column(
@@ -55,6 +71,24 @@ fun StatisticsScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth().height(110.dp).padding(top = 8.dp),
         )
+
+        if (frequencyColumn) {
+            OutlinedTextField(
+                value = weights,
+                onValueChange = { weights = it },
+                label = { Text("How often each value occurs (n)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+            if (weights.isNotBlank() && parsedWeights.size != values.size) {
+                Text(
+                    "The frequency column needs one number for each value: " +
+                        "${values.size} values, ${parsedWeights.size} frequencies.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
 
         Text("${values.size} values", style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp))

@@ -41,7 +41,6 @@ class SettingsRepository(private val context: Context) {
         val CAS_MODE = booleanPreferencesKey("cas_mode")
         val DIVISION_SIGN = stringPreferencesKey("division_sign")
         val MULTIPLICATION_SIGN = stringPreferencesKey("multiplication_sign")
-        val KEY_TEXT_SCALE = floatPreferencesKey("key_text_scale")
         val BLINK_CURSOR = booleanPreferencesKey("blink_cursor")
         val CLEAR_ON_EXIT = booleanPreferencesKey("clear_on_exit")
         val SHOW_CALC_INFO = booleanPreferencesKey("show_calc_info")
@@ -53,7 +52,6 @@ class SettingsRepository(private val context: Context) {
         val IGNORE_TRAILING = booleanPreferencesKey("ignore_trailing_operator")
         val NUMBER_FORMAT = stringPreferencesKey("number_format")
         val DECIMALS = intPreferencesKey("decimals")
-        val UNIT_SYSTEM = stringPreferencesKey("unit_system")
         val KEY_SOUND = stringPreferencesKey("key_sound")
         val HISTORY = booleanPreferencesKey("history_enabled")
         val HAPTICS = booleanPreferencesKey("haptics_enabled")
@@ -87,7 +85,6 @@ class SettingsRepository(private val context: Context) {
             casMode = p[Keys.CAS_MODE] ?: true,
             divisionSign = p[Keys.DIVISION_SIGN] ?: "\u00F7",
             multiplicationSign = p[Keys.MULTIPLICATION_SIGN] ?: "\u00D7",
-            keyTextScale = p[Keys.KEY_TEXT_SCALE] ?: 1f,
             blinkCursor = p[Keys.BLINK_CURSOR] ?: true,
             clearOnExit = p[Keys.CLEAR_ON_EXIT] ?: false,
             showCalcInfo = p[Keys.SHOW_CALC_INFO] ?: true,
@@ -99,7 +96,6 @@ class SettingsRepository(private val context: Context) {
             ignoreTrailingOperator = p[Keys.IGNORE_TRAILING] ?: true,
             numberFormat = p[Keys.NUMBER_FORMAT] ?: "Indian",
             decimals = p[Keys.DECIMALS] ?: -1,
-            unitSystem = p[Keys.UNIT_SYSTEM] ?: "Metric",
             keySound = p[Keys.KEY_SOUND] ?: "Off",
             historyEnabled = p[Keys.HISTORY] ?: true,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
@@ -148,7 +144,6 @@ class SettingsRepository(private val context: Context) {
         put("degrees", p[Keys.DEGREES])
         put("numberFormat", p[Keys.NUMBER_FORMAT])
         put("decimals", p[Keys.DECIMALS])
-        put("unitSystem", p[Keys.UNIT_SYSTEM])
         put("keySound", p[Keys.KEY_SOUND])
         put("history", p[Keys.HISTORY])
         put("haptics", p[Keys.HAPTICS])
@@ -170,7 +165,6 @@ class SettingsRepository(private val context: Context) {
         put("casMode", p[Keys.CAS_MODE])
         put("divisionSign", p[Keys.DIVISION_SIGN])
         put("multiplicationSign", p[Keys.MULTIPLICATION_SIGN])
-        put("keyTextScale", p[Keys.KEY_TEXT_SCALE])
         put("blinkCursor", p[Keys.BLINK_CURSOR])
         put("clearOnExit", p[Keys.CLEAR_ON_EXIT])
         put("showCalcInfo", p[Keys.SHOW_CALC_INFO])
@@ -203,7 +197,6 @@ class SettingsRepository(private val context: Context) {
             bool("degrees", Keys.DEGREES)
             str("numberFormat", Keys.NUMBER_FORMAT)
             num("decimals", Keys.DECIMALS)
-            str("unitSystem", Keys.UNIT_SYSTEM)
             str("keySound", Keys.KEY_SOUND)
             bool("history", Keys.HISTORY)
             bool("haptics", Keys.HAPTICS)
@@ -225,7 +218,6 @@ class SettingsRepository(private val context: Context) {
             bool("casMode", Keys.CAS_MODE)
             str("divisionSign", Keys.DIVISION_SIGN)
             str("multiplicationSign", Keys.MULTIPLICATION_SIGN)
-            flt("keyTextScale", Keys.KEY_TEXT_SCALE)
             bool("blinkCursor", Keys.BLINK_CURSOR)
             bool("clearOnExit", Keys.CLEAR_ON_EXIT)
             bool("showCalcInfo", Keys.SHOW_CALC_INFO)
@@ -263,9 +255,6 @@ class SettingsRepository(private val context: Context) {
     suspend fun setKeySound(value: String) =
         context.dataStore.edit { it[Keys.KEY_SOUND] = value }
 
-    suspend fun setUnitSystem(value: String) =
-        context.dataStore.edit { it[Keys.UNIT_SYSTEM] = value }
-
     suspend fun setHistoryEnabled(enabled: Boolean) =
         context.dataStore.edit { it[Keys.HISTORY] = enabled }
 
@@ -301,9 +290,6 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setMultiplicationSign(sign: String) =
         context.dataStore.edit { it[Keys.MULTIPLICATION_SIGN] = sign }
-
-    suspend fun setKeyTextScale(scale: Float) =
-        context.dataStore.edit { it[Keys.KEY_TEXT_SCALE] = scale.coerceIn(0.75f, 1.5f) }
 
     suspend fun setBlinkCursor(enabled: Boolean) =
         context.dataStore.edit { it[Keys.BLINK_CURSOR] = enabled }
