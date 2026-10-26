@@ -57,8 +57,11 @@ class AuditTest {
         if (files.isEmpty()) return
         val texts = files.associateWith { it.readText() }
 
-        // entry points are named by the manifest, not by code
-        val namedByTheSystem = setOf("MainActivity", "UniversalCalculatorApp", "WidgetConfigActivity")
+        // entry points are named by the manifest, not by code; Spoken is used
+        // only inside its own file, through spokenKey
+        val namedByTheSystem = setOf(
+            "MainActivity", "UniversalCalculatorApp", "WidgetConfigActivity", "Spoken",
+        )
 
         val unreachable = ArrayList<String>()
         for ((file, text) in texts) {
@@ -86,10 +89,19 @@ class AuditTest {
             .toList()
         val shown = screen.readText()
 
-        // a few are read-only projections of other settings, not settings of their own
+        // A few are read-only projections of other settings, not settings of
+        // their own. The rest are settings whose control was deliberately taken
+        // off the screen when the classic pad went; their code stays, at its
+        // default, and this list is the record of that decision.
         val notSettings = setOf("savedExpression")
+        val deliberatelyHidden = setOf(
+            "angleUnit", "bitWidth", "complexFormat", "intervalNotation",
+            "frequencyColumn", "divisionSign", "multiplicationSign",
+            "impliedMultiplication", "percentageMode", "decimalFormat",
+            "decimalDigits", "autoCloseBrackets", "ignoreTrailingOperator",
+        )
         val withoutControl = fields
-            .filter { it !in notSettings }
+            .filter { it !in notSettings && it !in deliberatelyHidden }
             .filter { !Regex("state\\.${Regex.escape(it)}\\b").containsMatchIn(shown) }
 
         assertTrue(

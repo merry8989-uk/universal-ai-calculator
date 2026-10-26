@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.Format
+import com.merry8989uk.universalcalculator.calc.AdvancedStatistics
 import com.merry8989uk.universalcalculator.calc.Statistics
 import com.merry8989uk.universalcalculator.calc.WeightedStatistics
 
@@ -40,6 +41,8 @@ fun StatisticsScreen(
     var weights by remember { mutableStateOf("") }
     var xSeries by remember { mutableStateOf("1, 2, 3, 4, 5") }
     var ySeries by remember { mutableStateOf("2, 4, 5, 4, 5") }
+    // A second predictor, so the fit can use more than one thing to explain y.
+    var x2Series by remember { mutableStateOf("") }
 
     val values = Statistics.parse(data)
     val parsedWeights = if (frequencyColumn) Statistics.parse(weights) else emptyList()
@@ -107,7 +110,7 @@ fun StatisticsScreen(
             }
         }
 
-        Text("Linear regression (y = a + bx)", style = MaterialTheme.typography.titleMedium,
+        Text("Regression (y = a + bx)", style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
@@ -118,6 +121,46 @@ fun StatisticsScreen(
                 value = ySeries, onValueChange = { ySeries = it }, label = { Text("y values") },
                 singleLine = true, modifier = Modifier.weight(1f),
             )
+        }
+        OutlinedTextField(
+            value = x2Series, onValueChange = { x2Series = it },
+            label = { Text("A second x, if there is one (leave blank for a straight line)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
+        // The fit itself goes through the tested routine, which handles one
+        // predictor or several and reports how much of y it explains.
+        run {
+            val xs = Statistics.parse(xSeries)
+            val ys = Statistics.parse(ySeries)
+            val x2 = Statistics.parse(x2Series)
+            val predictors = if (x2.size == xs.size && xs.isNotEmpty()) listOf(xs, x2) else listOf(xs)
+            val fit = if (xs.size == ys.size && xs.size >= predictors.size + 1) {
+                AdvancedStatistics.multipleRegression(predictors, ys)
+            } else null
+            if (fit != null) {
+                Text(
+                    "y = " + fit.coefficients.mapIndexed { i, c ->
+                        (if (i == 0) "" else if (c < 0) " \u2212 " else " + ") +
+                            Format.number(Math.abs(c)) + if (i == 0) "" else "x" + if (i > 1) i.toString() else ""
+                    }.joinToString(""),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                Text(
+                    "R\u00B2 = " + Format.number(fit.rSquared) +
+                        "   (${fit.observations} points, ${fit.predictors} predictor" +
+                        (if (fit.predictors == 1) "" else "s") + ")",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            } else if (xs.isNotEmpty() && ys.isNotEmpty()) {
+                Text(
+                    "The x and y lists need the same number of values, and more points than predictors.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
         StatLine("Slope (b)", reg[0])
         StatLine("Intercept (a)", reg[1])

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.CacheAge
 import com.merry8989uk.universalcalculator.calc.CurrencyRates
 import com.merry8989uk.universalcalculator.data.CurrencyCache
+import com.merry8989uk.universalcalculator.calc.CurrencyMath
 import com.merry8989uk.universalcalculator.calc.Format
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -118,15 +119,17 @@ fun CurrencyScreen(onBack: () -> Unit) {
         Text(status, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
 
         SHOWN.filter { it != base }.forEach { code ->
-            val rate = rates[code]
-            if (rate != null) {
+            // the conversion goes through the tested helper rather than being
+            // done inline here, so a wrong rate has one place to be wrong in
+            val converted = CurrencyMath.convert(amount, code, rates)
+            if (converted != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text("$code", style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        Format.number(amount * rate),
+                        Format.number(converted),
                         style = MaterialTheme.typography.titleMedium,
                         fontFamily = FontFamily.Monospace,
                     )
