@@ -42,7 +42,11 @@ object Format {
         if (v == 0.0) return "0"
         val a = abs(v)
         if (a >= 1e15 || a < 1e-9) {
-            return String.format("%.6e", v).replace("e+", "e").replace("E", "e")
+            // Locale.US, like every other format in this file: without it a
+            // German or French phone writes the decimal separator as a comma,
+            // and the result stops being a number the calculator can read back.
+            return String.format(java.util.Locale.US, "%.6e", v)
+                .replace("e+", "e").replace("E", "e")
         }
         val rounded = BigDecimal(v.toString()).round(MathContext(12)).stripTrailingZeros()
         return rounded.toPlainString()

@@ -67,7 +67,10 @@ object Statistics {
         val n = xs.size
         if (n < 3) return Double.NaN
         val m = mean(xs)
-        val s = sd(xs, sample = false)
+        // The n/((n-1)(n-2)) correction is the one that belongs with the SAMPLE
+        // standard deviation. Pairing it with the population SD inflated the
+        // answer by (n/(n-1))^1.5 — a flat set came out strongly skewed.
+        val s = sd(xs, sample = true)
         if (s == 0.0) return 0.0
         return xs.sumOf { ((it - m) / s).pow(3) } * n / ((n - 1.0) * (n - 2.0))
     }
@@ -76,7 +79,8 @@ object Statistics {
         val n = xs.size
         if (n < 4) return Double.NaN
         val m = mean(xs)
-        val s = sd(xs, sample = false)
+        // same pairing as skewness: the correction goes with the sample SD
+        val s = sd(xs, sample = true)
         if (s == 0.0) return 0.0
         return xs.sumOf { ((it - m) / s).pow(4) } * n * (n + 1.0) /
             ((n - 1.0) * (n - 2.0) * (n - 3.0)) -

@@ -75,18 +75,21 @@ object Distributions {
         return c * (1.0 + x * x / df).pow(-(df + 1.0) / 2.0)
     }
 
-    /** Student-t CDF, by Simpson integration of the density. */
+    /**
+     * Student-t CDF, in closed form.
+     *
+     * P(T <= t) = 1 - ½·I_x(df/2, ½) for t > 0, with x = df/(df + t²), and the
+     * mirror image below zero. The old version integrated the density from a
+     * hard-coded -80, which threw away the left tail entirely: for df = 1 that
+     * tail is about 0.004, so every answer was low by a constant and tInv then
+     * inverted the error into a critical value 19% too large.
+     */
     fun tCdf(t: Double, df: Double): Double {
         if (df <= 0) throw Evaluator.EvalException("Degrees of freedom must be positive")
-        val lo = -80.0
-        if (t <= lo) return 0.0
-        val n = 20000
-        val h = (t - lo) / n
-        var sum = tPdf(lo, df) + tPdf(t, df)
-        for (i in 1 until n) {
-            sum += (if (i % 2 == 0) 2.0 else 4.0) * tPdf(lo + i * h, df)
-        }
-        return (sum * h / 3.0).coerceIn(0.0, 1.0)
+        if (t == 0.0) return 0.5
+        val x = df / (df + t * t)
+        val half = 0.5 * betai(df / 2.0, 0.5, x)
+        return (if (t > 0) 1.0 - half else half).coerceIn(0.0, 1.0)
     }
 
     /** Inverse t CDF (critical value), by bisection. */
@@ -242,6 +245,19 @@ object Distributions {
         return if (x < a + 1.0) gser(a, x) else 1.0 - gcf(a, x)
     }
 
+    /**
+     * The upper tail of the incomplete gamma, Q(a,x).
+     *
+     * Computed from the continued fraction directly when x is large. Doing it as
+     * `1 - gammp` would subtract two numbers that agree to fifteen digits, and
+     * the answer would come out as exactly zero — which reads as "impossible"
+     * rather than "very unlikely".
+     */
+    fun gammq(a: Double, x: Double): Double {
+        if (a <= 0.0 || x < 0.0) throw Evaluator.EvalException("Bad arguments for the incomplete gamma")
+        return if (x < a + 1.0) 1.0 - gser(a, x) else gcf(a, x)
+    }
+
     private fun betacf(a: Double, b: Double, x: Double): Double {
         val fpmin = 1e-300
         val qab = a + b
@@ -298,9 +314,17 @@ object Distributions {
         return gammp(df / 2.0, x / 2.0).coerceIn(0.0, 1.0)
     }
 
-    /** P(X² > x) — the p-value for a chi-square statistic. */
-    fun chiSquareUpperTail(x: Double, df: Double): Double =
-        (1.0 - chiSquareCdf(x, df)).coerceIn(0.0, 1.0)
+    /**
+     * P(X² > x) — the p-value for a chi-square statistic.
+     *
+     * Straight from the upper incomplete gamma, not from `1 - CDF`: for a large
+     * statistic the subtraction cancels to exactly 0.0.
+     */
+    fun chiSquareUpperTail(x: Double, df: Double): Double {
+        if (df <= 0) throw Evaluator.EvalException("Degrees of freedom must be positive")
+        if (x <= 0) return 1.0
+        return gammq(df / 2.0, x / 2.0).coerceIn(0.0, 1.0)
+    }
 
     // ---------- F ----------
 
@@ -310,9 +334,17 @@ object Distributions {
         return betai(d1 / 2.0, d2 / 2.0, d1 * f / (d1 * f + d2)).coerceIn(0.0, 1.0)
     }
 
-    /** P(F > f) — the p-value for an F statistic. */
-    fun fUpperTail(f: Double, d1: Double, d2: Double): Double =
-        (1.0 - fCdf(f, d1, d2)).coerceIn(0.0, 1.0)
+    /**
+     * P(F > f) — the p-value for an F statistic.
+     *
+     * The incomplete beta with the arguments swapped gives the tail directly, so
+     * nothing is subtracted and a tiny p-value stays a tiny p-value.
+     */
+    fun fUpperTail(f: Double, d1: Double, d2: Double): Double {
+        if (d1 <= 0 || d2 <= 0) throw Evaluator.EvalException("Degrees of freedom must be positive")
+        if (f <= 0) return 1.0
+        return betai(d2 / 2.0, d1 / 2.0, d2 / (d2 + d1 * f)).coerceIn(0.0, 1.0)
+    }
 
     // ---------- tests ----------
 

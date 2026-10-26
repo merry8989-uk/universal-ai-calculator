@@ -44,6 +44,16 @@ import kotlin.math.tanh
  * `*` and `/` are the same either way: 200 * 10% = 20, and 50% = 0.5.
  * Use `mod(a, b)` for a remainder.
  */
+/**
+ * Rounds a half **away from zero**, which is what a calculator user means.
+ *
+ * `kotlin.math.round` is `Math.rint`, which rounds a half to the *even* number:
+ * round(2.5) is 2, and mround(2.5, 5) collapses to 0. That is right for `rint`
+ * and wrong for `round`, so the two keys had quietly become the same function.
+ */
+internal fun roundHalfAway(x: Double): Double =
+    if (x >= 0) floor(x + 0.5) else ceil(x - 0.5)
+
 object Evaluator {
 
     class EvalException(message: String) : Exception(message)
@@ -395,7 +405,7 @@ object Evaluator {
                 "abs" -> abs(one())
                 "floor" -> floor(one())
                 "ceil" -> ceil(one())
-                "round" -> round(one())
+                "round" -> roundHalfAway(one())
                 "trunc" -> {
                     val x = one()
                     if (x >= 0) floor(x) else ceil(x)
@@ -417,10 +427,15 @@ object Evaluator {
                 "mround" -> {
                     val (x, m) = two()
                     if (m == 0.0) throw EvalException("mround() needs a non-zero multiple")
-                    round(x / m) * m
+                    roundHalfAway(x / m) * m
                 }
-                "even" -> 2.0 * round(one() / 2.0)
-                "odd" -> 2.0 * round((one() - 1.0) / 2.0) + 1.0
+                // EVEN and ODD round away from zero to the next even or odd
+                // number, which is what every desk calculator does: even(1) is 2,
+                // odd(2) is 3, odd(0) is 1.
+                "even" -> if (one() == 0.0) 0.0 else
+                    (if (one() > 0) 1.0 else -1.0) * 2.0 * ceil(abs(one()) / 2.0)
+                "odd" -> (if (one() < 0) -1.0 else 1.0) *
+                    (2.0 * ceil((abs(one()) + 1.0) / 2.0) - 1.0)
 
                 // ---- number theory ----
                 "fact" -> factorial(one())
