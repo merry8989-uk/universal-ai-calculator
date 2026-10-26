@@ -47,7 +47,9 @@ class BugFixesTest {
         assertEquals(5.0, Evaluator.evaluate("mround(2.5,5)"), 1e-12)
         assertEquals(1.0, Evaluator.evaluate("mround(0.5,1)"), 1e-12)
         assertEquals(-5.0, Evaluator.evaluate("mround(-2.5,5)"), 1e-12)
-        assertEquals(10.0, Evaluator.evaluate("mround(7,5)"), 1e-12)
+        // 7 is nearer to 5 than to 10, so 5 is the right multiple
+        assertEquals(5.0, Evaluator.evaluate("mround(7,5)"), 1e-12)
+        assertEquals(10.0, Evaluator.evaluate("mround(8,5)"), 1e-12)
     }
 
     @Test fun evenRoundsAwayFromZero() {
