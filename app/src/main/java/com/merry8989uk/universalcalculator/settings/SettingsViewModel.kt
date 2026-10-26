@@ -3,7 +3,6 @@ package com.merry8989uk.universalcalculator.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,8 +22,14 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     val state: StateFlow<SettingsState> = repo.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsState())
 
-    /** The expression that was on screen when the app was last closed. */
-    val savedExpression: Flow<String> = repo.savedExpression
+    /**
+     * The expression that was on screen when the app was last closed.
+     *
+     * A StateFlow rather than a bare Flow, so a screen can read it without
+     * having to invent a starting value of its own.
+     */
+    val savedExpression: StateFlow<String> = repo.savedExpression
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
     /** Puts every setting back to its default. */
     fun reset() = viewModelScope.launch { repo.reset() }
