@@ -21,7 +21,29 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 ITERATIONS = 120_000
 SALT_BYTES = 16
 IV_BYTES = 12
-SLOT_PREFIX = "nexuscalc-sync-v1|"
+VERIFIER_PREFIX = "nexuscalc-verifier-v1|"
+
+
+def derive(password: str, salt: bytes) -> bytes:
+    """The AES key, exactly as SyncCrypto derives it on the phone."""
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, ITERATIONS, 32)
+
+
+def encrypt(plain: str, password: str) -> str:
+    """base64( salt | iv | ciphertext-with-tag )."""
+    salt = os.urandom(SALT_BYTES)
+    iv = os.urandom(IV_BYTES)
+    body = AESGCM(derive(password, salt)).encrypt(iv, plain.encode(), None)
+    return base64.b64encode(salt + iv + body).decode()
+
+
+def decrypt(packed: str, password: str) -> str:
+    """Raises when the password is wrong or the blob is damaged."""
+    raw = base64.b64decode(packed)
+    salt = raw[:SALT_BYTES]
+    iv = raw[SALT_BYTES:SALT_BYTES + IV_BYTES]
+    body = raw[SALT_BYTES + IV_BYTES:]
+    return AESGCM(derive(password, salt)).decrypt(iv, body, None).decode()
 
 
 def verifier_for(account_id: str, password: str) -> str:
@@ -30,7 +52,7 @@ def verifier_for(account_id: str, password: str) -> str:
     PBKDF2 over the password, salted with the id — the same construction the app
     uses in Account.kt, so this checks the real thing rather than a stand-in.
     """
-    salt = hashlib.sha256(("nexuscalc-verifier-v1|" + account_id).encode()).digest()
+    salt = hashlib.sha256((VERIFIER_PREFIX + account_id).encode()).digest()
     return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 120_000, 32).hex()
 
 
