@@ -14,6 +14,7 @@ import json
 import os
 import sys
 import urllib.request
+from urllib.error import HTTPError
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
@@ -78,7 +79,15 @@ def main() -> int:
     # The slot is derived from the code, so in principle whoever knows the code
     # knows the slot. A write therefore has to name the version it replaces, and
     # the first write says "I expect nothing there".
-    stored = post(url, {"sync": "put", "slot": slot, "blob": blob, "version": 0})
+    # A leftover from an earlier run may still be here. Reading it first and
+    # writing with its version is exactly what the app does, so the check does
+    # the same rather than assuming an empty slot.
+    existing = post(url, {"sync": "get", "slot": slot})
+    known = existing.get("version", 0) if existing.get("found") else 0
+    if known:
+        print(f"a leftover backup is here at version {known}; replacing it")
+
+    stored = post(url, {"sync": "put", "slot": slot, "blob": blob, "version": known})
     print("put  :", stored)
     if not stored.get("stored"):
         print("FAIL: the Worker did not store the blob")
@@ -91,7 +100,9 @@ def main() -> int:
         post(url, {"sync": "put", "slot": slot, "blob": blob})
         print("FAIL: an unversioned overwrite was accepted")
         return 1
-    except Exception:
+    except HTTPError as e:
+        if e.code != 409:
+            raise
         print("unversioned overwrite refused, as it should be")
 
     # And a write naming the wrong version must be refused too.
@@ -99,7 +110,9 @@ def main() -> int:
         post(url, {"sync": "put", "slot": slot, "blob": blob, "version": version + 99})
         print("FAIL: a stale version was accepted")
         return 1
-    except Exception:
+    except HTTPError as e:
+        if e.code != 409:
+            raise
         print("stale version refused, as it should be")
 
     fetched = post(url, {"sync": "get", "slot": slot})
@@ -130,7 +143,9 @@ def main() -> int:
         post(url, {"sync": "delete", "slot": slot})
         print("FAIL: an unconfirmed delete was accepted")
         return 1
-    except Exception:
+    except HTTPError as e:
+        if e.code != 400:
+            raise
         print("unconfirmed delete refused, as it should be")
 
     # clean up after ourselves
