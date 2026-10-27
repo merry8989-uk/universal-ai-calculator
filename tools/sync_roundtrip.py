@@ -46,6 +46,19 @@ def decrypt(packed: str, password: str) -> str:
     return AESGCM(derive(password, salt)).decrypt(iv, body, None).decode()
 
 
+def post(url: str, payload: dict) -> dict:
+    """Sends one JSON request. Raises HTTPError so the caller can read the code."""
+    body = json.dumps(payload).encode()
+    request = urllib.request.Request(
+        url,
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return json.loads(response.read().decode())
+
+
 def verifier_for(account_id: str, password: str) -> str:
     """What the server stores instead of the password.
 
