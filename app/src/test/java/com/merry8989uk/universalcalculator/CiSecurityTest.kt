@@ -71,6 +71,8 @@ class CiSecurityTest {
         assertTrue("Compose majors are not held back", "androidx.compose*" in text)
         assertTrue("Kotlin majors are not held back", "org.jetbrains.kotlin*" in text)
         assertTrue("AGP majors are not held back", "com.android.application" in text)
+        // netty, protobuf and commons-io come in under AGP, which pins them
+        assertTrue("the toolchain's own libraries are offered for update", "io.netty*" in text)
         assertTrue(
             "minor updates are not grouped, so they arrive as a pile of pull requests",
             "groups:" in text,

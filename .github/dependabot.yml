@@ -42,6 +42,14 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "androidx.core:core-ktx"
         update-types: ["version-update:semver-major"]
+      # These are not this project's dependencies — they arrive underneath the
+      # Android Gradle Plugin, which pins its own versions of them. Dependabot
+      # offered a grouped bump of netty, protobuf and commons-io and the build
+      # failed, which is what happens when you pull a library out from under the
+      # toolchain that chose it.
+      - dependency-name: "io.netty*"
+      - dependency-name: "com.google.protobuf*"
+      - dependency-name: "commons-io*"
 
   # The Worker has no npm dependencies at all — it is one JavaScript file with no
   # package.json, deployed by wrangler — so there is nothing here to watch. An
