@@ -93,6 +93,18 @@ fun SettingsScreen(
     // The archive is opened from here, so it sits with the other settings
     // rather than among the formulas.
     var showArchive by remember { mutableStateOf(false) }
+    // The account screen, and who is signed in — re-read whenever it closes.
+    var showAccount by remember { mutableStateOf(false) }
+    var signedInId by remember { mutableStateOf("") }
+    LaunchedEffect(showAccount) {
+        signedInId = com.merry8989uk.universalcalculator.sync.AccountStore.id(context)
+    }
+    if (showAccount) {
+        com.merry8989uk.universalcalculator.sync.AccountScreen(
+            onBack = { showAccount = false },
+        )
+        return
+    }
 
     if (showArchive) {
         ArchiveScreen(onBack = { showArchive = false })
@@ -372,8 +384,32 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Section(stringResource(R.string.sync_title))
-            com.merry8989uk.universalcalculator.sync.SyncSection()
+            // ---- the account ----
+            Section("Your account")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { showAccount = true }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        if (signedInId.isBlank()) "Not signed in" else "@" + signedInId,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        if (signedInId.isBlank()) {
+                            "Your calculations stay on this phone. Sign in to keep a copy you can get back."
+                        } else {
+                            "Back up, restore, or sign out on this phone."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Text("\u203A", style = MaterialTheme.typography.titleLarge)
+            }
 
             Section(stringResource(R.string.section_updates))
 

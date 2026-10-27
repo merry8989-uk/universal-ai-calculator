@@ -1,6 +1,5 @@
 package com.merry8989uk.universalcalculator.sync
 
-import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 import javax.crypto.Cipher
@@ -31,18 +30,9 @@ object SyncCrypto {
     private const val SALT_BYTES = 16
     private const val IV_BYTES = 12
     private const val TAG_BITS = 128
-    private const val SLOT_PREFIX = "nexuscalc-sync-v1|"
 
     /** A fresh random salt. */
     fun newSalt(): ByteArray = ByteArray(SALT_BYTES).also { SecureRandom().nextBytes(it) }
-
-    /** The id the blob is stored under. One-way: the code cannot be recovered. */
-    fun slotId(code: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        digest.update(SLOT_PREFIX.toByteArray(Charsets.UTF_8))
-        digest.update(code.toByteArray(Charsets.UTF_8))
-        return digest.digest().joinToString("") { "%02x".format(it) }
-    }
 
     /** base64( salt | iv | ciphertext-with-tag ). */
     fun encrypt(plain: String, code: String, salt: ByteArray = newSalt()): String {

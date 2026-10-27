@@ -132,6 +132,65 @@ async function underRateLimit(env, caller) {
   }
 }
 
+/**
+ * What a user id may look like.
+ *
+ * Deliberately narrow: lower-case letters, digits, dot, dash and underscore,
+ * three to twenty-four characters. A name that is easy to type on a phone and
+ * impossible to confuse with another one.
+ */
+const ID_PATTERN = /^[a-z0-9._-]{3,24}$/;
+
+/** A user id, folded to the form the server stores. */
+function normaliseId(raw) {
+  return (typeof raw === "string" ? raw : "").trim().toLowerCase();
+}
+
+/** The key the encrypted blob lives under. Derived here, never sent by a client. */
+async function slotFor(id) {
+  const bytes = new TextEncoder().encode("nexuscalc-account-v1|" + id);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Where an account's password verifier is kept. */
+function verifierKey(id) {
+  return `acct:${id}`;
+}
+
+/**
+ * Checks that this caller really is the account holder.
+ *
+ * The verifier is PBKDF2 over the password with a salt derived from the id, so
+ * the server holds something it can compare but cannot turn back into the
+ * password. The data itself is encrypted with a *different* key that never
+ * leaves the device, so even a copy of this table would not open a single
+ * calculation.
+ *
+ * Returns null when the caller is fine, or a Response when it is not.
+ */
+async function checkAccount(env, id, verifier) {
+  if (!env.NEXUS_SYNC) {
+    return json({ error: "Accounts are not configured on this deployment." }, 501);
+  }
+  if (!ID_PATTERN.test(id)) {
+    return json({ error: "That is not a valid id." }, 400);
+  }
+  const stored = await env.NEXUS_SYNC.get(verifierKey(id));
+  if (stored === null) {
+    return json({ error: "No account with that id.", noAccount: true }, 404);
+  }
+  if (typeof verifier !== "string" || verifier.length < 32) {
+    return json({ error: "A password is needed." }, 400);
+  }
+  if (stored !== verifier) {
+    return json({ error: "That password does not match this id.", wrongPassword: true }, 401);
+  }
+  return null;
+}
+
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
@@ -275,6 +334,52 @@ export default {
       // --- ping: answer at once, so the app can measure a true round trip ---
       if (body?.ping) return json({ pong: true, at: Date.now() });
 
+      // --- account mode: create an id, or prove you own one ---
+      const account = typeof body?.account === "string" ? body.account : "";
+      if (account) {
+        if (!env.NEXUS_SYNC) {
+          return json({ error: "Accounts are not configured on this deployment." }, 501);
+        }
+        const id = normaliseId(body?.id);
+        if (!ID_PATTERN.test(id)) {
+          return json(
+            {
+              error:
+                "An id is 3 to 24 characters: lower-case letters, numbers, dots, dashes or underscores.",
+            },
+            400,
+          );
+        }
+        const verifier = typeof body?.verifier === "string" ? body.verifier : "";
+        if (verifier.length < 32) {
+          return json({ error: "A password is needed." }, 400);
+        }
+
+        if (account === "exists") {
+          const taken = (await env.NEXUS_SYNC.get(verifierKey(id))) !== null;
+          return json({ exists: taken, id });
+        }
+
+        if (account === "signup") {
+          const taken = (await env.NEXUS_SYNC.get(verifierKey(id))) !== null;
+          if (taken) {
+            return json({ error: "That id is already taken.", taken: true }, 409);
+          }
+          await env.NEXUS_SYNC.put(verifierKey(id), verifier);
+          return json({ created: true, id, at: Date.now() }, 201);
+        }
+
+        if (account === "login") {
+          const refusal = await checkAccount(env, id, verifier);
+          if (refusal) return refusal;
+          const slot = await slotFor(id);
+          const hasData = (await env.NEXUS_SYNC.get(`slot:${slot}`)) !== null;
+          return json({ ok: true, id, hasData, at: Date.now() });
+        }
+
+        return json({ error: "Unknown account action." }, 400);
+      }
+
       // --- sync mode: store or fetch an encrypted blob ---
       // The blob is already encrypted on the device, so the Worker only ever
       // holds unreadable bytes under an opaque slot id.
@@ -286,11 +391,13 @@ export default {
             501,
           );
         }
-        const slot = typeof body?.slot === "string" ? body.slot : "";
-        // the slot is a SHA-256 in hex; anything else is not ours
-        if (!/^[a-f0-9]{64}$/.test(slot)) {
-          return json({ error: "Bad slot id." }, 400);
-        }
+        // The slot is derived from the account id here, not sent by the client,
+        // so knowing a slot is the same thing as knowing an id — and an id alone
+        // is not enough to read or destroy anything.
+        const id = normaliseId(body?.id);
+        const refusal = await checkAccount(env, id, body?.verifier);
+        if (refusal) return refusal;
+        const slot = await slotFor(id);
 
         // Every stored blob carries a version. A write must say which version it
         // is replacing, so a stale device cannot quietly undo a newer backup,

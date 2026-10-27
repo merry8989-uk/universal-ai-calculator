@@ -63,24 +63,23 @@ class SyncCryptoTest {
         assertEquals("payload", SyncCrypto.decrypt(packed, code))
     }
 
-    @Test fun theSlotIdIsStableAndHex() {
-        val id = SyncCrypto.slotId(code)
-        assertEquals(id, SyncCrypto.slotId(code))
-        assertEquals(64, id.length)
-        assertTrue("expected hex, got $id", id.all { it in "0123456789abcdef" })
+    // The slot is no longer derived on the device — the server works it out from
+    // the account id, so that a client cannot ask for an arbitrary slot. What
+    // stays here is that the encryption itself does not depend on any of that.
+
+    @Test fun twoAccountsWithTheSamePasswordGetDifferentKeys() {
+        val a = SyncCrypto.encrypt("payload", Account.encryptionPassphrase("amit", "same-password"))
+        val b = SyncCrypto.encrypt("payload", Account.encryptionPassphrase("ravi", "same-password"))
+        assertNotEquals(a, b)
     }
 
-    @Test fun differentCodesGetDifferentSlots() {
-        assertNotEquals(SyncCrypto.slotId("code one"), SyncCrypto.slotId("code two"))
-    }
-
-    @Test fun theSlotIdDoesNotGiveTheCodeAway() {
-        val id = SyncCrypto.slotId(code)
-        assertFalse(id.contains("horse"))
-        assertNotEquals(code, id)
-    }
-
-    @Test fun aTinyChangeOfCodeChangesTheSlot() {
-        assertNotEquals(SyncCrypto.slotId("abcdefghijkl"), SyncCrypto.slotId("abcdefghijkm"))
+    @Test fun oneAccountsBackupCannotBeOpenedWithAnothersPassword() {
+        val packed = SyncCrypto.encrypt("payload", Account.encryptionPassphrase("amit", "correct-horse"))
+        assertNull(
+            SyncCrypto.decrypt(packed, Account.encryptionPassphrase("amit", "wrong-horse")),
+        )
+        assertNull(
+            SyncCrypto.decrypt(packed, Account.encryptionPassphrase("ravi", "correct-horse")),
+        )
     }
 }

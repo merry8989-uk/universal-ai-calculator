@@ -25,7 +25,7 @@ class SecurityAuditTest {
         file("app/src/main/java/com/merry8989uk/universalcalculator/sync/SyncClient.kt").orEmpty()
     }
     private val syncService: String by lazy {
-        file("app/src/main/java/com/merry8989uk/universalcalculator/sync/SyncService.kt").orEmpty()
+        file("app/src/main/java/com/merry8989uk/universalcalculator/sync/AccountService.kt").orEmpty()
     }
 
     // ---- 1. the public endpoint has limits ----

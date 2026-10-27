@@ -10,10 +10,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Talks to the sync endpoints on the app's own Worker.
+ * Talks to the account and sync endpoints on the app's own Worker.
  *
- * Only an opaque slot id and an already-encrypted blob cross the wire, so the
- * server cannot read anything and cannot work out the sync code.
+ * Two things cross the wire: an id with the verifier that proves it, and a blob
+ * that is already encrypted on this device. The server cannot read a single
+ * calculation and cannot work out the password.
  */
 object SyncClient {
 
@@ -21,12 +22,24 @@ object SyncClient {
 
     sealed interface Result {
         /** [version] is what the server holds now; it must be sent back on the next write. */
-        data class Ok(val blob: String?, val version: Int = 0) : Result
-        data class Failed(val message: String) : Result
+        data class Ok(val blob: String? = null, val version: Int = 0) : Result
+        data class Failed(val message: String, val code: Int = 0) : Result
     }
 
-    /** Returns the blob, or null when nothing has been stored for this code yet. */
-    suspend fun download(slot: String): Result = call(JSONObject().put("sync", "get").put("slot", slot))
+    /** Whether an id is still free. */
+    suspend fun idTaken(id: String): Result =
+        call(JSONObject().put("account", "exists").put("id", id))
+
+    /** Creates the account. A 409 means somebody already has that id. */
+    suspend fun signUp(id: String, verifier: String): Result =
+        call(JSONObject().put("account", "signup").put("id", id).put("verifier", verifier))
+
+    /** Proves the id and password. A 401 means the password is wrong. */
+    suspend fun logIn(id: String, verifier: String): Result =
+        call(JSONObject().put("account", "login").put("id", id).put("verifier", verifier))
+
+    suspend fun download(id: String, verifier: String): Result =
+        call(JSONObject().put("sync", "get").put("id", id).put("verifier", verifier))
 
     /**
      * Writes the blob, naming the version it replaces.
@@ -35,15 +48,18 @@ object SyncClient {
      * the write when that is wrong, so a second device cannot be overwritten in
      * silence — it has to read first.
      */
-    suspend fun upload(slot: String, blob: String, version: Int): Result =
+    suspend fun upload(id: String, verifier: String, blob: String, version: Int): Result =
         call(
-            JSONObject().put("sync", "put").put("slot", slot).put("blob", blob)
-                .put("version", version),
+            JSONObject().put("sync", "put").put("id", id).put("verifier", verifier)
+                .put("blob", blob).put("version", version),
         )
 
     /** Deleting is confirmed explicitly, because it is the one action with no undo. */
-    suspend fun delete(slot: String): Result =
-        call(JSONObject().put("sync", "delete").put("slot", slot).put("confirm", true))
+    suspend fun delete(id: String, verifier: String): Result =
+        call(
+            JSONObject().put("sync", "delete").put("id", id).put("verifier", verifier)
+                .put("confirm", true),
+        )
 
     private suspend fun call(payload: JSONObject): Result =
         withContext(Dispatchers.IO) {
@@ -65,11 +81,13 @@ object SyncClient {
 
                 when {
                     code == 501 -> Result.Failed(
-                        "Sync is not switched on for this app yet. The assistant still works.",
+                        "Accounts are not switched on for this app yet.",
+                        code,
                     )
                     code !in 200..299 -> Result.Failed(
                         json?.optString("error")?.takeIf { it.isNotBlank() }
                             ?: "The server said no (HTTP $code).",
+                        code,
                     )
                     else -> Result.Ok(
                         json?.optString("blob")?.takeIf { it.isNotBlank() },
