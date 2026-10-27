@@ -1,0 +1,44 @@
+# Keeps the things this app is built from up to date.
+#
+# A calculator is mostly arithmetic, so the risk is not in the maths — it is in
+# the libraries underneath, and in the Actions that build the APK. Dependabot
+# opens a pull request when something has a newer version, and the security
+# alerts show which of those newer versions fix a known vulnerability.
+version: 2
+
+updates:
+  # the Android app and the shared engine
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+    labels:
+      - "dependencies"
+
+  # the Cloudflare Worker backend
+  - package-ecosystem: "npm"
+    directory: "/backend/cloudflare"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps"
+    labels:
+      - "dependencies"
+
+  # the Actions that build and release the app
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"

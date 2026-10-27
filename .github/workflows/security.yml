@@ -1,0 +1,79 @@
+name: Security
+
+# Three separate jobs, because they catch three different things:
+#
+#   secrets      — a key that was committed by accident
+#   dependencies — a pull request that adds a library with a known hole
+#   dependency graph — the inventory Dependabot needs to raise alerts at all
+#
+# None of them needs a paid plan, and none of them needs a token beyond the one
+# GitHub already provides.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # a weekly sweep, so a newly-disclosed hole is caught even with no commits
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Look for committed secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          # the whole history, because a secret removed in a later commit is
+          # still a leaked secret
+          fetch-depth: 0
+
+      - name: Scan the history for keys and tokens
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependencies:
+    name: Review the dependencies a pull request adds
+    # only meaningful on a pull request, where there is a change to compare
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Compare against the base branch
+        uses: actions/dependency-review-action@v4
+        with:
+          # a library with a high or critical hole fails the pull request
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  graph:
+    name: Submit the dependency graph
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Without this, Dependabot has no inventory of what the app actually
+      # depends on, and its security alerts stay silent.
+      - name: Send the dependency graph to GitHub
+        uses: gradle/actions/dependency-submission@v4
