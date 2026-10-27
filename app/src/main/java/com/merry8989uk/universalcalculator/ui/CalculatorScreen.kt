@@ -814,8 +814,17 @@ when (key) {
         return
     }
 
+    // The side drawer is the assistant's, so it exists only while the assistant
+    // does. With Ask AI off, or in minimal mode, there is nothing to pull open —
+    // a swipe from the left edge used to bring the explainer up regardless.
+    LaunchedEffect(aiVisible) {
+        // switching the assistant off closes the explainer if it was open
+        if (!aiVisible) drawerState.close()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = aiVisible,
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxHeight().width(320.dp)) {
                 Column(
