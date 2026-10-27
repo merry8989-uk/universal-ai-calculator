@@ -55,8 +55,14 @@ def post(url: str, payload: dict) -> dict:
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=60) as response:
-        return json.loads(response.read().decode())
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            return json.loads(response.read().decode())
+    except HTTPError as e:
+        # show what the server actually said — a bare 403 tells nobody anything
+        detail = e.read().decode(errors="replace")[:500]
+        print(f"  server said {e.code}: {detail}")
+        raise
 
 
 def verifier_for(account_id: str, password: str) -> str:
