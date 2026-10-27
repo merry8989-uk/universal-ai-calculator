@@ -19,17 +19,10 @@ updates:
     labels:
       - "dependencies"
 
-  # the Cloudflare Worker backend
-  - package-ecosystem: "npm"
-    directory: "/backend/cloudflare"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 3
-    commit-message:
-      prefix: "deps"
-    labels:
-      - "dependencies"
+  # The Worker has no npm dependencies at all — it is one JavaScript file with no
+  # package.json, deployed by wrangler — so there is nothing here to watch. An
+  # npm entry for that folder was added first and Dependabot failed on it, which
+  # is the correct response to being pointed at a directory with no manifest.
 
   # the Actions that build and release the app
   - package-ecosystem: "github-actions"

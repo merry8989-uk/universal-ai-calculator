@@ -43,8 +43,15 @@ class CiSecurityTest {
     @Test fun dependabotWatchesEveryEcosystemThatExists() {
         val text = read(".github/dependabot.yml") ?: return
         assertTrue("the gradle build is not watched", "package-ecosystem: \"gradle\"" in text)
-        assertTrue("the worker's npm packages are not watched", "package-ecosystem: \"npm\"" in text)
         assertTrue("the actions themselves are not watched", "package-ecosystem: \"github-actions\"" in text)
+
+        // npm is deliberately absent: the Worker is one JavaScript file with no
+        // package.json, so pointing Dependabot at it just fails. If a manifest
+        // ever appears there, this catches the missing entry.
+        val hasManifest = base?.let { File(it, "backend/cloudflare/package.json").exists() } ?: false
+        if (hasManifest) {
+            assertTrue("the worker now has a package.json but is not watched", "\"npm\"" in text)
+        }
     }
 
     @Test fun aHighSeverityDependencyFailsThePullRequest() {
