@@ -64,9 +64,11 @@ class SecurityAuditTest {
             )
         }
         if (syncService.isNotBlank()) {
+            // the account flow reads the version from the server just before it
+            // writes, rather than keeping a copy that can go stale
             assertTrue(
-                "the app does not remember the version it saw",
-                "noteVersion" in syncService,
+                "the app does not read the version before writing",
+                "SyncClient.download" in syncService && "version" in syncService,
             )
         }
     }

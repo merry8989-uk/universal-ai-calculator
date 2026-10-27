@@ -231,18 +231,6 @@
     <string name="limits_diverge_pos">सीमा एक संख्या के रूप में मौजूद नहीं है: यह +\u221E की ओर भागती है।</string>
     <string name="limits_diverge_neg">सीमा एक संख्या के रूप में मौजूद नहीं है: यह \u2212\u221E की ओर भागती है।</string>
     <string name="limits_equals">= </string>
-    <string name="sync_title">सिंक</string>
-    <string name="sync_help">अपने बनाए कैलकुलेटर और सेटिंग दूसरे डिवाइस पर ले जाएँ। सब कुछ इसी डिवाइस पर आपके चुने कोड से एन्क्रिप्ट होता है, और वह कोड सिर्फ़ आप जानते हैं — सर्वर केवल अपठनीय डेटा रखता है, कोड कभी नहीं देखता।</string>
-    <string name="sync_code">सिंक कोड</string>
-    <string name="sync_code_help">कम से कम %1$d अक्षर। हर डिवाइस पर वही कोड डालें। हम इसे आपके लिए वापस नहीं ला सकते।</string>
-    <string name="sync_code_saved">सिंक कोड इस डिवाइस पर सहेजा गया।</string>
-    <string name="sync_include_history">गणना इतिहास भी भेजें</string>
-    <string name="sync_save_code">कोड सहेजें</string>
-    <string name="sync_upload">अभी अपलोड करें</string>
-    <string name="sync_restore">अभी बहाल करें</string>
-    <string name="sync_last_uploaded">पिछला अपलोड %1$s</string>
-    <string name="sync_warning">कोड संभाल कर रखें। इसके बिना सहेजी गई प्रति कभी नहीं पढ़ी जा सकेगी — कोई रीसेट नहीं है।</string>
-    <string name="sync_delete">सहेजी गई प्रति हटाएँ</string>
     <string name="key_csc">कोसेकेंट</string>
     <string name="key_sec">सेकेंट</string>
     <string name="key_cot">कोटैंजेंट</string>
