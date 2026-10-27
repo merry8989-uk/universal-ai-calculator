@@ -32,10 +32,14 @@ object SyncService {
 
         val blob = SyncCrypto.encrypt(SyncPayloadCodec.encode(payload), code)
         SyncClient.count(context, "upload")
-        return when (val result = SyncClient.upload(SyncCrypto.slotId(code), blob)) {
+        // The version this device last saw goes with the write. If another device
+        // has written since, the server says so instead of losing that backup.
+        val known = SyncStore.version(context)
+        return when (val result = SyncClient.upload(SyncCrypto.slotId(code), blob, known)) {
             is SyncClient.Result.Failed -> Outcome.Failed(result.message)
             is SyncClient.Result.Ok -> {
                 SyncStore.noteUpload(context, System.currentTimeMillis())
+                SyncStore.noteVersion(context, result.version)
                 Outcome.Ok("Uploaded ${payload.summary()}.")
             }
         }
@@ -49,10 +53,15 @@ object SyncService {
         }
 
         SyncClient.count(context, "restore")
+        var fetchedVersion = 0
         val fetched = when (val result = SyncClient.download(SyncCrypto.slotId(code))) {
             is SyncClient.Result.Failed -> return Outcome.Failed(result.message)
-            is SyncClient.Result.Ok -> result.blob
-                ?: return Outcome.Failed("Nothing is stored for that code yet.")
+            is SyncClient.Result.Ok -> {
+                // remembering the version is what makes the next write safe
+                fetchedVersion = result.version
+                SyncStore.noteVersion(context, result.version)
+                result.blob ?: return Outcome.Failed("Nothing is stored for that code yet.")
+            }
         }
 
         // A wrong code fails the authentication tag rather than decrypting to rubbish.

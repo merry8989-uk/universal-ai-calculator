@@ -82,6 +82,56 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+/**
+ * The most a single request may send, in bytes.
+ *
+ * The biggest legitimate payload is an audio clip, which the app already caps at
+ * forty million characters of base64; this sits above that and still well under
+ * anything that would trouble the runtime.
+ */
+const MAX_BODY_BYTES = 48_000_000;
+
+/** How many requests one caller may make in a minute. */
+const RATE_LIMIT = 40;
+const RATE_WINDOW_SECONDS = 60;
+
+/** The longest `context` the app may attach to a question. */
+const MAX_CONTEXT_CHARS = 2000;
+
+/**
+ * Whether this caller is still inside the allowance.
+ *
+ * Cloudflare's own rate-limiting binding is used when the deployment has one.
+ * Otherwise a counter is kept in the sync KV namespace, which every deployment
+ * of this Worker already has. If neither is available the request is allowed —
+ * a calculator that refuses to work because its counter is missing would be
+ * worse than one that is briefly unthrottled.
+ */
+async function underRateLimit(env, caller) {
+  if (env.RATE_LIMITER && typeof env.RATE_LIMITER.limit === "function") {
+    try {
+      const outcome = await env.RATE_LIMITER.limit({ key: caller });
+      return outcome.success !== false;
+    } catch {
+      return true;
+    }
+  }
+  if (!env.NEXUS_SYNC) return true;
+  const minute = Math.floor(Date.now() / 1000 / RATE_WINDOW_SECONDS);
+  const key = `rate:${minute}:${caller}`;
+  try {
+    const seen = Number((await env.NEXUS_SYNC.get(key)) || "0");
+    if (seen >= RATE_LIMIT) return false;
+    // the key expires with its window, so the namespace does not fill up
+    await env.NEXUS_SYNC.put(key, String(seen + 1), {
+      expirationTtl: RATE_WINDOW_SECONDS * 2,
+    });
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
@@ -199,8 +249,28 @@ export default {
     if (request.method === "OPTIONS") return new Response("ok", { headers: CORS });
     if (request.method !== "POST") return json({ error: "Use POST" }, 405);
 
+    // A body ceiling, checked before anything is parsed. Without it a caller can
+    // hand this Worker a hundred megabytes of JSON and make it read all of it
+    // before deciding it was too big.
+    const declared = Number(request.headers.get("content-length") || "0");
+    if (declared > MAX_BODY_BYTES) {
+      return json({ error: "That request is too large." }, 413);
+    }
+
+    // A public endpoint with no ceiling on how often it is called is a way to
+    // spend somebody else's quota. The limit is per caller, per minute.
+    const caller = request.headers.get("cf-connecting-ip") || "unknown";
+    const allowed = await underRateLimit(env, caller);
+    if (!allowed) {
+      return json({ error: "Too many requests. Please wait a minute." }, 429);
+    }
+
     try {
-      const body = await request.json().catch(() => ({}));
+      const raw = await request.text();
+      if (raw.length > MAX_BODY_BYTES) {
+        return json({ error: "That request is too large." }, 413);
+      }
+      const body = JSON.parse(raw || "{}");
 
       // --- ping: answer at once, so the app can measure a true round trip ---
       if (body?.ping) return json({ pong: true, at: Date.now() });
@@ -222,23 +292,69 @@ export default {
           return json({ error: "Bad slot id." }, 400);
         }
 
+        // Every stored blob carries a version. A write must say which version it
+        // is replacing, so a stale device cannot quietly undo a newer backup,
+        // and a delete must say so explicitly. Knowing the slot alone is enough
+        // to read, but not to destroy.
         if (sync === "put") {
           const blob = typeof body?.blob === "string" ? body.blob : "";
           if (!blob) return json({ error: "Nothing to store." }, 400);
           if (blob.length > 512_000) return json({ error: "That payload is too large." }, 413);
+
+          const current = await env.NEXUS_SYNC.get(`slot:${slot}`);
+          const currentVersion = current === null ? 0 : Number(await env.NEXUS_SYNC.get(`ver:${slot}`)) || 1;
+
+          // what the caller believes it is replacing; null means "I expect nothing there"
+          const expected = body?.version === undefined || body?.version === null
+            ? null
+            : Number(body.version);
+
+          if (current !== null && expected === null) {
+            return json(
+              {
+                error: "There is already a backup here. Read it first, then write with its version.",
+                version: currentVersion,
+              },
+              409,
+            );
+          }
+          if (expected !== null && expected !== currentVersion) {
+            return json(
+              {
+                error: "This backup has changed since you read it. Download it again before writing.",
+                version: currentVersion,
+              },
+              409,
+            );
+          }
+
+          const nextVersion = currentVersion + 1;
           await env.NEXUS_SYNC.put(`slot:${slot}`, blob);
-          return json({ stored: true, bytes: blob.length, at: Date.now() });
+          await env.NEXUS_SYNC.put(`ver:${slot}`, String(nextVersion));
+          return json({ stored: true, bytes: blob.length, version: nextVersion, at: Date.now() });
         }
 
         if (sync === "get") {
           const blob = await env.NEXUS_SYNC.get(`slot:${slot}`);
-          if (blob === null) return json({ found: false });
-          return json({ found: true, blob });
+          if (blob === null) return json({ found: false, version: 0 });
+          const version = Number(await env.NEXUS_SYNC.get(`ver:${slot}`)) || 1;
+          return json({ found: true, blob, version });
         }
 
         if (sync === "delete") {
+          // deleting is the one action that cannot be undone, so it has to be
+          // asked for twice: once with the code, once with the confirmation
+          if (body?.confirm !== true) {
+            return json(
+              { error: "Deleting a backup has to be confirmed.", needsConfirm: true },
+              400,
+            );
+          }
+          const current = await env.NEXUS_SYNC.get(`slot:${slot}`);
+          const version = current === null ? 0 : Number(await env.NEXUS_SYNC.get(`ver:${slot}`)) || 1;
           await env.NEXUS_SYNC.delete(`slot:${slot}`);
-          return json({ deleted: true });
+          await env.NEXUS_SYNC.delete(`ver:${slot}`);
+          return json({ deleted: true, previousVersion: version });
         }
 
         return json({ error: "Unknown sync action." }, 400);
@@ -347,6 +463,9 @@ export default {
       const context = typeof body?.context === "string" ? body.context.trim() : "";
       if (!question) return json({ error: "Ask a question first." }, 400);
       if (question.length > 4000) return json({ error: "Question is too long." }, 400);
+      if (context.length > MAX_CONTEXT_CHARS) {
+        return json({ error: "The attached context is too long." }, 413);
+      }
 
       if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
 

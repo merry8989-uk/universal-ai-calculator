@@ -6,6 +6,10 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+  # A pull request is exactly when a broken test should be caught, and the
+  # workflow used to run only after the merge.
+  pull_request:
+    branches: [ main ]
 
 permissions:
   contents: read

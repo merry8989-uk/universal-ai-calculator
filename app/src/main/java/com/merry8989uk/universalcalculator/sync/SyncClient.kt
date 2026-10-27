@@ -20,18 +20,30 @@ object SyncClient {
     private const val ENDPOINT = "https://nexus-calc-ai.br19shc39.workers.dev"
 
     sealed interface Result {
-        data class Ok(val blob: String?) : Result
+        /** [version] is what the server holds now; it must be sent back on the next write. */
+        data class Ok(val blob: String?, val version: Int = 0) : Result
         data class Failed(val message: String) : Result
     }
 
     /** Returns the blob, or null when nothing has been stored for this code yet. */
     suspend fun download(slot: String): Result = call(JSONObject().put("sync", "get").put("slot", slot))
 
-    suspend fun upload(slot: String, blob: String): Result =
-        call(JSONObject().put("sync", "put").put("slot", slot).put("blob", blob))
+    /**
+     * Writes the blob, naming the version it replaces.
+     *
+     * [version] of 0 means "I believe nothing is stored here". The server refuses
+     * the write when that is wrong, so a second device cannot be overwritten in
+     * silence — it has to read first.
+     */
+    suspend fun upload(slot: String, blob: String, version: Int): Result =
+        call(
+            JSONObject().put("sync", "put").put("slot", slot).put("blob", blob)
+                .put("version", version),
+        )
 
+    /** Deleting is confirmed explicitly, because it is the one action with no undo. */
     suspend fun delete(slot: String): Result =
-        call(JSONObject().put("sync", "delete").put("slot", slot))
+        call(JSONObject().put("sync", "delete").put("slot", slot).put("confirm", true))
 
     private suspend fun call(payload: JSONObject): Result =
         withContext(Dispatchers.IO) {
@@ -59,7 +71,10 @@ object SyncClient {
                         json?.optString("error")?.takeIf { it.isNotBlank() }
                             ?: "The server said no (HTTP $code).",
                     )
-                    else -> Result.Ok(json?.optString("blob")?.takeIf { it.isNotBlank() })
+                    else -> Result.Ok(
+                        json?.optString("blob")?.takeIf { it.isNotBlank() },
+                        json?.optInt("version") ?: 0,
+                    )
                 }
             } catch (e: Exception) {
                 DiagnosticsLogger.log("Sync", "Request failed: ${e.javaClass.simpleName}")

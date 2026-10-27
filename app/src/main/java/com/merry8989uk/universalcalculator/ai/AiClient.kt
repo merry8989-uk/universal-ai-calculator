@@ -11,8 +11,12 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Talks to the app's own AI backend — a Cloudflare Worker that holds the Gemini
- * key server-side. The app never holds the key and the user never enters one.
+ * Talks to the app's own AI backend.
+ *
+ * The backend is a Cloudflare Worker running Workers AI, and the model provider
+ * is reached from inside that Worker. The app never holds a provider key and the
+ * user never enters one; there is nothing in the APK to steal and nothing to
+ * configure. The endpoint is fixed in code for the same reason.
  */
 object AiClient {
 
@@ -67,7 +71,12 @@ object AiClient {
                 val expr = json?.optString("expression")?.takeIf { it.isNotBlank() }
                 if (expr != null) {
                     val low = json?.optString("confidence") == "low"
-                    DiagnosticsLogger.log("AI", "Photo read as: $expr (low=$low)")
+                    // what was read is the user's own arithmetic, so only its
+                    // shape is logged — enough to tell a bad read from a good one
+                    DiagnosticsLogger.log(
+                        "AI",
+                        "Photo read: ${expr.length} chars" + (if (low) ", uncertain" else ""),
+                    )
                     PhotoResult(expression = expr, lowConfidence = low)
                 } else {
                     PhotoResult(error = "Could not read maths in that photo.")
@@ -168,7 +177,16 @@ object AiClient {
                 setRequestProperty("Content-Type", "application/json")
             }
             count("ask")
-            DiagnosticsLogger.log("AI", "Ask: ${question.take(140)}")
+            // The question itself is not logged. A calculation can be a salary, a
+            // dose or a debt, and a diagnostics export is a file the user may
+            // hand to somebody else. What is logged is enough to diagnose a
+            // failure without carrying any of that: how big the request was, and
+            // whether it had attachments.
+            DiagnosticsLogger.log(
+                "AI",
+                "Ask: ${question.length} chars" +
+                    (if (context.isNotBlank()) ", context ${context.length} chars" else ""),
+            )
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
 
             val code = conn.responseCode
