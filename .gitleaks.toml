@@ -1,0 +1,38 @@
+# What the secret scanner is allowed to ignore, and why.
+#
+# The rule is that a finding is only ignored when it has been looked at, written
+# down here with the reason, and — where it matters — dealt with. An allowlist
+# entry is not a fix; it is a note saying "this one is known, and here is what
+# was done about it".
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "The Supabase anon key that used to be in AiClient.kt"
+
+# The app has not spoken to Supabase since the assistant moved to a Cloudflare
+# Worker. There is no reference to Supabase, to that project or to that key
+# anywhere in the current source — only in the history, where it cannot be
+# removed without rewriting every commit.
+#
+# It was a *publishable* key, the one Supabase designs to be shipped inside a
+# client, so it never granted more than a signed-out caller could do. It is
+# still a live credential for a project that is no longer used, and the real
+# fix is to delete that Supabase project — not to hide the warning.
+#
+# Delete this block once the project is gone and the history is rewritten, or
+# once the scanner stops reporting it.
+commits = ["8db60ab673523afc5e9f6de7ce1bc3357a15c3c7"]
+paths = [
+  '''app/src/main/java/com/merry8989uk/universalcalculator/ai/AiClient\.kt''',
+]
+
+[[allowlists]]
+description = "The test that looks for secrets names the shapes it looks for"
+
+# NoSecretsTest builds its patterns from pieces precisely so that it does not
+# contain a realistic token, but the scanner should not be the thing that
+# decides whether that worked.
+paths = [
+  '''app/src/test/java/com/merry8989uk/universalcalculator/NoSecretsTest\.kt''',
+]

@@ -71,6 +71,22 @@ class CiSecurityTest {
         )
     }
 
+    @Test fun everyIgnoredFindingIsWrittenDownWithAReason() {
+        val text = read(".gitleaks.toml") ?: return
+        assertTrue("the scanner has no allowlist at all", "[[allowlists]]" in text)
+        // an allowlist entry without a reason is how a real leak gets buried
+        for (block in text.split("[[allowlists]]").drop(1)) {
+            assertTrue(
+                "an allowlist entry has no description: ${block.take(80)}",
+                "description" in block,
+            )
+        }
+        assertTrue(
+            "the old Supabase key is not recorded as a known finding",
+            "8db60ab673523afc5e9f6de7ce1bc3357a15c3c7" in text,
+        )
+    }
+
     @Test fun aHighSeverityDependencyFailsThePullRequest() {
         val text = read(".github/workflows/security.yml") ?: return
         assertTrue(
