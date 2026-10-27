@@ -1,30 +1,53 @@
 # Keeps the things this app is built from up to date.
 #
 # A calculator is mostly arithmetic, so the risk is not in the maths — it is in
-# the libraries underneath, and in the Actions that build the APK. Dependabot
-# opens a pull request when something has a newer version, and the security
-# alerts show which of those newer versions fix a known vulnerability.
+# the libraries underneath, and in the Actions that build the APK.
+#
+# The first version of this file let Dependabot propose whatever it liked, and
+# it opened four pull requests at once — AGP 9, Kotlin 2.4, Compose BOM 2026.09
+# and core-ktx 1.19. Every one of them failed the build, because those four move
+# together: a new Compose needs a newer AGP, which needs a newer Kotlin. A major
+# bump of any of them is a migration, not an update, so they are left alone here
+# and done by hand when there is time to test.
+#
+# What is left is the useful half: patch and minor updates, grouped so one pull
+# request carries them all, and the Actions themselves.
 version: 2
 
 updates:
-  # the Android app and the shared engine
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "deps"
     labels:
       - "dependencies"
+    groups:
+      # one pull request for the small stuff, rather than a dozen
+      gradle-minor:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # these four have to move together and be tested as one change
+      - dependency-name: "com.android.application"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.android.tools.build:gradle"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.jetbrains.kotlin*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "androidx.compose*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "androidx.core:core-ktx"
+        update-types: ["version-update:semver-major"]
 
   # The Worker has no npm dependencies at all — it is one JavaScript file with no
   # package.json, deployed by wrangler — so there is nothing here to watch. An
   # npm entry for that folder was added first and Dependabot failed on it, which
   # is the correct response to being pointed at a directory with no manifest.
 
-  # the Actions that build and release the app
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -35,3 +58,6 @@ updates:
       prefix: "ci"
     labels:
       - "dependencies"
+    groups:
+      actions:
+        patterns: ["*"]

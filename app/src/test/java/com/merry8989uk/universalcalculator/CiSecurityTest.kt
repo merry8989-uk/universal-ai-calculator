@@ -54,6 +54,20 @@ class CiSecurityTest {
         }
     }
 
+    @Test fun dependabotDoesNotProposeTheUpdatesThatBreakTheBuild() {
+        val text = read(".github/dependabot.yml") ?: return
+        // AGP, Kotlin and Compose have to move together; a major bump of any of
+        // them is a migration. The first version of this file let Dependabot open
+        // four such pull requests and all four failed the build.
+        assertTrue("Compose majors are not held back", "androidx.compose*" in text)
+        assertTrue("Kotlin majors are not held back", "org.jetbrains.kotlin*" in text)
+        assertTrue("AGP majors are not held back", "com.android.application" in text)
+        assertTrue(
+            "minor updates are not grouped, so they arrive as a pile of pull requests",
+            "groups:" in text,
+        )
+    }
+
     @Test fun aHighSeverityDependencyFailsThePullRequest() {
         val text = read(".github/workflows/security.yml") ?: return
         assertTrue(
