@@ -172,6 +172,62 @@ object ArchiveStore {
         }
     }
 
+    /**
+     * The whole archive as one string, for a backup.
+     *
+     * Same line shape as the day files, with the date put in front so it can be
+     * rebuilt anywhere: `2026-10-26|09:08:50|Standard|9500*2|19,000|19000`.
+     * The day files keep their own layout; this is only what travels.
+     */
+    fun backupText(context: Context): String = buildString {
+        appendLine(ArchiveFormat.HEADER)
+        for (year in years(context)) {
+            for (month in months(context, year)) {
+                for (date in days(context, year, month)) {
+                    for (e in entries(context, date)) {
+                        appendLine(date.toString() + "|" + ArchiveFormat.line(e))
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Puts a backup back into the day files.
+     *
+     * Existing entries on the same day are kept, and one that is already there is
+     * not written twice, so restoring the same backup a second time changes
+     * nothing. Returns how many entries were actually added.
+     */
+    fun restoreBackup(context: Context, text: String): Int {
+        var added = 0
+        for (raw in text.lines()) {
+            val line = raw.trim()
+            if (line.isEmpty() || line == ArchiveFormat.HEADER) continue
+            val bar = line.indexOf('|')
+            if (bar <= 0) continue
+            val date = runCatching { LocalDate.parse(line.substring(0, bar)) }.getOrNull() ?: continue
+            val rest = line.substring(bar + 1)
+            val entry = ArchiveFormat.parse(date, rest).firstOrNull() ?: continue
+
+            val already = entries(context, date).any {
+                it.at == entry.at && it.expression == entry.expression && it.result == entry.result
+            }
+            if (already) continue
+            if (append(context, entry)) added++
+        }
+        return added
+    }
+
+    /** How many calculations the archive holds in total. */
+    fun totalEntries(context: Context): Int {
+        var total = 0
+        for (year in years(context)) {
+            for (month in months(context, year)) total += entries(context, year, month).size
+        }
+        return total
+    }
+
     /** Where the archive is, for showing the user. */
     fun location(context: Context): String = root(context).absolutePath
 

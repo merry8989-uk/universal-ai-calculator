@@ -109,6 +109,7 @@ import com.merry8989uk.universalcalculator.calc.Fractions
 import com.merry8989uk.universalcalculator.calc.SpeechMath
 import com.merry8989uk.universalcalculator.calc.ArchiveEntry
 import com.merry8989uk.universalcalculator.data.ArchiveStore
+import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.settings.SettingsState
@@ -631,24 +632,27 @@ when (key) {
                                         }
                                         // The archive keeps the record. It is
                                         // written even when the history is off,
-                                        // and clearing the history never touches it.
-                                        runCatching {
-                                            ArchiveStore.append(
-                                                ctx,
-                                                ArchiveEntry(
-                                                    at = ArchiveStore.now(),
-                                                    kind = title,
-                                                    expression = text.ifBlank { "0" },
-                                                    result = shown,
-                                                    value = exactResult,
-                                                ),
-                                            )
+                                        // and clearing the history never touches
+                                        // it — but the master switch stops it too.
+                                        if (DataPolicy.mayArchive(settings.dataSavingEnabled)) {
+                                            runCatching {
+                                                ArchiveStore.append(
+                                                    ctx,
+                                                    ArchiveEntry(
+                                                        at = ArchiveStore.now(),
+                                                        kind = title,
+                                                        expression = text.ifBlank { "0" },
+                                                        result = shown,
+                                                        value = exactResult,
+                                                    ),
+                                                )
+                                            }
                                         }
                                         // the answer joins the grand total
                                         grandTotal = GrandTotal.add(grandTotal, exactResult)
                                         gtJustPressed = false
                                         DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
-                                        if (settings.historyEnabled) {
+                                        if (DataPolicy.mayKeepHistory(settings.dataSavingEnabled, settings.historyEnabled)) {
                                             historyVm.append("${text.ifBlank { "0" }} = $shown")
                                         }
                                         expr = TextFieldValue(shown, TextRange(shown.length))

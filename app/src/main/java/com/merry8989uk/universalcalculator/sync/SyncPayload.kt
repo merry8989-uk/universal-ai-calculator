@@ -17,11 +17,23 @@ data class SyncPayload(
     val settings: Map<String, String> = emptyMap(),
     val calculators: List<CustomCalculator> = emptyList(),
     val history: String = "",
+    /**
+     * The calculation archive, in its own line format.
+     *
+     * This is the part worth keeping: settings can be chosen again and a
+     * three-day history is not a record, but the archive is every answer the
+     * user ever worked out, sorted by day.
+     */
+    val archive: String = "",
 ) {
     /** A one-line summary for the UI. */
     fun summary(): String = buildString {
         append(calculators.size).append(if (calculators.size == 1) " calculator" else " calculators")
         append(", ").append(settings.size).append(" settings")
+        if (archive.isNotBlank()) {
+            val n = archive.lines().count { it.isNotBlank() } - 1
+            if (n > 0) append(", ").append(n).append(" archived calculations")
+        }
         if (history.isNotBlank()) append(", history included")
     }
 }
@@ -45,6 +57,9 @@ object SyncPayloadCodec {
         }
         appendLine(LineText.escape(CustomCalcStore.serialize(payload.calculators)))
         appendLine(LineText.escape(payload.history))
+        // the archive goes last, so a payload written before this line existed
+        // still decodes — it simply has no archive in it
+        appendLine(LineText.escape(payload.archive))
     }
 
     /** Null when the text is not a payload this version understands. */
@@ -70,12 +85,15 @@ object SyncPayloadCodec {
         val calculatorsBlock = lines.getOrNull(i) ?: return null
         i++
         val history = lines.getOrNull(i)?.let { LineText.unescape(it) } ?: ""
+        i++
+        val archive = lines.getOrNull(i)?.let { LineText.unescape(it) } ?: ""
 
         return SyncPayload(
             createdAt = createdAt,
             settings = settings,
             calculators = CustomCalcStore.parse(LineText.unescape(calculatorsBlock)),
             history = history,
+            archive = archive,
         )
     }
 }

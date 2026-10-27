@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.locale.LocaleHelper
+import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.settings.SettingsRepository
 import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.settings.ThemeMode
@@ -42,10 +43,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         enterImmersiveMode()
 
-        // Apply the stored diagnostics preference (Rule 7).
+        // Apply the stored preferences before anything is logged. The master
+        // switch wins: with data saving off, the log stays off whatever the
+        // diagnostics switch says.
         lifecycleScope.launch {
-            val stored = SettingsRepository(applicationContext).settings.first()
-            DiagnosticsLogger.setEnabled(stored.diagnosticsEnabled)
+            SettingsRepository(applicationContext).settings.collect { stored ->
+                DiagnosticsLogger.setEnabled(
+                    DataPolicy.mayLog(stored.dataSavingEnabled, stored.diagnosticsEnabled),
+                )
+            }
         }
 
         setContent { App() }

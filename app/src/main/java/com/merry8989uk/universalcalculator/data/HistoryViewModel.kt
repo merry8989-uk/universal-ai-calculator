@@ -16,6 +16,13 @@ class HistoryViewModel(app: Application) : AndroidViewModel(app) {
     val entries: StateFlow<String> = repo.entries
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
+    init {
+        // Anything past its third day goes now rather than at the next
+        // calculation, so a phone left alone for a week opens with an empty list
+        // instead of a week of arithmetic.
+        viewModelScope.launch { repo.prune() }
+    }
+
     fun append(entry: String) = viewModelScope.launch { repo.append(entry) }
 
     fun clear() = viewModelScope.launch { repo.clear() }

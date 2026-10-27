@@ -132,6 +132,34 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // ---- the master switch ----
+            Section("Your data")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Keep my calculations", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        if (state.dataSavingEnabled) {
+                            "Answers are kept in a folder on this phone, the history keeps three days, and a log is kept for troubleshooting."
+                        } else {
+                            "Nothing is kept. No archive, no history, no log — on this phone or anywhere else."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                androidx.compose.material3.Switch(
+                    checked = state.dataSavingEnabled,
+                    onCheckedChange = { vm.setDataSavingEnabled(it) },
+                )
+            }
+            if (!state.dataSavingEnabled) {
+                Text(
+                    "The switches below still show what they were set to, but nothing is written while this is off.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             Section(stringResource(R.string.section_appearance))
 
             Text("Theme")

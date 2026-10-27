@@ -1,7 +1,9 @@
 package com.merry8989uk.universalcalculator.sync
 
 import android.content.Context
+import com.merry8989uk.universalcalculator.data.ArchiveStore
 import com.merry8989uk.universalcalculator.data.CustomCalcStore
+import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.data.HistoryRepository
 import com.merry8989uk.universalcalculator.settings.SettingsRepository
 
@@ -83,11 +85,19 @@ object AccountService {
             return Outcome.Failed("That password is not right for this account.")
         }
 
+        // The archive always travels when the master switch allows it. It is the
+        // record the user actually wants back; the history is a three-day
+        // convenience and is only included when asked for.
         val payload = SyncPayload(
             createdAt = System.currentTimeMillis(),
             settings = SettingsRepository(context).exportSyncable(),
             calculators = CustomCalcStore.load(context),
             history = if (includeHistory) HistoryRepository(context).readAll() else "",
+            archive = if (DataPolicy.mayArchive(SettingsRepository(context).currentSavingEnabled())) {
+                ArchiveStore.backupText(context)
+            } else {
+                ""
+            },
         )
         val passphrase = Account.encryptionPassphrase(id, password)
         val blob = SyncCrypto.encrypt(SyncPayloadCodec.encode(payload), passphrase)
@@ -140,7 +150,18 @@ object AccountService {
         if (includeHistory && payload.history.isNotBlank()) {
             HistoryRepository(context).replaceAll(payload.history)
         }
+        // The archive is put back into its day folders, and an entry already
+        // there is not written twice, so restoring twice changes nothing.
+        var restored = 0
+        if (payload.archive.isNotBlank() &&
+            DataPolicy.mayArchive(SettingsRepository(context).currentSavingEnabled())
+        ) {
+            restored = ArchiveStore.restoreBackup(context, payload.archive)
+        }
         AccountStore.noteRestore(context)
-        return Outcome.Ok("Restored ${payload.summary()}.")
+        return Outcome.Ok(
+            "Restored ${payload.summary()}." +
+                if (restored > 0) " $restored archived calculations came back." else "",
+        )
     }
 }

@@ -30,6 +30,7 @@ class SettingsRepository(private val context: Context) {
         val DENSITY = floatPreferencesKey("density")
         val LANGUAGE = stringPreferencesKey("language")
         val NOTIFICATIONS = booleanPreferencesKey("notifications_enabled")
+        val DATA_SAVING = booleanPreferencesKey("data_saving")
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
@@ -74,6 +75,7 @@ class SettingsRepository(private val context: Context) {
             density = p[Keys.DENSITY] ?: 1.0f,
             language = p[Keys.LANGUAGE] ?: "system",
             notificationsEnabled = p[Keys.NOTIFICATIONS] ?: true,
+            dataSavingEnabled = p[Keys.DATA_SAVING] ?: true,
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
@@ -236,6 +238,21 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setNotifications(enabled: Boolean) =
         context.dataStore.edit { it[Keys.NOTIFICATIONS] = enabled }
+
+    /**
+     * The master switch as it stands right now.
+     *
+     * Blocking on purpose: the callers are already on a background thread and
+     * need the answer before they decide whether to write a file. Waiting for a
+     * flow to emit would mean the decision came after the write.
+     */
+    fun currentSavingEnabled(): Boolean = kotlinx.coroutines.runBlocking {
+        settings.first().dataSavingEnabled
+    }
+
+    /** The master switch: off means nothing at all is stored. */
+    suspend fun setDataSavingEnabled(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.DATA_SAVING] = enabled }
 
     suspend fun setDiagnosticsEnabled(enabled: Boolean) =
         context.dataStore.edit { it[Keys.DIAGNOSTICS] = enabled }

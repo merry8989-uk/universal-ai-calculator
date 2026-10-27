@@ -9,6 +9,11 @@ data class SettingsState(
     val language: String = "system",
     val notificationsEnabled: Boolean = true,
     /** Log collection. On by default (Rule 7). */
+    /**
+     * The master switch. Off means nothing is stored anywhere: no archive, no
+     * history, no logs. The individual switches below it stop mattering.
+     */
+    val dataSavingEnabled: Boolean = true,
     val diagnosticsEnabled: Boolean = true,
     /** Show the live result preview while typing. */
     val livePreview: Boolean = true,
