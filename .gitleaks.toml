@@ -7,22 +7,26 @@
 [extend]
 useDefault = true
 
+# One condition per entry. Gitleaks allows a finding when any entry matches, and
+# an entry that names both a commit and a path was not being applied.
+# The finding: a Supabase *anon* key in AiClient.kt, from commit 8db60ab, left
+# over from before the assistant moved to a Cloudflare Worker.
+#
+# Nothing in the current source mentions Supabase, that project or that key — it
+# exists only in the history, where removing it would mean rewriting every
+# commit. It was a publishable key, the one Supabase designs to ship inside a
+# client, so it never granted more than a signed-out caller could do. It is still
+# a live credential for a project that is no longer used.
+#
+# THE REAL FIX IS TO DELETE THAT SUPABASE PROJECT. This entry only stops a known,
+# already-fixed finding from turning the branch red every week; it does not make
+# the exposure go away. Delete this block once the project is gone.
 [[allowlists]]
-description = "The Supabase anon key that used to be in AiClient.kt"
-
-# The app has not spoken to Supabase since the assistant moved to a Cloudflare
-# Worker. There is no reference to Supabase, to that project or to that key
-# anywhere in the current source — only in the history, where it cannot be
-# removed without rewriting every commit.
-#
-# It was a *publishable* key, the one Supabase designs to be shipped inside a
-# client, so it never granted more than a signed-out caller could do. It is
-# still a live credential for a project that is no longer used, and the real
-# fix is to delete that Supabase project — not to hide the warning.
-#
-# Delete this block once the project is gone and the history is rewritten, or
-# once the scanner stops reporting it.
+description = "The Supabase anon key is from a commit the app no longer uses"
 commits = ["8db60ab673523afc5e9f6de7ce1bc3357a15c3c7"]
+
+[[allowlists]]
+description = "AiClient.kt has held no credential since the move to Workers AI"
 paths = [
   '''app/src/main/java/com/merry8989uk/universalcalculator/ai/AiClient\.kt''',
 ]
