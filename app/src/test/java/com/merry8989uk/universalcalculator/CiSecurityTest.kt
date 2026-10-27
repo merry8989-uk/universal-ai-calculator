@@ -25,6 +25,12 @@ class CiSecurityTest {
     @Test fun thereIsASecurityWorkflow() {
         val text = read(".github/workflows/security.yml") ?: return
         assertTrue("it does not scan for secrets", "gitleaks" in text)
+        // the full-history run has no commit range, so it reports rather than
+        // gates; push and pull request are the runs that block a merge
+        assertTrue(
+            "a manual or scheduled scan would fail on the known historical finding",
+            "continue-on-error" in text,
+        )
         assertTrue("it does not review the dependencies a PR adds", "dependency-review-action" in text)
         assertTrue("it does not submit the dependency graph", "dependency-submission" in text)
         // the repository has no gradlew, so the job has to make one like the
