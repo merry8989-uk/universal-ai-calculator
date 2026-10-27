@@ -52,7 +52,13 @@ def post(url: str, payload: dict) -> dict:
     request = urllib.request.Request(
         url,
         data=body,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            # Cloudflare answers a bare Python-urllib user agent with error 1010,
+            # its browser-integrity check. Naming ourselves is both honest and
+            # the thing that gets through.
+            "User-Agent": "NexusCalcCheck/1.0 (+https://github.com/merry8989-uk/universal-ai-calculator)",
+        },
         method="POST",
     )
     try:
