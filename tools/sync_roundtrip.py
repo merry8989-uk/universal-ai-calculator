@@ -75,11 +75,32 @@ def main() -> int:
     blob = encrypt(payload, code)
     print(f"payload {len(payload)} chars -> blob {len(blob)} chars, slot {slot[:12]}...")
 
-    stored = post(url, {"sync": "put", "slot": slot, "blob": blob})
+    # The slot is derived from the code, so in principle whoever knows the code
+    # knows the slot. A write therefore has to name the version it replaces, and
+    # the first write says "I expect nothing there".
+    stored = post(url, {"sync": "put", "slot": slot, "blob": blob, "version": 0})
     print("put  :", stored)
     if not stored.get("stored"):
         print("FAIL: the Worker did not store the blob")
         return 1
+    version = stored.get("version", 0)
+
+    # A second write that does not say what it is replacing must be refused,
+    # otherwise a stale device could silently undo a newer backup.
+    try:
+        post(url, {"sync": "put", "slot": slot, "blob": blob})
+        print("FAIL: an unversioned overwrite was accepted")
+        return 1
+    except Exception:
+        print("unversioned overwrite refused, as it should be")
+
+    # And a write naming the wrong version must be refused too.
+    try:
+        post(url, {"sync": "put", "slot": slot, "blob": blob, "version": version + 99})
+        print("FAIL: a stale version was accepted")
+        return 1
+    except Exception:
+        print("stale version refused, as it should be")
 
     fetched = post(url, {"sync": "get", "slot": slot})
     print("get  :", {"found": fetched.get("found"), "bytes": len(fetched.get("blob", ""))})
@@ -104,8 +125,16 @@ def main() -> int:
 
     print("SYNC ROUND TRIP: PASS")
 
+    # Deleting is the one action with no undo, so it has to be asked for twice.
+    try:
+        post(url, {"sync": "delete", "slot": slot})
+        print("FAIL: an unconfirmed delete was accepted")
+        return 1
+    except Exception:
+        print("unconfirmed delete refused, as it should be")
+
     # clean up after ourselves
-    print("delete:", post(url, {"sync": "delete", "slot": slot}))
+    print("delete:", post(url, {"sync": "delete", "slot": slot, "confirm": True}))
     return 0
 
 
