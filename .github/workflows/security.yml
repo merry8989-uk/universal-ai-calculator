@@ -73,6 +73,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The repository carries no Gradle wrapper — the test workflow generates
+      # one on the fly, and this job has to do the same or the submission has
+      # nothing to run.
+      - name: Make a wrapper if there is none
+        run: test -f gradlew || gradle wrapper --gradle-version 8.9
+
       # Without this, Dependabot has no inventory of what the app actually
       # depends on, and its security alerts stay silent.
       - name: Send the dependency graph to GitHub
