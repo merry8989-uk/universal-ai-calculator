@@ -148,12 +148,70 @@ object CategoryColors {
  * Theme wrapper driven by the stored colour theme and light/dark mode, so the
  * Settings screen changes the whole appearance immediately.
  */
+/**
+ * The colour scheme for a theme the user built.
+ *
+ * Their five colours are used as given for the things they chose, and every
+ * other slot — containers, borders, disabled states — is derived from them, so a
+ * theme cannot end up with, say, white text on a white key.
+ */
+fun customScheme(custom: CustomTheme, darkTheme: Boolean = true): ColorScheme {
+    val onBackground = readableOn(custom.background)
+    val onSurface = readableOn(custom.surface)
+    return darkColorScheme(
+        primary = custom.primary,
+        onPrimary = readableOn(custom.primary),
+        primaryContainer = custom.primary.copy(alpha = 0.22f),
+        onPrimaryContainer = custom.primary,
+        secondary = custom.secondary,
+        onSecondary = readableOn(custom.secondary),
+        secondaryContainer = custom.secondary.copy(alpha = 0.22f),
+        onSecondaryContainer = custom.secondary,
+        tertiary = custom.secondary,
+        onTertiary = readableOn(custom.secondary),
+        background = custom.background,
+        onBackground = onBackground,
+        surface = custom.surface,
+        onSurface = onSurface,
+        surfaceVariant = blend(custom.surface, custom.background, 0.45f),
+        onSurfaceVariant = onSurface.copy(alpha = 0.72f),
+        surfaceContainer = custom.surface,
+        outline = onSurface.copy(alpha = 0.30f),
+        error = Color(0xFFFF6B6B),
+        onError = Color(0xFF1A0505),
+    )
+}
+
+/** Black or white, whichever can actually be read on this colour. */
+fun readableOn(background: Color): Color {
+    // Rec. 709 luma, which matches how the eye weights the three channels
+    val luma = 0.2126f * background.red + 0.7152f * background.green + 0.0722f * background.blue
+    return if (luma > 0.55f) Color(0xFF10121A) else Color(0xFFF6F7FB)
+}
+
+/** A colour [amount] of the way from [a] to [b]. */
+fun blend(a: Color, b: Color, amount: Float): Color {
+    val t = amount.coerceIn(0f, 1f)
+    return Color(
+        red = a.red + (b.red - a.red) * t,
+        green = a.green + (b.green - a.green) * t,
+        blue = a.blue + (b.blue - a.blue) * t,
+        alpha = a.alpha + (b.alpha - a.alpha) * t,
+    )
+}
+
 @Composable
 fun UniversalCalculatorTheme(
     theme: AppTheme = AppTheme.CYBERPUNK,
     darkTheme: Boolean = isSystemInDarkTheme(),
+    /** A theme the user built, which wins over [theme] when it is set. */
+    custom: CustomTheme? = null,
     content: @Composable () -> Unit,
 ) {
+    if (custom != null) {
+        MaterialTheme(colorScheme = customScheme(custom, darkTheme), content = content)
+        return
+    }
     val scheme = if (theme == AppTheme.DYNAMIC && dynamicColoursAvailable()) {
         val context = LocalContext.current
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

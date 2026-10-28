@@ -32,6 +32,7 @@ class SettingsRepository(private val context: Context) {
         val NOTIFICATIONS = booleanPreferencesKey("notifications_enabled")
         val DATA_SAVING = booleanPreferencesKey("data_saving")
         val SHOW_GT = booleanPreferencesKey("show_gt")
+        val CUSTOM_THEME = stringPreferencesKey("custom_theme")
         val KEY_VOLUME = floatPreferencesKey("key_volume")
         val CUSTOM_TONE = stringPreferencesKey("custom_tone")
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
@@ -80,6 +81,7 @@ class SettingsRepository(private val context: Context) {
             notificationsEnabled = p[Keys.NOTIFICATIONS] ?: true,
             dataSavingEnabled = p[Keys.DATA_SAVING] ?: true,
             showGtKey = p[Keys.SHOW_GT] ?: true,
+            customThemeId = p[Keys.CUSTOM_THEME] ?: "",
             keySoundVolume = p[Keys.KEY_VOLUME] ?: 0.7f,
             customTonePath = p[Keys.CUSTOM_TONE] ?: "",
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
@@ -255,6 +257,10 @@ class SettingsRepository(private val context: Context) {
     fun currentSavingEnabled(): Boolean = kotlinx.coroutines.runBlocking {
         settings.first().dataSavingEnabled
     }
+
+    /** The theme the user built that should be in use, or blank for a built-in one. */
+    suspend fun setCustomThemeId(id: String) =
+        context.dataStore.edit { it[Keys.CUSTOM_THEME] = id }
 
     /** How loud a key is, from 0 to 1. */
     suspend fun setKeySoundVolume(value: Float) =

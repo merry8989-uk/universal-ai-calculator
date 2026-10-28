@@ -52,6 +52,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.merry8989uk.universalcalculator.sound.ToneLibrary
 import com.merry8989uk.universalcalculator.sound.ToneStore
+import com.merry8989uk.universalcalculator.ui.theme.CustomTheme
+import com.merry8989uk.universalcalculator.ui.theme.ThemeBuilderScreen
+import com.merry8989uk.universalcalculator.ui.theme.ThemeStore
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
@@ -118,6 +121,23 @@ fun SettingsScreen(
     var showArchive by remember { mutableStateOf(false) }
     // The account screen, and who is signed in — re-read whenever it closes.
     var showAccount by remember { mutableStateOf(false) }
+    // Themes the user built, and the builder for one of them.
+    var customThemes by remember { mutableStateOf(ThemeStore.load(context)) }
+    var showThemeBuilder by remember { mutableStateOf(false) }
+    var editingTheme by remember { mutableStateOf<CustomTheme?>(null) }
+    if (showThemeBuilder) {
+        ThemeBuilderScreen(
+            editing = editingTheme,
+            onSave = { made ->
+                customThemes = ThemeStore.put(context, made)
+                vm.setCustomThemeId(ThemeStore.load(context).firstOrNull { it.name == made.name }?.id ?: made.id)
+                showThemeBuilder = false
+                editingTheme = null
+            },
+            onBack = { showThemeBuilder = false; editingTheme = null },
+        )
+        return
+    }
     // The file picker for a custom key tone.
     var pickTone by remember { mutableStateOf(false) }
     var toneProblem by remember { mutableStateOf("") }
@@ -227,10 +247,61 @@ fun SettingsScreen(
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 com.merry8989uk.universalcalculator.ui.theme.AppTheme.entries.forEach { theme ->
                     FilterChip(
-                        selected = state.themeName == theme.label,
-                        onClick = { vm.setThemeName(theme.label) },
+                        // a custom theme being in use means none of these is
+                        selected = state.customThemeId.isBlank() && state.themeName == theme.label,
+                        onClick = {
+                            vm.setCustomThemeId("")
+                            vm.setThemeName(theme.label)
+                        },
                         label = { Text(themeName(theme)) },
                     )
+                }
+            }
+
+            // ---- themes the user built ----
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "Your themes",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedButton(onClick = { editingTheme = CustomTheme.START; showThemeBuilder = true }) {
+                    Text("Create")
+                }
+            }
+            if (customThemes.isEmpty()) {
+                Text(
+                    "Make a theme from four colours, or from a photo.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    customThemes.forEach { made ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            FilterChip(
+                                selected = state.customThemeId == made.id,
+                                onClick = { vm.setCustomThemeId(made.id) },
+                                label = { Text(made.name) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            TextButton(onClick = { editingTheme = made; showThemeBuilder = true }) {
+                                Text("Edit", style = MaterialTheme.typography.labelSmall)
+                            }
+                            TextButton(onClick = {
+                                customThemes = ThemeStore.remove(context, made.id)
+                                if (state.customThemeId == made.id) vm.setCustomThemeId("")
+                            }) {
+                                Text("Delete", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
                 }
             }
             Text(

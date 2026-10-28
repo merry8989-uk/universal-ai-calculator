@@ -40,6 +40,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setDensity(value: Float) = viewModelScope.launch { repo.setDensity(value) }
     fun setLanguage(language: String) = viewModelScope.launch { repo.setLanguage(language) }
     fun setNotifications(enabled: Boolean) = viewModelScope.launch { repo.setNotifications(enabled) }
+    fun setCustomThemeId(id: String) = viewModelScope.launch { repo.setCustomThemeId(id) }
     fun setKeySoundVolume(value: Float) = viewModelScope.launch { repo.setKeySoundVolume(value) }
     fun setCustomTonePath(path: String) = viewModelScope.launch { repo.setCustomTonePath(path) }
     fun setShowGtKey(shown: Boolean) = viewModelScope.launch { repo.setShowGtKey(shown) }

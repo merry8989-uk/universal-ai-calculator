@@ -27,6 +27,8 @@ import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.settings.ThemeMode
 import com.merry8989uk.universalcalculator.ui.AppRoot
 import com.merry8989uk.universalcalculator.ui.theme.AppTheme
+import androidx.compose.runtime.remember
+import com.merry8989uk.universalcalculator.ui.theme.ThemeStore
 import com.merry8989uk.universalcalculator.ui.theme.UniversalCalculatorTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -85,7 +87,16 @@ private fun App() {
     val base = LocalDensity.current
     val scaled = Density(base.density * state.density, base.fontScale * state.textScale)
 
-    UniversalCalculatorTheme(theme = AppTheme.byLabel(state.themeName), darkTheme = dark) {
+    // A theme the user built wins over the built-in ones when one is selected.
+    val customTheme = remember(state.customThemeId) {
+        if (state.customThemeId.isBlank()) null
+        else ThemeStore.byId(applicationContext, state.customThemeId)
+    }
+    UniversalCalculatorTheme(
+        theme = AppTheme.byLabel(state.themeName),
+        darkTheme = dark,
+        custom = customTheme,
+    ) {
         CompositionLocalProvider(LocalDensity provides scaled) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

@@ -22,6 +22,8 @@ data class SettingsState(
      * comes and goes, and with it gone the `=` key takes the freed space.
      */
     val showGtKey: Boolean = true,
+    /** The id of a theme the user built, or blank when a built-in one is used. */
+    val customThemeId: String = "",
     /** How loud a key is, from 0 to 1. */
     val keySoundVolume: Float = 0.7f,
     /** Where the user's own key tone lives, or blank when they have not chosen one. */
