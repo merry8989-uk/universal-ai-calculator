@@ -89,8 +89,6 @@
     <string name="theme_label">Theme</string>
     <string name="home_screen_widget">Home screen widget</string>
     <string name="lang_system">System</string>
-    <string name="lang_en">English</string>
-    <string name="lang_hi">हिन्दी</string>
     <!-- Overflow menu -->
     <string name="more_options">More options</string>
     <string name="menu_settings">Settings</string>

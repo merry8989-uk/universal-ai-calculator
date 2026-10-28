@@ -89,8 +89,6 @@
     <string name="theme_label">थीम</string>
     <string name="home_screen_widget">होम स्क्रीन विजेट</string>
     <string name="lang_system">सिस्टम</string>
-    <string name="lang_en">English</string>
-    <string name="lang_hi">हिन्दी</string>
     <!-- Overflow menu -->
     <string name="more_options">और विकल्प</string>
     <string name="menu_settings">सेटिंग</string>

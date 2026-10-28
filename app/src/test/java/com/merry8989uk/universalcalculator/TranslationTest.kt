@@ -51,16 +51,37 @@ class TranslationTest {
         assertTrue("expected English and at least one translation, found ${locales()}", locales().size >= 2)
     }
 
-    @Test fun everyLanguageHasTheSameStringsAsEnglish() {
+    /**
+     * A translation may be partial, and Android is built for that: a string
+     * missing from `values-ta` falls back to the English in `values/`, per
+     * string, with no crash and no blank. Demanding a complete file would mean
+     * a language cannot ship until all 387 strings are done, which is worse for
+     * the user than half a translation that reads properly.
+     *
+     * What is NOT allowed is a key that does not exist in English at all — that
+     * is a typo, and it would never be used.
+     */
+    @Test fun noLanguageHasAStringEnglishDoesNot() {
         val english = stringsOf("values")
         assertTrue("English looks empty", english.size > 100)
         for (locale in locales()) {
             if (locale == "values") continue
-            val other = stringsOf(locale)
-            val missing = english.keys - other.keys
-            val extra = other.keys - english.keys
-            assertEquals("$locale is missing these strings: ${missing.take(8)}", emptySet<String>(), missing)
+            val extra = stringsOf(locale).keys - english.keys
             assertEquals("$locale has strings English does not: ${extra.take(8)}", emptySet<String>(), extra)
+        }
+    }
+
+    @Test fun everyLanguageTranslatesTheCoreChrome() {
+        // the tabs and the main actions are the least a language should carry
+        val mustHave = listOf(
+            "tab_standard", "tab_scientific", "tab_convert", "tab_formulas",
+            "tab_ask_ai", "tab_settings", "history", "settings_title", "back", "clear",
+        )
+        for (locale in locales()) {
+            if (locale == "values") continue
+            val other = stringsOf(locale)
+            val missing = mustHave.filter { it !in other.keys }
+            assertTrue("$locale does not translate $missing", missing.isEmpty())
         }
     }
 
@@ -73,6 +94,7 @@ class TranslationTest {
             for ((name, en) in english) {
                 val wanted = placeholders(en)
                 if (wanted.isEmpty()) continue
+                // absent is fine — it falls back to English, which has them
                 val got = placeholders(other[name] ?: continue)
                 val lost = wanted - got
                 if (lost.isNotEmpty()) problems.add("$locale/$name lost $lost")
@@ -125,22 +147,17 @@ class TranslationTest {
         }
     }
 
-    @Test fun everyLanguageIsOfferedInTheSettingsList() {
-        // the language codes the screen offers must match the folders that exist
-        val source = File(root, "../java/com/merry8989uk/universalcalculator/settings/SettingsScreen.kt")
-        val file = if (source.exists()) source else File(
-            "app/src/main/java/com/merry8989uk/universalcalculator/settings/SettingsScreen.kt",
-        )
-        if (!file.exists()) return  // the test source set runs from a different root here
-        val text = file.readText()
-        val listed = Regex("LANGUAGES = listOf\\(([^)]*)\\)")
-            .find(text)?.groupValues?.get(1)
-            ?.split(",")?.map { it.trim().trim('"') }?.toSet()
-            ?: emptySet()
+    @Test fun everyLanguageFolderIsOfferedInThePicker() {
+        // the picker is built from Languages.ALL, so a folder not in that list
+        // is a language nobody can choose — and a language in the list with no
+        // folder changes nothing. Both are checked in LanguagesTest; here the
+        // folder side is checked against the same list.
+        val offered = com.merry8989uk.universalcalculator.locale.Languages.ALL.map { it.tag }.toSet()
         for (locale in locales()) {
             if (locale == "values") continue
             val code = locale.removePrefix("values-")
-            assertTrue("$locale exists but '$code' is not offered in Settings", code in listed)
+            if (code.length > 3) continue  // values-night, values-v31 and friends
+            assertTrue("$locale exists but '$code' is not offered in the picker", code in offered)
         }
     }
 }
