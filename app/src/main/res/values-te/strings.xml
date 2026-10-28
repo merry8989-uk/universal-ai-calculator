@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- te: the strings translated so far. Anything missing falls back to values/. -->
+<!-- te: translated so far. Anything missing falls back to values/. -->
 <resources>
     <string name="widget_description">మీ హోమ్ స్క్రీన్పై ఉండే ఒక స్టాండర్డ్ క్యాలిక్యులేటర్, సాలిడ్, డిమ్డ్ లేదా పూర్తిగా ట్రాన్స్పరెంట్ స్టైల్లో ఉంటుంది.</string>
     <string name="tab_standard">స్టాండర్డ్</string>
@@ -16,19 +16,4 @@
     <string name="tab_settings_a11y">సెట్టింగ్స్ ట్యాబ్</string>
     <string name="history">హిస్టరీ</string>
     <string name="history_a11y">క్యాలిక్యులేషన్ హిస్టరీ</string>
-    <string name="degrees_mode">స్పీక్</string>
-    <string name="radians_mode">క్యాలిక్యులేషన్ను స్పీక్ చేయండి</string>
-    <string name="speak">ఫోటో</string>
-    <string name="speak_a11y">క్యాలిక్యులేషన్ యొక్క ఫోటో తీయండి</string>
-    <string name="photo">దీని గురించి AIని అడగండి</string>
-    <string name="photo_a11y">AIతో వివరించండి</string>
-    <string name="reading">AIతో వివరించండి</string>
-    <string name="ask_ai_about_this">x ఉన్న చోటల్లా వాడతారు</string>
-    <string name="explain_with_ai">ఖాళీ</string>
-    <string name="explain_with_ai_a11y">తొలగించండి</string>
-    <string name="x_value_used">జవాబు</string>
-    <string name="x_equals">కాపీ</string>
-    <string name="calc_a11y">షేర్</string>
-    <string name="calc_empty">క్లియర్</string>
-    <string name="result_a11y">టూల్స్</string>
 </resources>

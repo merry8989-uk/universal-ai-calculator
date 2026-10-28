@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- brx: the strings translated so far. Anything missing falls back to values/. -->
+<!-- brx: translated so far. Anything missing falls back to values/. -->
 <resources>
     <string name="widget_description">नोंथांनि न\'नि स्क्रिनाव थानाय मोनसे साधारन केलकुलेटर, जाय गोरा, गोसोम एबा आबुङै गोजों महराव दं।</string>
     <string name="tab_standard">साधारन</string>
@@ -16,19 +16,4 @@
     <string name="tab_settings_a11y">सेटिं ट्याब</string>
     <string name="history">जारिमिन</string>
     <string name="history_a11y">साननायनि जारिमिन</string>
-    <string name="degrees_mode">बुं</string>
-    <string name="radians_mode">साननायखौ बुं</string>
-    <string name="speak">सावगारि</string>
-    <string name="speak_a11y">साननायनि सावगारि ला</string>
-    <string name="photo">बेनि सोमोन्दै AI खौ सों</string>
-    <string name="photo_a11y">AI जों बेखेव</string>
-    <string name="reading">AI जों बेखेव</string>
-    <string name="ask_ai_about_this">x नुजाथिनाय जायखिजायायाव बाहायजानाय</string>
-    <string name="explain_with_ai">लांदां</string>
-    <string name="explain_with_ai_a11y">बोखार</string>
-    <string name="x_value_used">फिननाय</string>
-    <string name="x_equals">कपि</string>
-    <string name="calc_a11y">सेयार</string>
-    <string name="calc_empty">साफा खालाम</string>
-    <string name="result_a11y">आगजुफोर</string>
 </resources>

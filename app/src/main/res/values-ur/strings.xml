@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ur: the strings translated so far. Anything missing falls back to values/. -->
+<!-- ur: translated so far. Anything missing falls back to values/. -->
 <resources>
     <string name="widget_description">آپ کی ہوم اسکرین پر ایک معیاری کیلکولیٹر، جو ٹھوس، مدھم یا مکمل شفاف انداز میں ہو۔</string>
     <string name="tab_standard">معیاری</string>
@@ -16,19 +16,4 @@
     <string name="tab_settings_a11y">سیٹنگز ٹیب</string>
     <string name="history">تاریخ</string>
     <string name="history_a11y">حساب کی تاریخ</string>
-    <string name="degrees_mode">بولیں</string>
-    <string name="radians_mode">حساب بول کر بتائیں</string>
-    <string name="speak">فوٹو</string>
-    <string name="speak_a11y">حساب کی تصویر لیں</string>
-    <string name="photo">اس کے بارے میں اے آئی سے پوچھیں</string>
-    <string name="photo_a11y">اے آئی کی مدد سے وضاحت کریں</string>
-    <string name="reading">اے آئی کی مدد سے وضاحت کریں</string>
-    <string name="ask_ai_about_this">جہاں بھی x آئے وہاں استعمال کریں</string>
-    <string name="explain_with_ai">خالی</string>
-    <string name="explain_with_ai_a11y">ہٹائیں</string>
-    <string name="x_value_used">جواب</string>
-    <string name="x_equals">کاپی</string>
-    <string name="calc_a11y">شیئر</string>
-    <string name="calc_empty">صاف کریں</string>
-    <string name="result_a11y">ٹولز</string>
 </resources>

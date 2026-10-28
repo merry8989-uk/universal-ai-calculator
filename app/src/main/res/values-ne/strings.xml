@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ne: the strings translated so far. Anything missing falls back to values/. -->
+<!-- ne: translated so far. Anything missing falls back to values/. -->
 <resources>
     <string name="widget_description">तपाईंको होम स्क्रिनमा एउटा स्ट्यान्डर्ड क्याल्कुलेटर, जुन सोलिड, डिम वा पूर्ण रूपमा ट्रान्सपरेन्ट स्टाइलमा हुन्छ।</string>
     <string name="tab_standard">स्ट्यान्डर्ड</string>
@@ -16,19 +16,4 @@
     <string name="tab_settings_a11y">सेटिंग्स ट्याब</string>
     <string name="history">हिस्ट्री</string>
     <string name="history_a11y">क्याल्कुलेसन हिस्ट्री</string>
-    <string name="degrees_mode">बोल्नुहोस्</string>
-    <string name="radians_mode">क्याल्कुलेसन बोल्नुहोस्</string>
-    <string name="speak">फोटो</string>
-    <string name="speak_a11y">क्याल्कुलेसनको फोटो खिच्नुहोस्</string>
-    <string name="photo">यसबारे एआईलाई सोध्नुहोस्</string>
-    <string name="photo_a11y">एआईबाट बुझाउनुहोस्</string>
-    <string name="reading">एआईबाट बुझाउनुहोस्</string>
-    <string name="ask_ai_about_this">जहाँ x आउँछ त्यहाँ प्रयोग गर्नुहोस्</string>
-    <string name="explain_with_ai">खाली</string>
-    <string name="explain_with_ai_a11y">हटाउनुहोस्</string>
-    <string name="x_value_used">उत्तर</string>
-    <string name="x_equals">कपी</string>
-    <string name="calc_a11y">सेयर</string>
-    <string name="calc_empty">क्लियर</string>
-    <string name="result_a11y">टुलहरू</string>
 </resources>

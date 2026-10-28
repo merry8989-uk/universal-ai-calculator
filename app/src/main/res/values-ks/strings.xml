@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ks: the strings translated so far. Anything missing falls back to values/. -->
+<!-- ks: translated so far. Anything missing falls back to values/. -->
 <resources>
     <string name="widget_description">تُہندِس ہوم سکرِنس پؠٹھ اَکھ سِٹینڈرڈ کیلکولیٹر، سولیڈ، ڈِم یا بِلکُل ٹرانسپیرنٹ سِٹایلس مَنٛز۔</string>
     <string name="tab_standard">سِٹینڈرڈ</string>
@@ -16,19 +16,4 @@
     <string name="tab_settings_a11y">سیٹِنگز ٹیب</string>
     <string name="history">ہِسٹری</string>
     <string name="history_a11y">کَیلکُلیشَن ہِسٹری</string>
-    <string name="degrees_mode">بولِو</string>
-    <string name="radians_mode">کَیلکُلیشَن بولِو</string>
-    <string name="speak">فوٹو</string>
-    <string name="speak_a11y">کَیلکُلیشَنُک فوٹو تُلِو</string>
-    <string name="photo">اے آی یَس مُتعلِق پُژھِو</string>
-    <string name="photo_a11y">اے آی یَس سٟتؠ وِضاحَت کٔرِو</string>
-    <string name="reading">اے آی یَس سٟتؠ وِضاحَت کٔرِو</string>
-    <string name="ask_ai_about_this">یَتھ کُنہِ جایہِ x یِیہِ تَتھ کٔرِو اِستِمال</string>
-    <string name="explain_with_ai">خٲلی</string>
-    <string name="explain_with_ai_a11y">کَڈِو</string>
-    <string name="x_value_used">جَواب</string>
-    <string name="x_equals">کاپِ کٔرِو</string>
-    <string name="calc_a11y">شیر کٔرِو</string>
-    <string name="calc_empty">کلیَر کٔرِو</string>
-    <string name="result_a11y">ٹُولز</string>
 </resources>

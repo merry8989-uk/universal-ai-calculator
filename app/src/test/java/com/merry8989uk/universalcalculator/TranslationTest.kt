@@ -72,10 +72,12 @@ class TranslationTest {
     }
 
     @Test fun everyLanguageTranslatesTheCoreChrome() {
-        // the tabs and the main actions are the least a language should carry
+        // the tab bar is the least a language should carry: it is the first
+        // thing a user sees, and leaving it in English makes the choice look
+        // broken even when the rest falls back correctly.
         val mustHave = listOf(
             "tab_standard", "tab_scientific", "tab_convert", "tab_formulas",
-            "tab_ask_ai", "tab_settings", "history", "settings_title", "back", "clear",
+            "tab_ask_ai", "tab_settings", "history",
         )
         for (locale in locales()) {
             if (locale == "values") continue

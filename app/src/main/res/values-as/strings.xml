@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- as: the strings translated so far. Anything missing falls back to values/. -->
+<!-- as: translated so far. Anything missing falls back to values/. -->
 <resources>
     <string name="widget_description">আপোনাৰ হোম স্ক্ৰীণত এটা সাধাৰণ কেলকুলেটৰ, যিটো ছলিড, ডিমড বা সম্পূৰ্ণ স্বচ্ছ ষ্টাইলত থাকে।</string>
     <string name="tab_standard">ষ্টেণ্ডাৰ্ড</string>
@@ -16,19 +16,4 @@
     <string name="tab_settings_a11y">ছেটিংছ টেব</string>
     <string name="history">হিষ্ট্ৰী</string>
     <string name="history_a11y">হিচাপৰ ইতিহাস</string>
-    <string name="degrees_mode">স্পিক</string>
-    <string name="radians_mode">হিচাপটো পঢ়ি শুনোৱা</string>
-    <string name="speak">ফটো</string>
-    <string name="speak_a11y">হিচাপটোৰ ফটো লোৱা</string>
-    <string name="photo">এই বিষয়ে Ask AI</string>
-    <string name="photo_a11y">AI-ৰ সহায়ত বুজাই দিয়া</string>
-    <string name="reading">AI-ৰ সহায়ত বুজাই দিয়া</string>
-    <string name="ask_ai_about_this">য\'তেই x থাকে তাত ব্যৱহাৰ কৰা হয়</string>
-    <string name="explain_with_ai">খালী</string>
-    <string name="explain_with_ai_a11y">আঁতৰোৱা</string>
-    <string name="x_value_used">উত্তৰ</string>
-    <string name="x_equals">কপি</string>
-    <string name="calc_a11y">শ্বেয়াৰ</string>
-    <string name="calc_empty">ক্লিয়াৰ</string>
-    <string name="result_a11y">টুলছ</string>
 </resources>
