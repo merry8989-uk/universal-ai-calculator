@@ -63,14 +63,23 @@ private fun themeName(theme: com.merry8989uk.universalcalculator.ui.theme.AppThe
         com.merry8989uk.universalcalculator.ui.theme.AppTheme.DYNAMIC -> stringResource(R.string.theme_dynamic)
     }
 
-private val LANGUAGES = listOf("system", "en", "hi")
+/** Every language offered, with "follow the phone" and English at the front. */
+private val LANGUAGES: List<String> =
+    listOf("system", "en") + com.merry8989uk.universalcalculator.locale.Languages.ALL.map { it.tag }
 
-/** Friendly names for the language chips. */
+/**
+ * The name of a language.
+ *
+ * It is written in its own script, with the English name beside it, so a Tamil
+ * speaker can find தமிழ் and everybody else can read Tamil.
+ */
 @Composable
 private fun languageName(code: String): String = when (code) {
-    "en" -> stringResource(R.string.lang_en)
-    "hi" -> stringResource(R.string.lang_hi)
-    else -> stringResource(R.string.lang_system)
+    "system" -> stringResource(R.string.lang_system)
+    "en" -> "English"
+    else -> com.merry8989uk.universalcalculator.locale.Languages.byTag(code)
+        ?.let { it.native + "  \u00B7  " + it.english }
+        ?: code
 }
 
 /**

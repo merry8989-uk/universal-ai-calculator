@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- or: the strings translated so far. Anything missing falls back to values/. -->
+<resources>
+    <string name="widget_description">ଆପଣଙ୍କ ହୋମ୍ ସ୍କ୍ରିନ୍ରେ ଥିବା ଏକ ଷ୍ଟାଣ୍ଡାର୍ଡ କାଲକୁଲେଟର, ସଲିଡ୍, ଡିମ୍ କିମ୍ବା ସମ୍ପୂର୍ଣ୍ଣ ଟ୍ରାନ୍ସପାରେଣ୍ଟ୍ ଷ୍ଟାଇଲ୍ରେ।</string>
+    <string name="tab_standard">ଷ୍ଟାଣ୍ଡାର୍ଡ</string>
+    <string name="tab_scientific">ସାଇଣ୍ଟିଫିକ୍</string>
+    <string name="tab_convert">କନଭର୍ଟ</string>
+    <string name="tab_formulas">ଫର୍ମୁଲା</string>
+    <string name="tab_ask_ai">AI କୁ ପଚାରନ୍ତୁ</string>
+    <string name="tab_settings">ସେଟିଂସ୍</string>
+    <string name="tab_standard_a11y">ଷ୍ଟାଣ୍ଡାର୍ଡ ଟ୍ୟାବ୍</string>
+    <string name="tab_scientific_a11y">ସାଇଣ୍ଟିଫିକ୍ ଟ୍ୟାବ୍</string>
+    <string name="tab_convert_a11y">କନଭର୍ଟ ଟ୍ୟାବ୍</string>
+    <string name="tab_formulas_a11y">ଫର୍ମୁଲା ଟ୍ୟାବ୍</string>
+    <string name="tab_ask_ai_a11y">AI କୁ ପଚାରନ୍ତୁ ଟ୍ୟାବ୍</string>
+    <string name="tab_settings_a11y">ସେଟିଂସ୍ ଟ୍ୟାବ୍</string>
+    <string name="history">ହିଷ୍ଟ୍ରି</string>
+    <string name="history_a11y">କ୍ୟାଲକୁଲେସନ୍ ହିଷ୍ଟ୍ରି</string>
+    <string name="degrees_mode">ସ୍ପିକ୍</string>
+    <string name="radians_mode">ଏକ କ୍ୟାଲକୁଲେସନ୍ କୁ କୁହନ୍ତୁ</string>
+    <string name="speak">ଫଟୋ</string>
+    <string name="speak_a11y">ଏକ କ୍ୟାଲକୁଲେସନ୍ ର ଫଟୋ ଉଠାନ୍ତୁ</string>
+    <string name="photo">ଏହା ବିଷୟରେ AI କୁ ପଚାରନ୍ତୁ</string>
+    <string name="photo_a11y">AI ସହିତ ବୁଝାନ୍ତୁ</string>
+    <string name="reading">AI ସହିତ ବୁଝାନ୍ତୁ</string>
+    <string name="ask_ai_about_this">ଯେଉଁଠାରେ x ଥାଏ ସେଠାରେ ବ୍ୟବହୃତ ହୁଏ</string>
+    <string name="explain_with_ai">ଖାଲି</string>
+    <string name="explain_with_ai_a11y">ହଟାନ୍ତୁ</string>
+    <string name="x_value_used">ଉତ୍ତର</string>
+    <string name="x_equals">କପି</string>
+    <string name="calc_a11y">ସେୟାର୍</string>
+    <string name="calc_empty">କ୍ଲିୟର୍</string>
+    <string name="result_a11y">ଟୁଲ୍ସ</string>
+</resources>

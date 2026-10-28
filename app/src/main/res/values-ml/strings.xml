@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ml: the strings translated so far. Anything missing falls back to values/. -->
+<resources>
+    <string name="widget_description">നിങ്ങളുടെ ഹോം സ്ക്രീനിൽ സോളിഡ്, ഡിംഡ് അല്ലെങ്കിൽ പൂർണ്ണമായും സുതാര്യമായ ശൈലിയിലുള്ള ഒരു സ്റ്റാൻഡേർഡ് കാൽക്കുലേറ്റർ.</string>
+    <string name="tab_standard">സ്റ്റാൻഡേർഡ്</string>
+    <string name="tab_scientific">സയന്റിഫിക്</string>
+    <string name="tab_convert">കൺവേർട്ട്</string>
+    <string name="tab_formulas">ഫോർമുലകൾ</string>
+    <string name="tab_ask_ai">AI-യോട് ചോദിക്കുക</string>
+    <string name="tab_settings">സെറ്റിംഗ്സ്</string>
+    <string name="tab_standard_a11y">സ്റ്റാൻഡേർഡ് ടാബ്</string>
+    <string name="tab_scientific_a11y">സയന്റിഫിക് ടാബ്</string>
+    <string name="tab_convert_a11y">കൺവേർട്ട് ടാബ്</string>
+    <string name="tab_formulas_a11y">ഫോർമുലകൾ ടാബ്</string>
+    <string name="tab_ask_ai_a11y">AI-യോട് ചോദിക്കുക ടാബ്</string>
+    <string name="tab_settings_a11y">സെറ്റിംഗ്സ് ടാബ്</string>
+    <string name="history">ഹിസ്റ്ററി</string>
+    <string name="history_a11y">കണക്കുകൂട്ടൽ ചരിത്രം</string>
+    <string name="degrees_mode">സംസാരിക്കുക</string>
+    <string name="radians_mode">ഒരു കണക്കുകൂട്ടൽ സംസാരിക്കുക</string>
+    <string name="speak">ഫോട്ടോ</string>
+    <string name="speak_a11y">ഒരു കണക്കുകൂട്ടലിന്റെ ഫോട്ടോ എടുക്കുക</string>
+    <string name="photo">ഇതിനെക്കുറിച്ച് AI-യോട് ചോദിക്കുക</string>
+    <string name="photo_a11y">AI ഉപയോഗിച്ച് വിശദീകരിക്കുക</string>
+    <string name="reading">AI ഉപയോഗിച്ച് വിശദീകരിക്കുക</string>
+    <string name="ask_ai_about_this">x വരുന്നിടത്തെല്ലാം ഉപയോഗിക്കുന്നു</string>
+    <string name="explain_with_ai">ശൂന്യം</string>
+    <string name="explain_with_ai_a11y">നീക്കം ചെയ്യുക</string>
+    <string name="x_value_used">ഉത്തരം</string>
+    <string name="x_equals">പകർത്തുക</string>
+    <string name="calc_a11y">പങ്കിടുക</string>
+    <string name="calc_empty">ക്ലിയർ</string>
+    <string name="result_a11y">ടൂളുകൾ</string>
+</resources>

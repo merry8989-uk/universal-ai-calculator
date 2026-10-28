@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- gu: the strings translated so far. Anything missing falls back to values/. -->
+<resources>
+    <string name="widget_description">તમારા હોમ સ્ક્રીન પર એક સ્ટાન્ડર્ડ કેલ્ક્યુલેટર, સોલિડ, ડિમ્ડ અથવા સંપૂર્ણપણે પારદર્શક સ્ટાઇલમાં.</string>
+    <string name="tab_standard">સ્ટાન્ડર્ડ</string>
+    <string name="tab_scientific">સાયન્ટિફિક</string>
+    <string name="tab_convert">કન્વર્ટ</string>
+    <string name="tab_formulas">ફોર્મ્યુલા</string>
+    <string name="tab_ask_ai">આસ્ક AI</string>
+    <string name="tab_settings">સેટિંગ્સ</string>
+    <string name="tab_standard_a11y">સ્ટાન્ડર્ડ ટેબ</string>
+    <string name="tab_scientific_a11y">સાયન્ટિફિક ટેબ</string>
+    <string name="tab_convert_a11y">કન્વર્ટ ટેબ</string>
+    <string name="tab_formulas_a11y">ફોર્મ્યુલા ટેબ</string>
+    <string name="tab_ask_ai_a11y">આસ્ક AI ટેબ</string>
+    <string name="tab_settings_a11y">સેટિંગ્સ ટેબ</string>
+    <string name="history">હિસ્ટ્રી</string>
+    <string name="history_a11y">ગણતરીનો ઇતિહાસ</string>
+    <string name="degrees_mode">સ્પીક</string>
+    <string name="radians_mode">ગણતરી બોલો</string>
+    <string name="speak">ફોટો</string>
+    <string name="speak_a11y">ગણતરીનો ફોટો લો</string>
+    <string name="photo">આના વિશે AI ને પૂછો</string>
+    <string name="photo_a11y">AI સાથે સમજાવો</string>
+    <string name="reading">AI સાથે સમજાવો</string>
+    <string name="ask_ai_about_this">જ્યાં પણ x દેખાય ત્યાં વપરાય છે</string>
+    <string name="explain_with_ai">ખાલી</string>
+    <string name="explain_with_ai_a11y">દૂર કરો</string>
+    <string name="x_value_used">જવાબ</string>
+    <string name="x_equals">કોપી</string>
+    <string name="calc_a11y">શેર</string>
+    <string name="calc_empty">ક્લિયર</string>
+    <string name="result_a11y">ટૂલ્સ</string>
+</resources>

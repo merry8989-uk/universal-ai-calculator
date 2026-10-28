@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- sat: the strings translated so far. Anything missing falls back to values/. -->
+<resources>
+    <string name="widget_description">ᱟᱢᱟᱜ ᱦᱳᱢ ᱥᱠᱨᱤᱱ ᱨᱮ ᱢᱤᱫᱴᱟᱹᱝ ᱥᱴᱮᱱᱰᱟᱨᱰ ᱠᱮᱞᱠᱩᱞᱮᱴᱚᱨ, ᱥᱚᱞᱤᱰ, ᱰᱤᱢ ᱥᱮ ᱯᱩᱨᱟᱹ ᱴᱨᱟᱱᱥᱯᱟᱨᱮᱱᱴ ᱥᱴᱟᱭᱤᱞ ᱨᱮ᱾</string>
+    <string name="tab_standard">ᱥᱴᱮᱱᱰᱟᱨᱰ</string>
+    <string name="tab_scientific">ᱥᱟᱭᱤᱱᱴᱤᱯᱷᱤᱠ</string>
+    <string name="tab_convert">ᱠᱚᱱᱵᱷᱟᱨᱴ</string>
+    <string name="tab_formulas">ᱯᱷᱚᱨᱢᱩᱞᱟ</string>
+    <string name="tab_ask_ai">AI ᱠᱩᱞᱤ ᱢᱮ</string>
+    <string name="tab_settings">ᱥᱮᱴᱤᱝᱥ</string>
+    <string name="tab_standard_a11y">ᱥᱴᱮᱱᱰᱟᱨᱰ ᱴᱮᱵᱽ</string>
+    <string name="tab_scientific_a11y">ᱥᱟᱭᱤᱱᱴᱤᱯᱷᱤᱠ ᱴᱮᱵᱽ</string>
+    <string name="tab_convert_a11y">ᱠᱚᱱᱵᱷᱟᱨᱴ ᱴᱮᱵᱽ</string>
+    <string name="tab_formulas_a11y">ᱯᱷᱚᱨᱢᱩᱞᱟ ᱴᱮᱵᱽ</string>
+    <string name="tab_ask_ai_a11y">AI ᱠᱩᱞᱤ ᱢᱮ ᱴᱮᱵᱽ</string>
+    <string name="tab_settings_a11y">ᱥᱮᱴᱤᱝᱥ ᱴᱮᱵᱽ</string>
+    <string name="history">ᱦᱤᱥᱴᱨᱤ</string>
+    <string name="history_a11y">ᱠᱮᱞᱠᱩᱞᱮᱥᱚᱱ ᱦᱤᱥᱴᱨᱤ</string>
+    <string name="degrees_mode">ᱨᱚᱲ</string>
+    <string name="radians_mode">ᱢᱤᱫᱴᱟᱹᱝ ᱠᱮᱞᱠᱩᱞᱮᱥᱚᱱ ᱨᱚᱲ ᱢᱮ</string>
+    <string name="speak">ᱯᱷᱚᱴᱚ</string>
+    <string name="speak_a11y">ᱢᱤᱫᱴᱟᱹᱝ ᱠᱮᱞᱠᱩᱞᱮᱥᱚᱱ ᱯᱷᱚᱴᱚᱜᱨᱟᱯᱷ ᱢᱮ</string>
+    <string name="photo">ᱱᱚᱣᱟ ᱵᱟᱵᱚᱛ AI ᱠᱩᱞᱤ ᱢᱮ</string>
+    <string name="photo_a11y">AI ᱥᱟᱶᱛᱮ ᱵᱩᱡᱷᱟᱹᱣ ᱢᱮ</string>
+    <string name="reading">AI ᱥᱟᱶᱛᱮ ᱵᱩᱡᱷᱟᱹᱣ ᱢᱮ</string>
+    <string name="ask_ai_about_this">ᱡᱟᱦᱟᱸ ᱨᱮ x ᱦᱤᱡᱩᱜᱼᱟ ᱚᱸᱰᱮ ᱵᱮᱵᱷᱟᱨᱚᱜᱼᱟ</string>
+    <string name="explain_with_ai">ᱠᱷᱟᱹᱞᱤ</string>
+    <string name="explain_with_ai_a11y">ᱚᱪᱚᱜ ᱢᱮ</string>
+    <string name="x_value_used">ᱛᱮᱞᱟ</string>
+    <string name="x_equals">ᱠᱚᱯᱤ</string>
+    <string name="calc_a11y">ᱥᱮᱭᱟᱨ</string>
+    <string name="calc_empty">ᱠᱞᱤᱭᱟᱨ</string>
+    <string name="result_a11y">ᱴᱩᱞᱥ</string>
+</resources>

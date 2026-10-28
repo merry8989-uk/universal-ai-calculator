@@ -19,7 +19,7 @@ object LocaleHelper {
     const val SYSTEM = "system"
 
     /** Languages the app ships translations for. */
-    val SUPPORTED = listOf(SYSTEM, "en", "hi")
+    val SUPPORTED: List<String> = listOf(SYSTEM, "en") + Languages.ALL.map { it.tag }
 
     fun store(context: Context, language: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -39,6 +39,10 @@ object LocaleHelper {
         Locale.setDefault(locale)
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
+        // Urdu, Sindhi and Kashmiri read right to left. Telling the
+        // configuration means Compose lays the whole app out mirrored rather
+        // than leaving the keypad in the wrong direction.
+        config.setLayoutDirection(locale)
         return context.createConfigurationContext(config)
     }
 }
