@@ -228,9 +228,19 @@ object ThemeCodec {
         return out.toString()
     }
 
-    private fun argb(color: Color): Int =
-        (color.alpha * 255).roundToInt().coerceIn(0, 255) shl 24 or
-            (color.red * 255).roundToInt().coerceIn(0, 255) shl 16 or
-            (color.green * 255).roundToInt().coerceIn(0, 255) shl 8 or
-            (color.blue * 255).roundToInt().coerceIn(0, 255)
+    /**
+     * The colour as 0xAARRGGBB.
+     *
+     * Every shift is bracketed. `shl` and `or` are both infix and share a
+     * precedence, so an unparenthesised chain groups left to right and rotates
+     * the bytes instead of packing them — which turns blue into alpha and
+     * quietly corrupts every saved theme.
+     */
+    private fun argb(color: Color): Int {
+        val a = (color.alpha * 255).roundToInt().coerceIn(0, 255)
+        val r = (color.red * 255).roundToInt().coerceIn(0, 255)
+        val g = (color.green * 255).roundToInt().coerceIn(0, 255)
+        val b = (color.blue * 255).roundToInt().coerceIn(0, 255)
+        return (a shl 24) or (r shl 16) or (g shl 8) or b
+    }
 }

@@ -170,8 +170,17 @@ object ThemeFromImage {
     }
 }
 
-private fun Color.toArgb(): Int =
-    (alpha * 255).roundToInt().coerceIn(0, 255) shl 24 or
-        (red * 255).roundToInt().coerceIn(0, 255) shl 16 or
-        (green * 255).roundToInt().coerceIn(0, 255) shl 8 or
-        (blue * 255).roundToInt().coerceIn(0, 255)
+/**
+ * The colour as 0xAARRGGBB.
+ *
+ * Every shift is bracketed: `shl` and `or` are both infix and share a
+ * precedence, so an unparenthesised chain groups left to right and rotates the
+ * bytes rather than packing them.
+ */
+private fun Color.toArgb(): Int {
+    val a = (alpha * 255).roundToInt().coerceIn(0, 255)
+    val r = (red * 255).roundToInt().coerceIn(0, 255)
+    val g = (green * 255).roundToInt().coerceIn(0, 255)
+    val b = (blue * 255).roundToInt().coerceIn(0, 255)
+    return (a shl 24) or (r shl 16) or (g shl 8) or b
+}

@@ -40,6 +40,46 @@ class CustomThemeTest {
         assertEquals(Color(0xFFFF7AB6), back[0].secondary)
     }
 
+    /**
+     * Every colour comes back exactly as it went in.
+     *
+     * This is the test that caught a real bug: `shl` and `or` are both infix and
+     * share a precedence, so `a shl 24 or r shl 16 or g shl 8 or b` groups left
+     * to right and rotates the bytes. Blue became alpha, and every saved theme
+     * was quietly the wrong colour.
+     */
+    @Test fun coloursSurviveTheRoundTripExactly() {
+        val spread = listOf(
+            Color(0xFF000000), Color(0xFFFFFFFF), Color(0xFF4EA8FF),
+            Color(0xFFFF0000), Color(0xFF00FF00), Color(0xFF0000FF),
+            Color(0x80FF8800), Color(0x00123456), Color(0xFF123456),
+            Color(0xFF0E1018), Color(0xFF1A1D2B), Color(0xFFF3F7FA),
+        )
+        for (colour in spread) {
+            val theme = sample().copy(primary = colour, background = colour)
+            val back = ThemeCodec.decode(ThemeCodec.encode(listOf(theme))).single()
+            assertEquals("$colour changed on the way through", colour, back.primary)
+            assertEquals("$colour changed on the way through", colour, back.background)
+        }
+    }
+
+    @Test fun theAlphaIsKept() {
+        val translucent = Color(0x40FF8800)
+        val back = ThemeCodec.decode(
+            ThemeCodec.encode(listOf(sample().copy(primary = translucent))),
+        ).single()
+        assertEquals(translucent.alpha, back.primary.alpha, 1e-3f)
+    }
+
+    @Test fun everySwatchSurvivesTheRoundTrip() {
+        for (colour in Palette.ALL) {
+            val back = ThemeCodec.decode(
+                ThemeCodec.encode(listOf(sample().copy(primary = colour))),
+            ).single()
+            assertEquals("$colour changed on the way through", colour, back.primary)
+        }
+    }
+
     @Test fun severalThemesSurvive() {
         val many = (1..5).map { sample("t$it", "Theme $it") }
         assertEquals(5, ThemeCodec.decode(ThemeCodec.encode(many)).size)

@@ -68,8 +68,14 @@ class AuditTest {
             for (m in Regex("^(?:internal |private |public )?object (\\w+)", RegexOption.MULTILINE).findAll(text)) {
                 val name = m.groupValues[1]
                 if (name in namedByTheSystem) continue
+                // A helper used only inside the file it is declared in is still
+                // reached — a codec belongs beside the store that calls it. What
+                // is unreachable is a name that appears exactly once in the whole
+                // tree: the declaration and nothing else.
+                val uses = Regex("\\b${Regex.escape(name)}\\b").findAll(text).count() - 1
                 val elsewhere = texts.filterKeys { it != file }.values.joinToString("\n")
-                if (!Regex("\\b${Regex.escape(name)}\\b").containsMatchIn(elsewhere)) unreachable.add(name)
+                val usedOutside = Regex("\\b${Regex.escape(name)}\\b").containsMatchIn(elsewhere)
+                if (!usedOutside && uses <= 0) unreachable.add(name)
             }
         }
         assertTrue("these objects are never reached from anywhere: $unreachable", unreachable.isEmpty())
