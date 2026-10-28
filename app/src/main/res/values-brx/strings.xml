@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- brx: the strings translated so far. Anything missing falls back to values/. -->
 <resources>
-    <string name="widget_description">नोंथांनि न'नि स्क्रिनाव थानाय मोनसे साधारन केलकुलेटर, जाय गोरा, गोसोम एबा आबुङै गोजों महराव दं।</string>
+    <string name="widget_description">नोंथांनि न\'नि स्क्रिनाव थानाय मोनसे साधारन केलकुलेटर, जाय गोरा, गोसोम एबा आबुङै गोजों महराव दं।</string>
     <string name="tab_standard">साधारन</string>
     <string name="tab_scientific">बिगियानारि</string>
     <string name="tab_convert">सोलाय</string>

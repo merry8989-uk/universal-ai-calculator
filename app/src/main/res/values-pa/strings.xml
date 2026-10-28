@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- pa: the strings translated so far. Anything missing falls back to values/. -->
 <resources>
-    <string name="widget_description">ਤੁਹਾਡੀ ਹੋਮ ਸਕ੍ਰੀਨ 'ਤੇ ਇੱਕ ਸਟੈਂਡਰਡ ਕੈਲਕੁਲੇਟਰ, ਜੋ ਕਿ ਸੋਲਿਡ, ਡਿਮ ਜਾਂ ਪੂਰੀ ਤਰ੍ਹਾਂ ਪਾਰਦਰਸ਼ੀ ਸਟਾਈਲ ਵਿੱਚ ਹੈ।</string>
+    <string name="widget_description">ਤੁਹਾਡੀ ਹੋਮ ਸਕ੍ਰੀਨ \'ਤੇ ਇੱਕ ਸਟੈਂਡਰਡ ਕੈਲਕੁਲੇਟਰ, ਜੋ ਕਿ ਸੋਲਿਡ, ਡਿਮ ਜਾਂ ਪੂਰੀ ਤਰ੍ਹਾਂ ਪਾਰਦਰਸ਼ੀ ਸਟਾਈਲ ਵਿੱਚ ਹੈ।</string>
     <string name="tab_standard">ਸਟੈਂਡਰਡ</string>
     <string name="tab_scientific">ਸਾਇੰਟੀਫਿਕ</string>
     <string name="tab_convert">ਕਨਵਰਟ</string>

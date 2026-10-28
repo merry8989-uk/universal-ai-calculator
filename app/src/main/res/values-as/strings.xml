@@ -23,7 +23,7 @@
     <string name="photo">এই বিষয়ে Ask AI</string>
     <string name="photo_a11y">AI-ৰ সহায়ত বুজাই দিয়া</string>
     <string name="reading">AI-ৰ সহায়ত বুজাই দিয়া</string>
-    <string name="ask_ai_about_this">য'তেই x থাকে তাত ব্যৱহাৰ কৰা হয়</string>
+    <string name="ask_ai_about_this">য\'তেই x থাকে তাত ব্যৱহাৰ কৰা হয়</string>
     <string name="explain_with_ai">খালী</string>
     <string name="explain_with_ai_a11y">আঁতৰোৱা</string>
     <string name="x_value_used">উত্তৰ</string>
