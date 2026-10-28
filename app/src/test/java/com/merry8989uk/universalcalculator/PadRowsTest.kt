@@ -14,15 +14,14 @@ import org.junit.Test
  */
 class PadRowsTest {
 
-    private val memoryRow = listOf("MC", "M+", "M-", "MR", "GT")
-    private val bottomRow = listOf("0", "00", ".", "+", "=")
+    private val bottomRow = listOf("0", "00", ".", "GT", "=")
 
     @Test fun withGtOnTheRowIsUnchanged() {
-        assertEquals(memoryRow, PadRows.keysFor(memoryRow, showGt = true))
+        assertEquals(bottomRow, PadRows.keysFor(bottomRow, showGt = true))
     }
 
     @Test fun withGtOffOnlyThatKeyGoes() {
-        assertEquals(listOf("MC", "M+", "M-", "MR"), PadRows.keysFor(memoryRow, showGt = false))
+        assertEquals(listOf("0", "00", ".", "="), PadRows.keysFor(bottomRow, showGt = false))
     }
 
     @Test fun noOtherRowChangesWhenGtIsOff() {
@@ -53,6 +52,47 @@ class PadRowsTest {
     @Test fun thePadHasExactlyOneGtKey() {
         val count = PAD.sumOf { row -> row.count { it == "GT" } }
         assertEquals("the pad should carry one GT key", 1, count)
+    }
+
+    /**
+     * The layout the user drew, pinned exactly.
+     *
+     * Column four is the four operators, top to bottom, the way a desk
+     * calculator arranges them; everything else sits to its left.
+     */
+    @Test fun thePadMatchesTheLayoutThatWasDrawn() {
+        assertEquals(
+            listOf(
+                listOf("C", "AC", "CE", "del", "%"),
+                listOf("MC", "M+", "M-", "MR", "/"),
+                listOf("7", "8", "9", "MU", "*"),
+                listOf("4", "5", "6", ")", "-"),
+                listOf("1", "2", "3", "(", "+"),
+                listOf("0", "00", ".", "GT", "="),
+            ),
+            PAD,
+        )
+    }
+
+    @Test fun theRightHandColumnIsTheFourOperators() {
+        val right = PAD.map { it.last() }.drop(1).take(4)
+        assertEquals(listOf("/", "*", "-", "+"), right)
+    }
+
+    @Test fun equalsIsTheLastKeyOfTheLastRow() {
+        assertEquals("=", PAD.last().last())
+    }
+
+    @Test fun everyRowHasFiveKeys() {
+        for ((i, row) in PAD.withIndex()) {
+            assertEquals("row $i has ${row.size} keys", 5, row.size)
+        }
+    }
+
+    @Test fun noKeyAppearsTwice() {
+        val all = PAD.flatten()
+        val repeated = all.groupingBy { it }.eachCount().filter { it.value > 1 }
+        assertTrue("these keys appear more than once: $repeated", repeated.isEmpty())
     }
 
     @Test fun thePadStillHasEveryDigitAndTheFourOperators() {

@@ -127,14 +127,16 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal val PAD = listOf(
-    // the clearing row, at the top where it belongs
+    // The clearing row, at the top where it belongs.
     listOf("C", "AC", "CE", "del", "%"),
-    // then the memory keys, directly above the digits
-    listOf("MC", "M+", "M-", "MR", "GT"),
-    listOf("7", "8", "9", "/", "MU"),
-    listOf("4", "5", "6", "*", "("),
-    listOf("1", "2", "3", "-", ")"),
-    listOf("0", "00", ".", "+", "="),
+    // The memory keys, directly above the digits.
+    listOf("MC", "M+", "M-", "MR", "/"),
+    listOf("7", "8", "9", "MU", "*"),
+    listOf("4", "5", "6", ")", "-"),
+    listOf("1", "2", "3", "(", "+"),
+    // GT sits beside the digits so the right-hand column can be the four
+    // operators, the way a desk calculator arranges them.
+    listOf("0", "00", ".", "GT", "="),
 )
 
 private val LABELS = mapOf(
