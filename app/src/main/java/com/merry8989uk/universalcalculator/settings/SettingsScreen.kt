@@ -389,6 +389,17 @@ fun SettingsScreen(
             // ---- the display ----
             Section(stringResource(R.string.section_display))
 
+            ToggleRow("Show the GT key", state.showGtKey, vm::setShowGtKey)
+            Text(
+                if (state.showGtKey) {
+                    "The grand total key sits on the keypad. Turning it off gives the space to the = key."
+                } else {
+                    "The GT key is off and = is twice as wide. The grand total is still worked out and still shown in the display."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
             ToggleRow(stringResource(R.string.blink_cursor), state.blinkCursor, vm::setBlinkCursor)
             ToggleRow(stringResource(R.string.clear_on_exit), state.clearOnExit, vm::setClearOnExit)
             Text(

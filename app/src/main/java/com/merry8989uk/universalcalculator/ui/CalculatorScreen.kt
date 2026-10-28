@@ -1366,7 +1366,10 @@ when (key) {
                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    row.forEach { key ->
+                    // The GT key can be taken off the pad; the grand total
+                    // itself keeps working and keeps showing in the display.
+                    val shown = PadRows.keysFor(row, settings.showGtKey)
+                    shown.forEach { key ->
                         val colors: List<Color> = when {
                             key == "=" -> listOf(Cyan, Emerald)
                             isClear(key) -> listOf(Orange, Coral)
@@ -1385,7 +1388,12 @@ when (key) {
                             label = label(key, settings.divisionSign, settings.multiplicationSign),
                             colors = colors,
                             contentColor = content,
-                            modifier = Modifier.weight(1f).height(56.dp),
+                            // With GT gone, the equals key takes the space it
+                            // left behind, so the row stays full and `=` is
+                            // twice as wide as an ordinary key.
+                            modifier = Modifier
+                                .weight(PadRows.weightFor(key, settings.showGtKey))
+                                .height(56.dp),
                             classic = classic,
                             haptic = settings.hapticsEnabled,
                             spoken = spokenKey(key),

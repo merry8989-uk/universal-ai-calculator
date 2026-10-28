@@ -40,6 +40,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setDensity(value: Float) = viewModelScope.launch { repo.setDensity(value) }
     fun setLanguage(language: String) = viewModelScope.launch { repo.setLanguage(language) }
     fun setNotifications(enabled: Boolean) = viewModelScope.launch { repo.setNotifications(enabled) }
+    fun setShowGtKey(shown: Boolean) = viewModelScope.launch { repo.setShowGtKey(shown) }
     fun setDataSavingEnabled(enabled: Boolean) = viewModelScope.launch { repo.setDataSavingEnabled(enabled) }
     fun setDiagnosticsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setDiagnosticsEnabled(enabled) }
     fun setLivePreview(enabled: Boolean) = viewModelScope.launch { repo.setLivePreview(enabled) }

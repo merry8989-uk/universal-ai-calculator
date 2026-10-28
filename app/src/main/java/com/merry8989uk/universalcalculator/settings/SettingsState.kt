@@ -14,6 +14,14 @@ data class SettingsState(
      * history, no logs. The individual switches below it stop mattering.
      */
     val dataSavingEnabled: Boolean = true,
+    /**
+     * Whether the GT key is on the keypad.
+     *
+     * The grand total itself is not affected: the figure still appears in the
+     * display and still accumulates on every `=`. Only the key that shows it
+     * comes and goes, and with it gone the `=` key takes the freed space.
+     */
+    val showGtKey: Boolean = true,
     val diagnosticsEnabled: Boolean = true,
     /** Show the live result preview while typing. */
     val livePreview: Boolean = true,

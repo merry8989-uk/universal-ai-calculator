@@ -31,6 +31,7 @@ class SettingsRepository(private val context: Context) {
         val LANGUAGE = stringPreferencesKey("language")
         val NOTIFICATIONS = booleanPreferencesKey("notifications_enabled")
         val DATA_SAVING = booleanPreferencesKey("data_saving")
+        val SHOW_GT = booleanPreferencesKey("show_gt")
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
@@ -76,6 +77,7 @@ class SettingsRepository(private val context: Context) {
             language = p[Keys.LANGUAGE] ?: "system",
             notificationsEnabled = p[Keys.NOTIFICATIONS] ?: true,
             dataSavingEnabled = p[Keys.DATA_SAVING] ?: true,
+            showGtKey = p[Keys.SHOW_GT] ?: true,
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
@@ -249,6 +251,10 @@ class SettingsRepository(private val context: Context) {
     fun currentSavingEnabled(): Boolean = kotlinx.coroutines.runBlocking {
         settings.first().dataSavingEnabled
     }
+
+    /** Whether the GT key appears on the keypad. The total itself is unaffected. */
+    suspend fun setShowGtKey(shown: Boolean) =
+        context.dataStore.edit { it[Keys.SHOW_GT] = shown }
 
     /** The master switch: off means nothing at all is stored. */
     suspend fun setDataSavingEnabled(enabled: Boolean) =
