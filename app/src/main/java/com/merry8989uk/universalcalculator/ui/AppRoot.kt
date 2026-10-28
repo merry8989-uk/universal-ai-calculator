@@ -243,7 +243,11 @@ fun AppRoot(settings: SettingsState) {
     }
 
     // The key tone follows the setting.
-    LaunchedEffect(settings.keySound) { SoundPlayer.setChoice(settings.keySound) }
+    LaunchedEffect(settings.keySound, settings.customTonePath) {
+        SoundPlayer.setCustomPath(settings.customTonePath)
+        SoundPlayer.setChoice(settings.keySound)
+    }
+    LaunchedEffect(settings.keySoundVolume) { SoundPlayer.setVolume(settings.keySoundVolume) }
 
     // "Keep screen on" — applied to the window for as long as it is switched on.
     val view = LocalView.current

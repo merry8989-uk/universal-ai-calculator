@@ -48,6 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsSection
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.merry8989uk.universalcalculator.sound.ToneLibrary
+import com.merry8989uk.universalcalculator.sound.ToneStore
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
@@ -62,6 +66,16 @@ private fun themeName(theme: com.merry8989uk.universalcalculator.ui.theme.AppThe
         com.merry8989uk.universalcalculator.ui.theme.AppTheme.MIDNIGHT -> stringResource(R.string.theme_midnight)
         com.merry8989uk.universalcalculator.ui.theme.AppTheme.DYNAMIC -> stringResource(R.string.theme_dynamic)
     }
+
+/** What a tone is called on its chip. */
+@Composable
+private fun toneName(choice: String): String = when (choice) {
+    ToneLibrary.OFF -> stringResource(R.string.sound_off)
+    "Click" -> stringResource(R.string.sound_click)
+    "Bubble" -> stringResource(R.string.sound_bubble)
+    "Pop" -> stringResource(R.string.sound_pop)
+    else -> choice
+}
 
 /** Every language offered, with "follow the phone" and English at the front. */
 private val LANGUAGES: List<String> =
@@ -104,6 +118,31 @@ fun SettingsScreen(
     var showArchive by remember { mutableStateOf(false) }
     // The account screen, and who is signed in — re-read whenever it closes.
     var showAccount by remember { mutableStateOf(false) }
+    // The file picker for a custom key tone.
+    var pickTone by remember { mutableStateOf(false) }
+    var toneProblem by remember { mutableStateOf("") }
+    val pickToneFile = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val saved = ToneStore.copyIn(context, uri)
+        if (saved == null) {
+            toneProblem = ToneStore.lastProblem
+        } else {
+            toneProblem = ""
+            vm.setCustomTonePath(saved)
+            vm.setKeySound(ToneLibrary.CUSTOM)
+            SoundPlayer.setCustomPath(saved)
+            SoundPlayer.setChoice(ToneLibrary.CUSTOM)
+            SoundPlayer.key()
+        }
+    }
+    LaunchedEffect(pickTone) {
+        if (pickTone) {
+            pickToneFile.launch(arrayOf("audio/*"))
+            pickTone = false
+        }
+    }
     var signedInId by remember { mutableStateOf("") }
     LaunchedEffect(showAccount) {
         signedInId = com.merry8989uk.universalcalculator.sync.AccountStore.id(context)
@@ -317,19 +356,54 @@ fun SettingsScreen(
                             SoundPlayer.setChoice(choice)
                             SoundPlayer.key()
                         },
-                        label = {
-                            Text(
-                                when (choice) {
-                                    SoundPlayer.OFF -> stringResource(R.string.sound_off)
-                                    "Click" -> stringResource(R.string.sound_click)
-                                    "Bubble" -> stringResource(R.string.sound_bubble)
-                                    else -> stringResource(R.string.sound_pop)
-                                },
-                            )
-                        },
+                        label = { Text(toneName(choice)) },
                     )
                 }
             }
+
+            // How loud, and the user's own recording.
+            Text(
+                "Volume  \u00B7  ${(state.keySoundVolume * 100).toInt()}%",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Slider(
+                value = state.keySoundVolume,
+                onValueChange = {
+                    vm.setKeySoundVolume(it)
+                    SoundPlayer.setVolume(it)
+                },
+                valueRange = 0f..1f,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedButton(onClick = { pickTone = true }) { Text("Choose my own tone") }
+                if (state.customTonePath.isNotBlank()) {
+                    TextButton(onClick = {
+                        ToneStore.clear(context)
+                        vm.setCustomTonePath("")
+                        if (state.keySound == ToneLibrary.CUSTOM) vm.setKeySound(ToneLibrary.OFF)
+                        SoundPlayer.setCustomPath("")
+                        toneProblem = ""
+                    }) { Text("Remove it") }
+                }
+            }
+            Text(
+                toneProblem.ifBlank {
+                    if (state.customTonePath.isBlank()) {
+                        "A key tone is a fraction of a second. Pick a short sound — wav, mp3, ogg, m4a, aac, opus or flac."
+                    } else {
+                        "Your own tone is saved in the app. Choosing it plays it on every key."
+                    }
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (toneProblem.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant
+                else MaterialTheme.colorScheme.error,
+            )
             ToggleRow(stringResource(R.string.fractions_in_results), state.fractionsEnabled, vm::setFractionsEnabled)
             ToggleRow(stringResource(R.string.keep_screen_on), state.keepScreenOn, vm::setKeepScreenOn)
             ToggleRow(stringResource(R.string.save_state), state.saveState, vm::setSaveState)

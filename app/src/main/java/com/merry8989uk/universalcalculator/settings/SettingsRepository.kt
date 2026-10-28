@@ -32,6 +32,8 @@ class SettingsRepository(private val context: Context) {
         val NOTIFICATIONS = booleanPreferencesKey("notifications_enabled")
         val DATA_SAVING = booleanPreferencesKey("data_saving")
         val SHOW_GT = booleanPreferencesKey("show_gt")
+        val KEY_VOLUME = floatPreferencesKey("key_volume")
+        val CUSTOM_TONE = stringPreferencesKey("custom_tone")
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
@@ -78,6 +80,8 @@ class SettingsRepository(private val context: Context) {
             notificationsEnabled = p[Keys.NOTIFICATIONS] ?: true,
             dataSavingEnabled = p[Keys.DATA_SAVING] ?: true,
             showGtKey = p[Keys.SHOW_GT] ?: true,
+            keySoundVolume = p[Keys.KEY_VOLUME] ?: 0.7f,
+            customTonePath = p[Keys.CUSTOM_TONE] ?: "",
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
@@ -251,6 +255,14 @@ class SettingsRepository(private val context: Context) {
     fun currentSavingEnabled(): Boolean = kotlinx.coroutines.runBlocking {
         settings.first().dataSavingEnabled
     }
+
+    /** How loud a key is, from 0 to 1. */
+    suspend fun setKeySoundVolume(value: Float) =
+        context.dataStore.edit { it[Keys.KEY_VOLUME] = value.coerceIn(0f, 1f) }
+
+    /** Where the user's own key tone lives. Blank means they have not chosen one. */
+    suspend fun setCustomTonePath(path: String) =
+        context.dataStore.edit { it[Keys.CUSTOM_TONE] = path }
 
     /** Whether the GT key appears on the keypad. The total itself is unaffected. */
     suspend fun setShowGtKey(shown: Boolean) =
