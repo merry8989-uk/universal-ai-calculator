@@ -3,6 +3,10 @@ package com.merry8989uk.universalcalculator.ui
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
@@ -436,16 +441,32 @@ private fun RowScope.NavItem(
 ) {
     val selected = selectedTab == index
     val shape = RoundedCornerShape(14.dp)
-    val tint = if (selected) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.onSurfaceVariant
+
+    // The tab does not snap. The tint, the pill behind it and the size of the
+    // glyph all ease across, so switching tabs reads as one movement rather
+    // than three separate jumps.
+    val tint by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(durationMillis = Motion.TAB_MS),
+        label = "tabTint",
+    )
+    val pill by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        else Color.Transparent,
+        animationSpec = tween(durationMillis = Motion.TAB_MS),
+        label = "tabPill",
+    )
+    val glyphScale by animateFloatAsState(
+        targetValue = if (selected) Motion.TAB_GLYPH_SCALE else 1f,
+        animationSpec = spring(dampingRatio = 0.55f, stiffness = 900f),
+        label = "tabGlyph",
+    )
     Column(
         modifier = Modifier
             .weight(weight)
             .clip(shape)
-            .background(
-                if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                else Color.Transparent,
-            )
+            .background(pill)
             .border(1.dp, Color.White.copy(alpha = 0.14f), shape)
             .clickable(onClick = onClick)
             .padding(vertical = 7.dp)
@@ -457,7 +478,15 @@ private fun RowScope.NavItem(
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(glyph, style = MaterialTheme.typography.headlineSmall, color = tint)
+        Text(
+            glyph,
+            style = MaterialTheme.typography.headlineSmall,
+            color = tint,
+            modifier = Modifier.graphicsLayer {
+                scaleX = glyphScale
+                scaleY = glyphScale
+            },
+        )
         Text(
             label,
             style = MaterialTheme.typography.labelMedium,

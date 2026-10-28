@@ -990,6 +990,13 @@ when (key) {
                     // room for the expression and the result.
                     .weight(if (classicScientific) DISPLAY_WEIGHT_CLASSIC else 1f)
                     .fillMaxWidth()
+                    // The panel swells very slightly while the light sweeps
+                    // across it, so pressing = feels like something landed.
+                    .graphicsLayer {
+                        val swell = Motion.swellAt(ripple.value)
+                        scaleX = swell
+                        scaleY = swell
+                    }
                     .glassSurface(RoundedCornerShape(22.dp)),
             ) {
             Box(
@@ -1165,17 +1172,33 @@ when (key) {
                     val written = if (preview.isNotEmpty())
                         pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)
                     else ""
+                    val shownPreview = if (preview.isNotEmpty())
+                        "= $written" + (asFraction?.let { "   ($it)" } ?: "")
+                    else ""
+
+                    // The answer eases in when it changes rather than being
+                    // swapped between frames, so the eye can follow which digits
+                    // moved.
+                    val settled by animateFloatAsState(
+                        targetValue = if (shownPreview.isBlank()) 0f else 1f,
+                        animationSpec = tween(durationMillis = Motion.ANSWER_FADE_MS),
+                        label = "previewFade",
+                    )
                     AutoSizeText(
-                        text = if (preview.isNotEmpty())
-                            "= $written" + (asFraction?.let { "   ($it)" } ?: "")
-                        else "",
+                        text = shownPreview,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.End,
-                        modifier = Modifier.fillMaxWidth().semantics {
-                            liveRegion = LiveRegionMode.Polite
-                            contentDescription = resultSpoken
-                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer {
+                                alpha = Motion.answerAlpha(settled)
+                                translationY = Motion.answerRise(settled)
+                            }
+                            .semantics {
+                                liveRegion = LiveRegionMode.Polite
+                                contentDescription = resultSpoken
+                            },
                     )
                 }
                 // How the expression was read, when that is not the obvious way.
