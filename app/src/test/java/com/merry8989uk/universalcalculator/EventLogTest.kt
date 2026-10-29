@@ -246,9 +246,9 @@ class EventLogTest {
 
     @Test fun theWorkerHasAWarehouseWithAToken() {
         val w = source("backend/cloudflare/worker.js") ?: return
-        assertTrue("no ingest endpoint", w.contains('path === "/events"'))
-        assertTrue("no stats endpoint", w.contains('path === "/stats"'))
-        assertTrue("no dashboard", w.contains('path === "/dashboard"'))
+        assertTrue("no ingest endpoint", w.contains("path === \"/events\""))
+        assertTrue("no stats endpoint", w.contains("path === \"/stats\""))
+        assertTrue("no dashboard", w.contains("path === \"/dashboard\""))
         assertTrue("the numbers are readable without a token", w.contains("STATS_TOKEN"))
         assertTrue("no D1 binding", w.contains("env.EVENTS"))
         assertTrue("no schema", w.contains("CREATE TABLE IF NOT EXISTS events"))
