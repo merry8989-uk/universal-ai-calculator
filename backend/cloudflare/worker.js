@@ -624,9 +624,436 @@ function tidyExpression(text) {
   return s;
 }
 
+// ---------------------------------------------------------------------------
+// The event warehouse
+//
+// Events are stored in D1 — SQLite on Cloudflare — so they can be counted and
+// grouped with SQL instead of read by eye. Nothing here is user content: the app
+// strips keys, emails and phone numbers before an event is ever written, and it
+// is stripped again here, because a client is not a place to trust.
+// ---------------------------------------------------------------------------
+
+/** The table, created on first use so a fresh database needs no migration step. */
+async function ensureSchema(env) {
+  await env.EVENTS.prepare(
+    `CREATE TABLE IF NOT EXISTS events (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       event_id TEXT,
+       event_name TEXT NOT NULL,
+       category TEXT NOT NULL,
+       severity TEXT NOT NULL,
+       at INTEGER NOT NULL,
+       day TEXT NOT NULL,
+       app_version TEXT,
+       install_id TEXT,
+       session_id TEXT,
+       request_id TEXT,
+       fields TEXT,
+       received_at INTEGER NOT NULL
+     )`,
+  ).run();
+  await env.EVENTS.prepare("CREATE INDEX IF NOT EXISTS idx_events_day ON events(day)").run();
+  await env.EVENTS.prepare("CREATE INDEX IF NOT EXISTS idx_events_name ON events(event_name)").run();
+  await env.EVENTS.prepare("CREATE INDEX IF NOT EXISTS idx_events_cat ON events(category)").run();
+}
+
+/** Anything that looks like a key, an email or a phone number, removed again. */
+function scrub(text) {
+  return String(text || "")
+    .replace(/(sk|cf)[_a-zA-Z0-9]{12,}/g, "[redacted]")
+    .replace(/tvly-[A-Za-z0-9_-]{10,}/g, "[redacted]")
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[redacted]")
+    .replace(/(\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}/g, "[redacted]")
+    .replace(/\b[A-Za-z0-9_-]{40,}\b/g, "[redacted]");
+}
+
+const CATEGORIES = new Set(["app", "calc", "ai", "ocr", "perf", "security", "feedback"]);
+const SEVERITIES = new Set(["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]);
+
+/**
+ * One event, checked and reduced to what the table holds.
+ *
+ * A malformed event is dropped rather than stored: a warehouse full of
+ * half-shaped rows is worse than one that is slightly smaller and trustworthy.
+ */
+function cleanEvent(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const name = String(raw.event_name || "").slice(0, 120);
+  const category = String(raw.category || "").toLowerCase();
+  if (!name || !CATEGORIES.has(category)) return null;
+
+  const severity = SEVERITIES.has(String(raw.severity)) ? String(raw.severity) : "INFO";
+  const at = Date.parse(raw.timestamp);
+  if (!Number.isFinite(at)) return null;
+
+  const fields = raw.fields && typeof raw.fields === "object" ? raw.fields : {};
+  const trimmed = {};
+  let n = 0;
+  for (const [k, v] of Object.entries(fields)) {
+    if (n++ >= 24) break;
+    trimmed[String(k).slice(0, 40)] = scrub(String(v)).slice(0, 300);
+  }
+
+  const app = raw.app && typeof raw.app === "object" ? raw.app : {};
+  const ctx = raw.context && typeof raw.context === "object" ? raw.context : {};
+
+  return {
+    event_id: String(raw.event_id || "").slice(0, 60),
+    event_name: name,
+    category,
+    severity,
+    at,
+    day: new Date(at).toISOString().slice(0, 10),
+    app_version: String(app.version || "").slice(0, 40),
+    install_id: String(ctx.anonymous_install_id || "").slice(0, 60),
+    session_id: String(ctx.session_id || "").slice(0, 60),
+    request_id: String(ctx.request_id || "").slice(0, 60),
+    fields: JSON.stringify(trimmed),
+  };
+}
+
+async function ingestEvents(request, env) {
+  if (!env.EVENTS) return json({ error: "The event store is not configured." }, 500);
+
+  const raw = await request.text();
+  if (raw.length > 2_000_000) return json({ error: "That batch is too large." }, 413);
+
+  let body;
+  try {
+    body = JSON.parse(raw);
+  } catch (e) {
+    return json({ error: "That is not valid JSON." }, 400);
+  }
+
+  const list = Array.isArray(body?.events) ? body.events : [];
+  if (!list.length) return json({ error: "No events in that batch." }, 400);
+  if (list.length > 500) return json({ error: "Send at most 500 events at a time." }, 413);
+
+  await ensureSchema(env);
+
+  const now = Date.now();
+  const cleaned = [];
+  let dropped = 0;
+  for (const item of list) {
+    const c = cleanEvent(item);
+    if (c) cleaned.push(c); else dropped++;
+  }
+  if (!cleaned.length) return json({ stored: 0, dropped }, 200);
+
+  // One statement per event, in a single batch, so a partial write cannot leave
+  // half a batch behind.
+  const statements = cleaned.map((e) =>
+    env.EVENTS.prepare(
+      `INSERT INTO events
+        (event_id, event_name, category, severity, at, day, app_version, install_id, session_id, request_id, fields, received_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).bind(
+      e.event_id, e.event_name, e.category, e.severity, e.at, e.day,
+      e.app_version, e.install_id, e.session_id, e.request_id, e.fields, now,
+    ),
+  );
+  await env.EVENTS.batch(statements);
+  return json({ stored: cleaned.length, dropped }, 200);
+}
+
+/** Whether the caller may read the numbers. */
+function statsAllowed(request, env) {
+  const token = env.STATS_TOKEN;
+  if (!token) return false;
+  const given = request.headers.get("x-stats-token") || new URL(request.url).searchParams.get("token") || "";
+  return given === token;
+}
+
+/**
+ * The numbers the architecture asks for, computed in SQL.
+ *
+ * Every figure comes with its sample size, because a rate over eleven events is
+ * not a rate — it is a rumour.
+ */
+async function stats(env, days) {
+  await ensureSchema(env);
+  const since = Date.now() - days * 86_400_000;
+  const sinceDay = new Date(since).toISOString().slice(0, 10);
+
+  const one = async (sql, ...binds) => {
+    const row = await env.EVENTS.prepare(sql).bind(...binds).first();
+    return row || {};
+  };
+  const many = async (sql, ...binds) => {
+    const out = await env.EVENTS.prepare(sql).bind(...binds).all();
+    return (out && out.results) || [];
+  };
+
+  const total = (await one("SELECT COUNT(*) AS n FROM events WHERE day >= ?", sinceDay)).n || 0;
+  const byCategory = await many(
+    "SELECT category, COUNT(*) AS n FROM events WHERE day >= ? GROUP BY category ORDER BY n DESC",
+    sinceDay,
+  );
+  const byName = await many(
+    "SELECT event_name, COUNT(*) AS n FROM events WHERE day >= ? GROUP BY event_name ORDER BY n DESC LIMIT 40",
+    sinceDay,
+  );
+  const byDay = await many(
+    "SELECT day, COUNT(*) AS n FROM events WHERE day >= ? GROUP BY day ORDER BY day",
+    sinceDay,
+  );
+  const versions = await many(
+    "SELECT app_version, COUNT(*) AS n FROM events WHERE day >= ? AND app_version != '' GROUP BY app_version ORDER BY n DESC LIMIT 10",
+    sinceDay,
+  );
+
+  // Latency, from the duration_ms each caller records.
+  const latency = await many(
+    `SELECT event_name,
+            COUNT(*) AS n,
+            CAST(AVG(CAST(json_extract(fields, '$.duration_ms') AS REAL)) AS INTEGER) AS avg_ms,
+            MAX(CAST(json_extract(fields, '$.duration_ms') AS INTEGER)) AS max_ms
+       FROM events
+      WHERE day >= ? AND json_extract(fields, '$.duration_ms') IS NOT NULL
+      GROUP BY event_name ORDER BY n DESC LIMIT 20`,
+    sinceDay,
+  );
+  const p95 = await many(
+    `SELECT event_name, CAST(json_extract(fields, '$.duration_ms') AS INTEGER) AS ms
+       FROM events
+      WHERE day >= ? AND json_extract(fields, '$.duration_ms') IS NOT NULL
+      ORDER BY event_name`,
+    sinceDay,
+  );
+  const p95ByEvent = {};
+  for (const row of p95) {
+    (p95ByEvent[row.event_name] = p95ByEvent[row.event_name] || []).push(row.ms);
+  }
+  const p95Out = Object.entries(p95ByEvent).map(([name, list]) => {
+    list.sort((a, b) => a - b);
+    const i = Math.min(list.length - 1, Math.floor(list.length * 0.95));
+    return { event_name: name, n: list.length, p95_ms: list[i] };
+  }).sort((a, b) => b.n - a.n).slice(0, 20);
+
+  // The metric that matters most: does the assistant agree with the calculator?
+  const verdicts = await many(
+    `SELECT json_extract(fields, '$.verification') AS verdict, COUNT(*) AS n
+       FROM events
+      WHERE day >= ? AND event_name = 'ai.request.completed'
+      GROUP BY verdict`,
+    sinceDay,
+  );
+  const v = {};
+  for (const row of verdicts) v[row.verdict || "unknown"] = row.n;
+
+  const calc = await one(
+    `SELECT
+       SUM(CASE WHEN json_extract(fields, '$.status') = 'success' THEN 1 ELSE 0 END) AS ok,
+       SUM(CASE WHEN json_extract(fields, '$.status') != 'success' THEN 1 ELSE 0 END) AS bad,
+       COUNT(*) AS n
+     FROM events WHERE day >= ? AND event_name LIKE 'calculator.operation.%'`,
+    sinceDay,
+  );
+
+  const ai = await one(
+    `SELECT
+       SUM(CASE WHEN event_name = 'ai.request.completed' THEN 1 ELSE 0 END) AS ok,
+       SUM(CASE WHEN event_name = 'ai.request.failed' THEN 1 ELSE 0 END) AS bad,
+       SUM(CASE WHEN json_extract(fields, '$.rate_limited') = 'true' THEN 1 ELSE 0 END) AS limited,
+       SUM(CASE WHEN json_extract(fields, '$.timeout') = 'true' THEN 1 ELSE 0 END) AS timeouts
+     FROM events WHERE day >= ?`,
+    sinceDay,
+  );
+
+  const crashes = (await one(
+    "SELECT COUNT(*) AS n FROM events WHERE day >= ? AND (event_name LIKE '%crash%' OR severity = 'FATAL')",
+    sinceDay,
+  )).n || 0;
+
+  // Alerts, from the architecture's list, using the numbers above. They are
+  // shown on the dashboard; pushing them somewhere needs a channel to push to.
+  const alerts = [];
+  const mismatches = v.mismatch || 0;
+  const verified = (v.match || 0) + mismatches;
+  if (verified >= 10 && mismatches / verified > 0.1) {
+    alerts.push({
+      level: "error",
+      message: `The assistant disagrees with the calculator in ${mismatches} of ${verified} checkable answers.`,
+    });
+  }
+  const aiBad = ai.bad || 0;
+  const aiAll = (ai.ok || 0) + aiBad;
+  if (aiAll >= 10 && aiBad / aiAll > 0.2) {
+    alerts.push({ level: "warn", message: `The assistant failed ${aiBad} of ${aiAll} requests.` });
+  }
+  if ((ai.limited || 0) >= 5) {
+    alerts.push({ level: "warn", message: `${ai.limited} requests were rate limited.` });
+  }
+  if (crashes > 0) {
+    alerts.push({ level: "error", message: `${crashes} crash or fatal events in this window.` });
+  }
+
+  return {
+    window_days: days,
+    total_events: total,
+    by_category: byCategory,
+    by_name: byName,
+    by_day: byDay,
+    by_version: versions,
+    latency,
+    p95: p95Out,
+    verification: {
+      match: v.match || 0,
+      mismatch: mismatches,
+      unverified: v.unverified || 0,
+      not_applicable: v.not_applicable || 0,
+      mismatch_rate: verified ? +(mismatches / verified).toFixed(4) : null,
+      sample: verified,
+    },
+    calculator: {
+      success: calc.ok || 0,
+      failed: calc.bad || 0,
+      total: calc.n || 0,
+      success_rate: calc.n ? +((calc.ok || 0) / calc.n).toFixed(4) : null,
+    },
+    assistant: {
+      success: ai.ok || 0,
+      failed: aiBad,
+      rate_limited: ai.limited || 0,
+      timeouts: ai.timeouts || 0,
+    },
+    crashes,
+    alerts,
+  };
+}
+
+/** The dashboard, drawn from the numbers rather than by hand. */
+function dashboardHtml(d, token) {
+  const esc = (t) =>
+    String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const pct = (v) => (v == null ? "—" : (v * 100).toFixed(1) + "%");
+  const rows = (list, cols) =>
+    "<table><tr>" + cols.map((c) => `<th>${esc(c[0])}</th>`).join("") + "</tr>" +
+    (list.length
+      ? list.map((r) => "<tr>" + cols.map((c) => `<td>${esc(c[1](r))}</td>`).join("") + "</tr>").join("")
+      : `<tr><td colspan="${cols.length}" class="muted">nothing yet</td></tr>`) +
+    "</table>";
+
+  const alerts = d.alerts.length
+    ? d.alerts.map((a) => `<div class="alert ${a.level}">${esc(a.message)}</div>`).join("")
+    : '<div class="ok">Nothing is outside its threshold.</div>';
+
+  return `<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus Calc — events</title>
+<style>
+:root{color-scheme:dark}
+body{margin:0;padding:20px;background:#0b1014;color:#e6edf3;
+ font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+h1{font-size:19px;margin:0 0 2px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#7d8b96;
+ margin:26px 0 8px;font-weight:600}
+.sub{color:#7d8b96;font-size:12px;margin-bottom:16px}
+.cards{display:flex;flex-wrap:wrap;gap:10px}
+.card{background:#131b21;border:1px solid #1f2a33;border-radius:10px;padding:12px 16px;min-width:130px}
+.card .k{font-size:11px;color:#7d8b96;text-transform:uppercase;letter-spacing:.06em}
+.card .v{font-size:22px;font-weight:600;margin-top:2px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;color:#7d8b96;font-weight:500;font-size:11px;text-transform:uppercase;
+ letter-spacing:.05em;padding:5px 8px;border-bottom:1px solid #1f2a33}
+td{padding:5px 8px;border-bottom:1px solid #161f26}
+.muted{color:#5c6b77}
+.alert{padding:9px 12px;border-radius:8px;margin:6px 0;font-size:13px}
+.alert.error{background:#3a1519;border:1px solid #6e2530;color:#ffb4bb}
+.alert.warn{background:#3a2c12;border:1px solid #6e5525;color:#ffd79a}
+.ok{padding:9px 12px;border-radius:8px;background:#12251a;border:1px solid #1f4a2e;color:#9ae6b4}
+.bar{height:6px;background:#1f2a33;border-radius:3px;overflow:hidden;min-width:60px}
+.bar span{display:block;height:100%;background:#2f81f7}
+a{color:#2f81f7}
+</style></head><body>
+<h1>Nexus Calc — event warehouse</h1>
+<div class="sub">Last ${d.window_days} days · ${d.total_events} events
+ · ${[1, 7, 30, 90]
+    .map((n) =>
+      n === d.window_days
+        ? `<b>${n}d</b>`
+        : `<a href="?days=${n}&token=${encodeURIComponent(token)}">${n}d</a>`)
+    .join(" ")}</div>
+
+<h2>Alerts</h2>${alerts}
+
+<h2>Correctness</h2>
+<div class="cards">
+ <div class="card"><div class="k">Mismatch rate</div><div class="v">${pct(d.verification.mismatch_rate)}</div>
+  <div class="muted" style="font-size:11px">${d.verification.sample} checkable</div></div>
+ <div class="card"><div class="k">Verified match</div><div class="v">${d.verification.match}</div></div>
+ <div class="card"><div class="k">Mismatch</div><div class="v">${d.verification.mismatch}</div></div>
+ <div class="card"><div class="k">Not checkable</div><div class="v">${d.verification.not_applicable}</div></div>
+ <div class="card"><div class="k">Calculator success</div><div class="v">${pct(d.calculator.success_rate)}</div>
+  <div class="muted" style="font-size:11px">${d.calculator.total} operations</div></div>
+</div>
+
+<h2>Reliability</h2>
+<div class="cards">
+ <div class="card"><div class="k">Assistant ok</div><div class="v">${d.assistant.success}</div></div>
+ <div class="card"><div class="k">Assistant failed</div><div class="v">${d.assistant.failed}</div></div>
+ <div class="card"><div class="k">Rate limited</div><div class="v">${d.assistant.rate_limited}</div></div>
+ <div class="card"><div class="k">Timeouts</div><div class="v">${d.assistant.timeouts}</div></div>
+ <div class="card"><div class="k">Crashes</div><div class="v">${d.crashes}</div></div>
+</div>
+
+<h2>Events by category</h2>
+${rows(d.by_category, [["category", (r) => r.category], ["count", (r) => r.n]])}
+
+<h2>Slowest operations (p95)</h2>
+${rows(d.p95, [["event", (r) => r.event_name], ["n", (r) => r.n], ["p95 ms", (r) => r.p95_ms]])}
+
+<h2>Latency by operation</h2>
+${rows(d.latency, [["event", (r) => r.event_name], ["n", (r) => r.n],
+  ["average ms", (r) => r.avg_ms], ["worst ms", (r) => r.max_ms]])}
+
+<h2>By release</h2>
+${rows(d.by_version, [["version", (r) => r.app_version], ["events", (r) => r.n]])}
+
+<h2>Daily volume</h2>
+${rows(d.by_day, [["day", (r) => r.day], ["events", (r) => r.n]])}
+
+<h2>Most frequent events</h2>
+${rows(d.by_name, [["event", (r) => r.event_name], ["count", (r) => r.n]])}
+</body></html>`;
+}
+
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/\/+$/, "");
+
     if (request.method === "OPTIONS") return new Response("ok", { headers: CORS });
+
+    // --- the warehouse ---
+    if (path === "/events") {
+      if (request.method !== "POST") return json({ error: "Use POST" }, 405);
+      try {
+        return await ingestEvents(request, env);
+      } catch (e) {
+        return json({ error: "Could not store those events.", detail: String(e).slice(0, 200) }, 500);
+      }
+    }
+    if (path === "/stats") {
+      if (!statsAllowed(request, env)) return json({ error: "Not allowed." }, 401);
+      try {
+        const days = Math.min(90, Math.max(1, Number(url.searchParams.get("days")) || 7));
+        return json(await stats(env, days));
+      } catch (e) {
+        return json({ error: "Could not read the numbers.", detail: String(e).slice(0, 200) }, 500);
+      }
+    }
+    if (path === "/dashboard") {
+      if (!statsAllowed(request, env)) {
+        return new Response("Add ?token=... to the address.", { status: 401 });
+      }
+      const days = Math.min(90, Math.max(1, Number(url.searchParams.get("days")) || 7));
+      const data = await stats(env, days);
+      return new Response(dashboardHtml(data, url.searchParams.get("token") || ""), {
+        headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+      });
+    }
+
     if (request.method !== "POST") return json({ error: "Use POST" }, 405);
 
     // A body ceiling, checked before anything is parsed. Without it a caller can

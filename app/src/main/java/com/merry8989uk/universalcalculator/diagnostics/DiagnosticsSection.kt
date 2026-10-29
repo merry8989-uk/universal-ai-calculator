@@ -232,6 +232,17 @@ fun DiagnosticsSection(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+    // Whether the warehouse has caught up, and why not if it has not.
+    val waiting = EventUploader.pendingCount(context)
+    Text(
+        if (waiting == 0) "All events delivered to the warehouse"
+        else "$waiting events waiting to be sent" +
+            (EventUploader.lastError().takeIf { it.isNotBlank() }?.let { "  (last try: $it)" } ?: ""),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 2.dp),
+    )
+
     if (eventCount > 0) {
         val byCategory = EventLog.counts()
             .groupBy { name -> name.first.substringBefore('.') }

@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import com.merry8989uk.universalcalculator.diagnostics.EventLog
+import com.merry8989uk.universalcalculator.diagnostics.EventUploader
 import com.merry8989uk.universalcalculator.locale.LocaleHelper
 import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.settings.SettingsRepository
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.merry8989uk.universalcalculator.ui.theme.ThemeStore
 import com.merry8989uk.universalcalculator.ui.theme.UniversalCalculatorTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -66,6 +68,18 @@ class MainActivity : ComponentActivity() {
                 }
                 DiagnosticsLogger.setEnabled(allowed)
                 EventLog.enabled = allowed
+            }
+        }
+
+        // Send what is waiting to the warehouse, then keep doing so while the
+        // app is open. A failed send leaves the queue untouched, so a phone with
+        // no signal delivers late rather than losing anything.
+        lifecycleScope.launch {
+            while (true) {
+                if (EventLog.enabled) {
+                    runCatching { EventUploader.flush(applicationContext) }
+                }
+                delay(5 * 60 * 1000L)
             }
         }
 

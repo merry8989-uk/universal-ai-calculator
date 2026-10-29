@@ -242,6 +242,45 @@ class EventLogTest {
         assertTrue(logger.contains("logs.deleted"))
     }
 
+    // ---- the warehouse ----
+
+    @Test fun theWorkerHasAWarehouseWithAToken() {
+        val w = source("backend/cloudflare/worker.js") ?: return
+        assertTrue("no ingest endpoint", w.contains('path === "/events"'))
+        assertTrue("no stats endpoint", w.contains('path === "/stats"'))
+        assertTrue("no dashboard", w.contains('path === "/dashboard"'))
+        assertTrue("the numbers are readable without a token", w.contains("STATS_TOKEN"))
+        assertTrue("no D1 binding", w.contains("env.EVENTS"))
+        assertTrue("no schema", w.contains("CREATE TABLE IF NOT EXISTS events"))
+    }
+
+    @Test fun theWarehouseScrubsAgainOnItsOwnSide() {
+        // a client is not a place to trust
+        val w = source("backend/cloudflare/worker.js") ?: return
+        assertTrue("the server does not re-scrub", w.contains("function scrub("))
+        assertTrue("an unknown category would be stored", w.contains("CATEGORIES.has(category)"))
+        assertTrue("a malformed event would be stored", w.contains("return null;"))
+    }
+
+    @Test fun theAppQueuesWhenItCannotSend() {
+        val up = source("app/src/main/java/com/merry8989uk/universalcalculator/diagnostics/EventUploader.kt") ?: return
+        assertTrue("no queue file", up.contains("pending.jsonl"))
+        assertTrue("a failed batch is not kept", up.contains("failed = true"))
+        assertTrue("nothing is sent while storing is off", up.contains("if (!EventLog.enabled)"))
+        assertTrue("the queue grows without limit", up.contains("MAX_PENDING_BYTES"))
+
+        val log = source("app/src/main/java/com/merry8989uk/universalcalculator/diagnostics/EventLog.kt") ?: return
+        assertTrue("events are never queued", log.contains("EventUploader.enqueue"))
+    }
+
+    @Test fun aDashboardExistsAndNeedsTheToken() {
+        val w = source("backend/cloudflare/worker.js") ?: return
+        assertTrue("no dashboard html", w.contains("function dashboardHtml"))
+        assertTrue("the dashboard leaks without a token", w.contains("statsAllowed(request, env)"))
+        assertTrue("no alerts section", w.contains("alerts.push"))
+        assertTrue("no mismatch rate", w.contains("mismatch_rate"))
+    }
+
     @Test fun theRawExpressionIsNeverWritten() {
         // the architecture is explicit: raw expressions are off by default, so
         // only the length and the shape may be recorded

@@ -152,6 +152,8 @@ object EventLog {
             } catch (e: Exception) {
                 // never let logging break the app
             }
+            // and into the queue for the warehouse, which sends it when it can
+            appContext?.let { EventUploader.enqueue(it, line) }
         }
         return line
     }

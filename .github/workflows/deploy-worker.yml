@@ -12,6 +12,8 @@ name: Deploy AI Worker
 #   TAVILY_API_KEY         — the search key. Optional: without it the assistant
 #                            falls back to DuckDuckGo and Wikipedia, which answer
 #                            questions about ideas but not about today.
+#   STATS_TOKEN            — the password for the event warehouse dashboard.
+#                            Without it /stats and /dashboard refuse everything.
 # Optional repository secrets:
 #   CLOUDFLARE_ACCOUNT_ID  — your Cloudflare account id
 on:
@@ -70,11 +72,28 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "Missing repository secret CLOUDFLARE_API_TOKEN." >&2
             exit 1
           fi
+          # The event warehouse. Created once, then reused; the id is written
+          # into wrangler.toml so the binding survives the deploy.
+          D1_ID="$(wrangler d1 list --json 2>/dev/null | python3 ../../tools/d1_id.py || true)"
+          if [ -z "$D1_ID" ]; then
+            echo "Creating the nexus-events database."
+            OUT="$(wrangler d1 create nexus-events 2>&1 || true)"
+            echo "$OUT"
+            D1_ID="$(printf '%s' "$OUT" | sed -n 's/.*database_id *= *"\([^"]*\)".*/\1/p' | head -1)"
+          fi
+          if [ -n "$D1_ID" ]; then
+            printf '\n[[d1_databases]]\nbinding = "EVENTS"\ndatabase_name = "nexus-events"\ndatabase_id = "%s"\n' "$D1_ID" >> wrangler.toml
+            echo "Event warehouse attached (database $D1_ID)."
+          else
+            echo "::warning::Could not create the D1 database, so the event warehouse stays off."
+          fi
+
           wrangler deploy
           # The Sarvam key is set from the repository secret, so the Worker always has
           # the current one and it is never written to a file.
@@ -87,6 +106,11 @@ jobs:
             printf '%s' "$TAVILY_API_KEY" | wrangler secret put TAVILY_API_KEY --name nexus-calc-ai
           else
             echo "::warning::TAVILY_API_KEY is not set — search falls back to DuckDuckGo and Wikipedia."
+          fi
+          if [ -n "$STATS_TOKEN" ]; then
+            printf '%s' "$STATS_TOKEN" | wrangler secret put STATS_TOKEN --name nexus-calc-ai
+          else
+            echo "::warning::STATS_TOKEN is not set — the warehouse dashboard will refuse every request."
           fi
           # the old provider's key, if it was ever set here
           wrangler secret delete GEMINI_API_KEY || true
