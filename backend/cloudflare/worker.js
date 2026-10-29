@@ -123,8 +123,9 @@ const SYSTEM = [
   "Prefer Indian conventions (rupees, lakh/crore, metric, IST) unless the user asks",
   "otherwise. Never claim to be a doctor or a financial adviser; add a short",
   "caution for medical or financial questions.",
-  "When search results are given to you, they are current and you are not: trust",
-  "them over what you remember, even when they contradict it.",
+  "When search results are given to you, they are current and you are not.",
+  "Believe the search results over what you remember, even when they contradict",
+  "what you remember.",
 ].join(" ");
 
 /** The system prompt, with today's date, so the model does not answer as if it were last year. */

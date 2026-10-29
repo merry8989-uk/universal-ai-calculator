@@ -189,7 +189,7 @@ class PhotoQuestionTest {
         assertTrue("no dated system prompt", w.contains("function systemWithDate"))
         assertTrue("no date in the prompt", w.contains("Today is "))
         assertTrue("search results are not trusted over memory",
-            w.contains("trust them over what you remember"))
+            w.contains("Believe the search results over what you remember"))
     }
 
     @Test fun aPdfIsReadPastItsFirstFewPages() {
