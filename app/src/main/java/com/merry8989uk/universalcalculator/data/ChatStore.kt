@@ -64,15 +64,17 @@ object ChatStore {
      * because an assistant that refuses to answer because its notebook is full is
      * a worse assistant.
      */
-    fun save(context: Context, at: LocalDateTime, chat: SavedChat): File? = try {
-        val dir = root(context)
-        if (!dir.isDirectory && !dir.mkdirs()) return null
-        val file = File(dir, ChatFormat.fileName(at, chat.title))
-        file.writeText(ChatFormat.write(chat))
-        prune(context)
-        file
-    } catch (e: Exception) {
-        null
+    fun save(context: Context, at: LocalDateTime, chat: SavedChat): File? {
+        return try {
+            val dir = root(context)
+            if (!dir.isDirectory && !dir.mkdirs()) return null
+            val file = File(dir, ChatFormat.fileName(at, chat.title))
+            file.writeText(ChatFormat.write(chat))
+            prune(context)
+            file
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun delete(file: File): Boolean = try {
