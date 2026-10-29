@@ -206,7 +206,11 @@ jobs:
           print("total:", d.get("total_events"))
           print("verification:", d.get("verification"))
           print("calculator:", d.get("calculator"))
-          if d.get("total_events", 0) >= 3 and d.get("verification", {}).get("mismatch") == 1:
+          # The counters are kept per day, so a re-run adds to them. The check is
+          # that both verdicts arrived and the rate between them is right.
+          v = d.get("verification", {})
+          if d.get("total_events", 0) >= 3 and v.get("mismatch", 0) >= 1 and v.get("match", 0) >= 1 \
+                  and v.get("mismatch_rate") == 0.5:
               print("WAREHOUSE CHECK: PASS")
           else:
               raise SystemExit("WAREHOUSE CHECK: FAIL")
