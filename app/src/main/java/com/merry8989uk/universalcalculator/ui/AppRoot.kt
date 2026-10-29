@@ -64,6 +64,7 @@ private val TAB_LABELS = listOf(
 private val TAB_A11Y = listOf(
     R.string.tab_standard_a11y, R.string.tab_scientific_a11y, R.string.tab_convert_a11y,
     R.string.tab_formulas_a11y, R.string.tab_ask_ai_a11y, R.string.tab_settings_a11y,
+    R.string.tab_sci_classic_a11y,
 )
 
 /**

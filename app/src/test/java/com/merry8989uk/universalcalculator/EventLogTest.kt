@@ -7,7 +7,6 @@ import com.merry8989uk.universalcalculator.diag.DiagJson
 import com.merry8989uk.universalcalculator.diag.DiagSeverity
 import com.merry8989uk.universalcalculator.diag.Redaction
 import com.merry8989uk.universalcalculator.diag.Verification
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -39,37 +38,62 @@ class EventLogTest {
 
     // ---- the schema the architecture specifies ----
 
+    /**
+     * A minimal structural check, because org.json is an Android stub and is not
+     * available in a unit test. It proves the line is well formed: every brace
+     * and bracket closes, and no quote is left unescaped.
+     */
+    private fun assertWellFormedJson(text: String) {
+        var braces = 0
+        var brackets = 0
+        var inString = false
+        var i = 0
+        while (i < text.length) {
+            val c = text[i]
+            when {
+                inString && c == '\\' -> i++ // skip the escaped character
+                c == '"' -> inString = !inString
+                inString -> Unit
+                c == '{' -> braces++
+                c == '}' -> braces--
+                c == '[' -> brackets++
+                c == ']' -> brackets--
+            }
+            assertTrue("a brace closed before it opened, at $i", braces >= 0)
+            i++
+        }
+        assertFalse("a quote is left open", inString)
+        assertEquals("braces do not balance", 0, braces)
+        assertEquals("brackets do not balance", 0, brackets)
+    }
+
     @Test fun anEventHasEveryFieldTheSchemaAsksFor() {
-        val json = JSONObject(line())
-        assertEquals("1.0", json.getString("schema_version"))
-        assertTrue(json.getString("event_id").startsWith("evt_"))
-        assertEquals("calculator.operation.completed", json.getString("event_name"))
-        assertEquals("calc", json.getString("category"))
-        assertEquals("INFO", json.getString("severity"))
-        assertEquals("production", json.getString("environment"))
-        assertTrue(json.getString("timestamp").endsWith("Z"))
-
-        val app = json.getJSONObject("app")
-        assertEquals("nexus-calc", app.getString("name"))
-        assertEquals("android", app.getString("platform"))
-        assertEquals("2.3.0", app.getString("version"))
-
-        val ctx = json.getJSONObject("context")
-        assertEquals("install-abc", ctx.getString("anonymous_install_id"))
-        assertEquals("session-def", ctx.getString("session_id"))
-        assertEquals("req-1", ctx.getString("request_id"))
-
-        val privacy = json.getJSONObject("privacy")
-        assertEquals("local_only", privacy.getString("consent_state"))
-        assertFalse(privacy.getBoolean("payload_content_included"))
+        val text = line()
+        assertWellFormedJson(text)
+        assertTrue(text, text.contains("\"schema_version\":\"1.0\""))
+        assertTrue(text, text.contains("\"event_name\":\"calculator.operation.completed\""))
+        assertTrue(text, text.contains("\"category\":\"calc\""))
+        assertTrue(text, text.contains("\"severity\":\"INFO\""))
+        assertTrue(text, text.contains("\"environment\":\"production\""))
+        assertTrue("no event id", Regex("\"event_id\":\"evt_[0-9a-f]+\"").containsMatchIn(text))
+        assertTrue("no timestamp", Regex("\"timestamp\":\"\\d{4}-\\d{2}-\\d{2}T[^\"]*Z\"").containsMatchIn(text))
+        assertTrue(text, text.contains("\"anonymous_install_id\":\"install-abc\""))
+        assertTrue(text, text.contains("\"session_id\":\"session-def\""))
+        assertTrue(text, text.contains("\"request_id\":\"req-1\""))
+        assertTrue(text, text.contains("\"consent_state\":\"local_only\""))
+        assertTrue(text, text.contains("\"payload_content_included\":false"))
+        assertTrue(text, text.contains("\"platform\":\"android\""))
+        assertTrue(text, text.contains("\"version\":\"2.3.0\""))
     }
 
     @Test fun aRequestIdIsOmittedWhenThereIsNoRequest() {
-        val json = JSONObject(line().let { DiagJson.line(
+        val text = DiagJson.line(
             DiagEvent("perf.app.launch", DiagCategory.PERF, DiagSeverity.INFO, 1),
             DiagContext(installId = "a", sessionId = "b"),
-        ) })
-        assertFalse(json.getJSONObject("context").has("request_id"))
+        )
+        assertWellFormedJson(text)
+        assertFalse("an empty request id was written anyway", text.contains("request_id"))
+        assertFalse(text.contains("trace_id"))
     }
 
     @Test fun theTimestampIsUtc() {
@@ -82,9 +106,11 @@ class EventLogTest {
 
     @Test fun aFieldWithQuotesOrNewlinesStillMakesValidJson() {
         val text = line(mapOf("reason" to "he said \"no\"\nthen left"))
-        // parsing it is the proof: a broken escape throws here
-        val json = JSONObject(text)
-        assertEquals("he said \"no\"\nthen left", json.getJSONObject("fields").getString("reason"))
+        // the quote and the newline must be escaped, or the line breaks the file
+        assertWellFormedJson(text)
+        assertTrue("the quote was not escaped: $text", text.contains("he said \\\"no\\\""))
+        assertTrue("the newline was not escaped", text.contains("no\\\"\\nthen left"))
+        assertFalse("a raw newline got into the line", text.contains("\n"))
     }
 
     @Test fun theSameEventTwiceHasTheSameId() {
@@ -137,9 +163,16 @@ class EventLogTest {
     }
 
     @Test fun aLongValueIsCut() {
-        val out = Redaction.scrubValue("note", "x".repeat(1000))
-        assertTrue(out.length <= 404)
-        assertTrue(out.endsWith("..."))
+        // words, not one long run: a 1000-character run of letters is itself
+        // treated as a key and replaced whole
+        val out = Redaction.scrubValue("note", "the quick brown fox ".repeat(80))
+        assertTrue("not cut: ${out.length}", out.length <= 404)
+        assertTrue("no ellipsis", out.endsWith("..."))
+    }
+
+    @Test fun aLongRandomStringIsTreatedAsAKey() {
+        // which is the point: that is what a leaked token looks like
+        assertEquals("[redacted]", Redaction.scrubValue("note", "x".repeat(1000)))
     }
 
     // ---- the AI/calculator mismatch indicator ----
