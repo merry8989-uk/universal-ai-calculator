@@ -11,6 +11,7 @@ Usage: sync_roundtrip.py <worker-url> [code]
 import base64
 import hashlib
 import json
+import time
 import os
 import sys
 import urllib.request
@@ -159,7 +160,16 @@ def main() -> int:
             raise
         print("stale version refused, as it should be")
 
-    fetched = post(url, {"sync": "get", "id": account_id, "verifier": verifier})
+    # KV is eventually consistent: a read straight after a write can still see
+    # the previous value, from the copy nearest the reader. That is a property of
+    # the store, not a fault in the Worker, so the read is retried for a few
+    # seconds before it is called wrong.
+    fetched = {}
+    for attempt in range(12):
+        fetched = post(url, {"sync": "get", "id": account_id, "verifier": verifier})
+        if fetched.get("found") and fetched.get("blob") == blob:
+            break
+        time.sleep(1)
     print("get  :", {"found": fetched.get("found"), "bytes": len(fetched.get("blob", ""))})
     if not fetched.get("found"):
         print("FAIL: the Worker did not return the blob")
