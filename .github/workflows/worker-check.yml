@@ -71,6 +71,32 @@ jobs:
               raise SystemExit("SUBJECT CHECK: FAIL")
           PY
 
+      # Search is only proved by a question whose answer is not in any model's
+      # memory: something that happened today.
+      - name: A question that needs today's news
+        run: |
+          echo "--- live search ---"
+          python3 - <<'PY'
+          import json, urllib.request
+          body = json.dumps({
+              "question": "What is the current price of one gram of 24 carat gold in India today?",
+          }).encode()
+          req = urllib.request.Request(
+              "https://nexus-calc-ai.br19shc39.workers.dev",
+              data=body,
+              headers={"Content-Type": "application/json", "User-Agent": "nexus-check/1.0"})
+          with urllib.request.urlopen(req, timeout=240) as r:
+              out = json.loads(r.read())
+          print("model:", out.get("model"))
+          print("searched:", out.get("searched"))
+          text = out.get("answer") or ""
+          print(text[:900])
+          if out.get("searched"):
+              print("SEARCH CHECK: PASS — it looked something up")
+          else:
+              raise SystemExit("SEARCH CHECK: FAIL — it answered without searching")
+          PY
+
       # A follow-up has to know what came before it, or the assistant is a search
       # box rather than a conversation.
       - name: A follow-up question remembers the first
