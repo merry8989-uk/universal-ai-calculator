@@ -21,6 +21,56 @@ jobs:
           curl -sS --max-time 60 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" -d '{"question":"What is 2+2? Answer on one line."}' | head -c 1500
           echo
 
+      # The format the user asked for: the answers first, then the reasoning.
+      - name: Answers come before the explanations
+        run: |
+          echo "--- format ---"
+          python3 - <<'PY'
+          import json, urllib.request
+          body = json.dumps({
+              "question": "Two questions. Q1: what is 15 percent of 240? Q2: which is larger, 3/4 or 4/5?",
+          }).encode()
+          req = urllib.request.Request(
+              "https://nexus-calc-ai.br19shc39.workers.dev",
+              data=body,
+              headers={"Content-Type": "application/json", "User-Agent": "nexus-check/1.0"})
+          with urllib.request.urlopen(req, timeout=180) as r:
+              out = json.loads(r.read())
+          text = out.get("answer") or ""
+          print(text[:1200])
+          first = text.upper().find("ANSWERS")
+          expl = text.upper().find("EXPLANATIONS")
+          if first >= 0 and expl > first:
+              print("FORMAT CHECK: PASS")
+          else:
+              raise SystemExit("FORMAT CHECK: FAIL — no ANSWERS then EXPLANATIONS")
+          PY
+
+      # Not mathematics, and needs the live web.
+      - name: A science question with a search
+        run: |
+          echo "--- search ---"
+          python3 - <<'PY'
+          import json, urllib.request
+          body = json.dumps({
+              "question": "What does photosynthesis produce, and in which part of the plant cell does it happen?",
+          }).encode()
+          req = urllib.request.Request(
+              "https://nexus-calc-ai.br19shc39.workers.dev",
+              data=body,
+              headers={"Content-Type": "application/json", "User-Agent": "nexus-check/1.0"})
+          with urllib.request.urlopen(req, timeout=240) as r:
+              out = json.loads(r.read())
+          print("model:", out.get("model"))
+          print("searched:", out.get("searched"))
+          text = out.get("answer") or ""
+          print(text[:1200])
+          if "chloroplast" in text.lower() and "glucose" in text.lower() or "oxygen" in text.lower():
+              print("SUBJECT CHECK: PASS")
+          else:
+              raise SystemExit("SUBJECT CHECK: FAIL")
+          PY
+
       # A follow-up has to know what came before it, or the assistant is a search
       # box rather than a conversation.
       - name: A follow-up question remembers the first
