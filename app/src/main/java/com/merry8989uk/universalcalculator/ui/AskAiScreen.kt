@@ -107,7 +107,7 @@ fun AskAiScreen(
         if (uri == null) return@rememberLauncherForActivityResult
         attachBusy = true
         attachError = ""
-        scope.launch { handleRead(Attachments.read(context, uri, asked)) }
+        scope.launch { handleRead(Attachments.read(context, uri, question)) }
     }
 
     val camera = rememberLauncherForActivityResult(
@@ -121,19 +121,30 @@ fun AskAiScreen(
                 bmp.compress(Bitmap.CompressFormat.JPEG, 85, out)
                 out.toByteArray()
             }
-            val r = AiClient.solveImage(bytes)
-            handleRead(
-                if (r.expression != null) {
-                    Attachments.Read(
-                        "image",
-                        if (r.lowConfidence) "photo (please check)" else "photo",
-                        "The photo shows this calculation: ${r.expression}" +
-                            if (r.lowConfidence) " (read with low confidence, please check it)" else "",
-                    )
-                } else {
-                    Attachments.Read("image", "photo", "", r.error ?: "Could not read the photo.")
-                },
-            )
+            // With a question typed, the photo is answered rather than mined
+            // for a sum — a picture of an exam paper is a question, not an
+            // expression.
+            if (question.isNotBlank()) {
+                val answer = AiClient.answerImage(bytes, question)
+                handleRead(
+                    if (answer != null) Attachments.Read("image", "photo", answer)
+                    else Attachments.Read("image", "photo", "", "Could not answer that from the photo."),
+                )
+            } else {
+                val r = AiClient.solveImage(bytes)
+                handleRead(
+                    if (r.expression != null) {
+                        Attachments.Read(
+                            "image",
+                            if (r.lowConfidence) "photo (please check)" else "photo",
+                            "The photo shows this calculation: ${r.expression}" +
+                                if (r.lowConfidence) " (read with low confidence, please check it)" else "",
+                        )
+                    } else {
+                        Attachments.Read("image", "photo", "", r.error ?: "Could not read the photo.")
+                    },
+                )
+            }
         }
     }
 
