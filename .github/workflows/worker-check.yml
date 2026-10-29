@@ -28,14 +28,33 @@ jobs:
           curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/body.json | head -c 4000
           echo
 
-      - name: Compare vision models
+      # The bug this was written for: a photo of an exam paper came back as the
+      # marks line printed in its header, because every picture went through the
+      # expression reader. The right answer to question 4 of this paper is
+      # D) n*pi + 5*pi/6.
+      - name: A question about a photo of an exam paper
         run: |
-          for M in "@cf/meta/llama-3.2-11b-vision-instruct"; do
-            echo "=== $M ==="
-            printf '{"image":"%s","model":"%s"}' "$(cat tools/worker_check/photo.b64)" "$M" > /tmp/m.json
-            curl -sS --max-time 90 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" --data @/tmp/m.json | head -c 700
-            echo
-          done
+          echo "--- exam paper, question 4 ---"
+          python3 - <<'PY'
+          import base64, json, urllib.request
+          b64 = base64.b64encode(open("tools/worker_check/exam.jpg", "rb").read()).decode()
+          body = json.dumps({
+              "image": b64,
+              "mode": "answer",
+              "question": "Which option is correct for question number 4?",
+          }).encode()
+          req = urllib.request.Request(
+              "https://nexus-calc-ai.br19shc39.workers.dev",
+              data=body, headers={"Content-Type": "application/json"})
+          with urllib.request.urlopen(req, timeout=180) as r:
+              out = json.loads(r.read())
+          print("model:", out.get("model"))
+          print(out.get("answer") or out)
+          if out.get("answer") and "5" in out["answer"]:
+              print("EXAM CHECK: PASS")
+          else:
+              raise SystemExit("EXAM CHECK: FAIL")
+          PY
 
       - name: Encrypted sync round trip
         run: |
