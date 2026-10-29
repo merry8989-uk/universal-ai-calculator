@@ -260,7 +260,7 @@ class EventLogTest {
         assertTrue("no KV fallback", w.contains("NEXUS_EVENTS"))
         assertTrue("no counters", w.contains("function aggregateInto"))
         assertTrue("no percentile from the histogram", w.contains("function p95FromBuckets"))
-        assertTrue("the store is not named in the reply", w.contains('storage: "kv"'))
+        assertTrue("the store is not named in the reply", w.contains("storage: \"kv\""))
     }
 
     @Test fun theWarehouseScrubsAgainOnItsOwnSide() {
