@@ -112,6 +112,32 @@ class PhotoQuestionTest {
         }
     }
 
+    @Test fun withNoQuestionTypedTheDefaultAsksForTheQuestionsToBeSolved() {
+        // a picture of a question paper holds the questions; describing it is
+        // not an answer, and neither is reading the marks line in its header
+        val text = Attachments.contextFor("image", "a page of questions", "")
+        assertTrue("the default does not ask for a solution: $text", text.contains("solve", ignoreCase = true))
+        assertTrue("the default does not mention the questions", text.contains("question", ignoreCase = true))
+    }
+
+    @Test fun thePromptSolvesWhatIsPrintedOnThePage() {
+        val w = worker ?: return
+        val prompt = w.substringAfter("const ANSWER_IMAGE_SYSTEM = [").substringBefore("].join")
+        assertTrue("it does not say the question is in the picture",
+            prompt.contains("THE QUESTION IS USUALLY PRINTED IN THE PICTURE"))
+        assertTrue("it does not say to start at question 1", prompt.contains("starting at number 1"))
+        assertTrue("it does not ignore the marks header", prompt.contains("Full Marks"))
+        assertTrue("it does not say what to do when it runs out of room",
+            prompt.contains("which numbers are left"))
+    }
+
+    @Test fun aPageOfAnswersHasRoomToFinish() {
+        val w = worker ?: return
+        // six worked answers were cut off at 900 tokens
+        val block = w.substringAfter("ANSWER_IMAGE_SYSTEM, question, image,")
+        assertTrue("the answer budget is still too small: $block", !block.startsWith(" 900"))
+    }
+
     @Test fun theAssistantKeepsTheConversation() {
         // a follow-up that starts from nothing is a search box, not a chat
         val w = worker ?: return

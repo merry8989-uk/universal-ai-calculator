@@ -104,7 +104,7 @@ object Attachments {
      * treating a whole exam question as a sum to be worked out.
      */
     fun contextFor(label: String, text: String, question: String): String {
-        val asked = question.ifBlank { "Please solve and explain this." }
+        val asked = question.ifBlank { "Read the questions here and solve them one by one." }
         if (text.isBlank()) return asked
         return when (label) {
             "image" -> "The photo shows the following. Use it to answer.\n$text\n\nQuestion: $asked"

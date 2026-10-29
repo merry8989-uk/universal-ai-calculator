@@ -84,7 +84,7 @@ fun AskAiScreen(
 
     fun send(q: String) {
         if (loading) return
-        val asked = q.ifBlank { "Explain what this is, and answer anything it asks." }
+        val asked = q.ifBlank { "Read the questions in this picture and solve them one by one, starting at question 1." }
         val full = Attachments.contextFor(attachLabel, attachText, asked)
         if (full.isBlank()) return
         loading = true
@@ -128,7 +128,7 @@ fun AskAiScreen(
         scope.launch {
             handleRead(
                 Attachments.read(context, uri, question.ifBlank {
-                    "Explain what this is, and answer anything it asks."
+                    "Read the questions in this picture and solve them one by one, starting at question 1."
                 }),
             )
         }
@@ -148,7 +148,7 @@ fun AskAiScreen(
             // A photo taken here is something to talk about, never a sum to be
             // mined: a picture of an exam paper is a question, and reading the
             // first arithmetic on the page gives the marks line in its header.
-            val asked = question.ifBlank { "Explain what this is, and answer anything it asks." }
+            val asked = question.ifBlank { "Read the questions in this picture and solve them one by one, starting at question 1." }
             val reply = AiClient.answerImage(bytes, asked)
             handleRead(
                 if (reply != null) Attachments.Read("image", "photo", reply)

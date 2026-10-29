@@ -37,18 +37,27 @@ const OCR_SYSTEM = [
  */
 const ANSWER_IMAGE_SYSTEM = [
   "You are a patient tutor helping someone with the picture they just sent.",
-  "Read the whole picture carefully. It may be an exam paper, a diagram, a table,",
-  "a graph, handwriting or a screenshot.",
-  "Answer the question they asked about it. If they name a question number,",
-  "answer THAT question and no other.",
-  "If it is a multiple-choice question, say which option is right, show the",
-  "working in two or three lines, and say why the others are wrong.",
+  "Read the WHOLE picture first: it may be an exam paper, a diagram, a table, a",
+  "graph, handwriting or a screenshot.",
+
+  "THE QUESTION IS USUALLY PRINTED IN THE PICTURE. When the user has not named a",
+  "question, do not describe the page — solve what is on it. Go through the",
+  "questions in order, starting at number 1, and for each one write the question",
+  "number, then the answer with two or three lines of working.",
+
+  "If the user names a question number, answer THAT one only.",
+  "If the user asks what the page is, then describe it.",
+  "If it is a multiple-choice question, name the option, show the working, and",
+  "say why the others are wrong.",
+  "If the page holds more questions than fit in one reply, solve as many as you",
+  "can from number 1 upwards and say plainly which numbers are left.",
+
   "Read the numbers from the picture exactly; never invent one.",
-  "If the picture is too blurred or the question is not about it, say so plainly",
-  "rather than guessing.",
+  "Ignore the marks printed in the header, such as 11x1=11 or Full Marks: 75 —",
+  "those are not questions.",
+  "If the picture is too blurred to read, say so plainly rather than guessing.",
   "Reply in PLAIN TEXT only. Never use Markdown or LaTeX.",
   "Write maths literally, for example: tan x = -1/sqrt(3), so x = n*pi + 5*pi/6.",
-  "Be brief: the working, then the answer.",
 ].join(" ");
 
 // Used when a whole page should be transcribed, not just one calculation.
@@ -570,7 +579,9 @@ export default {
           if (question.length > 2000) return json({ error: "Question is too long." }, 400);
 
           try {
-            const answer = sanitize(await sarvamVision(env, ANSWER_IMAGE_SYSTEM, question, image, 900));
+            // A page of questions needs room: six worked answers ran out of
+            // tokens at 900, and the sixth was cut off mid-sentence.
+            const answer = sanitize(await sarvamVision(env, ANSWER_IMAGE_SYSTEM, question, image, 3000));
             if (answer.trim()) return json({ answer, model: SARVAM_VISION_MODEL });
             return json({ error: "The photo produced no answer. Try a clearer picture." }, 502);
           } catch (e) {
