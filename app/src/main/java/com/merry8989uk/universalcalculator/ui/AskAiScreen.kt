@@ -75,8 +75,7 @@ fun AskAiScreen(
 
     fun send(q: String) {
         if (loading) return
-        val asked = q.ifBlank { "Please solve and explain this." }
-        val full = if (attachText.isNotBlank()) "$asked\n\n$attachText" else asked
+        val full = Attachments.contextFor(attachLabel, attachText, q)
         if (full.isBlank()) return
         loading = true
         answer = ""
@@ -108,7 +107,7 @@ fun AskAiScreen(
         if (uri == null) return@rememberLauncherForActivityResult
         attachBusy = true
         attachError = ""
-        scope.launch { handleRead(Attachments.read(context, uri)) }
+        scope.launch { handleRead(Attachments.read(context, uri, asked)) }
     }
 
     val camera = rememberLauncherForActivityResult(

@@ -1,43 +1,15 @@
 /**
- * Nexus Calc — AI backend (Cloudflare Worker, Workers AI).
+ * Nexus Calc — AI backend (Cloudflare Worker).
  *
- * The model runs ON Cloudflare, billed to your Cloudflare account, so there is
- * no third-party API key anywhere — not in the app, not in this repo, and no
- * secret to rotate.
+ * The thinking is done by Sarvam AI. One key covers all three jobs: text chat
+ * (sarvam-105b), a photo and a question about it (glm5.3-flash), and a voice
+ * clip (saarika). The key is a Worker secret called SARVAM_API_KEY and is never
+ * in this repo and never in the app.
  *
- * Cloudflare retires Workers AI models regularly, so this Worker tries a list
- * of current models and uses the first one that answers. Set AI_MODEL in
- * wrangler.toml (or as a Worker variable) to pin a specific one.
+ * The Cloudflare models this used to call were too small to hold a question in
+ * mind: a photograph of an exam paper came back as the marks line printed in
+ * its header.
  */
-
-// Tried in order. The first one that answers wins.
-const FALLBACK_MODELS = [
-  "@cf/google/gemma-4-26b-a4b-it",
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-  "@cf/meta/llama-3.1-8b-instruct-fp8",
-  "@cf/qwen/qwen3-30b-a3b-fp8",
-  "@cf/ibm-granite/granite-4.0-h-micro",
-];
-
-// Speech-to-text, tried in order for an uploaded audio clip.
-const WHISPER_MODELS = [
-  "@cf/openai/whisper-large-v3-turbo",
-  "@cf/openai/whisper",
-];
-
-// Vision models, tried in order for a photo. Workers AI retires models, so
-// several are listed.
-// Only this one works for reading arithmetic: llava rejects every input shape
-// Workers AI accepts here, and the other vision models are gone or gated.
-const VISION_MODELS = [
-  "@cf/meta/llama-3.2-11b-vision-instruct",
-];
-
-// A caller may name one of these to compare readers. Anything outside the list
-// is ignored, so the endpoint cannot be used as a general model proxy.
-const VISION_ALLOWED = [
-  "@cf/meta/llama-3.2-11b-vision-instruct",
-];
 
 // The photo prompt: we want a bare calculator expression back, nothing else.
 const OCR_SYSTEM = [
@@ -54,6 +26,31 @@ const OCR_SYSTEM = [
   "Do not explain. Do not use Markdown. Output one line only.",
 ].join(" ");
 
+/**
+ * Used when the user asks a question about a photo.
+ *
+ * This is a different job from reading an expression: the picture may be a
+ * question paper, a diagram, a table or a page of handwriting, and the user
+ * wants the ANSWER, not an arithmetic string. Without this, a photo of a
+ * multiple-choice paper came back as whatever sum happened to be printed in the
+ * header.
+ */
+const ANSWER_IMAGE_SYSTEM = [
+  "You are a patient tutor helping someone with the picture they just sent.",
+  "Read the whole picture carefully. It may be an exam paper, a diagram, a table,",
+  "a graph, handwriting or a screenshot.",
+  "Answer the question they asked about it. If they name a question number,",
+  "answer THAT question and no other.",
+  "If it is a multiple-choice question, say which option is right, show the",
+  "working in two or three lines, and say why the others are wrong.",
+  "Read the numbers from the picture exactly; never invent one.",
+  "If the picture is too blurred or the question is not about it, say so plainly",
+  "rather than guessing.",
+  "Reply in PLAIN TEXT only. Never use Markdown or LaTeX.",
+  "Write maths literally, for example: tan x = -1/sqrt(3), so x = n*pi + 5*pi/6.",
+  "Be brief: the working, then the answer.",
+].join(" ");
+
 // Used when a whole page should be transcribed, not just one calculation.
 const TRANSCRIBE_SYSTEM = [
   "You transcribe pages for a calculator app.",
@@ -67,6 +64,11 @@ const SYSTEM = [
   "You are the built-in assistant of the Nexus Calc Android app.",
   "Answer maths, physics, chemistry, finance, economics, health and everyday",
   "questions clearly and briefly.",
+  "Answer the question that was actually asked. Read it twice before replying.",
+  "If the user names a question number, answer that one and no other.",
+  "If the user asks you to choose between options, name the option, show the",
+  "working, and say why the others are wrong. Never reply with a bare sum when a",
+  "question was asked.",
   "Reply in PLAIN TEXT only. Never use Markdown (no **, no *, no #, no backticks)",
   "and never use LaTeX or maths notation (no $, no \\text{}, no \\times, no \\frac).",
   "Write symbols literally, for example: Total = 1200 x 2500 = Rs 30,00,000.",
@@ -75,6 +77,102 @@ const SYSTEM = [
   "otherwise. Never claim to be a doctor or a financial adviser; add a short",
   "caution for medical or financial questions.",
 ].join(" ");
+
+/**
+ * Sarvam AI, which does all the thinking now.
+ *
+ * Cloudflare's Workers AI models were too small to hold a question in mind: a
+ * photograph of an exam paper came back as the marks line printed in its header.
+ * Sarvam's models are built for Indian languages and Indian exam questions, and
+ * one key covers all three jobs — text, a picture, and a voice clip.
+ */
+const SARVAM_BASE = "https://api.sarvam.ai";
+const SARVAM_CHAT_MODEL = "sarvam-105b";
+const SARVAM_VISION_MODEL = "glm5.3-flash";
+const SARVAM_STT_MODEL = "saarika:v2.5";
+
+/** The key, or a clear error rather than a silent empty answer. */
+function sarvamKey(env) {
+  const key = env && env.SARVAM_API_KEY;
+  if (!key) throw new Error("SARVAM_API_KEY is not set on the Worker.");
+  return key;
+}
+
+/**
+ * Text chat.
+ *
+ * reasoning_effort is pinned low: the model will otherwise spend five hundred
+ * tokens thinking about "what is 12 times 8", which costs money and makes the
+ * user wait for an answer they could have had at once.
+ */
+async function sarvamChat(env, messages, maxTokens = 900) {
+  const r = await fetch(`${SARVAM_BASE}/v1/chat/completions`, {
+    method: "POST",
+    headers: { "api-subscription-key": sarvamKey(env), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: SARVAM_CHAT_MODEL,
+      messages,
+      max_tokens: maxTokens,
+      reasoning_effort: "low",
+    }),
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`sarvam ${r.status}: ${text.slice(0, 200)}`);
+  const out = JSON.parse(text);
+  const msg = out && out.choices && out.choices[0] && out.choices[0].message;
+  return (msg && msg.content) || "";
+}
+
+/**
+ * A picture and a question about it.
+ *
+ * glm5.3-flash is the one Sarvam model that takes an image. It reads the whole
+ * page, so a question paper is answered as a paper rather than mined for
+ * whatever sum happens to be printed on it.
+ */
+async function sarvamVision(env, systemPrompt, userText, b64, maxTokens = 900) {
+  const r = await fetch(`${SARVAM_BASE}/v2/chat/completions`, {
+    method: "POST",
+    headers: { "api-subscription-key": sarvamKey(env), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: SARVAM_VISION_MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: userText },
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${b64}` } },
+          ],
+        },
+      ],
+      max_tokens: maxTokens,
+    }),
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`sarvam ${r.status}: ${text.slice(0, 200)}`);
+  const out = JSON.parse(text);
+  const msg = out && out.choices && out.choices[0] && out.choices[0].message;
+  return (msg && msg.content) || "";
+}
+
+/** A voice clip, transcribed. */
+async function sarvamSpeech(env, b64, mime) {
+  const bytes = b64ToBytes(b64);
+  const form = new FormData();
+  form.append("file", new Blob([bytes], { type: mime || "audio/wav" }), "clip.wav");
+  form.append("model", SARVAM_STT_MODEL);
+  form.append("language_code", "unknown");
+  const r = await fetch(`${SARVAM_BASE}/speech-to-text`, {
+    method: "POST",
+    headers: { "api-subscription-key": sarvamKey(env) },
+    body: form,
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`sarvam ${r.status}: ${text.slice(0, 200)}`);
+  const out = JSON.parse(text);
+  return (out && out.transcript) || "";
+}
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -232,58 +330,6 @@ function extractText(out) {
   return "";
 }
 
-/**
- * The image input shapes Workers AI models accept, tried in order. Meta's
- * vision model is gated behind a licence prompt, and the Llava model wants a
- * plain data URL, so both are handled here.
- */
-function imageShapes(model, b64, systemPrompt) {
-  const url = `data:image/jpeg;base64,${b64}`;
-  const ask = "Read the arithmetic in this photo.";
-  const sys = systemPrompt || OCR_SYSTEM;
-
-  if (model.includes("llama-3.2-11b-vision")) {
-    return [
-      {
-        agree: true,
-        body: {
-          messages: [
-            { role: "system", content: sys },
-            {
-              role: "user",
-              content: [
-                { type: "text", text: ask },
-                { type: "image_url", image_url: { url } },
-              ],
-            },
-          ],
-          max_tokens: 256,
-        },
-      },
-      {
-        agree: true,
-        body: {
-          messages: [
-            { role: "system", content: sys },
-            {
-              role: "user",
-              content: [
-                { type: "text", text: ask },
-                { type: "image", image: url },
-              ],
-            },
-          ],
-          max_tokens: 256,
-        },
-      },
-    ];
-  }
-
-  // llava-style: a flat object with the image as a base64 string
-  return [
-    { agree: false, body: { image: b64, prompt: `${sys} ${ask}`, max_tokens: 512 } },
-  ];
-}
 
 /** base64 (no data: prefix) to bytes, which is what Workers AI wants. */
 function b64ToBytes(b64) {
@@ -470,94 +516,77 @@ export default {
       // --- audio mode: transcribe an uploaded clip ---
       const audio = typeof body?.audio === "string" ? body.audio : "";
       if (audio) {
-        if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
         if (audio.length > 40_000_000) return json({ error: "That audio file is too large." }, 413);
-
-        const problems = [];
-        for (const model of WHISPER_MODELS) {
-          // the turbo model wants the clip as a base64 string
-          for (const payload of [{ audio }, { audio: `data:audio/wav;base64,${audio}` }]) {
-            try {
-              const out = await env.AI.run(model, payload);
-              const text = (out && (out.text || out.response || "")) + "";
-              if (text.trim()) return json({ text: text.trim(), model });
-              problems.push(`${model}: empty transcript`);
-              break;
-            } catch (e) {
-              problems.push(`${model}: ${e}`);
-            }
-          }
+        try {
+          const mime = typeof body?.mime === "string" ? body.mime : "audio/wav";
+          const text = await sarvamSpeech(env, audio, mime);
+          if (text.trim()) return json({ text: text.trim(), model: SARVAM_STT_MODEL });
+          return json({ error: "That clip had no words in it." }, 502);
+        } catch (e) {
+          return json({ error: "Could not transcribe that audio.", detail: String(e).slice(0, 200) }, 502);
         }
-        return json(
-          { error: "Could not transcribe that audio.", detail: problems.join(" | ") },
-          502,
-        );
       }
 
       // --- photo mode: read the maths out of an image ---
       const image = typeof body?.image === "string" ? body.image : "";
       if (image) {
-        if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
         if (image.length > 8_000_000) return json({ error: "That photo is too large." }, 413);
 
         const asked = typeof body?.model === "string" ? body.model : "";
         const models = VISION_ALLOWED.includes(asked) ? [asked] : VISION_MODELS;
-        // "text" transcribes a whole page; anything else reads one calculation.
+        // "text" transcribes a whole page, "answer" answers a question about
+        // the picture, anything else reads one calculation out of it.
         const transcribe = body?.mode === "text";
-        const systemPrompt = transcribe ? TRANSCRIBE_SYSTEM : OCR_SYSTEM;
+        const answering = body?.mode === "answer";
+        const systemPrompt = answering
+          ? ANSWER_IMAGE_SYSTEM
+          : transcribe ? TRANSCRIBE_SYSTEM : OCR_SYSTEM;
 
-        // The vision model is not deterministic: the same photo can come back
-        // as "1250+3750" or "1250+37505000". So it is asked up to three times
-        // and the answer that appears most often wins.
+        // --- answer mode: the user asked something about this picture ---
+        if (answering) {
+          const question = typeof body?.question === "string" ? body.question.trim() : "";
+          if (!question) return json({ error: "Ask a question about the photo." }, 400);
+          if (question.length > 2000) return json({ error: "Question is too long." }, 400);
+
+          try {
+            const answer = sanitize(await sarvamVision(env, ANSWER_IMAGE_SYSTEM, question, image, 900));
+            if (answer.trim()) return json({ answer, model: SARVAM_VISION_MODEL });
+            return json({ error: "The photo produced no answer. Try a clearer picture." }, 502);
+          } catch (e) {
+            return json(
+              { error: "Could not answer that from the photo.", detail: String(e).slice(0, 200) },
+              502,
+            );
+          }
+        }
+
+        // Sarvam's vision model reads a photo far more steadily than the small
+        // Workers AI models did, so one read is enough. If it comes back empty
+        // it is asked once more before giving up.
         const problems = [];
-        for (const model of models) {
-          const votes = new Map();
-          let agreed = false;
-
-          for (const shape of imageShapes(model, image, systemPrompt)) {
-            for (let attempt = 0; attempt < 3; attempt++) {
-              try {
-                if (shape.agree && !agreed) {
-                  // Meta's vision model needs the licence accepted once.
-                  try {
-                    await env.AI.run(model, { prompt: "agree" });
-                  } catch (e) {
-                    problems.push(`${model} agree: ${e}`);
-                  }
-                  agreed = true;
-                }
-                const out = await env.AI.run(model, shape.body);
-                const raw = extractText(out);
-                if (transcribe) {
-                  const page = raw.trim();
-                  if (page && page.toUpperCase() !== "NONE") {
-                    return json({ text: page, model });
-                  }
-                  break;
-                }
-                const expression = tidyExpression(raw);
-                if (!expression || expression.toUpperCase() === "NONE") break;
-                votes.set(expression, (votes.get(expression) || 0) + 1);
-                // two matching reads are enough
-                if (votes.get(expression) >= 2) {
-                  return json({ expression, model, reads: attempt + 1 });
-                }
-              } catch (e) {
-                problems.push(`${model}: ${e}`);
-                break;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const raw = await sarvamVision(
+              env,
+              systemPrompt,
+              transcribe ? "Transcribe this page." : "Read the arithmetic in this photo.",
+              image,
+              transcribe ? 1500 : 200,
+            );
+            if (transcribe) {
+              const page = raw.trim();
+              if (page && page.toUpperCase() !== "NONE") {
+                return json({ text: page, model: SARVAM_VISION_MODEL });
+              }
+            } else {
+              const expression = tidyExpression(raw);
+              if (expression && expression.toUpperCase() !== "NONE") {
+                return json({ expression, model: SARVAM_VISION_MODEL, reads: attempt + 1 });
               }
             }
-            if (votes.size) break;
-          }
-
-          if (votes.size) {
-            // no two reads matched: give back the most common one, flagged
-            let best = "";
-            let bestCount = 0;
-            for (const [expr, count] of votes) {
-              if (count > bestCount) { best = expr; bestCount = count; }
-            }
-            return json({ expression: best, model, confidence: "low", reads: votes.size });
+            problems.push(`attempt ${attempt + 1}: nothing readable`);
+          } catch (e) {
+            problems.push(`attempt ${attempt + 1}: ${String(e).slice(0, 120)}`);
           }
         }
         return json(
@@ -574,8 +603,6 @@ export default {
         return json({ error: "The attached context is too long." }, 413);
       }
 
-      if (!env.AI) return json({ error: "Workers AI binding is not configured." }, 500);
-
       const messages = [
         { role: "system", content: SYSTEM },
         {
@@ -586,27 +613,16 @@ export default {
         },
       ];
 
-      // A pinned model (if configured) goes first, then the fallbacks.
-      const candidates = [];
-      if (env.AI_MODEL) candidates.push(env.AI_MODEL);
-      for (const m of FALLBACK_MODELS) if (!candidates.includes(m)) candidates.push(m);
-
-      const problems = [];
-      for (const model of candidates) {
-        try {
-          const out = await env.AI.run(model, { messages, max_tokens: 512 });
-          const answer = sanitize(extractText(out));
-          if (answer) return json({ answer, model });
-          problems.push(`${model}: empty response`);
-        } catch (e) {
-          problems.push(`${model}: ${e}`);
-        }
+      try {
+        const answer = sanitize(await sarvamChat(env, messages, 1200));
+        if (answer.trim()) return json({ answer, model: SARVAM_CHAT_MODEL });
+        return json({ error: "The assistant had nothing to say. Try asking again." }, 502);
+      } catch (e) {
+        return json(
+          { error: "The assistant could not be reached.", detail: String(e).slice(0, 200) },
+          502,
+        );
       }
-
-      return json(
-        { error: "No Workers AI model could answer.", detail: problems.join(" | ") },
-        502,
-      );
     } catch (e) {
       return json({ error: String(e) }, 500);
     }

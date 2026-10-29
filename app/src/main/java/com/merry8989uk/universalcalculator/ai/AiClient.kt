@@ -96,6 +96,50 @@ object AiClient {
     }
 
     /**
+     * Answers a question about a picture.
+     *
+     * This is a different job from [readImage]: the picture may be a question
+     * paper, a diagram or a table, and the user wants the answer, not an
+     * arithmetic string. Sending only the expression that happens to be printed
+     * on the page is what made a photograph of an exam paper come back as the
+     * marks line in its header.
+     */
+    suspend fun answerImage(jpeg: ByteArray, question: String): String? =
+        withContext(Dispatchers.IO) {
+            count("photo")
+            var conn: HttpURLConnection? = null
+            try {
+                val payload = JSONObject()
+                    .put("image", Base64.encodeToString(jpeg, Base64.NO_WRAP))
+                    .put("mode", "answer")
+                    .put("question", question)
+                    .toString()
+                conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    doOutput = true
+                    connectTimeout = 20_000
+                    readTimeout = 120_000
+                    setRequestProperty("Content-Type", "application/json")
+                }
+                conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
+                val code = conn.responseCode
+                val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+                val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
+                val json = runCatching { JSONObject(body) }.getOrNull()
+                if (code !in 200..299) {
+                    DiagnosticsLogger.log("AI", "Answer from photo failed: HTTP $code")
+                    return@withContext null
+                }
+                json?.optString("answer")?.takeIf { it.isNotBlank() }
+            } catch (e: Exception) {
+                DiagnosticsLogger.log("AI", "Answer from photo failed")
+                null
+            } finally {
+                conn?.disconnect()
+            }
+        }
+
+    /**
      * Reads a page image. With mode "text" the whole page is transcribed; with
      * "expression" (the default) only the calculation on it is returned.
      */
@@ -137,6 +181,7 @@ object AiClient {
         try {
             val payload = JSONObject()
                 .put("audio", Base64.encodeToString(audio, Base64.NO_WRAP))
+                .put("mime", "audio/wav")
                 .toString()
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"

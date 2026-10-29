@@ -27,7 +27,7 @@ object Attachments {
     /** How many pages of a PDF are read, so a big document stays quick. */
     private const val MAX_PDF_PAGES = 3
 
-    suspend fun read(context: Context, uri: Uri): Read = withContext(Dispatchers.IO) {
+    suspend fun read(context: Context, uri: Uri, question: String = ""): Read = withContext(Dispatchers.IO) {
         val name = displayName(context, uri) ?: "file"
         val type = context.contentResolver.getType(uri).orEmpty()
 
@@ -43,11 +43,23 @@ object Attachments {
 
         when {
             type.startsWith("image/") -> {
-                val r = AiClient.solveImage(bytes)
-                if (r.expression != null) {
-                    Read("image", name, "The image shows this calculation: ${r.expression}", null)
+                // With a question attached, the picture is sent to the model
+                // whole and answered. Without one, all that is wanted is the
+                // calculation on it, so the expression reader is used.
+                if (question.isNotBlank()) {
+                    val answer = AiClient.answerImage(bytes, question)
+                    if (answer != null) {
+                        Read("image", name, answer, null)
+                    } else {
+                        Read("image", name, "", "Could not answer that from the photo.")
+                    }
                 } else {
-                    Read("image", name, "", r.error ?: "Could not read that image.")
+                    val r = AiClient.solveImage(bytes)
+                    if (r.expression != null) {
+                        Read("image", name, "The image shows this calculation: ${r.expression}", null)
+                    } else {
+                        Read("image", name, "", r.error ?: "Could not read that image.")
+                    }
                 }
             }
 
@@ -83,6 +95,24 @@ object Attachments {
      * Renders the first few pages and reads each with the vision model. Android
      * has no PDF text extractor, so this is the way to get at the content.
      */
+    /**
+     * The text handed to the assistant, with the attachment labelled for what it
+     * is.
+     *
+     * A picture the model has already answered arrives as an answer about the
+     * picture, not as a bare expression. Saying so is what stops the assistant
+     * treating a whole exam question as a sum to be worked out.
+     */
+    fun contextFor(label: String, text: String, question: String): String {
+        val asked = question.ifBlank { "Please solve and explain this." }
+        if (text.isBlank()) return asked
+        return when (label) {
+            "image" -> "The photo shows the following. Use it to answer.\n$text\n\nQuestion: $asked"
+            "audio" -> "The audio says the following. Use it to answer.\n$text\n\nQuestion: $asked"
+            else -> "$asked\n\n$text"
+        }
+    }
+
     private suspend fun readPdf(context: Context, uri: Uri): String? {
         val descriptor = try {
             context.contentResolver.openFileDescriptor(uri, "r")

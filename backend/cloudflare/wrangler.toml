@@ -2,14 +2,22 @@ name = "nexus-calc-ai"
 main = "worker.js"
 compatibility_date = "2026-01-01"
 
-# Workers AI runs the model on Cloudflare — no API key needed anywhere.
-[ai]
-binding = "AI"
+# The assistant runs on Sarvam AI. The key is a Worker secret, never a file:
+#
+#   npx wrangler secret put SARVAM_API_KEY --name nexus-calc-ai
+#
+# The deploy workflow sets it from the SARVAM_API_KEY repository secret, so the
+# key lives in exactly two places — Sarvam's dashboard and GitHub's encrypted
+# secrets — and in neither the app nor this repo.
+#
+# Workers AI is no longer used, so there is no [ai] binding here. Cloudflare's
+# models were too small to hold a question in mind: a photograph of an exam
+# paper came back as the marks line printed in its header.
 
 [vars]
-# Preferred model. If Cloudflare retires it, the Worker automatically falls back
-# to the other current models listed in worker.js.
-AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+# Which Sarvam model answers. Overridable without a code change.
+SARVAM_CHAT_MODEL = "sarvam-105b"
+SARVAM_VISION_MODEL = "glm5.3-flash"
 
 # Encrypted sync storage. The deploy workflow fills in the real namespace id
 # from Cloudflare before deploying; if it cannot, the binding is left out and

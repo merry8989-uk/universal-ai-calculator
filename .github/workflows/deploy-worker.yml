@@ -4,8 +4,11 @@ name: Deploy AI Worker
 # GitHub's runners, which can reach the Cloudflare API. Run it from the
 # Actions tab. No model API key is needed — Workers AI runs on Cloudflare.
 #
-# Required repository secret:
+# Required repository secrets:
 #   CLOUDFLARE_API_TOKEN   — a Cloudflare API token with "Edit Cloudflare Workers"
+#   SARVAM_API_KEY         — the Sarvam AI key the assistant runs on. It is
+#                            pushed to the Worker as a secret on every deploy, so
+#                            it never appears in this repo or in the app.
 # Optional repository secrets:
 #   CLOUDFLARE_ACCOUNT_ID  — your Cloudflare account id
 on:
@@ -62,13 +65,21 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "Missing repository secret CLOUDFLARE_API_TOKEN." >&2
             exit 1
           fi
           wrangler deploy
-          # The Gemini key is no longer used now that the model runs on Workers AI.
+          # The Sarvam key is set from the repository secret, so the Worker always has
+          # the current one and it is never written to a file.
+          if [ -n "$SARVAM_API_KEY" ]; then
+            printf '%s' "$SARVAM_API_KEY" | wrangler secret put SARVAM_API_KEY --name nexus-calc-ai
+          else
+            echo "::warning::SARVAM_API_KEY is not set — the assistant will not answer until it is."
+          fi
+          # the old provider's key, if it was ever set here
           wrangler secret delete GEMINI_API_KEY || true
 
       - name: Smoke test the Worker
