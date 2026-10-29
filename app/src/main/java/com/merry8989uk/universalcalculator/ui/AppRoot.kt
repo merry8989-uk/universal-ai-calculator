@@ -206,6 +206,8 @@ fun AppRoot(settings: SettingsState) {
         if (!aiVisible && tab == AI_TAB) tab = STANDARD_TAB
     }
     var aiContext by rememberSaveable { mutableStateOf("") }
+    // The conversation archive, opened from the Ask AI screen.
+    var chatArchiveOpen by rememberSaveable { mutableStateOf(false) }
     var aiAsk by rememberSaveable { mutableStateOf("") }
 
     // Pressing the tab you are already on takes that tab back to its own home.
@@ -358,6 +360,15 @@ fun AppRoot(settings: SettingsState) {
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
+            // The conversation archive takes the whole screen while it is open.
+            // It is its own place: nothing here is a calculation.
+            if (chatArchiveOpen) {
+                ChatArchiveScreen(
+                    onBack = { chatArchiveOpen = false },
+                    onOpen = { /* the viewer is drawn by the screen itself */ },
+                )
+                return@Box
+            }
             when (tab) {
                 0 -> CalculatorScreen(
                     title = "Standard",
@@ -421,6 +432,10 @@ fun AppRoot(settings: SettingsState) {
                     initialQuestion = aiAsk,
                     onInitialQuestionUsed = { aiAsk = "" },
                     resetSignal = resetTick,
+                    // Chats are kept in their own archive, and only when the one
+                    // switch that governs all storing is on.
+                    savingEnabled = settings.dataSavingEnabled,
+                    onOpenArchive = { chatArchiveOpen = true },
                 )
                 else -> SettingsScreen(
                     onBack = { tab = 0 },

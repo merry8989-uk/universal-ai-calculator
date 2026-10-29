@@ -61,16 +61,26 @@ fun AskAiScreen(
     initialQuestion: String = "",
     onInitialQuestionUsed: () -> Unit = {},
     resetSignal: Int = 0,
+    savingEnabled: Boolean = true,
+    onOpenArchive: () -> Unit = {},
 ) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
     /**
      * The conversation so far, oldest first: "user" or "assistant" to the text.
      *
-     * This is what makes the screen a chat rather than a search box. It is kept
-     * on the screen and nowhere else — the app stores no conversations.
+     * This is what makes the screen a chat rather than a search box.
      */
     var turns by remember { mutableStateOf(listOf<Pair<String, String>>()) }
+
+    /**
+     * When this conversation began.
+     *
+     * Held for the whole conversation so every save overwrites the same file —
+     * a chat is one file that grows, not a new file per message.
+     */
+    var chatStarted by remember { mutableStateOf<java.time.LocalDateTime?>(null) }
+    var chatModel by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var used by remember { mutableStateOf(false) }
 
@@ -97,6 +107,21 @@ fun AskAiScreen(
             answer = reply
             turns = turns + ("assistant" to reply)
             loading = false
+            // Kept in the chat archive — never in the calculation archive.
+            if (savingEnabled) {
+                val started = chatStarted ?: java.time.LocalDateTime.now().also { chatStarted = it }
+                val saved = com.merry8989uk.universalcalculator.calc.SavedChat(
+                    title = com.merry8989uk.universalcalculator.calc.ChatFormat.titleOf(
+                        com.merry8989uk.universalcalculator.data.ChatStore.turns(turns),
+                    ),
+                    started = started.format(
+                        java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm"),
+                    ),
+                    model = chatModel,
+                    turns = com.merry8989uk.universalcalculator.data.ChatStore.turns(turns),
+                )
+                com.merry8989uk.universalcalculator.data.ChatStore.save(context, started, saved)
+            }
         }
     }
 
@@ -162,7 +187,7 @@ fun AskAiScreen(
         if (resetSignal > 0) {
             question = ""; answer = ""; attachText = ""; attachLabel = ""
             attachError = ""; attachBusy = false; used = false
-            turns = emptyList()
+            turns = emptyList(); chatStarted = null
         }
     }
 
@@ -324,10 +349,12 @@ fun AskAiScreen(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
+                TextButton(onClick = onOpenArchive) { Text("Chats") }
                 TextButton(onClick = {
                     turns = emptyList()
                     answer = ""
                     question = ""
+                    chatStarted = null
                 }) { Text("New chat") }
             }
 
@@ -362,6 +389,7 @@ fun AskAiScreen(
             AnswerActions(latest.second, onClear = {
                 turns = emptyList()
                 answer = ""
+                chatStarted = null
             })
         }
     }
