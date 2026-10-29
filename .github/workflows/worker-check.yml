@@ -164,6 +164,54 @@ jobs:
               raise SystemExit("EXAM CHECK: FAIL")
           PY
 
+      # The warehouse: send three events, then read them back as numbers.
+      - name: The event warehouse
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: |
+          echo "--- warehouse ---"
+          python3 - <<'PY'
+          import json, os, urllib.request, datetime
+          BASE = "https://nexus-calc-ai.br19shc39.workers.dev"
+          now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+          events = [
+              {"schema_version": "1.0", "event_id": "evt_ci1", "event_name": "calculator.operation.completed",
+               "category": "calc", "timestamp": now, "severity": "INFO",
+               "app": {"name": "nexus-calc", "version": "2.4.0", "platform": "android"},
+               "context": {"anonymous_install_id": "ci", "session_id": "ci"},
+               "fields": {"status": "success", "duration_ms": "42"}},
+              {"schema_version": "1.0", "event_id": "evt_ci2", "event_name": "ai.request.completed",
+               "category": "ai", "timestamp": now, "severity": "INFO",
+               "app": {"name": "nexus-calc", "version": "2.4.0", "platform": "android"},
+               "context": {"anonymous_install_id": "ci", "session_id": "ci"},
+               "fields": {"status": "success", "duration_ms": "1200", "verification": "mismatch"}},
+              {"schema_version": "1.0", "event_id": "evt_ci3", "event_name": "ai.request.completed",
+               "category": "ai", "timestamp": now, "severity": "INFO",
+               "app": {"name": "nexus-calc", "version": "2.4.0", "platform": "android"},
+               "context": {"anonymous_install_id": "ci", "session_id": "ci"},
+               "fields": {"status": "success", "duration_ms": "900", "verification": "match"}},
+          ]
+          body = json.dumps({"events": events}).encode()
+          req = urllib.request.Request(BASE + "/events", data=body,
+                                       headers={"Content-Type": "application/json", "User-Agent": "nexus-check/1.0"})
+          with urllib.request.urlopen(req, timeout=60) as r:
+              print("ingest:", r.read().decode()[:200])
+
+          token = os.environ.get("STATS_TOKEN", "")
+          req = urllib.request.Request(BASE + "/stats?days=1",
+                                       headers={"x-stats-token": token, "User-Agent": "nexus-check/1.0"})
+          with urllib.request.urlopen(req, timeout=60) as r:
+              d = json.loads(r.read())
+          print("storage:", d.get("storage"))
+          print("total:", d.get("total_events"))
+          print("verification:", d.get("verification"))
+          print("calculator:", d.get("calculator"))
+          if d.get("total_events", 0) >= 3 and d.get("verification", {}).get("mismatch") == 1:
+              print("WAREHOUSE CHECK: PASS")
+          else:
+              raise SystemExit("WAREHOUSE CHECK: FAIL")
+          PY
+
       - name: Encrypted sync round trip
         run: |
           python3 -m pip install --quiet cryptography
