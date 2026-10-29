@@ -35,8 +35,39 @@ const OCR_SYSTEM = [
  * multiple-choice paper came back as whatever sum happened to be printed in the
  * header.
  */
+/**
+ * How every answer is laid out, whether it came from a photo, a PDF or a typed
+ * question.
+ *
+ * The answers come first, in one line each, so someone marking a paper can see
+ * at a glance what to tick. The reasoning follows underneath, and for a
+ * multiple-choice question it says why each wrong option is wrong — which is the
+ * part a student actually learns from.
+ */
+const ANSWER_FORMAT = [
+  "FORMAT - follow it exactly, every time.",
+  "Start with a line: ANSWERS",
+  "Then one short line per question, and nothing else on that line:",
+  "  the question number, the correct option letter if there is one, and the",
+  "  answer itself in a few words.",
+  "  For example:",
+  "  Q1: A - 1 + w + w^2 = 0",
+  "  Q2: D - n*pi + 5*pi/6",
+  "  Q7: 5 percent profit",
+  "Then a blank line, then the line: EXPLANATIONS",
+  "Then, for each question in order, a short paragraph saying why the right",
+  "answer is right AND why each of the other options is wrong. Name the options",
+  "you are dismissing.",
+  "If a question has no options, give the answer, the working, and then say in a",
+  "sentence or two why it is right.",
+].join(" ");
+
 const ANSWER_IMAGE_SYSTEM = [
   "You are a patient tutor helping someone with the picture they just sent.",
+  "You teach every subject, not only mathematics: science, commerce, arts,",
+  "history, geography, English, computer science. Answer them all with the same",
+  "care, and never refuse a question just because it is not arithmetic.",
+  ANSWER_FORMAT,
   "Read the WHOLE picture first: it may be an exam paper, a diagram, a table, a",
   "graph, handwriting or a screenshot.",
 
@@ -71,9 +102,15 @@ const TRANSCRIBE_SYSTEM = [
 
 const SYSTEM = [
   "You are the built-in assistant of the Nexus Calc Android app.",
-  "Answer maths, physics, chemistry, finance, economics, health and everyday",
-  "questions clearly and briefly.",
+  "You are a general tutor, not a calculator: answer maths, physics, chemistry,",
+  "biology, commerce, accountancy, economics, history, geography, civics,",
+  "English, computer science, health and everyday questions. Never refuse a",
+  "question because it is outside mathematics.",
+  ANSWER_FORMAT,
   "Answer the question that was actually asked. Read it twice before replying.",
+  "Think the question through before you answer: work out what is being asked,",
+  "what is given, and which idea applies. Do not guess. If something is",
+  "genuinely uncertain, say so instead of inventing it.",
   "If the user names a question number, answer that one and no other.",
   "If the user asks you to choose between options, name the option, show the",
   "working, and say why the others are wrong. Never reply with a bare sum when a",
@@ -81,11 +118,21 @@ const SYSTEM = [
   "Reply in PLAIN TEXT only. Never use Markdown (no **, no *, no #, no backticks)",
   "and never use LaTeX or maths notation (no $, no \\text{}, no \\times, no \\frac).",
   "Write symbols literally, for example: Total = 1200 x 2500 = Rs 30,00,000.",
-  "Keep it short: at most a few lines of working, then the final answer on its own line.",
+  "Be as long as the question needs and no longer: one line in ANSWERS, then",
+  "just enough reasoning in EXPLANATIONS for the reader to follow it.",
   "Prefer Indian conventions (rupees, lakh/crore, metric, IST) unless the user asks",
   "otherwise. Never claim to be a doctor or a financial adviser; add a short",
   "caution for medical or financial questions.",
+  "When search results are given to you, they are current and you are not: trust",
+  "them over what you remember, even when they contradict it.",
 ].join(" ");
+
+/** The system prompt, with today's date, so the model does not answer as if it were last year. */
+function systemWithDate() {
+  const now = new Date();
+  const day = now.toISOString().slice(0, 10);
+  return `${SYSTEM} Today is ${day}. Anything you remember after that date you cannot know; search for it.`;
+}
 
 /**
  * Sarvam AI, which does all the thinking now.
@@ -166,6 +213,170 @@ async function sarvamVision(env, systemPrompt, userText, b64, maxTokens = 900) {
   const msg = out && out.choices && out.choices[0] && out.choices[0].message;
   return (msg && msg.content) || "";
 }
+
+/**
+ * A chat that is allowed to look things up.
+ *
+ * The model is given one tool, the web. When it asks to search, the search is
+ * run here and the results are handed back, and the model carries on — up to
+ * three rounds, so a question needing two lookups still works but a model that
+ * keeps searching cannot loop for ever. The searches it made are returned too,
+ * so the app can show where an answer came from.
+ */
+async function sarvamChatWithTools(env, messages, model, maxTokens) {
+  const working = messages.slice();
+  const used = [];
+  let last = "";
+
+  // The last round is run with no tools at all, so the model has to answer with
+  // what it has. Without that it will happily search four times and never reply.
+  const ROUNDS = 3;
+  for (let round = 0; round < ROUNDS; round++) {
+    const last = round === ROUNDS - 1;
+    const r = await fetch(`${SARVAM_BASE}/v2/chat/completions`, {
+      method: "POST",
+      headers: { "api-subscription-key": sarvamKey(env), "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        messages: working,
+        max_tokens: maxTokens,
+        ...(last ? {} : { tools: TOOLS, tool_choice: "auto" }),
+      }),
+    });
+    const text = await r.text();
+    if (!r.ok) throw new Error(`sarvam ${r.status}: ${text.slice(0, 200)}`);
+    const out = JSON.parse(text);
+    const msg = out && out.choices && out.choices[0] && out.choices[0].message;
+    if (!msg) throw new Error("empty response");
+
+    const calls = msg.tool_calls || [];
+    if (!calls.length) {
+      return { answer: msg.content || last, searched: used };
+    }
+
+    working.push({ role: "assistant", content: msg.content || "", tool_calls: calls });
+    for (const call of calls) {
+      let query = "";
+      try {
+        query = JSON.parse(call.function && call.function.arguments || "{}").query || "";
+      } catch (e) {
+        query = "";
+      }
+      const hits = await webSearch(query);
+      if (query) used.push(query);
+      working.push({
+        role: "tool",
+        tool_call_id: call.id,
+        content: JSON.stringify(hits.length ? hits : { note: "No results found." }).slice(0, 6000),
+      });
+    }
+  }
+  return { answer: last, searched: used };
+}
+
+/**
+ * Searching the live web.
+ *
+ * DuckDuckGo's HTML endpoint needs no key and answers a plain GET, which is the
+ * only search a Worker can do for free. If it refuses — it sometimes blocks
+ * datacentre addresses — Wikipedia is asked instead, which is not the whole web
+ * but does cover the science, history and commerce questions this app gets.
+ */
+async function webSearch(query) {
+  const q = String(query || "").slice(0, 300);
+  if (!q.trim()) return [];
+
+  const strip = (h) =>
+    String(h || "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#x27;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  try {
+    const r = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; NexusCalc/1.0; +https://merry8989-uk.github.io/universal-ai-calculator/)",
+        "Accept-Language": "en-IN,en;q=0.9",
+      },
+    });
+    if (r.ok) {
+      const html = await r.text();
+      const titles = [...html.matchAll(/result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+      const snippets = [...html.matchAll(/result__snippet"[^>]*>([\s\S]*?)<\/a>/g)];
+      const out = [];
+      for (let i = 0; i < titles.length && out.length < 5; i++) {
+        let url = titles[i][1];
+        const m = url.match(/uddg=([^&]+)/);
+        if (m) url = decodeURIComponent(m[1]);
+        const title = strip(titles[i][2]);
+        const snippet = strip(snippets[i] ? snippets[i][1] : "");
+        if (title) out.push({ title, snippet, url });
+      }
+      if (out.length) return out;
+    }
+  } catch (e) {
+    // fall through to Wikipedia
+  }
+
+  try {
+    const r = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srlimit=3&srsearch=${encodeURIComponent(q)}`,
+      { headers: { "User-Agent": "NexusCalc/1.0 (calculator app)" } },
+    );
+    if (!r.ok) return [];
+    const data = await r.json();
+    const hits = (data && data.query && data.query.search) || [];
+    const out = hits.map((h) => ({
+      title: h.title,
+      snippet: strip(h.snippet),
+      url: `https://en.wikipedia.org/wiki/${encodeURIComponent(h.title.replace(/ /g, "_"))}`,
+    }));
+
+    // A one-line snippet is thin. The first article's opening paragraphs are
+    // fetched and used instead, which is usually enough to answer from.
+    if (out.length) {
+      try {
+        const s2 = await fetch(
+          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(out[0].title.replace(/ /g, "_"))}`,
+          { headers: { "User-Agent": "NexusCalc/1.0 (calculator app)" } },
+        );
+        if (s2.ok) {
+          const sum = await s2.json();
+          if (sum && sum.extract) out[0].snippet = String(sum.extract).slice(0, 1200);
+        }
+      } catch (e) {
+        // keep the snippet we have
+      }
+    }
+    return out;
+  } catch (e) {
+    return [];
+  }
+}
+
+/** What the model may ask for. Only one tool: the web. */
+const TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "web_search",
+      description:
+        "Search the live web. Use it for anything current, factual, or outside your own knowledge: news, prices, dates, who holds an office, recent results, or a fact you are not sure of. Do not use it for arithmetic.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "What to search for." },
+        },
+        required: ["query"],
+      },
+    },
+  },
+];
 
 /**
  * Which model should answer this.
@@ -647,7 +858,7 @@ export default {
       }
 
       const messages = [
-        { role: "system", content: SYSTEM },
+        { role: "system", content: systemWithDate() },
         ...earlier,
         {
           role: "user",
@@ -659,8 +870,17 @@ export default {
 
       const model = pickModel(question, earlier);
       try {
-        const answer = sanitize(await sarvamChat(env, messages, 2000, model));
-        if (answer.trim()) return json({ answer, model, turns: earlier.length });
+        const out = await sarvamChatWithTools(env, messages, model, 3000);
+        const answer = sanitize(out.answer);
+        if (answer.trim()) {
+          return json({
+            answer,
+            model,
+            turns: earlier.length,
+            // what it looked up, so the app can say where an answer came from
+            searched: out.searched,
+          });
+        }
         return json({ error: "The assistant had nothing to say. Try asking again." }, 502);
       } catch (e) {
         return json(

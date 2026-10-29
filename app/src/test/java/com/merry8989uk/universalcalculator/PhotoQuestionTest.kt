@@ -155,6 +155,54 @@ class PhotoQuestionTest {
         assertTrue("Indian scripts are not routed to sarvam", fn.contains("u0900"))
     }
 
+    @Test fun theAnswerComesBeforeTheReasoning() {
+        val w = worker ?: return
+        assertTrue("no answer-first format", w.contains("const ANSWER_FORMAT"))
+        val f = w.substringAfter("const ANSWER_FORMAT = [").substringBefore("].join")
+        assertTrue("it does not ask for the answers first", f.contains("Start with a line: ANSWERS"))
+        assertTrue("it does not ask for explanations after", f.contains("EXPLANATIONS"))
+        assertTrue("it does not ask why the wrong options are wrong",
+            f.contains("why each of the other options is wrong"))
+    }
+
+    @Test fun everySubjectIsAnsweredNotJustMaths() {
+        val w = worker ?: return
+        val sys = w.substringAfter("const SYSTEM = [").substringBefore("].join")
+        assertTrue("science is not mentioned", sys.contains("chemistry"))
+        assertTrue("commerce is not mentioned", sys.contains("commerce"))
+        assertTrue("arts is not mentioned", sys.contains("history"))
+        assertTrue("it does not refuse non-maths", sys.contains("Never refuse"))
+    }
+
+    @Test fun theAssistantCanSearchTheWeb() {
+        val w = worker ?: return
+        assertTrue("no search", w.contains("async function webSearch"))
+        assertTrue("no search tool", w.contains("name: \"web_search\""))
+        assertTrue("no search loop", w.contains("async function sarvamChatWithTools"))
+        assertTrue("no fallback when the search engine refuses", w.contains("en.wikipedia.org"))
+        assertTrue("the last round must answer rather than search again", w.contains("const last = round === ROUNDS - 1"))
+    }
+
+    @Test fun theModelIsToldTodaysDate() {
+        // it answered as if it were months earlier until this was added
+        val w = worker ?: return
+        assertTrue("no dated system prompt", w.contains("function systemWithDate"))
+        assertTrue("no date in the prompt", w.contains("Today is "))
+        assertTrue("search results are not trusted over memory",
+            w.contains("trust them over what you remember"))
+    }
+
+    @Test fun aPdfIsReadPastItsFirstFewPages() {
+        val file = listOf(
+            File("../app/src/main/java/com/merry8989uk/universalcalculator/ai/Attachments.kt"),
+            File("app/src/main/java/com/merry8989uk/universalcalculator/ai/Attachments.kt"),
+        ).firstOrNull { it.exists() } ?: return
+        val text = file.readText()
+        val pages = Regex("MAX_PDF_PAGES = (\\d+)").find(text)?.groupValues?.get(1)?.toIntOrNull()
+        assertTrue("only $pages pages are read", pages != null && pages >= 20)
+        assertTrue("the reader does not say how much it read", text.contains("The rest was not read"))
+    }
+
     @Test fun theKeyIsNeverInTheRepository() {
         // a Sarvam key starts with sk_ and is long; none may be committed
         val root = listOf(File(".."), File(".")).firstOrNull { File(it, "backend").exists() } ?: return

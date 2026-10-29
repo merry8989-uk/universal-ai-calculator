@@ -23,9 +23,20 @@ object Attachments {
     )
 
     private const val MAX_BYTES = 12 * 1024 * 1024
-    private const val MAX_TEXT_CHARS = 6000
+    // Enough for a whole exam paper's worth of pages. The model that answers
+    // has a million-token window, so the ceiling here is the phone's patience in
+    // reading the pages, not the model's.
+    private const val MAX_TEXT_CHARS = 60_000
     /** How many pages of a PDF are read, so a big document stays quick. */
-    private const val MAX_PDF_PAGES = 3
+    /**
+     * How many pages are read.
+     *
+     * Every page is drawn and read by the vision model, which takes a few
+     * seconds each, so this is a patience limit rather than a technical one. A
+     * question paper fits easily; a five-hundred-page book does not, and the
+     * user is told how many pages were read.
+     */
+    private const val MAX_PDF_PAGES = 20
 
     suspend fun read(context: Context, uri: Uri, question: String = ""): Read = withContext(Dispatchers.IO) {
         val name = displayName(context, uri) ?: "file"
@@ -143,8 +154,17 @@ object Attachments {
                     page.close()
                 }
             }
+            val total = renderer.pageCount
             renderer.close()
-            chunks.joinToString("\n\n").take(MAX_TEXT_CHARS).ifBlank { null }
+            if (chunks.isEmpty()) return null
+            // Say what was actually read, so a long book does not look like a
+            // short document.
+            val note = if (total > pages) {
+                "Read the first $pages pages of $total. The rest was not read."
+            } else {
+                "Read all $total page" + (if (total == 1) "" else "s") + "."
+            }
+            (note + "\n\n" + chunks.joinToString("\n\n")).take(MAX_TEXT_CHARS)
         } catch (e: Exception) {
             null
         } finally {
