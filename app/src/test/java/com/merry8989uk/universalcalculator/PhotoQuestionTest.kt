@@ -59,7 +59,8 @@ class PhotoQuestionTest {
         val w = worker ?: return
         assertTrue("no answer-image prompt", w.contains("ANSWER_IMAGE_SYSTEM"))
         val prompt = w.substringAfter("const ANSWER_IMAGE_SYSTEM = [").substringBefore("].join")
-        assertTrue("it does not mention answering", prompt.contains("Answer the question"))
+        assertTrue("it does not mention answering the named question",
+            prompt.contains("answer THAT one only"))
         assertTrue("it does not handle a question number", prompt.contains("question number"))
         assertTrue("it does not handle multiple choice", prompt.contains("multiple-choice"))
     }
