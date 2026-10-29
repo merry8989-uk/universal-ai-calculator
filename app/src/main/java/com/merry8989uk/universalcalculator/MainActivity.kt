@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
+import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import com.merry8989uk.universalcalculator.locale.LocaleHelper
 import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.settings.SettingsRepository
@@ -51,9 +52,20 @@ class MainActivity : ComponentActivity() {
         // diagnostics switch says.
         lifecycleScope.launch {
             SettingsRepository(applicationContext).settings.collect { stored ->
-                DiagnosticsLogger.setEnabled(
-                    DataPolicy.mayLog(stored.dataSavingEnabled, stored.diagnosticsEnabled),
-                )
+                val allowed = DataPolicy.mayLog(stored.dataSavingEnabled, stored.diagnosticsEnabled)
+                if (allowed != DiagnosticsLogger.enabled) {
+                    // F. Security — a change of consent is itself an audit event.
+                    EventLog.security(
+                        "consent.changed",
+                        mapOf(
+                            "logs" to allowed.toString(),
+                            "data_saving" to stored.dataSavingEnabled.toString(),
+                            "diagnostics" to stored.diagnosticsEnabled.toString(),
+                        ),
+                    )
+                }
+                DiagnosticsLogger.setEnabled(allowed)
+                EventLog.enabled = allowed
             }
         }
 

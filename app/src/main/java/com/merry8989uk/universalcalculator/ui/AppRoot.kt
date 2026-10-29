@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import com.merry8989uk.universalcalculator.settings.SettingsScreen
 import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
@@ -63,7 +64,18 @@ private val TAB_LABELS = listOf(
 private val TAB_A11Y = listOf(
     R.string.tab_standard_a11y, R.string.tab_scientific_a11y, R.string.tab_convert_a11y,
     R.string.tab_formulas_a11y, R.string.tab_ask_ai_a11y, R.string.tab_settings_a11y,
-    R.string.tab_sci_classic_a11y,
+]
+
+/**
+ * Stable names for the tabs, for the event log.
+ *
+ * Not the translated labels: an analytics record has to say the same thing in
+ * every language, or the numbers cannot be added up.
+ */
+private val TAB_KEYS = listOf(
+    // in the same order as TAB_LABELS: 0 standard, 1 scientific, 2 convert,
+    // 3 formulas, 4 ask_ai, 5 settings, 6 sci_classic
+    "standard", "scientific", "convert", "formulas", "ask_ai", "settings", "sci_classic",
 )
 private val TAB_GLYPHS = listOf(
     "=", "\u03C0", "\u21C4", "\u0192", "\u2726", "\u2699", "\u2211",
@@ -231,6 +243,12 @@ fun AppRoot(settings: SettingsState) {
             tab = i
         }
         Analytics.event(analyticsContext, "tab:" + TAB_LABELS[i].toString())
+        // E. Product — which part of the app is actually used. The tab's name is
+        // a fixed label from the app's own list, never anything the user typed.
+        EventLog.product(
+            "feature.opened",
+            mapOf("feature" to TAB_KEYS.getOrElse(i) { "tab_$i" }, "from" to TAB_KEYS.getOrElse(tab) { "tab_$tab" }),
+        )
     }
 
     // A pick from the MODE list: a tab for the calculators, a tool otherwise.

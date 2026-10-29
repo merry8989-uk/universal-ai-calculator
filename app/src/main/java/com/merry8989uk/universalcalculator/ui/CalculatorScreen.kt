@@ -112,6 +112,7 @@ import com.merry8989uk.universalcalculator.data.ArchiveStore
 import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
+import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import com.merry8989uk.universalcalculator.settings.SettingsState
 import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.ui.theme.Amber
@@ -586,12 +587,29 @@ when (key) {
                                             // expression, so nothing is worked out and
                                             // nothing is added to the history.
                                             exactResult = null
+                                            // A refused expression is the clearest sign
+                                            // the parser and the user disagree, so it is
+                                            // recorded — the text itself is not, only its
+                                            // shape and what was wrong with it.
+                                            EventLog.calc(
+                                                operation = title,
+                                                status = "rejected",
+                                                durationMs = 0,
+                                                errorCode = "parse_rejected",
+                                                fields = mapOf(
+                                                    "expression_chars" to text.length.toString(),
+                                                    "reason" to complaint.take(80),
+                                                    "has_brackets" to text.contains("(").toString(),
+                                                ),
+                                            )
                                         } else {
                                         // Complete anything half-typed first.
                                         val ready = ExpressionGuard.bracketNegativeNumbers(
                                             ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator),
                                         )
                                         exactResult = null
+                                        val calcStart = System.currentTimeMillis()
+                                        var calcError: String? = null
                                         val shown = try {
                                             if (ready.isBlank()) {
                                                 "0"
@@ -629,9 +647,28 @@ when (key) {
                                                 )
                                             }
                                         } catch (e: Exception) {
+                                            calcError = e.javaClass.simpleName
                                             // Say why rather than just "error".
                                             e.message?.takeIf { it.isNotBlank() } ?: "error"
                                         }
+                                        // A. Calculator engine — what was worked out,
+                                        // whether it worked, and how long it took. The
+                                        // expression itself is never written down: it can
+                                        // be a salary, a dose or a debt.
+                                        EventLog.calc(
+                                            operation = title,
+                                            status = if (calcError == null) "success" else "failed",
+                                            durationMs = System.currentTimeMillis() - calcStart,
+                                            errorCode = calcError,
+                                            fields = mapOf(
+                                                "expression_chars" to text.length.toString(),
+                                                "complex" to ComplexEvaluator.hasImaginary(ready).toString(),
+                                                "angle" to angle.name,
+                                                "percentage_mode" to percentageMode.name,
+                                                "decimals" to settings.decimals.toString(),
+                                                "had_slots" to slots.isNotEmpty().toString(),
+                                            ),
+                                        )
                                         // The archive keeps the record. It is
                                         // written even when the history is off,
                                         // and clearing the history never touches

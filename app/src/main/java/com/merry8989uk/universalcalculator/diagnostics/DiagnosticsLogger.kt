@@ -96,6 +96,9 @@ object DiagnosticsLogger {
 
     /** Wipes the log, the crash reports and the usage counters. */
     fun clearEverything(context: Context) {
+        // F. Security — deleting the record is an event in its own right, and it
+        // is written before the files go so the fact of the deletion survives.
+        EventLog.security("logs.deleted", mapOf("scope" to "everything"))
         clear()
         clearCrashes()
         Analytics.reset(context)

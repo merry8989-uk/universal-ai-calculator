@@ -74,6 +74,7 @@ fun DiagnosticsSection(
     var crashCount by remember { mutableIntStateOf(0) }
     var anrCount by remember { mutableIntStateOf(0) }
     var showCrashes by remember { mutableStateOf(false) }
+    var showEvents by remember { mutableStateOf(false) }
 
     LaunchedEffect(enabled, live.size) {
         groups = Analytics.groupTotals(context)
@@ -212,6 +213,57 @@ fun DiagnosticsSection(
             Text(stringResource(R.string.diag_reset_counters))
         }
     }
+
+    // ---- the structured event log ----
+    //
+    // The free-text log above says what happened in words; this is the same
+    // thing as counted events, which is what actually makes a release
+    // comparable. It is on this screen so nothing is collected that the user
+    // cannot see.
+    Text(
+        "Structured events",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),
+    )
+    val eventCount = EventLog.totalCount()
+    Text(
+        "$eventCount events recorded  ·  ${EventLog.sizeBytes() / 1024} KB  ·  " +
+            if (EventLog.enabled) "collecting" else "off",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    if (eventCount > 0) {
+        val byCategory = EventLog.counts()
+            .groupBy { name -> name.first.substringBefore('.') }
+        Text(
+            byCategory.entries.joinToString("  ·  ") { (k, v) -> "$k ${v.sumOf { it.second }}" },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        OutlinedButton(
+            onClick = { showEvents = !showEvents },
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+        ) { Text(if (showEvents) "Hide recent events" else "Show recent events") }
+        if (showEvents) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF0E1418))
+                    .padding(10.dp),
+            ) {
+                Text(
+                    EventLog.recent().takeLast(60).joinToString("\n"),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                )
+            }
+        }
+    }
+
     if (showCrashes && crashCount > 0) {
         Box(
             modifier = Modifier

@@ -3,7 +3,9 @@ package com.merry8989uk.universalcalculator.ai
 import android.content.Context
 import android.util.Base64
 import com.merry8989uk.universalcalculator.diagnostics.Analytics
+import com.merry8989uk.universalcalculator.diag.Verification
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
+import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -241,6 +243,8 @@ object AiClient {
                 setRequestProperty("Content-Type", "application/json")
             }
             count("ask")
+            val started = System.currentTimeMillis()
+            EventLog.beginRequest()
             // The question itself is not logged. A calculation can be a salary, a
             // dose or a debt, and a diagnostics export is a file the user may
             // hand to somebody else. What is logged is enough to diagnose a
@@ -258,19 +262,62 @@ object AiClient {
             val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
             val json = runCatching { JSONObject(text) }.getOrNull()
 
+            val elapsed = System.currentTimeMillis() - started
             if (code in 200..299) {
                 val ans = json?.optString("answer")?.takeIf { it.isNotBlank() }
                 DiagnosticsLogger.log("AI", "Answer received (${ans?.length ?: 0} chars)")
+                val model = json?.optString("model").orEmpty()
+                val searched = json?.optJSONArray("searched")?.length() ?: 0
+                val verdict = Verification.check(question, ans.orEmpty())
+                EventLog.ai(
+                    "request.completed",
+                    provider = "sarvam",
+                    model = model,
+                    fields = mapOf(
+                        "status" to "success",
+                        "duration_ms" to elapsed.toString(),
+                        "prompt_chars" to question.length.toString(),
+                        "answer_chars" to (ans?.length ?: 0).toString(),
+                        "has_context" to context.isNotBlank().toString(),
+                        "history_turns" to history.size.toString(),
+                        "search_count" to searched.toString(),
+                        "verification" to verdict.state,
+                        "verification_detail" to verdict.detail,
+                    ),
+                )
                 ans ?: "The assistant returned no answer."
             } else {
                 DiagnosticsLogger.log("AI", "Error $code")
+                EventLog.ai(
+                    "request.failed",
+                    provider = "sarvam",
+                    model = json?.optString("model").orEmpty(),
+                    fields = mapOf(
+                        "status" to "http_$code",
+                        "duration_ms" to elapsed.toString(),
+                        "http_code" to code.toString(),
+                        "rate_limited" to (code == 429).toString(),
+                        "server_error" to (code >= 500).toString(),
+                    ),
+                )
                 "Could not reach the assistant: " +
                     (json?.optString("error")?.takeIf { it.isNotBlank() } ?: "request failed ($code)")
             }
         } catch (e: Exception) {
             DiagnosticsLogger.log("AI", "Network error")
+            EventLog.ai(
+                "request.failed",
+                provider = "sarvam",
+                model = "",
+                fields = mapOf(
+                    "status" to "network_error",
+                    "error_type" to (e.javaClass.simpleName),
+                    "timeout" to (e is java.net.SocketTimeoutException).toString(),
+                ),
+            )
             "Could not reach the assistant. Check your internet connection and try again."
         } finally {
+            EventLog.endRequest()
             conn?.disconnect()
         }
     }

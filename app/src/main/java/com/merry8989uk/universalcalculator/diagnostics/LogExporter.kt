@@ -32,11 +32,19 @@ object LogExporter {
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
         val dir = File(context.cacheDir, "exports").apply { mkdirs() }
         val out = File(dir, "logs-$stamp.${format.ext}")
+        // The structured events are appended to every format, so an export is
+        // the whole record and not just the human-readable half of it.
+        val events = EventLog.readAll()
+        val withEvents = if (events.isBlank()) raw else raw + "\n\n== STRUCTURED EVENTS ==\n" + events
+        EventLog.security(
+            "logs.exported",
+            mapOf("format" to format.ext, "events" to EventLog.totalCount().toString()),
+        )
         when (format) {
-            Format.TXT -> out.writeText(raw)
-            Format.MD -> out.writeText(asMarkdown(raw, appName, version, stamp))
-            Format.JSON -> out.writeText(asJson(raw, appName, version, stamp))
-            Format.ZIP -> asZip(out, raw, appName, version, stamp)
+            Format.TXT -> out.writeText(withEvents)
+            Format.MD -> out.writeText(asMarkdown(withEvents, appName, version, stamp))
+            Format.JSON -> out.writeText(asJson(withEvents, appName, version, stamp))
+            Format.ZIP -> asZip(out, withEvents, appName, version, stamp)
         }
         return out
     }
@@ -87,6 +95,7 @@ object LogExporter {
     }
 
     private fun asZip(out: File, raw: String, appName: String, version: String, stamp: String) {
+        val events = EventLog.readAll()
         ZipOutputStream(out.outputStream().buffered()).use { zip ->
             zip.putNextEntry(ZipEntry("app.log"))
             zip.write(raw.toByteArray())
@@ -97,6 +106,12 @@ object LogExporter {
                 .put("version", version)
                 .put("exportedAt", stamp)
                 .toString(2)
+            if (events.isNotBlank()) {
+                zip.putNextEntry(ZipEntry("events.jsonl"))
+                zip.write(events.toByteArray())
+                zip.closeEntry()
+            }
+
             zip.putNextEntry(ZipEntry("meta.json"))
             zip.write(meta.toByteArray())
             zip.closeEntry()

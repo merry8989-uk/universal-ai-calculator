@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -58,14 +59,34 @@ object Attachments {
                 // whole and answered. Without one, all that is wanted is the
                 // calculation on it, so the expression reader is used.
                 if (question.isNotBlank()) {
+                    val started = System.currentTimeMillis()
                     val answer = AiClient.answerImage(bytes, question)
+                    EventLog.ocr(
+                        if (answer != null) "photo.answered" else "photo.answer_failed",
+                        mapOf(
+                            "duration_ms" to (System.currentTimeMillis() - started).toString(),
+                            "image_bytes" to bytes.size.toString(),
+                            "question_chars" to question.length.toString(),
+                            "answer_chars" to (answer?.length ?: 0).toString(),
+                        ),
+                    )
                     if (answer != null) {
                         Read("image", name, answer, null)
                     } else {
                         Read("image", name, "", "Could not answer that from the photo.")
                     }
                 } else {
+                    val started = System.currentTimeMillis()
                     val r = AiClient.solveImage(bytes)
+                    EventLog.ocr(
+                        if (r.expression != null) "expression.read" else "expression.failed",
+                        mapOf(
+                            "duration_ms" to (System.currentTimeMillis() - started).toString(),
+                            "image_bytes" to bytes.size.toString(),
+                            "low_confidence" to r.lowConfidence.toString(),
+                            "expression_chars" to (r.expression?.length ?: 0).toString(),
+                        ),
+                    )
                     if (r.expression != null) {
                         Read("image", name, "The image shows this calculation: ${r.expression}", null)
                     } else {
@@ -132,6 +153,7 @@ object Attachments {
         } ?: return null
 
         return try {
+            val pdfStart = System.currentTimeMillis()
             val renderer = PdfRenderer(descriptor)
             val pages = minOf(renderer.pageCount, MAX_PDF_PAGES)
             val chunks = ArrayList<String>()
@@ -156,6 +178,16 @@ object Attachments {
             }
             val total = renderer.pageCount
             renderer.close()
+            EventLog.ocr(
+                if (chunks.isEmpty()) "pdf.failed" else "pdf.read",
+                mapOf(
+                    "duration_ms" to (System.currentTimeMillis() - pdfStart).toString(),
+                    "pages_total" to total.toString(),
+                    "pages_read" to pages.toString(),
+                    "pages_with_text" to chunks.size.toString(),
+                    "text_chars" to chunks.sumOf { it.length }.toString(),
+                ),
+            )
             if (chunks.isEmpty()) return null
             // Say what was actually read, so a long book does not look like a
             // short document.
