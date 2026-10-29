@@ -103,6 +103,15 @@ class PhotoQuestionTest {
             w.contains("image_url"))
     }
 
+    @Test fun noRemovedCloudflareNameIsStillReferredTo() {
+        // deleting a constant and leaving a use of it compiles fine and only
+        // fails at runtime, which is exactly how the photo path broke once
+        val w = worker ?: return
+        for (gone in listOf("VISION_ALLOWED", "VISION_MODELS", "FALLBACK_MODELS", "WHISPER_MODELS", "imageShapes")) {
+            assertTrue("$gone was removed but is still used", !w.contains(gone))
+        }
+    }
+
     @Test fun theKeyIsNeverInTheRepository() {
         // a Sarvam key starts with sk_ and is long; none may be committed
         val root = listOf(File(".."), File(".")).firstOrNull { File(it, "backend").exists() } ?: return

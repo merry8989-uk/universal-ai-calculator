@@ -532,8 +532,6 @@ export default {
       if (image) {
         if (image.length > 8_000_000) return json({ error: "That photo is too large." }, 413);
 
-        const asked = typeof body?.model === "string" ? body.model : "";
-        const models = VISION_ALLOWED.includes(asked) ? [asked] : VISION_MODELS;
         // "text" transcribes a whole page, "answer" answers a question about
         // the picture, anything else reads one calculation out of it.
         const transcribe = body?.mode === "text";
