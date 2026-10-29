@@ -9,6 +9,9 @@ name: Deploy AI Worker
 #   SARVAM_API_KEY         — the Sarvam AI key the assistant runs on. It is
 #                            pushed to the Worker as a secret on every deploy, so
 #                            it never appears in this repo or in the app.
+#   TAVILY_API_KEY         — the search key. Optional: without it the assistant
+#                            falls back to DuckDuckGo and Wikipedia, which answer
+#                            questions about ideas but not about today.
 # Optional repository secrets:
 #   CLOUDFLARE_ACCOUNT_ID  — your Cloudflare account id
 on:
@@ -66,6 +69,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "Missing repository secret CLOUDFLARE_API_TOKEN." >&2
@@ -78,6 +82,11 @@ jobs:
             printf '%s' "$SARVAM_API_KEY" | wrangler secret put SARVAM_API_KEY --name nexus-calc-ai
           else
             echo "::warning::SARVAM_API_KEY is not set — the assistant will not answer until it is."
+          fi
+          if [ -n "$TAVILY_API_KEY" ]; then
+            printf '%s' "$TAVILY_API_KEY" | wrangler secret put TAVILY_API_KEY --name nexus-calc-ai
+          else
+            echo "::warning::TAVILY_API_KEY is not set — search falls back to DuckDuckGo and Wikipedia."
           fi
           # the old provider's key, if it was ever set here
           wrangler secret delete GEMINI_API_KEY || true

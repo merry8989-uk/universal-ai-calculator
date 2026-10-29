@@ -203,6 +203,18 @@ class PhotoQuestionTest {
         assertTrue("the reader does not say how much it read", text.contains("The rest was not read"))
     }
 
+    @Test fun theSearchHasARealEngineAndTwoFallbacks() {
+        val w = worker ?: return
+        assertTrue("Tavily is not used", w.contains("api.tavily.com"))
+        assertTrue("the search key is not read from a secret", w.contains("TAVILY_API_KEY"))
+        assertTrue("no DuckDuckGo fallback", w.contains("html.duckduckgo.com"))
+        assertTrue("no Wikipedia fallback", w.contains("en.wikipedia.org"))
+        // Tavily must be tried before the keyless engines, not after
+        val tavilyAt = w.indexOf("api.tavily.com")
+        val ddgAt = w.indexOf("html.duckduckgo.com")
+        assertTrue("Tavily is tried after DuckDuckGo", tavilyAt in 0 until ddgAt)
+    }
+
     @Test fun theKeyIsNeverInTheRepository() {
         // a Sarvam key starts with sk_ and is long; none may be committed
         val root = listOf(File(".."), File(".")).firstOrNull { File(it, "backend").exists() } ?: return

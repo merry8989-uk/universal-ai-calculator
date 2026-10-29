@@ -263,7 +263,7 @@ async function sarvamChatWithTools(env, messages, model, maxTokens) {
       } catch (e) {
         query = "";
       }
-      const hits = await webSearch(query);
+      const hits = await webSearch(query, env);
       if (query) used.push(query);
       working.push({
         role: "tool",
@@ -283,7 +283,7 @@ async function sarvamChatWithTools(env, messages, model, maxTokens) {
  * datacentre addresses — Wikipedia is asked instead, which is not the whole web
  * but does cover the science, history and commerce questions this app gets.
  */
-async function webSearch(query) {
+async function webSearch(query, env) {
   const q = String(query || "").slice(0, 300);
   if (!q.trim()) return [];
 
@@ -297,6 +297,37 @@ async function webSearch(query) {
       .replace(/&gt;/g, ">")
       .replace(/\s+/g, " ")
       .trim();
+
+  // Tavily first: it is a real search API, so it does not throttle and it
+  // reaches today's news. DuckDuckGo and Wikipedia are the fallbacks for when
+  // the key is missing or the quota has run out.
+  const tavily = env && env.TAVILY_API_KEY;
+  if (tavily) {
+    try {
+      const r = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${tavily}` },
+        body: JSON.stringify({
+          query: q,
+          max_results: 5,
+          search_depth: "basic",
+          include_answer: false,
+        }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const hits = (data && data.results) || [];
+        const out = hits.slice(0, 5).map((h) => ({
+          title: String(h.title || "").slice(0, 200),
+          snippet: strip(String(h.content || "")).slice(0, 900),
+          url: String(h.url || ""),
+        }));
+        if (out.length) return out;
+      }
+    } catch (e) {
+      // fall through to the keyless engines
+    }
+  }
 
   try {
     const r = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`, {

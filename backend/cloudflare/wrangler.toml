@@ -5,6 +5,7 @@ compatibility_date = "2026-01-01"
 # The assistant runs on Sarvam AI. The key is a Worker secret, never a file:
 #
 #   npx wrangler secret put SARVAM_API_KEY --name nexus-calc-ai
+#   npx wrangler secret put TAVILY_API_KEY --name nexus-calc-ai   (search)
 #
 # The deploy workflow sets it from the SARVAM_API_KEY repository secret, so the
 # key lives in exactly two places — Sarvam's dashboard and GitHub's encrypted
