@@ -21,6 +21,36 @@ jobs:
           curl -sS --max-time 60 -X POST "https://nexus-calc-ai.br19shc39.workers.dev" -H "Content-Type: application/json" -d '{"question":"What is 2+2? Answer on one line."}' | head -c 1500
           echo
 
+      # A follow-up has to know what came before it, or the assistant is a search
+      # box rather than a conversation.
+      - name: A follow-up question remembers the first
+        run: |
+          echo "--- follow-up ---"
+          python3 - <<'PY'
+          import json, urllib.request
+          body = json.dumps({
+              "question": "And what is the second one squared?",
+              "history": [
+                  {"role": "user", "content": "I have two numbers, 7 and 9."},
+                  {"role": "assistant", "content": "Understood: your numbers are 7 and 9."},
+              ],
+          }).encode()
+          req = urllib.request.Request(
+              "https://nexus-calc-ai.br19shc39.workers.dev",
+              data=body,
+              headers={"Content-Type": "application/json", "User-Agent": "nexus-check/1.0"})
+          with urllib.request.urlopen(req, timeout=180) as r:
+              out = json.loads(r.read())
+          print("model:", out.get("model"))
+          print("turns sent:", out.get("turns"))
+          print(out.get("answer") or out)
+          text = (out.get("answer") or "")
+          if "81" in text:
+              print("FOLLOW-UP CHECK: PASS")
+          else:
+              raise SystemExit("FOLLOW-UP CHECK: FAIL — it did not know the second number was 9")
+          PY
+
       - name: Photo with 2+2 on it
         run: |
           echo "--- photo ---"
