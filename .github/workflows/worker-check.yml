@@ -43,9 +43,11 @@ jobs:
               "mode": "answer",
               "question": "Which option is correct for question number 4?",
           }).encode()
+          # Cloudflare refuses a request with no browser-like agent (error 1010)
           req = urllib.request.Request(
               "https://nexus-calc-ai.br19shc39.workers.dev",
-              data=body, headers={"Content-Type": "application/json"})
+              data=body,
+              headers={"Content-Type": "application/json", "User-Agent": "nexus-check/1.0"})
           with urllib.request.urlopen(req, timeout=180) as r:
               out = json.loads(r.read())
           print("model:", out.get("model"))
