@@ -713,7 +713,11 @@ function cleanEvent(raw) {
 }
 
 async function ingestEvents(request, env) {
-  if (!env.EVENTS) return json({ error: "The event store is not configured." }, 500);
+  const hasD1 = !!env.EVENTS;
+  const hasKv = !!env.NEXUS_EVENTS;
+  if (!hasD1 && !hasKv) {
+    return json({ error: "The event store is not configured." }, 500);
+  }
 
   const raw = await request.text();
   if (raw.length > 2_000_000) return json({ error: "That batch is too large." }, 413);
@@ -729,8 +733,6 @@ async function ingestEvents(request, env) {
   if (!list.length) return json({ error: "No events in that batch." }, 400);
   if (list.length > 500) return json({ error: "Send at most 500 events at a time." }, 413);
 
-  await ensureSchema(env);
-
   const now = Date.now();
   const cleaned = [];
   let dropped = 0;
@@ -739,6 +741,14 @@ async function ingestEvents(request, env) {
     if (c) cleaned.push(c); else dropped++;
   }
   if (!cleaned.length) return json({ stored: 0, dropped }, 200);
+
+  // Counters in KV when D1 is not bound; rows in D1 when it is.
+  if (!hasD1) {
+    await kvIngest(env, cleaned);
+    return json({ stored: cleaned.length, dropped, storage: "kv" }, 200);
+  }
+
+  await ensureSchema(env);
 
   // One statement per event, in a single batch, so a partial write cannot leave
   // half a batch behind.
@@ -756,6 +766,229 @@ async function ingestEvents(request, env) {
   return json({ stored: cleaned.length, dropped }, 200);
 }
 
+// --- the same warehouse, kept as daily counters in KV ---
+//
+// D1 needs a permission the deploy token may not have. KV only needs the
+// permission that is already used for sync, so the warehouse works either way:
+// rows in D1 when it is bound, daily counters in KV when it is not. The numbers
+// the dashboard shows are identical; the difference is that KV cannot answer a
+// question nobody thought to ask in advance, and a read-modify-write can lose an
+// update if two batches land in the same millisecond.
+
+const LATENCY_BUCKETS = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
+
+function emptyAggregate() {
+  return {
+    total: 0,
+    byCategory: {},
+    byName: {},
+    byVersion: {},
+    calc: { ok: 0, bad: 0 },
+    ai: { ok: 0, bad: 0, limited: 0, timeouts: 0 },
+    verify: { match: 0, mismatch: 0, unverified: 0, not_applicable: 0 },
+    crashes: 0,
+    latency: {},
+  };
+}
+
+function bump(map, key) {
+  if (!key) return;
+  map[key] = (map[key] || 0) + 1;
+}
+
+/** Folds one cleaned event into a day's counters. */
+function aggregateInto(agg, e) {
+  agg.total++;
+  bump(agg.byCategory, e.category);
+  bump(agg.byName, e.event_name);
+  bump(agg.byVersion, e.app_version);
+
+  let fields = {};
+  try {
+    fields = JSON.parse(e.fields || "{}");
+  } catch (err) {
+    fields = {};
+  }
+
+  if (e.event_name.startsWith("calculator.operation.")) {
+    if (fields.status === "success") agg.calc.ok++; else agg.calc.bad++;
+  }
+  if (e.event_name === "ai.request.completed") agg.ai.ok++;
+  if (e.event_name === "ai.request.failed") agg.ai.bad++;
+  if (fields.rate_limited === "true") agg.ai.limited++;
+  if (fields.timeout === "true") agg.ai.timeouts++;
+
+  if (e.event_name === "ai.request.completed") {
+    const v = fields.verification || "not_applicable";
+    if (v === "match" || v === "mismatch" || v === "unverified" || v === "not_applicable") {
+      agg.verify[v]++;
+    }
+  }
+
+  if (e.event_name.includes("crash") || e.severity === "FATAL") agg.crashes++;
+
+  const ms = Number(fields.duration_ms);
+  if (Number.isFinite(ms) && ms >= 0) {
+    const slot = agg.latency[e.event_name] || { n: 0, sum: 0, max: 0, buckets: new Array(LATENCY_BUCKETS.length + 1).fill(0) };
+    slot.n++;
+    slot.sum += ms;
+    slot.max = Math.max(slot.max, ms);
+    let b = 0;
+    while (b < LATENCY_BUCKETS.length && ms >= LATENCY_BUCKETS[b]) b++;
+    slot.buckets[b]++;
+    agg.latency[e.event_name] = slot;
+  }
+}
+
+function kvKey(day) {
+  return "d:" + day;
+}
+
+async function kvIngest(env, cleaned) {
+  const byDay = {};
+  for (const e of cleaned) {
+    const agg = byDay[e.day] || (byDay[e.day] = emptyAggregate());
+    aggregateInto(agg, e);
+  }
+  for (const [day, add] of Object.entries(byDay)) {
+    const key = kvKey(day);
+    const existing = await env.NEXUS_EVENTS.get(key, "json");
+    const agg = existing || emptyAggregate();
+    // merge the new batch into what is already there
+    agg.total += add.total;
+    for (const k of ["byCategory", "byName", "byVersion"]) {
+      for (const [name, n] of Object.entries(add[k])) agg[k][name] = (agg[k][name] || 0) + n;
+    }
+    for (const k of ["ok", "bad"]) agg.calc[k] += add.calc[k];
+    for (const k of ["ok", "bad", "limited", "timeouts"]) agg.ai[k] += add.ai[k];
+    for (const k of ["match", "mismatch", "unverified", "not_applicable"]) agg.verify[k] += add.verify[k];
+    agg.crashes += add.crashes;
+    for (const [name, slot] of Object.entries(add.latency)) {
+      const into = agg.latency[name] || (agg.latency[name] = { n: 0, sum: 0, max: 0, buckets: new Array(LATENCY_BUCKETS.length + 1).fill(0) });
+      into.n += slot.n;
+      into.sum += slot.sum;
+      into.max = Math.max(into.max, slot.max);
+      for (let i = 0; i < slot.buckets.length; i++) into.buckets[i] += slot.buckets[i];
+    }
+    await env.NEXUS_EVENTS.put(key, JSON.stringify(agg), { expirationTtl: 120 * 86_400 });
+  }
+}
+
+/** The 95th percentile, read off the histogram. */
+function p95FromBuckets(buckets) {
+  const total = buckets.reduce((a, b) => a + b, 0);
+  if (!total) return null;
+  let seen = 0;
+  for (let i = 0; i < buckets.length; i++) {
+    seen += buckets[i];
+    if (seen >= total * 0.95) {
+      return i < LATENCY_BUCKETS.length ? LATENCY_BUCKETS[i] : LATENCY_BUCKETS[LATENCY_BUCKETS.length - 1] * 2;
+    }
+  }
+  return null;
+}
+
+async function kvStats(env, days) {
+  const merged = emptyAggregate();
+  const byDay = [];
+  const now = Date.now();
+  for (let i = days - 1; i >= 0; i--) {
+    const day = new Date(now - i * 86_400_000).toISOString().slice(0, 10);
+    const agg = await env.NEXUS_EVENTS.get(kvKey(day), "json");
+    if (!agg) continue;
+    byDay.push({ day, n: agg.total });
+    merged.total += agg.total;
+    for (const k of ["byCategory", "byName", "byVersion"]) {
+      for (const [name, n] of Object.entries(agg[k] || {})) merged[k][name] = (merged[k][name] || 0) + n;
+    }
+    for (const k of ["ok", "bad"]) merged.calc[k] += (agg.calc || {})[k] || 0;
+    for (const k of ["ok", "bad", "limited", "timeouts"]) merged.ai[k] += (agg.ai || {})[k] || 0;
+    for (const k of ["match", "mismatch", "unverified", "not_applicable"]) merged.verify[k] += (agg.verify || {})[k] || 0;
+    merged.crashes += agg.crashes || 0;
+    for (const [name, slot] of Object.entries(agg.latency || {})) {
+      const into = merged.latency[name] || (merged.latency[name] = { n: 0, sum: 0, max: 0, buckets: new Array(LATENCY_BUCKETS.length + 1).fill(0) });
+      into.n += slot.n;
+      into.sum += slot.sum;
+      into.max = Math.max(into.max, slot.max);
+      for (let i = 0; i < slot.buckets.length; i++) into.buckets[i] += slot.buckets[i];
+    }
+  }
+
+  const pairs = (map, key, value) =>
+    Object.entries(map).map(([k, v]) => ({ [key]: k, [value]: v })).sort((a, b) => b[value] - a[value]);
+
+  const latency = Object.entries(merged.latency)
+    .map(([name, s]) => ({
+      event_name: name,
+      n: s.n,
+      avg_ms: Math.round(s.sum / s.n),
+      max_ms: s.max,
+    }))
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 20);
+
+  const p95 = Object.entries(merged.latency)
+    .map(([name, s]) => ({ event_name: name, n: s.n, p95_ms: p95FromBuckets(s.buckets) }))
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 20);
+
+  const v = merged.verify;
+  const verified = v.match + v.mismatch;
+  const calcTotal = merged.calc.ok + merged.calc.bad;
+  const aiTotal = merged.ai.ok + merged.ai.bad;
+
+  const alerts = [];
+  if (verified >= 10 && v.mismatch / verified > 0.1) {
+    alerts.push({
+      level: "error",
+      message: `The assistant disagrees with the calculator in ${v.mismatch} of ${verified} checkable answers.`,
+    });
+  }
+  if (aiTotal >= 10 && merged.ai.bad / aiTotal > 0.2) {
+    alerts.push({ level: "warn", message: `The assistant failed ${merged.ai.bad} of ${aiTotal} requests.` });
+  }
+  if (merged.ai.limited >= 5) {
+    alerts.push({ level: "warn", message: `${merged.ai.limited} requests were rate limited.` });
+  }
+  if (merged.crashes > 0) {
+    alerts.push({ level: "error", message: `${merged.crashes} crash or fatal events in this window.` });
+  }
+
+  return {
+    window_days: days,
+    total_events: merged.total,
+    by_category: pairs(merged.byCategory, "category", "n"),
+    by_name: pairs(merged.byName, "event_name", "n").slice(0, 40),
+    by_day: byDay,
+    by_version: pairs(merged.byVersion, "app_version", "n").slice(0, 10),
+    latency,
+    p95,
+    verification: {
+      match: v.match,
+      mismatch: v.mismatch,
+      unverified: v.unverified,
+      not_applicable: v.not_applicable,
+      mismatch_rate: verified ? +(v.mismatch / verified).toFixed(4) : null,
+      sample: verified,
+    },
+    calculator: {
+      success: merged.calc.ok,
+      failed: merged.calc.bad,
+      total: calcTotal,
+      success_rate: calcTotal ? +(merged.calc.ok / calcTotal).toFixed(4) : null,
+    },
+    assistant: {
+      success: merged.ai.ok,
+      failed: merged.ai.bad,
+      rate_limited: merged.ai.limited,
+      timeouts: merged.ai.timeouts,
+    },
+    crashes: merged.crashes,
+    alerts,
+    storage: "kv",
+  };
+}
+
 /** Whether the caller may read the numbers. */
 function statsAllowed(request, env) {
   const token = env.STATS_TOKEN;
@@ -771,6 +1004,10 @@ function statsAllowed(request, env) {
  * not a rate — it is a rumour.
  */
 async function stats(env, days) {
+  if (!env.EVENTS) {
+    if (!env.NEXUS_EVENTS) throw new Error("The event store is not configured.");
+    return kvStats(env, days);
+  }
   await ensureSchema(env);
   const since = Date.now() - days * 86_400_000;
   const sinceDay = new Date(since).toISOString().slice(0, 10);
@@ -919,6 +1156,7 @@ async function stats(env, days) {
     },
     crashes,
     alerts,
+    storage: "d1",
   };
 }
 

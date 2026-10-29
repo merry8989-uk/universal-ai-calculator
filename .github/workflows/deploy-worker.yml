@@ -47,6 +47,21 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -u
+          # The event warehouse's counters. This runs before the sync block
+          # because that block exits the step when it cannot find its namespace.
+          EID="$(wrangler kv namespace list 2>/dev/null | python3 ../../tools/kv_namespace_id.py NEXUS_EVENTS || true)"
+          if [ -z "$EID" ]; then
+            EOUT="$(wrangler kv namespace create NEXUS_EVENTS 2>&1 || true)"
+            echo "$EOUT"
+            EID="$(printf '%s' "$EOUT" | grep -oE '[a-f0-9]{32}' | head -1)"
+          fi
+          if [ -n "$EID" ]; then
+            printf '\n[[kv_namespaces]]\nbinding = "NEXUS_EVENTS"\nid = "%s"\n' "$EID" >> wrangler.toml
+            echo "Event warehouse attached (namespace $EID)."
+          else
+            echo "::warning::Could not set up the event warehouse."
+          fi
+
           ID="$(wrangler kv namespace list 2>/dev/null | python3 ../../tools/kv_namespace_id.py NEXUS_SYNC || true)"
 
           if [ -z "$ID" ]; then

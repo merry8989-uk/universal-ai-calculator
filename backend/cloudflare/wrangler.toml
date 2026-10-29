@@ -20,9 +20,19 @@ compatibility_date = "2026-01-01"
 SARVAM_CHAT_MODEL = "sarvam-105b"
 SARVAM_VISION_MODEL = "glm5.3-flash"
 
-# The event warehouse: D1, which is SQLite on Cloudflare, so events can be
-# counted and grouped with SQL. The deploy workflow creates the database and
-# fills in its id, exactly as it does for the sync namespace below.
+# The event warehouse.
+#
+# It works two ways. With D1 bound it stores one row per event, which is SQLite
+# on Cloudflare, so any question can be asked of it later. Without D1 it falls
+# back to daily counters in KV, which answer the numbers the dashboard shows but
+# cannot answer a question nobody thought of in advance.
+#
+# The deploy workflow creates whichever it can and fills in the id. D1 needs the
+# "D1: Edit" permission on the API token; KV needs the one sync already uses, so
+# the warehouse works even when D1 is refused.
+# [[kv_namespaces]]
+# binding = "NEXUS_EVENTS"
+# id = "PLACEHOLDER"
 # [[d1_databases]]
 # binding = "EVENTS"
 # database_name = "nexus-events"

@@ -254,6 +254,15 @@ class EventLogTest {
         assertTrue("no schema", w.contains("CREATE TABLE IF NOT EXISTS events"))
     }
 
+    @Test fun theWarehouseWorksEvenWhenD1IsRefused() {
+        // the deploy token may not have D1, so the counters in KV are the floor
+        val w = source("backend/cloudflare/worker.js") ?: return
+        assertTrue("no KV fallback", w.contains("NEXUS_EVENTS"))
+        assertTrue("no counters", w.contains("function aggregateInto"))
+        assertTrue("no percentile from the histogram", w.contains("function p95FromBuckets"))
+        assertTrue("the store is not named in the reply", w.contains('storage: "kv"'))
+    }
+
     @Test fun theWarehouseScrubsAgainOnItsOwnSide() {
         // a client is not a place to trust
         val w = source("backend/cloudflare/worker.js") ?: return
