@@ -88,6 +88,9 @@ const SYSTEM = [
  */
 const SARVAM_BASE = "https://api.sarvam.ai";
 const SARVAM_CHAT_MODEL = "sarvam-105b";
+// Used for anything that needs real reasoning: a model that thinks before it
+// answers, with a million-token window for long documents.
+const SARVAM_DEEP_MODEL = "deepseekv4.1-flash";
 const SARVAM_VISION_MODEL = "glm5.3-flash";
 const SARVAM_STT_MODEL = "saarika:v2.5";
 
@@ -105,15 +108,14 @@ function sarvamKey(env) {
  * tokens thinking about "what is 12 times 8", which costs money and makes the
  * user wait for an answer they could have had at once.
  */
-async function sarvamChat(env, messages, maxTokens = 900) {
-  const r = await fetch(`${SARVAM_BASE}/v1/chat/completions`, {
+async function sarvamChat(env, messages, maxTokens = 1200, model) {
+  const r = await fetch(`${SARVAM_BASE}/v2/chat/completions`, {
     method: "POST",
     headers: { "api-subscription-key": sarvamKey(env), "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: SARVAM_CHAT_MODEL,
+      model: model || SARVAM_CHAT_MODEL,
       messages,
       max_tokens: maxTokens,
-      reasoning_effort: "low",
     }),
   });
   const text = await r.text();
@@ -154,6 +156,27 @@ async function sarvamVision(env, systemPrompt, userText, b64, maxTokens = 900) {
   const out = JSON.parse(text);
   const msg = out && out.choices && out.choices[0] && out.choices[0].message;
   return (msg && msg.content) || "";
+}
+
+/**
+ * Which model should answer this.
+ *
+ * A question with numbers, equations or a "why"/"prove" in it wants the model
+ * that thinks; a question in an Indian script, or an everyday one, wants the
+ * one built for Indian languages. Routing badly is the difference between a
+ * confident wrong answer and a worked one.
+ */
+function pickModel(question, history) {
+  const q = String(question || "");
+  // an Indian script, or a Roman-script Indian language question
+  const indic = /[\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F]/.test(q);
+  const reasoning =
+    /[0-9]/.test(q) ||
+    /(prove|derive|why|explain|solve|calculate|integral|derivative|matrix|probability|step by step|reason)/i.test(q) ||
+    /(kyu|kaise|kya|hisaab|ganit|nikalo|batao|samjhao)/i.test(q);
+  if (indic && !reasoning) return SARVAM_CHAT_MODEL;
+  if (reasoning) return SARVAM_DEEP_MODEL;
+  return indic ? SARVAM_CHAT_MODEL : SARVAM_DEEP_MODEL;
 }
 
 /** A voice clip, transcribed. */
@@ -601,8 +624,20 @@ export default {
         return json({ error: "The attached context is too long." }, 413);
       }
 
+      // Earlier turns, so a follow-up question knows what was said before.
+      // Without this every question starts from nothing, which is what made the
+      // assistant feel like a search box rather than a conversation.
+      const history = Array.isArray(body?.history) ? body.history : [];
+      const earlier = [];
+      for (const turn of history.slice(-16)) {
+        const role = turn && turn.role === "assistant" ? "assistant" : "user";
+        const text = turn && typeof turn.content === "string" ? turn.content.trim() : "";
+        if (text) earlier.push({ role, content: text.slice(0, 4000) });
+      }
+
       const messages = [
         { role: "system", content: SYSTEM },
+        ...earlier,
         {
           role: "user",
           content: context
@@ -611,9 +646,10 @@ export default {
         },
       ];
 
+      const model = pickModel(question, earlier);
       try {
-        const answer = sanitize(await sarvamChat(env, messages, 1200));
-        if (answer.trim()) return json({ answer, model: SARVAM_CHAT_MODEL });
+        const answer = sanitize(await sarvamChat(env, messages, 2000, model));
+        if (answer.trim()) return json({ answer, model, turns: earlier.length });
         return json({ error: "The assistant had nothing to say. Try asking again." }, 502);
       } catch (e) {
         return json(

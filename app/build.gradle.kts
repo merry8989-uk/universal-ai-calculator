@@ -15,8 +15,8 @@ android {
         applicationId = "com.merry8989uk.universalcalculator"
         minSdk = 26
         targetSdk = 35
-        versionCode = 101
-        versionName = "1.97.0"
+        versionCode = 102
+        versionName = "1.98.0"
     }
 
     // Release signing is read from environment variables so no key material

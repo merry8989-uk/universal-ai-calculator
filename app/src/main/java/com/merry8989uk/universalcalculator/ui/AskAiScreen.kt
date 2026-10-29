@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -62,6 +64,13 @@ fun AskAiScreen(
 ) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
+    /**
+     * The conversation so far, oldest first: "user" or "assistant" to the text.
+     *
+     * This is what makes the screen a chat rather than a search box. It is kept
+     * on the screen and nowhere else — the app stores no conversations.
+     */
+    var turns by remember { mutableStateOf(listOf<Pair<String, String>>()) }
     var loading by remember { mutableStateOf(false) }
     var used by remember { mutableStateOf(false) }
 
@@ -75,13 +84,18 @@ fun AskAiScreen(
 
     fun send(q: String) {
         if (loading) return
-        val full = Attachments.contextFor(attachLabel, attachText, q)
+        val asked = q.ifBlank { "Explain what this is, and answer anything it asks." }
+        val full = Attachments.contextFor(attachLabel, attachText, asked)
         if (full.isBlank()) return
         loading = true
         answer = ""
         used = true
+        val so_far = turns
+        turns = so_far + ("user" to asked)
         scope.launch {
-            answer = AnswerFormat.clean(AiClient.ask(full, contextText))
+            val reply = AnswerFormat.clean(AiClient.ask(full, contextText, so_far))
+            answer = reply
+            turns = turns + ("assistant" to reply)
             loading = false
         }
     }
@@ -107,7 +121,17 @@ fun AskAiScreen(
         if (uri == null) return@rememberLauncherForActivityResult
         attachBusy = true
         attachError = ""
-        scope.launch { handleRead(Attachments.read(context, uri, question)) }
+        // An attachment in the assistant is something to talk about, so a
+        // question is always sent with it. Without one, a question paper used to
+        // go through the expression reader and come back as the marks line in
+        // its header.
+        scope.launch {
+            handleRead(
+                Attachments.read(context, uri, question.ifBlank {
+                    "Explain what this is, and answer anything it asks."
+                }),
+            )
+        }
     }
 
     val camera = rememberLauncherForActivityResult(
@@ -121,30 +145,15 @@ fun AskAiScreen(
                 bmp.compress(Bitmap.CompressFormat.JPEG, 85, out)
                 out.toByteArray()
             }
-            // With a question typed, the photo is answered rather than mined
-            // for a sum — a picture of an exam paper is a question, not an
-            // expression.
-            if (question.isNotBlank()) {
-                val answer = AiClient.answerImage(bytes, question)
-                handleRead(
-                    if (answer != null) Attachments.Read("image", "photo", answer)
-                    else Attachments.Read("image", "photo", "", "Could not answer that from the photo."),
-                )
-            } else {
-                val r = AiClient.solveImage(bytes)
-                handleRead(
-                    if (r.expression != null) {
-                        Attachments.Read(
-                            "image",
-                            if (r.lowConfidence) "photo (please check)" else "photo",
-                            "The photo shows this calculation: ${r.expression}" +
-                                if (r.lowConfidence) " (read with low confidence, please check it)" else "",
-                        )
-                    } else {
-                        Attachments.Read("image", "photo", "", r.error ?: "Could not read the photo.")
-                    },
-                )
-            }
+            // A photo taken here is something to talk about, never a sum to be
+            // mined: a picture of an exam paper is a question, and reading the
+            // first arithmetic on the page gives the marks line in its header.
+            val asked = question.ifBlank { "Explain what this is, and answer anything it asks." }
+            val reply = AiClient.answerImage(bytes, asked)
+            handleRead(
+                if (reply != null) Attachments.Read("image", "photo", reply)
+                else Attachments.Read("image", "photo", "", "Could not answer that from the photo."),
+            )
         }
     }
 
@@ -153,6 +162,7 @@ fun AskAiScreen(
         if (resetSignal > 0) {
             question = ""; answer = ""; attachText = ""; attachLabel = ""
             attachError = ""; attachBusy = false; used = false
+            turns = emptyList()
         }
     }
 
@@ -303,21 +313,56 @@ fun AskAiScreen(
             }
         }
 
-        if (answer.isNotBlank()) {
-            Text(stringResource(R.string.answer), style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 16.dp))
-            // Selectable, so it can be copied by hand as well.
-            val answerSpoken = stringResource(R.string.assistant_answer_a11y, answer)
+        // ---- the conversation ----
+        if (turns.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    if (turns.count { it.first == "user" } > 1) "Conversation" else stringResource(R.string.answer),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = {
+                    turns = emptyList()
+                    answer = ""
+                    question = ""
+                }) { Text("New chat") }
+            }
+
+            // Earlier turns stay on screen, dimmer, so a follow-up reads in
+            // context rather than out of nowhere.
+            val earlier = turns.dropLast(1)
+            earlier.forEach { (role, text) ->
+                Text(
+                    text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (role == "user") MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+            }
+
+            val latest = turns.last()
+            val latestSpoken = stringResource(R.string.assistant_answer_a11y, latest.second)
+            Spacer(Modifier.height(10.dp))
             SelectionContainer {
-                Text(answer, style = MaterialTheme.typography.bodyLarge,
+                Text(
+                    latest.second,
+                    style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
-                        .padding(top = 4.dp)
+                        .fillMaxWidth()
                         .semantics {
                             liveRegion = LiveRegionMode.Polite
-                            contentDescription = answerSpoken
-                        })
+                            contentDescription = latestSpoken
+                        },
+                )
             }
-            AnswerActions(answer, onClear = { answer = "" })
+            AnswerActions(latest.second, onClear = {
+                turns = emptyList()
+                answer = ""
+            })
         }
     }
 }

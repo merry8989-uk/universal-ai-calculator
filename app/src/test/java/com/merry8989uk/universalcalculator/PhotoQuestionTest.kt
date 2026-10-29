@@ -112,6 +112,22 @@ class PhotoQuestionTest {
         }
     }
 
+    @Test fun theAssistantKeepsTheConversation() {
+        // a follow-up that starts from nothing is a search box, not a chat
+        val w = worker ?: return
+        assertTrue("history is not accepted", w.contains("body?.history"))
+        assertTrue("history is not passed to the model", w.contains("...earlier"))
+    }
+
+    @Test fun aHardQuestionGoesToTheThinkingModel() {
+        val w = worker ?: return
+        assertTrue("no routing", w.contains("function pickModel"))
+        assertTrue("no thinking model", w.contains("deepseekv4.1-flash"))
+        val fn = w.substringAfter("function pickModel").substringBefore("\n}")
+        assertTrue("numbers do not route to thinking", fn.contains("[0-9]"))
+        assertTrue("Indian scripts are not routed to sarvam", fn.contains("u0900"))
+    }
+
     @Test fun theKeyIsNeverInTheRepository() {
         // a Sarvam key starts with sk_ and is long; none may be committed
         val root = listOf(File(".."), File(".")).firstOrNull { File(it, "backend").exists() } ?: return

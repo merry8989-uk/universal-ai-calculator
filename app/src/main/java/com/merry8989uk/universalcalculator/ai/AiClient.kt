@@ -6,6 +6,7 @@ import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -207,11 +208,29 @@ object AiClient {
     }
 
     /** Sends a question (with optional app context) and returns the answer text. */
-    suspend fun ask(question: String, context: String = ""): String = withContext(Dispatchers.IO) {
+    /**
+     * One question, with the conversation so far.
+     *
+     * [history] is the earlier turns, oldest first, as role to text. Sending it
+     * is what makes a follow-up work: without it every question starts from
+     * nothing, and "and the second one?" has no idea what the first one was.
+     */
+    suspend fun ask(
+        question: String,
+        context: String = "",
+        history: List<Pair<String, String>> = emptyList(),
+    ): String = withContext(Dispatchers.IO) {
         var conn: HttpURLConnection? = null
         try {
             val payload = JSONObject().put("question", question).apply {
                 if (context.isNotBlank()) put("context", context)
+                if (history.isNotEmpty()) {
+                    val turns = JSONArray()
+                    for ((role, text) in history.takeLast(16)) {
+                        turns.put(JSONObject().put("role", role).put("content", text))
+                    }
+                    put("history", turns)
+                }
             }.toString()
 
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
