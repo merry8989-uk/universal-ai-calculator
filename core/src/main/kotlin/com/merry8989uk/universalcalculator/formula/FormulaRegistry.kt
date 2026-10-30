@@ -103,15 +103,31 @@ object FormulaRegistry {
         for (type in FormulaType.entries) {
             append("  ").append(type.name.padEnd(18)).append(counts[type] ?: 0).append('\n')
         }
-        append('\n').append("By category:\n")
+        // The full matrix, not just the calculable count: an engine's state is how
+        // many of its formulas are calculators, how many are checkers, and how many
+        // are still waiting, and one number cannot say that.
+        append('\n').append("By engine (category):\n")
+        append("  ").append("engine".padEnd(28))
+            .append("total".padStart(6))
+            .append("calc".padStart(6))
+            .append("check".padStart(7))
+            .append("solve".padStart(7))
+            .append("ref".padStart(5))
+            .append("review".padStart(8))
+            .append('\n')
         val byCategory = definitions.groupBy { it.category }
+            .entries
+            .sortedByDescending { it.value.size }
         for ((category, list) in byCategory) {
-            val ready = list.count { it.type == FormulaType.DIRECT_CALCULATOR }
+            fun n(type: FormulaType) = list.count { it.type == type }
             append("  ").append(category.padEnd(28))
-                .append(list.size.toString().padStart(5))
-                .append(" total, ")
-                .append(ready.toString().padStart(4))
-                .append(" calculable\n")
+                .append(list.size.toString().padStart(6))
+                .append(n(FormulaType.DIRECT_CALCULATOR).toString().padStart(6))
+                .append(n(FormulaType.CHECKER).toString().padStart(7))
+                .append(n(FormulaType.SOLVER).toString().padStart(7))
+                .append(n(FormulaType.REFERENCE_ONLY).toString().padStart(5))
+                .append(n(FormulaType.NEEDS_REVIEW).toString().padStart(8))
+                .append('\n')
         }
         val review = definitions.filter { it.type == FormulaType.NEEDS_REVIEW }
         if (review.isNotEmpty()) {
