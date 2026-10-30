@@ -366,28 +366,24 @@ object FormulaNormaliser {
             val c = s[i]
             when {
                 c.isLetter() -> {
-                    // A capital is a variable of its own, and a function name is
-                    // never allowed to start at one. The books write
-                    // "sin A cos B" for sin(A)·cos(B); without this the reader
-                    // takes "Acos" out of the middle and every addition formula
-                    // in trigonometry becomes nonsense.
-                    if (c.isUpperCase()) {
-                        val rest = s.substring(i)
-                        val lower = rest.lowercase()
-                        // ...unless the book always writes this name in capitals
-                        val symbolic = SYMBOLIC_NAMES
-                            .filter { lower.startsWith(it) && it.length > 1 }
-                            .maxByOrNull { it.length }
-                        if (symbolic != null) {
-                            tokens.add(rest.substring(0, symbolic.length))
-                            i += symbolic.length
+                    // A capital is a variable of its own when a function name
+                    // starts right after it. The books write "sin A cos B" for
+                    // sin(A)·cos(B), and without this the reader takes "Acos" out
+                    // of the middle of it.
+                    //
+                    // Only then. PV is pressure times volume in the gas law and a
+                    // present value in finance, and there is no way to tell which
+                    // from the text — so a run of capitals is left as one name,
+                    // which is what the physics and chemistry sections already
+                    // depended on.
+                    if (c.isUpperCase() && i + 1 < s.length) {
+                        val after = s.substring(i + 1).lowercase()
+                        val functionFollows = FUNCTIONS.any { it.length >= 2 && after.startsWith(it) }
+                        if (functionFollows) {
+                            tokens.add(c.toString())
+                            i++
                             continue
                         }
-                        // a run of capitals is one name: PV, FV, EAR, AB
-                        val start = i
-                        while (i < s.length && s[i].isUpperCase()) i++
-                        tokens.add(s.substring(start, i))
-                        continue
                     }
 
                     val start = i
@@ -396,7 +392,7 @@ object FormulaNormaliser {
                     val lower = run.lowercase()
 
                     // a name the reader knows always wins, so sinth is sin(th)
-                    val known = (KNOWN_NAMES + SYMBOLIC_NAMES)
+                    val known = KNOWN_NAMES
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
@@ -405,12 +401,10 @@ object FormulaNormaliser {
                         continue
                     }
 
-                    // Otherwise a long run is a name — det, rank, nullity — and a
-                    // short one is a product of letters. A name carrying a
-                    // subscript or a number is one variable: l_a, a1, a2.
+                    val allUpper = run.length >= 2 && run.all { it.isUpperCase() }
                     val hasSubscript = run.contains('_')
                     val hasDigit = run.any { it.isDigit() }
-                    if (run.length >= 3 || hasSubscript || hasDigit) {
+                    if (run.length >= 3 || allUpper || hasSubscript || hasDigit) {
                         tokens.add(run)
                         continue
                     }
