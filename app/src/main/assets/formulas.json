@@ -933,7 +933,7 @@
   {
    "c": "Differential Calculus",
    "t": "L'Hôpital's rule",
-   "f": "lim (f/g) = lim (f'/g'), 0/0 or ∞/∞"
+   "f": "lim (f/g) = lim (f'/g')"
   },
   {
    "c": "Differential Calculus",
@@ -1073,7 +1073,7 @@
   {
    "c": "Differential Calculus",
    "t": "Rolle's theorem",
-   "f": "If f(a) = f(b) then f′(c) = 0 for some c in (a, b)"
+   "f": "f'(c) = 0 if f(a) = f(b)"
   },
   {
    "c": "Differential Calculus",
@@ -1458,12 +1458,12 @@
   {
    "c": "Series",
    "t": "Alternating series test",
-   "f": "If aₙ decreases to 0 then Σ(−1)ⁿaₙ converges"
+   "f": "Σ (-1)ⁿ aₙ converges if aₙ ↓ 0"
   },
   {
    "c": "Series",
    "t": "Radius of convergence",
-   "f": "1 / R = lim |aₙ₊₁ / aₙ| for Σ aₙ xⁿ"
+   "f": "1/R = lim |aₙ₊₁ / aₙ|"
   },
   {
    "c": "Series",
@@ -1908,7 +1908,7 @@
   {
    "c": "Algebra",
    "t": "If n is even, then",
-   "f": "“(1-q+zq+++q+-q)=q 12"
+   "f": "aⁿ - bⁿ = (a - b)(aⁿ⁻¹ + aⁿ⁻²b + ... + bⁿ⁻¹)"
   },
   {
    "c": "Algebra",
@@ -1933,7 +1933,7 @@
   {
    "c": "Algebra",
    "t": "Product Formulas: square of three terms (2)",
-   "f": "(a+b+c+...+u+v)² =a² +b²+c² +...+u²+ v² + + 2(ab+ ac +.+ au + av + bc +..+ bu + bv +..+ uv) 13"
+   "f": "(a + b + c + ... + v)² = a² + b² + c² + ... + v² + 2(ab + ac + ... + uv)"
   },
   {
    "c": "Algebra",
@@ -1993,7 +1993,7 @@
   {
    "c": "Algebra",
    "t": "Roots: root of a power",
-   "f": "(a)=Va 15"
+   "f": "ⁿ√(aᵐ) = a^(m/n)"
   },
   {
    "c": "Algebra",
@@ -2048,7 +2048,7 @@
   {
    "c": "Algebra",
    "t": "Cubic Equation.Cardano's Formula",
-   "f": "y²+py+q=0, 18"
+   "f": "y³ + py + q = 0"
   },
   {
    "c": "Algebra",
@@ -2058,42 +2058,42 @@
   {
    "c": "Algebra",
    "t": "Inequalities: difference and sign",
-   "f": "If a>b,then a-b>0 or b-a<0"
+   "f": "a - b > 0 if a > b"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: adding the same number",
-   "f": "If a>b,then a+c>b+c"
+   "f": "a + c > b + c if a > b"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: subtracting the same number",
-   "f": "If a>b,then a-c>b-c"
+   "f": "a - c > b - c if a > b"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: adding two inequalities",
-   "f": "If a>b and c>d,then a+c>b+d"
+   "f": "a + c > b + d if a > b and c > d"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: subtracting two inequalities",
-   "f": "If a>b and c>d,then a-d>b-c"
+   "f": "a - d > b - c if a > b and c > d"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: square roots keep the order",
-   "f": "If 0<a<b,then Va</b"
+   "f": "√a < √b if 0 < a < b"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: mean is at least the geometric mean",
-   "f": "2 where a >0, b > 0; an equality is valid only if a = b"
+   "f": "(a + b) / 2 ≥ √(ab), a > 0, b > 0"
   },
   {
    "c": "Algebra",
    "t": "Inequalities: absolute value below a",
-   "f": "If |x|<a,then -a<x<a, where a>0"
+   "f": "-a < x < a if |x| < a"
   },
   {
    "c": "Algebra",
@@ -2108,7 +2108,7 @@
   {
    "c": "Algebra",
    "t": "Simplified Compound Interest Formula",
-   "f": "If interest is compounded once peryear,then the previous formula simplifies to: A= C(1+r)"
+   "f": "A = C(1 + r)"
   },
   {
    "c": "Geometry",
@@ -2163,7 +2163,7 @@
   {
    "c": "Geometry",
    "t": "Isosceles Trapezoid: semiperimeter",
-   "f": "s=a+b. .h=qh 2 39"
+   "f": "s = (a + b + 2c) / 2"
   },
   {
    "c": "Geometry",
@@ -2173,7 +2173,7 @@
   {
    "c": "Geometry",
    "t": "Isosceles Trapezoid with: diagonal",
-   "f": "d²=h²+c² 40"
+   "f": "d² = h² + ((a + b) / 2)²"
   },
   {
    "c": "Geometry",
@@ -2218,7 +2218,7 @@
   {
    "c": "Geometry",
    "t": "General Quadrilateral: perimeter",
-   "f": "L=a+b+c+d 46"
+   "f": "L = a + b + c + d"
   },
   {
    "c": "Geometry",
@@ -2238,7 +2238,7 @@
   {
    "c": "Geometry",
    "t": "Sector of a Circle: angle from the area",
-   "f": "2 360° 53"
+   "f": "θ = 2A / r²"
   },
   {
    "c": "Geometry",
@@ -2253,7 +2253,7 @@
   {
    "c": "Geometry",
    "t": "Segment of a Circle: perimeter",
-   "f": "L=s+a 54"
+   "f": "L = s + a"
   },
   {
    "c": "Geometry",
@@ -2278,7 +2278,7 @@
   {
    "c": "Geometry",
    "t": "Lateral Area of an Oblique Prism",
-   "f": "S,=pl, where p is the perimeter of the cross section. 57"
+   "f": "S = p * l"
   },
   {
    "c": "Geometry",
@@ -2318,7 +2318,7 @@
   {
    "c": "Geometry",
    "t": "Platonic Solids: edge from the radius (2)",
-   "f": "a√2 2 64"
+   "f": "a = R√2"
   },
   {
    "c": "Geometry",
@@ -2328,7 +2328,7 @@
   {
    "c": "Geometry",
    "t": "Platonic Solids: inradius",
-   "f": "r=av√3(3+√5) 12"
+   "f": "r = (a√3(3 + √5)) / 12"
   },
   {
    "c": "Geometry",
@@ -2343,7 +2343,7 @@
   {
    "c": "Geometry",
    "t": "Platonic Solids: volume",
-   "f": "v=5a(3+v5) 12 65"
+   "f": "V = (5a³(3 + √5)) / 12"
   },
   {
    "c": "Geometry",
@@ -2468,7 +2468,7 @@
   {
    "c": "Geometry",
    "t": "Circular Torus: volume",
-   "f": "V=2nπ²Rr² 79"
+   "f": "V = 2π²Rr²"
   },
   {
    "c": "Trigonometry",
@@ -2488,12 +2488,12 @@
   {
    "c": "Trigonometry",
    "t": "Cosine Function",
-   "f": "y = cos(x), -1 ≤ y ≤ 1"
+   "f": "y = cos x, -1 ≤ y ≤ 1"
   },
   {
    "c": "Trigonometry",
    "t": "Secant Function",
-   "f": "y=sec x, x≠(2k +1) 84"
+   "f": "y = sec x, x ≠ (2k + 1)π/2"
   },
   {
    "c": "Trigonometry",
@@ -2633,7 +2633,7 @@
   {
    "c": "Trigonometry",
    "t": "Double Angle Formulas: cotangent of a multiple angle",
-   "f": "cot 2a= 2cotα. 2 92"
+   "f": "cot 2α = (cot²α - 1) / (2 cot α)"
   },
   {
    "c": "Trigonometry",
@@ -2683,7 +2683,7 @@
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: cotangent of a multiple angle (2)",
-   "f": "cot4α= 4tan α-4tan²α 93"
+   "f": "cot 4α = (1 - 6tan²α + tan⁴α) / (4tanα - 4tan³α)"
   },
   {
    "c": "Trigonometry",
@@ -2698,7 +2698,7 @@
   {
    "c": "Trigonometry",
    "t": "Half Angle Tangent Identities",
-   "f": "sin α.= 2 2 94"
+   "f": "tan(α/2) = sin α / (1 + cos α)"
   },
   {
    "c": "Trigonometry",
@@ -2753,7 +2753,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: one minus cosine",
-   "f": "1-cosα=2sin² 2 96"
+   "f": "1 - cos α = 2 sin²(α/2)"
   },
   {
    "c": "Trigonometry",
@@ -2788,7 +2788,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: tangent times cotangent",
-   "f": "tanα·cotβ= tan α + cot β cot α + tan β 97"
+   "f": "tan α · cot β = (tan α + cot β) / (cot α + tan β)"
   },
   {
    "c": "Trigonometry",
@@ -2803,12 +2803,12 @@
   {
    "c": "Trigonometry",
    "t": "Powers of Trigonometric Functions: sine squared",
-   "f": "sin²α 10 sin α. 5sin 3α + sin 50 16"
+   "f": "sin² α = (1 - cos 2α) / 2"
   },
   {
    "c": "Trigonometry",
    "t": "Powers of Trigonometric Functions: sine to the fourth",
-   "f": "sin°α 1015cos 2o + 6cos 4α cos 6α 32 cos²α 1+ cos 2α"
+   "f": "sin⁴ α = (3 - 4 cos 2α + cos 4α) / 8"
   },
   {
    "c": "Trigonometry",
@@ -2818,17 +2818,17 @@
   {
    "c": "Trigonometry",
    "t": "Powers of Trigonometric Functions: cosine to the fourth",
-   "f": "cos 4c + 4cos 2α + 3 8 10cos α + 5sin 3o + cos 50"
+   "f": "cos⁴ α = (3 + 4 cos 2α + cos 4α) / 8"
   },
   {
    "c": "Trigonometry",
    "t": "Powers of Trigonometric Functions: cosine squared",
-   "f": "cos²α 16"
+   "f": "cos² α = (1 + cos 2α) / 2"
   },
   {
    "c": "Trigonometry",
    "t": "Powers of Trigonometric Functions: cosine identity",
-   "f": "cos\"α= 10+15cos 2α + 6cos 4α + cos 6α 32 98"
+   "f": "cos⁶ α = (10 + 15 cos 2α + 6 cos 4α + cos 6α) / 32"
   },
   {
    "c": "Trigonometry",
@@ -2863,7 +2863,7 @@
   {
    "c": "Trigonometry",
    "t": "Relations between Inverse: inverse cosine",
-   "f": "arccos(-x)=π-arccosx 103"
+   "f": "arccos(-x) = π - arccos(x)"
   },
   {
    "c": "Trigonometry",
@@ -2888,7 +2888,7 @@
   {
    "c": "Trigonometry",
    "t": "Relations between Inverse: inverse tangent (4)",
-   "f": "arctanx=-arccos x≤0 104"
+   "f": "arctan(-x) = -arctan(x)"
   },
   {
    "c": "Trigonometry",
@@ -2943,7 +2943,7 @@
   {
    "c": "Trigonometry",
    "t": "Relations to Hyperbolic Functions: cosecant identity",
-   "f": "csc(ix)= -i csch x 106"
+   "f": "csc(ix) = -i csch(x)"
   },
   {
    "c": "Matrices & Determinants",
@@ -2958,7 +2958,7 @@
   {
    "c": "Matrices & Determinants",
    "t": "Minor",
-   "f": "The minor M, associated with the element a; of n-th order matrix A is the (n -1)-th order determinant derived from the matrix A by deletion of its i-th row and j-th column. 108"
+   "f": "Mᵢⱼ = det(Aᵢⱼ)"
   },
   {
    "c": "Matrices & Determinants",
@@ -2978,17 +2978,12 @@
   {
    "c": "Matrices & Determinants",
    "t": "Matrices",
-   "f": "A square matrix |a,」 is skew-symmetric if as = -a 110"
+   "f": "Aᵀ = -A"
   },
   {
    "c": "Matrices & Determinants",
    "t": "Operations with Matrices",
    "f": "The matrix A is orthogonal if AAT =I"
-  },
-  {
-   "c": "Matrices & Determinants",
-   "t": "If the matrix product AB is defined, then: transpose of a product",
-   "f": "(AB)= B'AT. 113"
   },
   {
    "c": "Matrices & Determinants",
@@ -3013,7 +3008,7 @@
   {
    "c": "Matrices & Determinants",
    "t": "Solution of a Set of Linear Equations nxn",
-   "f": "X=A·B, where A' is the inverse of A. 117"
+   "f": "X = A⁻¹B"
   },
   {
    "c": "Vectors",
@@ -3023,7 +3018,7 @@
   {
    "c": "Vectors",
    "t": "Vector Coordinates: direction cosines",
-   "f": "X=cosα, Y=|ilcosβ, Z=|Flcosy. 119"
+   "f": "cos α = X/|r|, cos β = Y/|r|, cos γ = Z/|r|"
   },
   {
    "c": "Vectors",
@@ -3043,7 +3038,7 @@
   {
    "c": "Vectors",
    "t": "Vector Addition",
-   "f": "i+v=(X,+X,Y+Y,Z+Z) 121"
+   "f": "u + v = (X₁ + X₂, Y₁ + Y₂, Z₁ + Z₂)"
   },
   {
    "c": "Vectors",
@@ -3093,7 +3088,7 @@
   {
    "c": "Vectors",
    "t": "Scalar Product of Vectors ui andv",
-   "f": "uv=|··cosθ, where 0 is the angle between vectors ui andv. 123"
+   "f": "u · v = |u||v| cos θ"
   },
   {
    "c": "Vectors",
@@ -3183,7 +3178,7 @@
   {
    "c": "Vectors",
    "t": "Volume of Parallelepiped",
-   "f": "V=|u·(vxw) 127"
+   "f": "V = |u · (v × w)|"
   },
   {
    "c": "Vectors",
@@ -3193,7 +3188,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Dividing a Line Segment in the Ratio",
-   "f": "x, +x AC Xo 1+入 CB"
+   "f": "x = (x₁ + λx₂) / (1 + λ), y = (y₁ + λy₂) / (1 + λ)"
   },
   {
    "c": "Analytic Geometry",
@@ -3203,7 +3198,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Centroid (Intersection of Medians) of a Triangle",
-   "f": "X, + X +X; y+y+y3 x。=,y 3"
+   "f": "x₀ = (x₁ + x₂ + x₃) / 3, y₀ = (y₁ + y₂ + y₃) / 3"
   },
   {
    "c": "Analytic Geometry",
@@ -3233,17 +3228,12 @@
   {
    "c": "Analytic Geometry",
    "t": "Straight Line in Plane",
-   "f": "Explicit Equation ofa Straight Line (Slope-Intercept Form) y =kx + b. 139"
+   "f": "y = kx + b"
   },
   {
    "c": "Analytic Geometry",
    "t": "Equation of a Line Given a Point and the Gradient",
    "f": "y = y₀ + k(x - x₀)"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "Equation of a Line That Passes Through Two Points",
-   "f": "y-y_x-x y2-yx-x1 or X 141"
   },
   {
    "c": "Analytic Geometry",
@@ -3258,7 +3248,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Point Direction Form: point-direction form",
-   "f": "x-x_y-y Y where (X, Y) is the direction of the line and P(x,y,) lies on the line. 143"
+   "f": "(x - x₁) / X = (y - y₁) / Y"
   },
   {
    "c": "Analytic Geometry",
@@ -3278,7 +3268,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Intersection of Two Lines: the intersection point",
-   "f": "If two lines A,x+ B,y+C =0 and A,x+ By+C,=0 inter- sect, the intersection point has coordinates -C,B+C,B -A,C,+A,C X。="
+   "f": "x = (B₁C₂ - B₂C₁) / (A₁B₂ - A₂B₁), y = (C₁A₂ - C₂A₁) / (A₁B₂ - A₂B₁)"
   },
   {
    "c": "Analytic Geometry",
@@ -3298,7 +3288,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Parametric Form",
-   "f": "x=acost y=bsint 0≤t≤2π. 153"
+   "f": "x = a cos t, y = b sin t"
   },
   {
    "c": "Analytic Geometry",
@@ -3338,12 +3328,12 @@
   {
    "c": "Analytic Geometry",
    "t": "Asymptotic Form",
-   "f": "e² xy= 4 10 k"
+   "f": "xy = k"
   },
   {
    "c": "Analytic Geometry",
    "t": "Equation of a Parabola (Standard Form)",
-   "f": "y²=2px 158"
+   "f": "y² = 2px"
   },
   {
    "c": "Analytic Geometry",
@@ -3354,11 +3344,6 @@
    "c": "Analytic Geometry",
    "t": "Midpoint of a Line Segment: in space",
    "f": "y+y2 Z+Z 2 2"
-  },
-  {
-   "c": "Analytic Geometry",
-   "t": "General Equation of a Plane",
-   "f": "Ax + By + Cz + D = 0 165"
   },
   {
    "c": "Analytic Geometry",
@@ -3373,12 +3358,12 @@
   {
    "c": "Analytic Geometry",
    "t": "Point Direction Form: point-direction form in space",
-   "f": "A(x-x。)+B(y-y。)+C(z-z。)=0, where the point P(x。Yz。) lies in the plane, and the vec- tor (A, B, C) is normal to the plane. (A,B,C) M(x,y,z)"
+   "f": "A(x - x₀) + B(y - y₀) + C(z - z₀) = 0"
   },
   {
    "c": "Analytic Geometry",
    "t": "Intercept Form: intercept form (2)",
-   "f": "x+y+ B 167"
+   "f": "x/a + y/b + z/c = 1"
   },
   {
    "c": "Analytic Geometry",
@@ -3388,7 +3373,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Normal Form: normal form in space",
-   "f": "xcoso+ycosβ+zcos-p=0, where p is the perpendicular distance from the origin to the plane,and cosα, cosβ,cos are the direction cosines of any line normal to the plane. 169"
+   "f": "x cos α + y cos β + z cos γ - p = 0"
   },
   {
    "c": "Analytic Geometry",
@@ -3423,7 +3408,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Perpendicular Lines: parallel lines",
-   "f": "Two lines are parallel if s,·s=0, 10 aa +b,b+cc=0"
+   "f": "A₁/A₂ = B₁/B₂ = C₁/C₂"
   },
   {
    "c": "Analytic Geometry",
@@ -3453,7 +3438,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Elliptic Paraboloid (Case 7)",
-   "f": "x²+y² a² -Z=0 184"
+   "f": "z = x²/a² + y²/b²"
   },
   {
    "c": "Analytic Geometry",
@@ -3468,7 +3453,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Hyperbolic Cylinder (Case 11)",
-   "f": "x² y² a² =1 186"
+   "f": "x²/a² - y²/b² = 1"
   },
   {
    "c": "Analytic Geometry",
@@ -3478,7 +3463,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Parabolic Cylinder (Case 14)",
-   "f": "x² a -y=0 187"
+   "f": "x² = 2py"
   },
   {
    "c": "Analytic Geometry",
@@ -3493,7 +3478,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Coincident Planes (Case 17)",
-   "f": "x²=0 188"
+   "f": "A₁/A₂ = B₁/B₂ = C₁/C₂ = D₁/D₂"
   },
   {
    "c": "Analytic Geometry",
@@ -3523,7 +3508,7 @@
   {
    "c": "Differential Calculus",
    "t": "Inverse Function",
-   "f": "y =f(x) is any function, x=g(y) or y =f-(x) is its inverse function. 191"
+   "f": "y = f⁻¹(x)"
   },
   {
    "c": "Differential Calculus",
@@ -3538,17 +3523,17 @@
   {
    "c": "Differential Calculus",
    "t": "Cubic Function",
-   "f": "y=x',xeR. 194"
+   "f": "y = x³"
   },
   {
    "c": "Differential Calculus",
    "t": "Functions and Their Graphs",
-   "f": "y=ax²+ bx²+cx +d, x∈ R. 195"
+   "f": "y = ax³ + bx² + cx + d"
   },
   {
    "c": "Differential Calculus",
    "t": "Power Function",
-   "f": "y=x\", n∈N. 196"
+   "f": "y = xⁿ"
   },
   {
    "c": "Differential Calculus",
@@ -3568,7 +3553,7 @@
   {
    "c": "Differential Calculus",
    "t": "Hyperbolic Cotangent Function",
-   "f": "y=cothx,y=cothx= cosh x e* + e-x sinh x 201"
+   "f": "y = coth x = (eˣ + e⁻ˣ) / (eˣ - e⁻ˣ)"
   },
   {
    "c": "Differential Calculus",
@@ -3583,17 +3568,17 @@
   {
    "c": "Differential Calculus",
    "t": "Inverse Hyperbolic Sine Function",
-   "f": "y= arcsinh x,x ∈ R. 203"
+   "f": "y = arcsinh x"
   },
   {
    "c": "Differential Calculus",
    "t": "Inverse Hyperbolic Tangent Function",
-   "f": "y = arctanh x, x ∈ (1, 1). 204"
+   "f": "y = arctanh x"
   },
   {
    "c": "Differential Calculus",
    "t": "Inverse Hyperbolic Cotangent Function",
-   "f": "y=arccoth x, x∈(-∞,-1)(1,∞). 205"
+   "f": "y = arccoth x"
   },
   {
    "c": "Differential Calculus",
@@ -3643,7 +3628,7 @@
   {
    "c": "Differential Calculus",
    "t": "Leibnitz's Formulas",
-   "f": "(uv)=u\"v+2u'v'+uv\" 215"
+   "f": "(uv)'' = u''v + 2u'v' + uv''"
   },
   {
    "c": "Differential Calculus",
@@ -3683,12 +3668,12 @@
   {
    "c": "Differential Calculus",
    "t": "Concavity",
-   "f": "f(x) is concave upward at x。if and only if f'(x) is increasing at x。 (Fig.177, x; <x). f(x) is concave downward at x。 if and only if f'(x) is decreasing at x。- (Fig.177, x <x)"
+   "f": "f''(x) > 0 is concave upward, f''(x) < 0 is concave downward"
   },
   {
    "c": "Differential Calculus",
    "t": "Second Derivative Test for Concavity",
-   "f": "If f\"(x。)>0,then f(x) is concave upward at xo. If f\"(x。)<0,then f(x) is concave downward at x。- If f\"(x) does not exist or is zero, then the test fails"
+   "f": "f'(x₀) = 0 and f''(x₀) > 0 gives a minimum, f''(x₀) < 0 gives a maximum"
   },
   {
    "c": "Differential Calculus",
@@ -3738,7 +3723,7 @@
   {
    "c": "Differential Calculus",
    "t": "Local Maxima and Minima",
-   "f": "f(x,y) has a local maximum at (x,y。) if f(x,y)≤f(xo,y) for all (x,y) sufficiently close to (x, Y。). f(x,y) has a local minimum at (x,y。) if f(x,y)≥f(xo,yo) for all (x,y) sufficiently close to (xg Y。)"
+   "f": "f(x, y) ≤ f(x₀, y₀), f(x, y) ≥ f(x₀, y₀)"
   },
   {
    "c": "Differential Calculus",
@@ -3748,12 +3733,12 @@
   {
    "c": "Differential Calculus",
    "t": "Second Derivative Test for Stationary Points",
-   "f": "Let (x。,y。) be a stationary point ( oxy =0). fx(xy。)f(xyo) D="
+   "f": "D = f_{xx}(x₀, y₀)f_{yy}(x₀, y₀) - [f_{xy}(x₀, y₀)]²"
   },
   {
    "c": "Differential Calculus",
    "t": "Tangent Plane",
-   "f": "The equation of the tangent plane to the surface z= f(x,y) at (xYoz。) is z-Z=f(xoy。)(x-x。)+f,(xy。)(y-y。). 224"
+   "f": "z - z₀ = f_x(x₀, y₀)(x - x₀) + f_y(x₀, y₀)(y - y₀)"
   },
   {
    "c": "Differential Calculus",
@@ -3788,7 +3773,7 @@
   {
    "c": "Differential Calculus",
    "t": "Differential Operators: curl of a curl",
-   "f": "curl(curl F)=grad(div F)-v²F=V(v·F)-v²F 226"
+   "f": "∇ × (∇ × F) = ∇(∇ · F) - ∇²F"
   },
   {
    "c": "Integral Calculus",
@@ -3818,7 +3803,7 @@
   {
    "c": "Integral Calculus",
    "t": "Indefinite Integral: scaled argument",
-   "f": "∫f(ax)dx = (1/a)F(ax) + C"
+   "f": "∫ f(ax) dx = (1/a)F(ax) + C"
   },
   {
    "c": "Integral Calculus",
@@ -3858,7 +3843,7 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions: integral of x over a root",
-   "f": "x√a+ bx +C,a>0. VaVa+bx+√a 232"
+   "f": "∫ x / √(x² + a²) dx = √(x² + a²) + C"
   },
   {
    "c": "Integral Calculus",
@@ -3873,7 +3858,7 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions: integral of a root of x squared plus a squared",
-   "f": "√x²+a²dx=√x²+a² 2 233"
+   "f": "∫ √(x² + a²) dx = (x/2)√(x² + a²) + (a²/2) ln|x + √(x² + a²)| + C"
   },
   {
    "c": "Integral Calculus",
@@ -3889,11 +3874,6 @@
    "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions: x over a root",
    "f": "x√a²-x²dx"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions: integral of a trig product",
-   "f": "∫cos xdx = sin x + C 237"
   },
   {
    "c": "Integral Calculus",
@@ -4113,7 +4093,7 @@
   {
    "c": "Integral Calculus",
    "t": "Absolute Convergence",
-   "f": "(x)dx is convergent,then the integral f(x)dx is abso- lutely convergent"
+   "f": "∫ |f(x)| dx is convergent"
   },
   {
    "c": "Integral Calculus",
@@ -4123,7 +4103,7 @@
   {
    "c": "Integral Calculus",
    "t": "Double Integral: positivity over a region",
-   "f": "If f(x,y)≥0 on R and Sc R, then 259"
+   "f": "f(x, y) ≥ 0"
   },
   {
    "c": "Integral Calculus",
@@ -4178,7 +4158,7 @@
   {
    "c": "Integral Calculus",
    "t": "Volume in Spherical Coordinates",
-   "f": "V= ff r' sinodrddp (drgz)s 273"
+   "f": "V = ∫∫∫ ρ² sin φ dρ dφ dθ"
   },
   {
    "c": "Integral Calculus",
@@ -4338,7 +4318,7 @@
   {
    "c": "Differential Equations",
    "t": "Free Undamped Vibrations",
-   "f": "The motion of a Mass on a Spring is described by the equa- tion my + ky=0, where m is the mass of the object"
+   "f": "my'' + ky = 0"
   },
   {
    "c": "Differential Equations",
@@ -4348,7 +4328,7 @@
   {
    "c": "Differential Equations",
    "t": "Simple Pendulum",
-   "f": "d²0+0=0, dt²L where 0 is the angular displacement, L is the pendulum length, g is the acceleration of gravity. The general solution for small angles 0 is"
+   "f": "d²θ/dt² + (g/L)θ = 0"
   },
   {
    "c": "Differential Equations",
@@ -4373,7 +4353,7 @@
   {
    "c": "Series",
    "t": "Arithmetic Series: series formula",
-   "f": "a, +a。=a, +an- =..=a +an+1-i"
+   "f": "a₁ + aₙ = a₂ + aₙ₋₁ = ... = aᵢ + aₙ₊₁₋ᵢ"
   },
   {
    "c": "Series",
@@ -4478,22 +4458,22 @@
   {
    "c": "Series",
    "t": "The Comparison Test",
-   "f": "Leta.and be series such that O<a, ≤b, for all n. n=1 n=1 If b。 is convergent then"
+   "f": "0 < aₙ ≤ bₙ"
   },
   {
    "c": "Series",
    "t": "The Limit Comparison Test",
-   "f": "Let >a and ≥b. beseries such that a, and b, are posi- tive for all n. If0<lim an <∞ then a。and b are either both"
+   "f": "0 < lim (aₙ / bₙ) < ∞"
   },
   {
    "c": "Series",
    "t": "The Integral Test",
-   "f": "Let f(x) be a function which is continuous, positive, and decreasing for all x ≥1. The series ∑f(n)=f(1)+f(2)+f(3)+..+f(n)+.. =1 converges if"
+   "f": "f(x) is continuous, positive, decreasing for x ≥ 1"
   },
   {
    "c": "Series",
    "t": "The Ratio Test",
-   "f": "Let be a series with positive terms. n=1 If lim <1 then is convergent"
+   "f": "lim (aₙ₊₁ / aₙ) < 1"
   },
   {
    "c": "Series",
@@ -4503,7 +4483,7 @@
   {
    "c": "Series",
    "t": "The Alternating Series Test (Leibniz's Theorem)",
-   "f": "Let {an} be a sequence of positive numbers such that an+<a, for all n. lima =0. Then the alternating series ∑(-1)²a。 and ∑(-1)\"-²an"
+   "f": "aₙ₊₁ < aₙ, lim aₙ = 0"
   },
   {
    "c": "Series",
@@ -4593,7 +4573,7 @@
   {
    "c": "Series",
    "t": "Fourier Series: Fourier sine coefficient",
-   "f": "b。= Jf(x)sinx dx 317"
+   "f": "bₙ = (1/π) ∫ f(x) sin(nx) dx"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4618,7 +4598,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Permutations and Combinations: the sum of a row",
-   "f": "\"C。+\" C, +C+"
+   "f": "ⁿC₀ + ⁿC₁ + ... + ⁿCₙ = 2ⁿ"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4647,23 +4627,18 @@
   },
   {
    "c": "Probability & Combinatorics",
-   "t": "General Addition Rule",
-   "f": "P(AUB)=P(A)+P(B)-P(AB), where A U B is the union of events A and B, A B is the intersection of events A and B"
-  },
-  {
-   "c": "Probability & Combinatorics",
    "t": "Probability Formulas: the multiplication rule",
    "f": "P(AB)=P(B)·P(A/B)=P(A)·P(B/A) 320"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Law of Total Probability",
-   "f": "i=1 where B; is a sequence of mutually exclusive events"
+   "f": "P(A) = Σ P(A | Bᵢ)P(Bᵢ)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Bayes?Formula",
-   "f": "P(B;)·P(A/B;) P(B;/A)= k=1 where B is a set of mutually exclusive events (hypotheses)"
+   "f": "P(Bᵢ | A) = [P(Bᵢ)P(A | Bᵢ)] / Σ [P(Bₖ)P(A | Bₖ)]"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4708,7 +4683,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Exponential Distribution Function",
-   "f": "F(t)=1-e-, where t is time, is the failure rate"
+   "f": "F(t) = 1 - e^(-λt)"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4723,22 +4698,22 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Properties of Expectations",
-   "f": "E(X+Y)=E(x)+E(Y), E(X-Y)=E(x)-E(Y), E(cx)=cE(x), E(XY)= E(X)·E(Y), where c is a constant"
+   "f": "E(X + Y) = E(X) + E(Y), E(cX) = cE(X)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Variance of Discrete Random Variables",
-   "f": "o²=V(x)=E[(x-μ)²]=∑(x-μ)²P;, where x, is a particular outcome, P; is its probability"
+   "f": "σ² = V(X) = E[(X - μ)²] = Σ (xᵢ - μ)² Pᵢ"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Propertiesof Variance",
-   "f": "V(x+Y)=v(x)+V(Y), v(x-Y)=v(x)+v(Y), V(x+c)=v(x), V(cx)=c²v(x), where c is a constant"
+   "f": "V(X + Y) = V(X) + V(Y), V(cX) = c²V(X)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Correlation",
-   "f": "p(x,y)= _cov(x,y) √v(x)v(x) where V(X) is the variance of X, V(Y) is the variance of Y"
+   "f": "ρ(X, Y) = cov(X, Y) / √[V(X)V(Y)]"
   },
   {
    "c": "Sets & Numbers",
@@ -4748,7 +4723,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Empty set subset",
-   "f": "∅ ⊆ A for every set A"
+   "f": "∅ ⊆ A"
   },
   {
    "c": "Sets & Numbers",
@@ -4863,7 +4838,7 @@
   {
    "c": "Algebra",
    "t": "Complex modulus",
-   "f": "|z| = √(a² + b²) for z = a + ib"
+   "f": "|z| = √(a² + b²)"
   },
   {
    "c": "Algebra",
@@ -4883,7 +4858,7 @@
   {
    "c": "Algebra",
    "t": "Complex argument",
-   "f": "arg(z) = atan2(b, a) for z = a + ib"
+   "f": "arg(z) = atan2(b, a)"
   },
   {
    "c": "Algebra",
@@ -5183,7 +5158,7 @@
   {
    "c": "Differential Equations",
    "t": "Undetermined coefficients",
-   "f": "For R(x) = eᵃˣ try yₚ = A eᵃˣ; for sin bx try A cos bx + B sin bx"
+   "f": "yₚ = A e^(ax) for R(x) = e^(ax)"
   },
   {
    "c": "Differential Equations",
@@ -5278,7 +5253,7 @@
   {
    "c": "Finance & Economics",
    "t": "Strike monotonicity",
-   "f": "0 ≤ c(K₁) − c(K₂) ≤ (K₂ − K₁) e^(−rT) for K₁ < K₂"
+   "f": "0 ≤ c(K₁) - c(K₂) ≤ (K₂ - K₁)e^(-rT), K₁ < K₂"
   },
   {
    "c": "Finance & Economics",
@@ -6348,7 +6323,7 @@
   {
    "c": "Chemistry",
    "t": "The Mole and Stoichiometry: Empirical formula from percent",
-   "f": "divide each % by atomic mass, then by the smallest"
+   "f": "% / atomic mass"
   },
   {
    "c": "Chemistry",
@@ -6468,7 +6443,7 @@
   {
    "c": "Chemistry",
    "t": "Chemical Thermodynamics: Hess's law",
-   "f": "ΔHₜₒₜₐₗ = sum of the steps"
+   "f": "ΔH_total = Σ ΔH_steps"
   },
   {
    "c": "Chemistry",
