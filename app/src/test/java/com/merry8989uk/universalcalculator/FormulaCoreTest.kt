@@ -228,6 +228,29 @@ class FormulaCoreTest {
         assertNotNull("the part being computed was not kept", d.part)
     }
 
+    @Test fun aCombinationIsNotAProductOfLetters() {
+        // nCr is "n choose r", and read as n times C times r it is nonsense
+        assertEquals("ncr(n,r)", FormulaNormaliser.normalise("nCr"))
+        assertEquals("ncr(n,0)", FormulaNormaliser.normalise("nC0"))
+        assertEquals("npr(n,r)", FormulaNormaliser.normalise("nPr"))
+    }
+
+    @Test fun combinationsAreCountedCorrectly() {
+        val e = com.merry8989uk.universalcalculator.calc.Evaluator
+        assertEquals(10.0, e.evaluate("ncr(5,2)"), 1e-9)
+        assertEquals(120.0, e.evaluate("ncr(10,3)"), 1e-9)
+        assertEquals(1.0, e.evaluate("ncr(5,0)"), 1e-9)
+        assertEquals(20.0, e.evaluate("npr(5,2)"), 1e-9)
+        // and it refuses what is not a combination
+        var refused = false
+        try {
+            e.evaluate("ncr(2,5)")
+        } catch (ex: Exception) {
+            refused = true
+        }
+        assertTrue("nCr(2,5) was allowed", refused)
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",

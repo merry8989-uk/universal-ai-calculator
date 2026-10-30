@@ -315,7 +315,30 @@ object Evaluator {
             }
         }
 
-        private fun applyFunction(name: String, a: List<Double>): Double {
+        /** nCr, refusing anything that is not a whole number in range. */
+    private fun combinations(n: Double, r: Double): Double {
+        if (n < 0 || r < 0 || r > n) throw EvalException("nCr needs 0 <= r <= n")
+        val nn = kotlin.math.round(n).toInt()
+        val rr = kotlin.math.round(r).toInt()
+        if (kotlin.math.abs(n - nn) > 1e-9 || kotlin.math.abs(r - rr) > 1e-9) {
+            throw EvalException("nCr needs whole numbers")
+        }
+        var result = 1.0
+        for (i in 1..rr) result = result * (nn - rr + i) / i
+        return kotlin.math.round(result)
+    }
+
+    /** nPr. */
+    private fun permutations(n: Double, r: Double): Double {
+        if (n < 0 || r < 0 || r > n) throw EvalException("nPr needs 0 <= r <= n")
+        val nn = kotlin.math.round(n).toInt()
+        val rr = kotlin.math.round(r).toInt()
+        var result = 1.0
+        for (i in 0 until rr) result *= (nn - i)
+        return kotlin.math.round(result)
+    }
+
+    private fun applyFunction(name: String, a: List<Double>): Double {
             fun one(): Double = a.firstOrNull() ?: throw EvalException("$name() needs an argument")
             fun two(): Pair<Double, Double> = if (a.size >= 2) {
                 a[0] to a[1]
@@ -439,6 +462,15 @@ object Evaluator {
 
                 // ---- number theory ----
                 "fact" -> factorial(one())
+                // nCr and nPr, written the way a book writes them
+                "ncr" -> {
+                    val (n, r) = two()
+                    combinations(n, r)
+                }
+                "npr" -> {
+                    val (n, r) = two()
+                    permutations(n, r)
+                }
                 "gcd" -> {
                     val (x, y) = two()
                     gcd(x.toLong(), y.toLong()).toDouble()

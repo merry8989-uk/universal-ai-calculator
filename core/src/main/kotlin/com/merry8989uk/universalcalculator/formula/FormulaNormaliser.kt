@@ -65,6 +65,7 @@ object FormulaNormaliser {
 
     /** Names that stay whole: functions, constants and the Greek stand-ins. */
     private val KNOWN_NAMES: Set<String> = FUNCTIONS + setOf(
+        "ncr", "npr",
         "pi", "e", "th", "mu1", "ps", "delta", "sigma", "phi", "omega",
         "lambda", "pi2", "gamma", "theta2",
         // The single-letter Greek stand-ins. Without these the tokeniser splits
@@ -335,6 +336,30 @@ object FormulaNormaliser {
                 }
             }
         }
+        // nCr and nPr, written the way a book writes them: a capital C or P
+        // between two values is a combination or a permutation, not a product.
+        val counted = ArrayList<String>(tokens.size)
+        var c = 0
+        while (c < tokens.size) {
+            if (c + 2 < tokens.size &&
+                (tokens[c + 1] == "C" || tokens[c + 1] == "P") &&
+                tokens[c].first().isLetterOrDigit() &&
+                tokens[c + 2].first().isLetterOrDigit()
+            ) {
+                counted.add(if (tokens[c + 1] == "C") "ncr(" else "npr(")
+                counted.add(tokens[c])
+                counted.add(",")
+                counted.add(tokens[c + 2])
+                counted.add(")")
+                c += 3
+                continue
+            }
+            counted.add(tokens[c])
+            c++
+        }
+        tokens.clear()
+        tokens.addAll(counted)
+
         // A function written without brackets takes the next single token as its
         // argument: a book writes sinA cosB, meaning sin(A)·cos(B). Without this
         // the tokeniser reads "acos" out of "AcosB" and the whole identity is

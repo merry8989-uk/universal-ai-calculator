@@ -71,6 +71,21 @@ object FormulaRegistry {
     fun inCategory(definitions: List<FormulaDefinition>, category: String): List<FormulaDefinition> =
         definitions.filter { it.category == category }
 
+    /** A short, countable version of a failure reason. */
+    private fun reasonKey(reason: String): String {
+        val head = reason.substringBefore(':').trim()
+        return when {
+            head.contains("did not evaluate") -> "an expression did not evaluate"
+            head.contains("do not agree") -> "the two sides disagree"
+            head.contains("does not evaluate") -> "a calculator that does not calculate"
+            head.contains("no equals sign") -> "no equals sign"
+            head.contains("needs a solver") -> "needs a solver"
+            head.contains("no variables") -> "nothing to put numbers into"
+            head.contains("could not be read") -> "the text could not be read"
+            else -> head.ifEmpty { "other" }
+        }
+    }
+
     /** The audit, as text: how many of each kind, and why the rest are not calculators. */
     fun audit(definitions: List<FormulaDefinition>): String = buildString {
         append("Reference formulas: ").append(definitions.size).append('\n')
@@ -90,11 +105,22 @@ object FormulaRegistry {
         }
         val review = definitions.filter { it.type == FormulaType.NEEDS_REVIEW }
         if (review.isNotEmpty()) {
-            append('\n').append("Needs review (").append(review.size).append("):\n")
-            for (d in review.take(30)) {
+            // Why they failed, counted. Without this the next round of work is a
+            // guess about which engine to build, and guessing is how a plan turns
+            // into a list of things that never get done.
+            append('\n').append("Why the ").append(review.size).append(" need review:\n")
+            val histogram = review
+                .groupingBy { reasonKey(it.reason) }
+                .eachCount()
+                .entries
+                .sortedByDescending { it.value }
+            for ((reason, count) in histogram) {
+                append("  ").append(count.toString().padStart(4)).append("  ").append(reason).append('\n')
+            }
+            append('\n').append("A sample:\n")
+            for (d in review.take(12)) {
                 append("  ").append(d.title).append(" — ").append(d.reason).append('\n')
             }
-            if (review.size > 30) append("  ... and ").append(review.size - 30).append(" more\n")
         }
     }
 }
