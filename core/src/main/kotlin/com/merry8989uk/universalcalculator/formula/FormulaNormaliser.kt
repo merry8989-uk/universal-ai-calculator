@@ -151,6 +151,7 @@ object FormulaNormaliser {
         if (s.isBlank()) return null
 
         s = bracketRoots(s)
+        s = bracketAbsolute(s)
         s = insertImplicitProducts(s)
         if (s.isBlank()) return null
         return s
@@ -207,6 +208,29 @@ object FormulaNormaliser {
     }
 
     /**
+     * Turns |x| into abs(x).
+     *
+     * A pair of pipes is an absolute value; a single one is "divides" in number
+     * theory, which is not something to guess at, so an odd count is left alone
+     * and the formula stays a reference.
+     */
+    private fun bracketAbsolute(s: String): String {
+        if (s.count { it == '|' } == 0) return s
+        if (s.count { it == '|' } % 2 != 0) return s
+        val out = StringBuilder(s.length + 8)
+        var open = true
+        for (c in s) {
+            if (c == '|') {
+                out.append(if (open) "abs(" else ")")
+                open = !open
+            } else {
+                out.append(c)
+            }
+        }
+        return out.toString()
+    }
+
+    /**
      * Puts the multiplication signs back in.
      *
      * `(a-b)(a+b)` and `2ab` are how a book writes a product; the evaluator wants
@@ -221,8 +245,19 @@ object FormulaNormaliser {
             val c = s[i]
             when {
                 c.isLetter() -> {
-                    val rest = s.substring(i).lowercase()
-                    val known = KNOWN_NAMES.filter { rest.startsWith(it) }.maxByOrNull { it.length }
+                    // A capital is always a variable of its own. The books write
+                    // sinA cosB for sin(A)·cos(B), and matching known names
+                    // regardless of case reads "AcosB" as acos(B) — which is a
+                    // different formula with a different answer.
+                    if (c.isUpperCase()) {
+                        tokens.add(c.toString())
+                        i++
+                        continue
+                    }
+                    val rest = s.substring(i)
+                    val known = KNOWN_NAMES
+                        .filter { rest.startsWith(it) }
+                        .maxByOrNull { it.length }
                     if (known != null) {
                         tokens.add(s.substring(i, i + known.length))
                         i += known.length
@@ -242,10 +277,33 @@ object FormulaNormaliser {
                 }
             }
         }
+        // A function written without brackets takes the next single token as its
+        // argument: a book writes sinA cosB, meaning sin(A)·cos(B). Without this
+        // the tokeniser reads "acos" out of "AcosB" and the whole identity is
+        // nonsense.
+        val fixed = ArrayList<String>(tokens.size + 4)
+        var i = 0
+        while (i < tokens.size) {
+            val token = tokens[i]
+            if (isFunction(token) && i + 1 < tokens.size && tokens[i + 1] != "(") {
+                val argument = tokens[i + 1]
+                val isValue = argument.first().isLetterOrDigit() || argument == "("
+                if (isValue) {
+                    fixed.add(token + "(")
+                    fixed.add(argument)
+                    fixed.add(")")
+                    i += 2
+                    continue
+                }
+            }
+            fixed.add(token)
+            i++
+        }
+
         val out = StringBuilder(s.length + 8)
-        for (index in tokens.indices) {
-            if (index > 0 && needsProduct(tokens[index - 1], tokens[index])) out.append('*')
-            out.append(tokens[index])
+        for (index in fixed.indices) {
+            if (index > 0 && needsProduct(fixed[index - 1], fixed[index])) out.append('*')
+            out.append(fixed[index])
         }
         return out.toString()
     }
