@@ -24,7 +24,7 @@ Engineering, Construction and Math.
 - **Persistent history** — stored on the device and kept until you clear it.
 - **Scientific calculator** — trig (DEG/RAD), inverse trig, logs, powers, roots,
   factorial, nCr/nPr, gcd/lcm, constants (pi, e, tau, phi).
-- **Unit converter** — 26 categories and 304 units (length, mass, temperature,
+- **Unit converter** — 44 categories and 530 units (length, mass, temperature,
   area, volume, speed, time, data, data rate, pressure, energy, power, force,
   torque, frequency, fuel economy, illuminance, radiation, electric, density,
   viscosity, cooking, typography, sound, acceleration, volumetric flow).
@@ -34,7 +34,7 @@ Engineering, Construction and Math.
   number, quarter, day-of-year, add/subtract days, Unix timestamps.
 - **Fractions in results** — 0.75 is also shown as 3/4
 - **Haptic feedback**, keep screen on, save state, Modern/Classic keypad layout
-- **Formula reference** — 1663 formulas across 13 topics, searchable
+- **Formula reference** — 1,413 formulas across 16 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
 - **Handwriting pad** — write a calculation with a finger
@@ -81,7 +81,7 @@ Engineering, Construction and Math.
 - **Converters** — Roman numerals, number to words (Indian & international
   grouping), text ↔ binary / hex / ASCII, RGB ↔ hex, timestamps.
 - **Currency converter** — live exchange rates (open.er-api.com).
-- **192 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
+- **343 formula calculators** — EMI, SIP, NPV, IRR, CAGR, ROI, break-even,
   mortgage, gratuity, PF, depreciation, BMI, BMR, TDEE, BSA, eGFR, creatinine
   clearance, Parkland, insulin, geometry solids, physics laws, concrete/bricks/
   tiles/paint/steel, staircase, solar sizing, GPA, cooking scale, run rate and
@@ -126,7 +126,7 @@ URL into `ai/AiClient.kt` and rebuild.
 
 Every calculation engine has a JVM unit test suite (114 tests) covering
 arithmetic, powers, percentages, scientific functions, unit conversions,
-all 192 formulas, matrices, statistics, format converters, dates, the
+all 343 formulas, matrices, statistics, format converters, dates, the
 programmer tool and numerical calculus. It runs in CI:
 
 ```

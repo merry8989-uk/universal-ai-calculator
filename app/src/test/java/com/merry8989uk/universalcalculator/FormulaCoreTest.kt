@@ -196,6 +196,19 @@ class FormulaCoreTest {
         }
     }
 
+    @Test fun theReadmeDoesNotLieAboutTheCounts() {
+        // The README claimed 1,663 formulas across 13 topics and 192 calculators
+        // while the files held 1,413 across 16 and 343. A number in a README that
+        // nobody checks is a number that is wrong.
+        val readme = file("README.md") ?: return
+        val text = readme.readText()
+        assertTrue("the README does not give the reference count", text.contains("1,413 formulas"))
+        assertTrue("the README does not give the topic count", text.contains("16 topics"))
+        assertTrue("the README does not give the calculator count", text.contains("343 formula calculators"))
+        assertFalse("the old wrong count is still in the README", text.contains("1663"))
+        assertFalse("the old wrong count is still in the README", text.contains("192 formula"))
+    }
+
     @Test fun theAuditCanBePrinted() {
         // not an assertion so much as a record: the CI log holds the numbers
         if (definitions.isEmpty()) return
