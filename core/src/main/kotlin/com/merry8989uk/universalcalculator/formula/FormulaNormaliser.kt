@@ -391,33 +391,13 @@ object FormulaNormaliser {
                     val run = s.substring(start, i)
                     val lower = run.lowercase()
 
-                    // a name the reader knows always wins, so sinth is sin(th).
-                    // Only the functions and constants count here: the symbolic
-                    // names (det, deg, mod, var) are short enough to sit at the
-                    // front of ordinary words — "degree" starts with deg — and
-                    // matching them there tears the word apart.
-                    val names = KNOWN_NAMES
-                    val known = names
+                    // a name the reader knows always wins, so sinth is sin(th)
+                    val known = KNOWN_NAMES
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
                         tokens.add(run.substring(0, known.length))
                         i = start + known.length
-                        continue
-                    }
-
-                    // A name can be hiding inside the run, but only one character
-                    // in: "isinp" is i times sin(p) — the complex unit, the
-                    // function, the angle — and taken whole it is a variable that
-                    // means nothing.
-                    //
-                    // One character, not any: "distance" has tan buried in it and
-                    // "constant" has tan and an s, and splitting those turns a
-                    // word into arithmetic. The narrow rule fixes the case that
-                    // exists without breaking the words that only look like it.
-                    if (run.length >= 3 && names.any { it.length >= 2 && lower.startsWith(it, 1) }) {
-                        tokens.add(run.substring(0, 1))
-                        i = start + 1
                         continue
                     }
 
