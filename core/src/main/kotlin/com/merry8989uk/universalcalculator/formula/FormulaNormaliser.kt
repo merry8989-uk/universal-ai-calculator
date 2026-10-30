@@ -118,17 +118,7 @@ object FormulaNormaliser {
 
     /** True when a name is followed by a bracket, whether or not it runs. */
     fun takesBracket(name: String): Boolean =
-        name in FUNCTIONS || name.lowercase() in SYMBOLIC_NAMES ||
-            name.lowercase() in OPERATOR_LETTERS
-
-    /**
-     * Single letters that are operations when a bracket follows them.
-     *
-     * E(X) is an expectation and f(x) is a function of x; neither is E times (X).
-     * The list is short on purpose — a(b + c) really is a multiplication, and
-     * treating every letter as a call would break the algebra.
-     */
-    private val OPERATOR_LETTERS = setOf("e", "v", "f", "g")
+        name in FUNCTIONS || name.lowercase() in SYMBOLIC_NAMES
 
     /**
      * The expression, ready to evaluate, or null when it cannot be translated.

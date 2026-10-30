@@ -310,12 +310,12 @@ class FormulaCoreTest {
         assertEquals("abc", FormulaNormaliser.normalise("abc"))
     }
 
-    @Test fun anOperatorLetterTakesABracket() {
-        // E(X) is an expectation and f(x) is a function of x; neither is a product
-        assertEquals("E(X^2)", FormulaNormaliser.normalise("E(X²)"))
-        assertEquals("f(x)", FormulaNormaliser.normalise("f(x)"))
-        // but a plain letter before a bracket is still a multiplication
+    @Test fun aLetterBeforeABracketIsAMultiplication() {
+        // a(b + c) is a product. Treating E, V, f and g as calls looked right on
+        // E(X) and f(x) and cost working formulas elsewhere, so the reader does
+        // not guess: a letter before a bracket multiplies.
         assertEquals("a*(b+c)", FormulaNormaliser.normalise("a(b + c)"))
+        assertEquals("E*(X^2)", FormulaNormaliser.normalise("E(X²)"))
     }
 
     @Test fun aSubscriptedLetterStaysOneVariable() {
