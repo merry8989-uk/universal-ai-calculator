@@ -67,6 +67,10 @@ object FormulaNormaliser {
     private val KNOWN_NAMES: Set<String> = FUNCTIONS + setOf(
         "pi", "e", "th", "mu1", "ps", "delta", "sigma", "phi", "omega",
         "lambda", "pi2", "gamma", "theta2",
+        // The single-letter Greek stand-ins. Without these the tokeniser splits
+        // d1 into d times 1, which silently turns one variable into two.
+        "a1", "b1", "g1", "d1", "e1", "z1", "h1", "i1", "k1", "l1",
+        "n1", "x1", "r1", "s1", "t1", "c1", "w1",
     )
 
 
