@@ -65,7 +65,7 @@ private fun wobble(index: Int, salt: Int): Float {
 
 /** A four-point sparkle: two crossed strokes with a bright core. */
 private fun DrawScope.spark(centre: Offset, radius: Float, colour: Color) {
-    val w = (radius * 0.42f).coerceAtLeast(1f)
+    val w = (radius * 0.34f).coerceAtLeast(1f)
     drawLine(colour, Offset(centre.x, centre.y - radius), Offset(centre.x, centre.y + radius), w, StrokeCap.Round)
     drawLine(colour, Offset(centre.x - radius, centre.y), Offset(centre.x + radius, centre.y), w, StrokeCap.Round)
     drawCircle(colour, radius * 0.32f, centre)
@@ -119,50 +119,12 @@ fun MagicButton(
 
     // The footprint stays exactly `size`: the sparks overflow it rather than
     // making the button bigger and shoving the row it sits in.
+    // The footprint stays exactly `size`. The sparks rise inside it rather than
+    // above it: the button sits in a bottom bar, and anything drawn past the top
+    // of that bar is clipped by the layout, which is why an earlier version put
+    // sparks outside the circle and none of them could be seen climbing.
     Box(modifier = modifier.size(size)) {
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val cx = this.size.width / 2f
-            val cy = this.size.height / 2f
-            val edge = this.size.minDimension / 2f
-
-            for (i in 0 until SPARKS) {
-                // Each spark has its own speed and its own starting point in the
-                // loop. Without that they sit at evenly spaced phases, the set of
-                // positions looks the same in every frame, and the button reads
-                // as a still picture of sparks rather than sparks rising.
-                val speed = 0.75f + 0.6f * wobble(i, 3)
-                val phase = (flight * speed + wobble(i, 2)) % 1f
-
-                // Where it starts across the width, and how high it climbs.
-                val spread = (wobble(i, 1) - 0.5f) * edge * 1.5f
-                val rise = this.size.height * (0.85f + 0.8f * wobble(i, 4))
-
-                // A gentle sway as it goes, so the column is not a ruler.
-                val sway = sin(phase * 2.0 * PI * (0.5 + 0.9 * wobble(i, 5)))
-                val x = cx + spread + (sway * edge * 0.24f * phase).toFloat()
-                // From just above the middle of the button upward: fire rises,
-                // it does not spray in every direction.
-                val y = cy - edge * 0.30f - rise * phase
-
-                val fade = (1f - phase) * (1f - phase)
-                val radius = edge * (0.15f - 0.10f * phase) * (0.75f + 0.6f * wobble(i, 6))
-                if (fade <= 0.02f || radius <= 0.4f) continue
-
-                // A smaller spark below it on the same path, so the eye reads a
-                // rising trail rather than a dot.
-                if (phase > 0.10f) {
-                    val back = phase - 0.10f
-                    val backY = cy - edge * 0.30f - rise * back
-                    val backX = cx + spread + (sin(back * 2.0 * PI * (0.5 + 0.9 * wobble(i, 5))) *
-                        edge * 0.24f * back).toFloat()
-                    spark(Offset(backX, backY), radius * 0.5f, Color.White.copy(alpha = fade * 0.28f))
-                }
-                spark(Offset(x, y), radius, Color.White.copy(alpha = fade * 0.95f))
-            }
-        }
-
-        // The button itself. Only this is clipped, and it is drawn after the
-        // sparks so it hides the part of each flight that is behind the circle.
+        // The button itself, drawn first so the sparks pass over its face.
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -196,6 +158,52 @@ fun MagicButton(
                 )
             }
             Text(glyph, color = Color.White)
+        }
+
+        // Sparks over the button, climbing from the bottom of the circle to the
+        // top and fading out before they reach the edge of the box.
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val cx = this.size.width / 2f
+            val cy = this.size.height / 2f
+            val edge = this.size.minDimension / 2f
+
+            // Where a spark starts and how far it climbs, in fractions of the
+            // button's radius. It begins just below the middle, crosses the face,
+            // leaves through the top and carries on well above it — fire rises
+            // and escapes, it does not stop at the rim.
+            val from = cy + edge * 0.20f
+            val climb = edge * 2.60f
+
+            for (i in 0 until SPARKS) {
+                // Each spark has its own speed and its own starting point in the
+                // loop. Without that they sit at evenly spaced phases, the set of
+                // positions looks the same in every frame, and the button reads
+                // as a still picture of sparks rather than sparks rising.
+                val speed = 0.75f + 0.6f * wobble(i, 3)
+                val phase = (flight * speed + wobble(i, 2)) % 1f
+
+                // Where it rises, and how far across the face.
+                val spread = (wobble(i, 1) - 0.5f) * edge * 1.4f
+                val sway = sin(phase * 2.0 * PI * (0.5 + 0.9 * wobble(i, 5)))
+
+                val x = cx + spread + (sway * edge * 0.20f).toFloat()
+                val y = from - climb * phase
+
+                val fade = (1f - phase) * (1f - phase)
+                val radius = edge * (0.11f - 0.07f * phase) * (0.75f + 0.6f * wobble(i, 6))
+                if (fade <= 0.02f || radius <= 0.4f) continue
+
+                // A smaller spark below it on the same path, so the eye reads a
+                // rising trail rather than a dot.
+                if (phase > 0.10f) {
+                    val back = phase - 0.10f
+                    val backX = cx + spread + (sin(back * 2.0 * PI * (0.5 + 0.9 * wobble(i, 5))) *
+                        edge * 0.20f).toFloat()
+                    spark(Offset(backX, from - climb * back), radius * 0.5f,
+                        Color.White.copy(alpha = fade * 0.28f))
+                }
+                spark(Offset(x, y), radius, Color.White.copy(alpha = fade * 0.95f))
+            }
         }
     }
 }

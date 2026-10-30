@@ -87,31 +87,44 @@ class MotionTest {
         File("app/src/main/java/com/merry8989uk/universalcalculator/ui/MagicButton.kt"),
     ).firstOrNull { it.exists() }?.readText()
 
-    @Test fun theSparksAreNotClippedAway() {
-        // The bug: clip(CircleShape) sat on the box that held the sparks, so
-        // every spark was cut off at the rim and the button looked still.
+    @Test fun theSparksAreDrawnOverTheButtonNotClippedBehindIt() {
+        // First bug: the sparks were on the box that had clip(CircleShape), so
+        // every one of them was cut off at the rim.
         val text = magic() ?: return
-        // from the function body only: the comment above it describes the old
-        // bug in words and would otherwise trip this check
-        val outer = text.substringAfter("fun MagicButton(")
-            .substringBefore("Canvas(modifier = Modifier.matchParentSize())")
-        assertTrue(
-            "the box that holds the sparks is clipped, so none of them can leave it",
-            !outer.contains("clip("),
-        )
-        // and the circle itself must still be clipped, or it is a square
-        val circle = text.substringAfter("// The button itself")
-        assertTrue("the button is no longer a circle", circle.contains("clip(CircleShape)"))
+        val body = text.substringAfter("Box(modifier = modifier.size(size)) {")
+        val beforeCircle = body.substringBefore(".clip(CircleShape)")
+        assertTrue("the outer box is clipped, so nothing can leave it", !beforeCircle.contains("clip("))
+        assertTrue("the button is no longer a circle", body.contains(".clip(CircleShape)"))
+
+        // Second bug: drawn behind the circle, the climb was hidden and the part
+        // that escaped went past the top of the bottom bar and was clipped by it.
+        val sparksAt = body.indexOf("// Sparks over the button")
+        val circleAt = body.indexOf(".clip(CircleShape)")
+        assertTrue("the sparks are drawn behind the button", sparksAt > circleAt)
     }
 
     @Test fun theSparksRiseUpwardLikeFire() {
         val text = magic() ?: return
-        val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// The button itself")
-        // the vertical position must decrease as the phase grows: y = start - rise * phase
-        assertTrue("the sparks do not climb", body.contains("- rise * phase"))
-        assertTrue("there is no rise to climb", body.contains("val rise ="))
-        // and they must not be placed round a circle any more
+        val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// Sparks over")
+        // y = from - climb * phase, so a growing phase is a falling y: upward
+        assertTrue("the sparks do not climb", body.contains("- climb * phase"))
+        assertTrue("there is no climb", body.contains("val climb ="))
         assertTrue("the sparks are still sprayed in every direction", !body.contains("sin(angle)"))
+    }
+
+    @Test fun theSparksLeaveTheButtonThroughTheTop() {
+        val text = magic() ?: return
+        val from = Regex("val from = cy \\+ edge \\* ([0-9.]+)f").find(text)?.groupValues?.get(1)?.toFloat()
+        val climb = Regex("val climb = edge \\* ([0-9.]+)f").find(text)?.groupValues?.get(1)?.toFloat()
+        assertTrue("the climb is not in the form this test expects", from != null && climb != null)
+        // cy is one edge for a square box. A spark starts at (cy + from) and ends
+        // at (cy + from - climb); the top of the circle is (cy - 1).
+        val startAboveCentre = from!!
+        val endsAboveTop = (1f + from!! - climb!!) < 0f
+        assertTrue("the spark starts above the middle, so it never crosses the face",
+            startAboveCentre > -0.2f)
+        assertTrue("the spark never leaves the button", endsAboveTop)
+        assertTrue("the climb is too short to read as fire", climb!! > 2.0f)
     }
 
     @Test fun theSparksAreNotEvenlySpaced() {
@@ -119,7 +132,7 @@ class MotionTest {
         // the button reads as a still picture of sparks. This is the bug that made
         // the first version look frozen.
         val text = magic() ?: return
-        val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// The button itself")
+        val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// Sparks over")
         assertTrue("the phase is still shared out evenly", !body.contains("i.toFloat() / SPARKS"))
         assertTrue("no per-spark starting point", body.contains("wobble(i, 2)"))
         assertTrue("no per-spark speed", body.contains("wobble(i, 3)"))
