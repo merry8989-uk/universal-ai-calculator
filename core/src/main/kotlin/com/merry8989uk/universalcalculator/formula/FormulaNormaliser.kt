@@ -401,8 +401,12 @@ object FormulaNormaliser {
                     val run = s.substring(start, i)
                     val lower = run.lowercase()
 
-                    // a name the reader knows always wins, so sinth is sin(th)
-                    val names = KNOWN_NAMES + SYMBOLIC_NAMES
+                    // a name the reader knows always wins, so sinth is sin(th).
+                    // Only the functions and constants count here: the symbolic
+                    // names (det, deg, mod, var) are short enough to sit at the
+                    // front of ordinary words — "degree" starts with deg — and
+                    // matching them there tears the word apart.
+                    val names = KNOWN_NAMES
                     val known = names
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
