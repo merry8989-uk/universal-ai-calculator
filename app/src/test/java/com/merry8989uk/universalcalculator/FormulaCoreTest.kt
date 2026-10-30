@@ -181,6 +181,21 @@ class FormulaCoreTest {
         assertTrue(FormulaNormaliser.normalise("δx")!!.contains("d1"))
     }
 
+    @Test fun aPowerWrittenOnTheFunctionBelongsToItsResult() {
+        // sin²θ is sin(θ) squared, not sin squared times θ
+        assertEquals("sin(th)^2", FormulaNormaliser.normalise("sin²θ"))
+        assertEquals("cos(th)^3", FormulaNormaliser.normalise("cos³θ"))
+    }
+
+    @Test fun aCoefficientAndItsVariableAreOneArgument() {
+        // cos 2θ is cos(2θ), not cos(2) times θ
+        assertEquals("cos(2*th)", FormulaNormaliser.normalise("cos 2θ"))
+    }
+
+    @Test fun aDegreeSignIsRadianMeasure() {
+        assertEquals("sin(90*pi/180)", FormulaNormaliser.normalise("sin(90°)"))
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",

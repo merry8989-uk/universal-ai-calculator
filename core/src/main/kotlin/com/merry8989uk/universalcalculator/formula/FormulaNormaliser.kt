@@ -136,6 +136,9 @@ object FormulaNormaliser {
                 '÷' -> out.append('/')
                 '−', '–', '—' -> out.append('-')
                 'π' -> out.append("pi")
+                // a bare degree sign is a number of degrees: 90° is 90 in radian
+                // measure, and the evaluator works in radians
+                '°' -> out.append("*pi/180")
                 '½' -> out.append("(1/2)")
                 '¼' -> out.append("(1/4)")
                 '¾' -> out.append("(3/4)")
@@ -285,17 +288,45 @@ object FormulaNormaliser {
         var at = 0
         while (at < tokens.size) {
             val token = tokens[at]
-            if (isFunction(token) && at + 1 < tokens.size && tokens[at + 1] != "(") {
-                val argument = tokens[at + 1]
-                val isValue = argument.first().isLetterOrDigit() || argument == "("
-                if (isValue) {
-                    fixed.add(token + "(")
-                    fixed.add(argument)
-                    fixed.add(")")
-                    at += 2
-                    continue
-                }
+            if (!isFunction(token) || at + 1 >= tokens.size || tokens[at + 1] == "(") {
+                fixed.add(token)
+                at++
+                continue
             }
+
+            // sin²θ — a power written on the function belongs to its result, so
+            // it has to move behind the argument: sin(θ)^2, not sin^2*θ.
+            if (at + 3 < tokens.size && tokens[at + 1] == "^" &&
+                tokens[at + 2].first().isDigit() && tokens[at + 3].first().isLetterOrDigit()
+            ) {
+                fixed.add(token + "(")
+                fixed.add(tokens[at + 3])
+                fixed.add(")^" + tokens[at + 2])
+                at += 4
+                continue
+            }
+
+            // cos 2θ — a coefficient and its variable are one argument.
+            if (at + 2 < tokens.size && tokens[at + 1].first().isDigit() &&
+                tokens[at + 2].first().isLetter()
+            ) {
+                fixed.add(token + "(")
+                fixed.add(tokens[at + 1] + "*" + tokens[at + 2])
+                fixed.add(")")
+                at += 3
+                continue
+            }
+
+            // sinA — a single token is the argument.
+            val argument = tokens[at + 1]
+            if (argument.first().isLetterOrDigit() || argument == "(") {
+                fixed.add(token + "(")
+                fixed.add(argument)
+                fixed.add(")")
+                at += 2
+                continue
+            }
+
             fixed.add(token)
             at++
         }
