@@ -127,6 +127,17 @@ object FormulaRegistry {
             for ((reason, count) in histogram) {
                 append("  ").append(count.toString().padStart(4)).append("  ").append(reason).append('\n')
             }
+            // The wrong readings are listed by name and by what they were read
+            // as, because a count of them is not something anyone can act on.
+            val wrong = review.filter { it.reason.contains("differ by more than a rounding error") }
+            if (wrong.isNotEmpty()) {
+                append('\n').append("Read wrongly (").append(wrong.size).append("):\n")
+                for (d in wrong.take(40)) {
+                    append("  ").append(d.title).append(" — ")
+                        .append(d.reason.substringAfter("rounding error: ").take(150)).append('\n')
+                }
+                if (wrong.size > 40) append("  ... and ").append(wrong.size - 40).append(" more\n")
+            }
             append('\n').append("A sample:\n")
             for (d in review.take(12)) {
                 append("  ").append(d.title).append(" — ").append(d.reason).append('\n')

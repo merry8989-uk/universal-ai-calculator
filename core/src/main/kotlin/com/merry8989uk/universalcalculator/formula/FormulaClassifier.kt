@@ -160,7 +160,7 @@ object FormulaClassifier {
         // ---- variables on both sides: an identity to check ----
         if (lhsVars.isNotEmpty() && rhsVars.isNotEmpty()) {
             val all = (lhsVars + rhsVars).distinct()
-            val problem = proveIdentity(lhs, rhs, all)
+            val problem = proveIdentity(lhs, rhs, all, lhsPrinted, rhsPrinted)
             if (problem == null) {
                 return FormulaDefinition(
                     id = id, title = title, category = category,
@@ -199,7 +199,13 @@ object FormulaClassifier {
     }
 
     /** Evaluates both sides and compares them. Returns null when they agree. */
-    private fun proveIdentity(lhs: String, rhs: String, variables: List<String>): String? {
+    private fun proveIdentity(
+        lhs: String,
+        rhs: String,
+        variables: List<String>,
+        printedLhs: String,
+        printedRhs: String,
+    ): String? {
         for (probe in PROBES) {
             val vars = variables.associateWith { probe }
             val a = try {
@@ -215,7 +221,11 @@ object FormulaClassifier {
             if (a.isNaN() || b.isNaN()) return "one side gave no number"
             val scale = maxOf(1.0, kotlin.math.abs(a), kotlin.math.abs(b))
             if (kotlin.math.abs(a - b) / scale > 1e-6) {
-                return "the two sides differ by more than a rounding error"
+                // The normalised forms are carried in the reason on purpose: a
+                // wrong reading is the one failure that gives a confident wrong
+                // answer, so it has to be findable by name rather than counted.
+                return "the two sides differ by more than a rounding error: " +
+                    "read \"$printedLhs\" as [$lhs] and \"$printedRhs\" as [$rhs]"
             }
         }
         return null
