@@ -71,19 +71,29 @@ object FormulaRegistry {
     fun inCategory(definitions: List<FormulaDefinition>, category: String): List<FormulaDefinition> =
         definitions.filter { it.category == category }
 
-    /** A short, countable version of a failure reason. */
-    private fun reasonKey(reason: String): String {
-        val head = reason.substringBefore(':').trim()
-        return when {
-            head.contains("did not evaluate") -> "an expression did not evaluate"
-            head.contains("do not agree") -> "the two sides disagree"
-            head.contains("does not evaluate") -> "a calculator that does not calculate"
-            head.contains("no equals sign") -> "no equals sign"
-            head.contains("needs a solver") -> "needs a solver"
-            head.contains("no variables") -> "nothing to put numbers into"
-            head.contains("could not be read") -> "the text could not be read"
-            else -> head.ifEmpty { "other" }
-        }
+    /**
+     * A short, countable version of a failure reason.
+     *
+     * The whole reason is read, not just the part before the colon: the useful
+     * detail — whether an expression would not run, or ran and gave a different
+     * number — is always after it. A histogram that lumps those together says
+     * nothing about what to build next.
+     */
+    private fun reasonKey(reason: String): String = when {
+        reason.contains("differ by more than a rounding error") ->
+            "the two sides give different numbers (a wrong reading)"
+        reason.contains("the left side did not evaluate") ->
+            "the left side would not run (a notation the reader cannot handle)"
+        reason.contains("the right side did not evaluate") ->
+            "the right side would not run (a notation the reader cannot handle)"
+        reason.contains("looks like a calculator but does not evaluate") ->
+            "looks like a calculator but will not run"
+        reason.contains("no equals sign") -> "no equals sign"
+        reason.contains("needs a solver") -> "needs a solver"
+        reason.contains("no variables") -> "nothing to put numbers into"
+        reason.contains("could not be read") -> "the text could not be read"
+        reason.contains("one side of the equals sign is empty") -> "one side is empty"
+        else -> reason.substringBefore(':').trim().ifEmpty { "other" }
     }
 
     /** The audit, as text: how many of each kind, and why the rest are not calculators. */
