@@ -29,10 +29,13 @@ object FormulaNormaliser {
     private val SUBSCRIPTS = mapOf(
         '₀' to "0", '₁' to "1", '₂' to "2", '₃' to "3", '₄' to "4",
         '₅' to "5", '₆' to "6", '₇' to "7", '₈' to "8", '₉' to "9",
-        'ₐ' to "a", 'ₑ' to "e", 'ₒ' to "o", 'ₓ' to "x", 'ₙ' to "n",
-        'ₜ' to "t", 'ₛ' to "s", 'ₚ' to "p", 'ₘ' to "m", 'ₗ' to "l",
-        'ᵢ' to "i", 'ⱼ' to "j", 'ₖ' to "k", 'ᵣ' to "r", 'ᵤ' to "u",
-        'ᵥ' to "v", 'ᵦ' to "b", 'ᵧ' to "g", 'ₕ' to "h",
+        // A subscript letter is part of the name it hangs from: lₐ is one
+        // variable, and read as l times a it becomes a different formula. The
+        // underscore marks that, and the reader keeps it whole.
+        'ₐ' to "_a", 'ₑ' to "_e", 'ₒ' to "_o", 'ₓ' to "_x", 'ₙ' to "_n",
+        'ₜ' to "_t", 'ₛ' to "_s", 'ₚ' to "_p", 'ₘ' to "_m", 'ₗ' to "_l",
+        'ᵢ' to "_i", 'ⱼ' to "_j", 'ₖ' to "_k", 'ᵣ' to "_r", 'ᵤ' to "_u",
+        'ᵥ' to "_v", 'ᵦ' to "_b", 'ᵧ' to "_g", 'ₕ' to "_h",
     )
 
     /**
@@ -86,13 +89,35 @@ object FormulaNormaliser {
         "dy/dx", "d²y", "d/dx", "∂", "∫", "∬", "lim", "Σ", "∑", "→", "…",
         "±", "∞", "≠", "≤", "≥", "∈", "∉", "∪", "∩", "⊂", "⊆", "∅", "′",
         "∇", "≈",
+        // A transpose is not a power: (Aᵀ)ᵀ = A is true of matrices and false of
+        // numbers, so computing it as a power gives a confident wrong answer. A
+        // matrix inverse is deliberately not on this list — x⁻¹ is an ordinary
+        // reciprocal and belongs in the calculator.
+        "ᵀ",
     )
 
     fun containsStructure(printed: String): String? =
         NOT_A_PLAIN_CALCULATION.firstOrNull { printed.contains(it) }
 
+    /**
+     * Operations a book writes as a name but the evaluator does not have.
+     *
+     * They are still treated as calls rather than products, because det(AB) read
+     * as d times e times t times AB is not a smaller answer — it is a confident
+     * wrong one. Left as a call it fails to evaluate, which is the honest
+     * outcome: the app says it cannot do this, rather than doing it badly.
+     */
+    private val SYMBOLIC_NAMES = setOf(
+        "det", "rank", "nullity", "adj", "trace", "var", "cov", "corr", "e",
+        "arg", "mod", "deg", "lcm", "hcf", "gcd",
+    )
+
     /** True when the evaluator has a function by this name. */
     fun isFunction(name: String): Boolean = name in FUNCTIONS
+
+    /** True when a name is followed by a bracket, whether or not it runs. */
+    fun takesBracket(name: String): Boolean =
+        name in FUNCTIONS || name.lowercase() in SYMBOLIC_NAMES
 
     /**
      * The expression, ready to evaluate, or null when it cannot be translated.
@@ -304,26 +329,35 @@ object FormulaNormaliser {
             val c = s[i]
             when {
                 c.isLetter() -> {
-                    // A capital is always a variable of its own. The books write
-                    // sinA cosB for sin(A)·cos(B), and matching known names
-                    // regardless of case reads "AcosB" as acos(B) — which is a
-                    // different formula with a different answer.
-                    if (c.isUpperCase()) {
-                        tokens.add(c.toString())
-                        i++
-                        continue
-                    }
-                    val rest = s.substring(i)
+                    val start = i
+                    while (i < s.length && (s[i].isLetter() || s[i].isDigit() || s[i] == '_')) i++
+                    val run = s.substring(start, i)
+                    val lower = run.lowercase()
+
+                    // a name the evaluator knows always wins, so sinA is sin(A)
                     val known = KNOWN_NAMES
-                        .filter { rest.startsWith(it) }
+                        .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
-                        tokens.add(s.substring(i, i + known.length))
-                        i += known.length
-                    } else {
-                        tokens.add(c.toString())
-                        i++
+                        tokens.add(run.substring(0, known.length))
+                        i = start + known.length
+                        continue
                     }
+
+                    // Otherwise: is this run a name or a product of letters?
+                    // det, rank, adj, nullity and Var are names, and read as
+                    // products they are nonsense. ab is a times b. The length,
+                    // the case and any subscript tell the two apart: a book
+                    // writes a product in lower case, and a two-letter finance
+                    // name in capitals.
+                    val allUpper = run.length >= 2 && run.all { it.isUpperCase() }
+                    val hasSubscript = run.contains('_')
+                    val hasDigit = run.any { it.isDigit() }
+                    if (run.length >= 3 || allUpper || hasSubscript || hasDigit) {
+                        tokens.add(run)
+                        continue
+                    }
+                    for (ch in run) tokens.add(ch.toString())
                 }
                 c.isDigit() || c == '.' -> {
                     val start = i
@@ -425,7 +459,7 @@ object FormulaNormaliser {
         val rightIsValue = next.first().isLetterOrDigit() || next == "("
         if (!leftIsValue || !rightIsValue) return false
         // a name followed by a bracket is a function call, not a product
-        if (next == "(" && isFunction(previous)) return false
+        if (next == "(" && takesBracket(previous)) return false
         return true
     }
 
@@ -448,7 +482,17 @@ object FormulaNormaliser {
     }
 
     /** A variable name that a person can read: a1 becomes "a". */
+    /** The subscript form of a letter, for showing a name to a person. */
+    private fun subscriptOf(c: Char): String = when (c) {
+        'a' -> "ₐ"; 'e' -> "ₑ"; 'o' -> "ₒ"; 'x' -> "ₓ"; 'n' -> "ₙ"
+        't' -> "ₜ"; 's' -> "ₛ"; 'p' -> "ₚ"; 'm' -> "ₘ"; 'l' -> "ₗ"
+        'i' -> "ᵢ"; 'j' -> "ⱼ"; 'k' -> "ₖ"; 'r' -> "ᵣ"; 'u' -> "ᵤ"
+        'v' -> "ᵥ"; 'b' -> "ᵦ"; 'g' -> "ᵧ"; 'h' -> "ₕ"
+        else -> c.toString()
+    }
+
     fun friendlyName(id: String): String = when {
+        id.startsWith("l_") && id.length == 3 -> "l" + subscriptOf(id[2])
         id == "th" -> "θ"
         id == "mu1" -> "μ"
         id == "delta" -> "Δ"

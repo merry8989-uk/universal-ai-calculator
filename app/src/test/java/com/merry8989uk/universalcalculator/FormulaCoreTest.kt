@@ -251,6 +251,43 @@ class FormulaCoreTest {
         assertTrue("nCr(2,5) was allowed", refused)
     }
 
+    @Test fun aNameIsNotSplitIntoAProduct() {
+        // det, rank and Var read as products are not smaller answers, they are
+        // confident wrong ones: det(AB) is not d times e times t times AB.
+        assertEquals("det(AB)", FormulaNormaliser.normalise("det(AB)"))
+        assertEquals("rank(A)", FormulaNormaliser.normalise("rank(A)"))
+        assertEquals("Var(X)", FormulaNormaliser.normalise("Var(X)"))
+        // and a two-letter capital name is a name too
+        assertEquals("PV", FormulaNormaliser.normalise("PV"))
+    }
+
+    @Test fun aLowercasePairIsStillAProduct() {
+        // ab is a times b; only names of three letters or capitals are names
+        assertEquals("a*b", FormulaNormaliser.normalise("ab"))
+        assertEquals("2*a*b", FormulaNormaliser.normalise("2ab"))
+    }
+
+    @Test fun aSubscriptedLetterStaysOneVariable() {
+        // lₐ is one variable. Read as l times a it is a different formula.
+        val out = FormulaNormaliser.normalise("lₐ")!!
+        assertEquals("l_a", out)
+        assertEquals("lₐ", FormulaNormaliser.friendlyName(out))
+    }
+
+    @Test fun aTransposeIsNotAPower() {
+        // (Aᵀ)ᵀ = A is true of matrices and false of numbers
+        val d = FormulaClassifier.classify("Matrices", "Double transpose", "(Aᵀ)ᵀ = A")
+        assertTrue(
+            "a transpose was treated as a power: ${d.type}",
+            d.type == FormulaType.SOLVER || d.type == FormulaType.REFERENCE_ONLY,
+        )
+    }
+
+    @Test fun aReciprocalIsStillAPower() {
+        // x⁻¹ is an ordinary reciprocal and must stay calculable
+        assertTrue(FormulaNormaliser.containsStructure("x⁻¹ = 1/x") == null)
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",
