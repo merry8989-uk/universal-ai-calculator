@@ -64,11 +64,12 @@ object FormulaNormaliser {
         "acot", "asec", "acsc", "sinh", "cosh", "tanh", "coth", "sech", "csch",
         "asinh", "acosh", "atanh", "sqrt", "cbrt", "log", "ln", "abs", "exp",
         "floor", "ceil", "round", "max", "min", "pow", "sign", "sinc", "atan2",
+        // combinations and permutations: real evaluator functions
+        "ncr", "npr",
     )
 
     /** Names that stay whole: functions, constants and the Greek stand-ins. */
     private val KNOWN_NAMES: Set<String> = FUNCTIONS + setOf(
-        "ncr", "npr",
         "pi", "e", "th", "mu1", "ps", "delta", "sigma", "phi", "omega",
         "lambda", "pi2", "gamma", "theta2",
         // The single-letter Greek stand-ins. Without these the tokeniser splits
