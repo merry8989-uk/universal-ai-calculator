@@ -282,22 +282,22 @@ object FormulaNormaliser {
         // the tokeniser reads "acos" out of "AcosB" and the whole identity is
         // nonsense.
         val fixed = ArrayList<String>(tokens.size + 4)
-        var i = 0
-        while (i < tokens.size) {
-            val token = tokens[i]
-            if (isFunction(token) && i + 1 < tokens.size && tokens[i + 1] != "(") {
-                val argument = tokens[i + 1]
+        var at = 0
+        while (at < tokens.size) {
+            val token = tokens[at]
+            if (isFunction(token) && at + 1 < tokens.size && tokens[at + 1] != "(") {
+                val argument = tokens[at + 1]
                 val isValue = argument.first().isLetterOrDigit() || argument == "("
                 if (isValue) {
                     fixed.add(token + "(")
                     fixed.add(argument)
                     fixed.add(")")
-                    i += 2
+                    at += 2
                     continue
                 }
             }
             fixed.add(token)
-            i++
+            at++
         }
 
         val out = StringBuilder(s.length + 8)
