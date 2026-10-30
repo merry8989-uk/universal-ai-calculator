@@ -395,8 +395,10 @@ object FormulaNormaliser {
                         continue
                     }
 
-                    // A function name only counts in lower case.
-                    val known = (FUNCTIONS + SYMBOLIC_NAMES)
+                    // A function name only counts in lower case. KNOWN_NAMES is
+                    // in here too, because the stand-ins for the Greek letters
+                    // are names as well: without it θ is read as t times h.
+                    val known = (KNOWN_NAMES + SYMBOLIC_NAMES)
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
