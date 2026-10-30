@@ -104,16 +104,32 @@ class MotionTest {
         assertTrue("the button is no longer a circle", circle.contains("clip(CircleShape)"))
     }
 
-    @Test fun theSparksTravelOutwardPastTheRim() {
+    @Test fun theSparksRiseUpwardLikeFire() {
         val text = magic() ?: return
-        // a spark that starts and ends inside the circle would never be seen leaving
-        val distance = Regex("edge \\* \\(([0-9.]+)f \\+ ([0-9.]+)f \\* phase\\)")
-            .find(text)?.groupValues
-        assertTrue("the spark distance is not in the form this test expects", distance != null)
-        val start = distance!![1].toFloat()
-        val travel = distance[2].toFloat()
-        assertTrue("the spark starts outside the button", start <= 0.9f)
-        assertTrue("the spark never leaves the button", start + travel > 1.3f)
+        val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// The button itself")
+        // the vertical position must decrease as the phase grows: y = start - rise * phase
+        assertTrue("the sparks do not climb", body.contains("- rise * phase"))
+        assertTrue("there is no rise to climb", body.contains("val rise ="))
+        // and they must not be placed round a circle any more
+        assertTrue("the sparks are still sprayed in every direction", !body.contains("sin(angle)"))
+    }
+
+    @Test fun theSparksAreNotEvenlySpaced() {
+        // Evenly spaced sparks sit at the same set of positions in every frame, so
+        // the button reads as a still picture of sparks. This is the bug that made
+        // the first version look frozen.
+        val text = magic() ?: return
+        val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// The button itself")
+        assertTrue("the phase is still shared out evenly", !body.contains("i.toFloat() / SPARKS"))
+        assertTrue("no per-spark starting point", body.contains("wobble(i, 2)"))
+        assertTrue("no per-spark speed", body.contains("wobble(i, 3)"))
+    }
+
+    @Test fun theWobbleIsStableBetweenFrames() {
+        // a value that re-rolled every frame would make each spark jitter in place
+        val text = magic() ?: return
+        assertTrue("no stable pseudo-random", text.contains("private fun wobble("))
+        assertTrue("the wobble is not deterministic", !text.contains("kotlin.random.Random"))
     }
 
     @Test fun thereAreEnoughSparksToReadAsSparkling() {
