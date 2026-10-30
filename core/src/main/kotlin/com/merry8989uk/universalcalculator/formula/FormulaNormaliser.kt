@@ -55,12 +55,6 @@ object FormulaNormaliser {
         'Λ' to "lambda", 'Π' to "pi2", 'Γ' to "gamma", 'Θ' to "theta2",
     )
 
-    /** Names that stay whole: functions, constants and the Greek stand-ins. */
-    private val KNOWN_NAMES: Set<String> = FUNCTIONS + setOf(
-        "pi", "e", "th", "mu1", "ps", "delta", "sigma", "phi", "omega",
-        "lambda", "pi2", "gamma", "theta2",
-    )
-
     /** Names the evaluator knows. Everything else followed by ( is a product. */
     private val FUNCTIONS = setOf(
         "sin", "cos", "tan", "csc", "sec", "cot", "asin", "acos", "atan",
@@ -68,6 +62,13 @@ object FormulaNormaliser {
         "asinh", "acosh", "atanh", "sqrt", "cbrt", "log", "ln", "abs", "exp",
         "floor", "ceil", "round", "max", "min", "pow", "sign", "sinc", "atan2",
     )
+
+    /** Names that stay whole: functions, constants and the Greek stand-ins. */
+    private val KNOWN_NAMES: Set<String> = FUNCTIONS + setOf(
+        "pi", "e", "th", "mu1", "ps", "delta", "sigma", "phi", "omega",
+        "lambda", "pi2", "gamma", "theta2",
+    )
+
 
     /**
      * Anything that means the formula is not a plain calculation.
