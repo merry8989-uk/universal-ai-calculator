@@ -45,6 +45,24 @@ object FormulaClassifier {
         }
     }
 
+    /**
+     * Where the equals sign that divides the two sides is.
+     *
+     * Returns -1 when there is none at the top level, and the caller treats that
+     * as a formula that cannot be split.
+     */
+    fun topLevelEquals(printed: String): Int {
+        var depth = 0
+        for ((index, c) in printed.withIndex()) {
+            when (c) {
+                '(', '[', '{' -> depth++
+                ')', ']', '}' -> depth--
+                '=' -> if (depth == 0) return index
+            }
+        }
+        return -1
+    }
+
     /** Which outcome is more useful to the reader. */
     private fun rank(type: FormulaType): Int = when (type) {
         FormulaType.DIRECT_CALCULATOR -> 5
@@ -108,8 +126,8 @@ object FormulaClassifier {
             inputs = emptyList(), output = output, reason = reason,
         )
 
-        if (!printed.contains('=')) {
-            return reference("no equals sign, so there is nothing to compute")
+        if (topLevelEquals(printed) < 0) {
+            return reference("no equals sign outside a bracket, so there is nothing to compute")
         }
 
         FormulaNormaliser.containsStructure(printed)?.let {
@@ -121,8 +139,12 @@ object FormulaClassifier {
             )
         }
 
-        val lhsPrinted = printed.substringBefore('=').trim()
-        val rhsPrinted = printed.substringAfter('=').trim()
+        // The equals sign that divides the two sides, not one inside a bracket.
+        // P(X = k) = ... has two, and splitting on the first makes the left side
+        // "P(X " — which is why the whole probability section would not run.
+        val split = topLevelEquals(printed)
+        val lhsPrinted = printed.substring(0, split).trim()
+        val rhsPrinted = printed.substring(split + 1).trim()
         if (lhsPrinted.isEmpty() || rhsPrinted.isEmpty()) {
             return reference("one side of the equals sign is empty")
         }
@@ -137,7 +159,7 @@ object FormulaClassifier {
 
         // ---- one variable on the left: this is a calculator ----
         if (SINGLE_VARIABLE.matches(lhs) && lhs !in rhsVars && rhsVars.isNotEmpty()) {
-            val problem = prove(rhs, rhsVars)
+            val problem = prove(rhs, rhsVars)?.let { "$it — read as [$rhs]" }
             if (problem == null) {
                 return FormulaDefinition(
                     id = id, title = title, category = category,
@@ -211,12 +233,12 @@ object FormulaClassifier {
             val a = try {
                 Evaluator.evaluate(lhs, vars = vars)
             } catch (e: Exception) {
-                return "the left side did not evaluate"
+                return "the left side did not evaluate, read as [$lhs]"
             }
             val b = try {
                 Evaluator.evaluate(rhs, vars = vars)
             } catch (e: Exception) {
-                return "the right side did not evaluate"
+                return "the right side did not evaluate, read as [$rhs]"
             }
             if (a.isNaN() || b.isNaN()) return "one side gave no number"
             val scale = maxOf(1.0, kotlin.math.abs(a), kotlin.math.abs(b))

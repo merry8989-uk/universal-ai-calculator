@@ -131,13 +131,17 @@ object FormulaCalculator {
         request: CalculationRequest,
     ): CalculationResult {
         // the part being checked, when the entry holds several formulas
-        val parts = (definition.part ?: definition.printed).split('=', limit = 2)
-        if (parts.size != 2) {
+        val text = definition.part ?: definition.printed
+        // the equals sign between the sides, not one inside a bracket
+        val at = FormulaClassifier.topLevelEquals(text)
+        if (at < 0) {
             return CalculationResult.failed(definition.id, "This formula has no two sides.")
         }
-        val lhs = FormulaNormaliser.normalise(parts[0])
+        val lhsText = text.substring(0, at)
+        val rhsText = text.substring(at + 1)
+        val lhs = FormulaNormaliser.normalise(lhsText)
             ?: return CalculationResult.failed(definition.id, "The left side could not be read.")
-        val rhs = FormulaNormaliser.normalise(parts[1])
+        val rhs = FormulaNormaliser.normalise(rhsText)
             ?: return CalculationResult.failed(definition.id, "The right side could not be read.")
 
         val vars = request.inputs.mapKeys { it.key.lowercase() }
@@ -155,8 +159,8 @@ object FormulaCalculator {
         val holds = kotlin.math.abs(a - b) / scale < 1e-6
 
         val steps = listOf(
-            CalculationStep("Left side", parts[0].trim(), number(a)),
-            CalculationStep("Right side", parts[1].trim(), number(b)),
+            CalculationStep("Left side", lhsText.trim(), number(a)),
+            CalculationStep("Right side", rhsText.trim(), number(b)),
         )
 
         return CalculationResult(

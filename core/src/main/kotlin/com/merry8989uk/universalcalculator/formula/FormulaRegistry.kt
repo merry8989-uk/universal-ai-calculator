@@ -138,6 +138,17 @@ object FormulaRegistry {
                 }
                 if (wrong.size > 40) append("  ... and ").append(wrong.size - 40).append(" more\n")
             }
+            val unreadable = review.filter {
+                it.reason.contains("did not evaluate") || it.reason.contains("does not evaluate")
+            }
+            if (unreadable.isNotEmpty()) {
+                append('\n').append("Not understood (").append(unreadable.size).append("):\n")
+                for (d in unreadable.take(40)) {
+                    append("  ").append(d.title).append(" — ")
+                        .append(d.reason.substringAfter("evaluate").take(150)).append('\n')
+                }
+                if (unreadable.size > 40) append("  ... and ").append(unreadable.size - 40).append(" more\n")
+            }
             append('\n').append("A sample:\n")
             for (d in review.take(12)) {
                 append("  ").append(d.title).append(" — ").append(d.reason).append('\n')

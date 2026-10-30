@@ -315,6 +315,22 @@ class FormulaCoreTest {
         assertTrue(FormulaNormaliser.containsStructure("x⁻¹ = 1/x") == null)
     }
 
+    @Test fun anEqualsInsideABracketDoesNotDivideTheSides() {
+        // P(X = k) = ... has two equals signs and only the second one divides the
+        // sides. Splitting on the first makes the left side "P(X ", which is why
+        // the whole probability section would not run.
+        val at = FormulaClassifier.topLevelEquals("P(X = k) = λ^k e^(-λ) / k!")
+        assertEquals("P(X = k) ", "P(X = k) = λ^k e^(-λ) / k!".substring(0, at))
+    }
+
+    @Test fun aProbabilityFormulaIsReadable() {
+        val d = FormulaClassifier.classify("Probability", "Poisson", "P(X = k) = λ^k e^(−λ) / k!")
+        assertTrue(
+            "the equals sign inside the bracket is still dividing the sides: ${d.reason}",
+            d.type != FormulaType.NEEDS_REVIEW || !d.reason.contains("could not be read"),
+        )
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",
