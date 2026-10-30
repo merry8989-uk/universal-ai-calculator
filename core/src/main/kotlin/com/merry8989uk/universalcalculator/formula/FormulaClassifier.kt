@@ -64,7 +64,7 @@ object FormulaClassifier {
                 return FormulaDefinition(
                     id = id, title = title, category = category, printed = printed,
                     expression = rhs, target = lhs, type = FormulaType.DIRECT_CALCULATOR,
-                    inputs = rhsVars.map { inputFor(it) },
+                    inputs = rhsVars.mapIndexed { index, name -> inputFor(name, index) },
                     output = OutputSpec(label = FormulaNormaliser.friendlyName(lhs), precision = 8),
                     reason = "solves for ${FormulaNormaliser.friendlyName(lhs)} and evaluates",
                 )
@@ -85,7 +85,7 @@ object FormulaClassifier {
                 return FormulaDefinition(
                     id = id, title = title, category = category, printed = printed,
                     expression = null, target = null, type = FormulaType.CHECKER,
-                    inputs = all.map { inputFor(it) },
+                    inputs = all.mapIndexed { index, name -> inputFor(name, index) },
                     output = OutputSpec(label = "Both sides"),
                     reason = "an identity: both sides agree for the values tried",
                 )
@@ -139,10 +139,17 @@ object FormulaClassifier {
         return null
     }
 
-    private fun inputFor(variable: String) = InputSpec(
+    /**
+     * A starting value for an input.
+     *
+     * Different for each variable on purpose. Filling every box with 1 makes a
+     * whole class of formula collapse: (i-1)/(n-1) is 0/0 when both are 1, and
+     * that says nothing about whether the formula works.
+     */
+    private fun inputFor(variable: String, index: Int) = InputSpec(
         id = variable,
         label = FormulaNormaliser.friendlyName(variable),
-        sample = 1.0,
+        sample = 2.0 + index,
     )
 
     /**

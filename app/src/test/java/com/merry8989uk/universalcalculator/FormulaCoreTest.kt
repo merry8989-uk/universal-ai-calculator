@@ -80,19 +80,36 @@ class FormulaCoreTest {
         val calculators = FormulaRegistry.calculators(definitions)
         assertTrue("no formula became a calculator at all", calculators.size >= 100)
 
+        // Two sets of values. One formula may legitimately fail for one set —
+        // (i-1)/(n-1) is 0/0 when both are 1 — so the claim being tested is that
+        // the formula calculates for reasonable inputs, not for every input.
+        val sets = listOf(
+            { d: FormulaDefinition -> d.inputs.associate { it.id to it.sample } },
+            { d: FormulaDefinition -> d.inputs.mapIndexed { i, spec -> spec.id to (3.5 + i) }.toMap() },
+        )
         val broken = ArrayList<String>()
         for (d in calculators) {
-            val inputs = d.inputs.associate { it.id to it.sample }
-            val result = FormulaCalculator.calculate(d, CalculationRequest(d.id, inputs))
-            if (!result.success) {
-                broken.add("${d.title}: ${result.error}")
-                continue
+            var lastError = "no input set worked"
+            var worked = false
+            for (set in sets) {
+                val result = FormulaCalculator.calculate(d, CalculationRequest(d.id, set(d)))
+                if (!result.success) {
+                    lastError = result.error ?: "failed"
+                    continue
+                }
+                val value = result.approximateValue
+                if (value == null || value.isNaN() || value.isInfinite()) {
+                    lastError = "gave no usable number"
+                    continue
+                }
+                if (result.steps.isEmpty()) {
+                    lastError = "no working shown"
+                    continue
+                }
+                worked = true
+                break
             }
-            val value = result.approximateValue
-            if (value == null || value.isNaN() || value.isInfinite()) {
-                broken.add("${d.title}: gave no usable number")
-            }
-            if (result.steps.isEmpty()) broken.add("${d.title}: no working shown")
+            if (!worked) broken.add("${d.title}: $lastError")
         }
         assertTrue("these calculators do not calculate:\n" + broken.take(12).joinToString("\n"),
             broken.isEmpty())
