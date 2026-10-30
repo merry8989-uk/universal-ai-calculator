@@ -130,7 +130,7 @@ object FormulaNormaliser {
         // A logarithm with its base written underneath is rewritten before
         // anything else, because the subscript is part of the function name and
         // would otherwise be read as a variable multiplied in.
-        val source = rewriteLogBases(printed)
+        val source = rewriteCombinations(rewriteLogBases(printed))
         val out = StringBuilder(source.length)
         var i = 0
         while (i < source.length) {
@@ -190,6 +190,21 @@ object FormulaNormaliser {
         return s
     }
 
+    /** nCr and nPr, with one letter on each side. */
+    private val COMBINATION = Regex("([A-Za-z0-9])C([A-Za-z0-9])")
+    private val PERMUTATION = Regex("([A-Za-z0-9])P([A-Za-z0-9])")
+
+    /**
+     * Rewrites nCr as ncr(n,r).
+     *
+     * This has to happen before the reader runs, because nCr is three letters in
+     * a row and would otherwise be taken as one name — which is at least not a
+     * product, but is still not a combination.
+     */
+    fun rewriteCombinations(text: String): String =
+        COMBINATION.replace(text) { m -> "ncr(" + m.groupValues[1] + "," + m.groupValues[2] + ")" }
+            .let { PERMUTATION.replace(it) { m -> "npr(" + m.groupValues[1] + "," + m.groupValues[2] + ")" } }
+
     /** A logarithm with its base written as a subscript. */
     private val LOG_BASE = Regex("log([\u2080-\u2089\u2090-\u209C]+)")
 
@@ -207,7 +222,12 @@ object FormulaNormaliser {
         var last = 0
         for (match in LOG_BASE.findAll(text)) {
             out.append(text, last, match.range.first)
-            val base = match.groupValues[1].mapNotNull { SUBSCRIPTS[it] }.joinToString("")
+            // the underscore marks a subscripted variable name; a base is a
+            // plain name, so it is stripped here
+            val base = match.groupValues[1]
+                .mapNotNull { SUBSCRIPTS[it] }
+                .joinToString("")
+                .replace("_", "")
             var i = match.range.last + 1
             val argument: String
             if (i < text.length && text[i] == '(') {
@@ -370,30 +390,6 @@ object FormulaNormaliser {
                 }
             }
         }
-        // nCr and nPr, written the way a book writes them: a capital C or P
-        // between two values is a combination or a permutation, not a product.
-        val counted = ArrayList<String>(tokens.size)
-        var c = 0
-        while (c < tokens.size) {
-            if (c + 2 < tokens.size &&
-                (tokens[c + 1] == "C" || tokens[c + 1] == "P") &&
-                tokens[c].first().isLetterOrDigit() &&
-                tokens[c + 2].first().isLetterOrDigit()
-            ) {
-                counted.add(if (tokens[c + 1] == "C") "ncr(" else "npr(")
-                counted.add(tokens[c])
-                counted.add(",")
-                counted.add(tokens[c + 2])
-                counted.add(")")
-                c += 3
-                continue
-            }
-            counted.add(tokens[c])
-            c++
-        }
-        tokens.clear()
-        tokens.addAll(counted)
-
         // A function written without brackets takes the next single token as its
         // argument: a book writes sinA cosB, meaning sin(A)·cos(B). Without this
         // the tokeniser reads "acos" out of "AcosB" and the whole identity is
