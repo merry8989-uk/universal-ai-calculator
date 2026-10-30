@@ -8,7 +8,6 @@ import com.merry8989uk.universalcalculator.formula.FormulaNormaliser
 import com.merry8989uk.universalcalculator.formula.FormulaRegistry
 import com.merry8989uk.universalcalculator.formula.FormulaType
 import com.merry8989uk.universalcalculator.formula.RawFormula
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -36,13 +35,7 @@ class FormulaCoreTest {
         val f = file("app/src/main/assets/formulas.json")
             ?: file("src/main/assets/formulas.json")
             ?: return emptyList()
-        val arr = JSONObject(f.readText()).getJSONArray("formulas")
-        val out = ArrayList<RawFormula>(arr.length())
-        for (i in 0 until arr.length()) {
-            val o = arr.getJSONObject(i)
-            out.add(RawFormula(o.getString("c"), o.getString("t"), o.getString("f")))
-        }
-        return out
+        return MiniJson.readFormulas(f.readText())
     }
 
     // ---- the data ----

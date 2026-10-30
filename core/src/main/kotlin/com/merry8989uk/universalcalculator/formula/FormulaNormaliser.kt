@@ -55,6 +55,12 @@ object FormulaNormaliser {
         'Λ' to "lambda", 'Π' to "pi2", 'Γ' to "gamma", 'Θ' to "theta2",
     )
 
+    /** Names that stay whole: functions, constants and the Greek stand-ins. */
+    private val KNOWN_NAMES: Set<String> = FUNCTIONS + setOf(
+        "pi", "e", "th", "mu1", "ps", "delta", "sigma", "phi", "omega",
+        "lambda", "pi2", "gamma", "theta2",
+    )
+
     /** Names the evaluator knows. Everything else followed by ( is a product. */
     private val FUNCTIONS = setOf(
         "sin", "cos", "tan", "csc", "sec", "cot", "asin", "acos", "atan",
@@ -199,30 +205,54 @@ object FormulaNormaliser {
      * Puts the multiplication signs back in.
      *
      * `(a-b)(a+b)` and `2ab` are how a book writes a product; the evaluator wants
-     * `(a-b)*(a+b)` and `2*a*b`.
+     * `(a-b)*(a+b)` and `2*a*b`. The expression is first cut into tokens, because
+     * `ab` is a times b while `sin` is one name — splitting by character would
+     * turn every function into a product.
      */
     fun insertImplicitProducts(s: String): String {
-        val out = StringBuilder(s.length + 8)
-        for (i in s.indices) {
+        val tokens = ArrayList<String>(s.length)
+        var i = 0
+        while (i < s.length) {
             val c = s[i]
-            if (i > 0) {
-                val p = s[i - 1]
-                val needsProduct = when {
-                    // )( and )2 and )a
-                    p == ')' && (c == '(' || c.isLetterOrDigit()) -> true
-                    // 2a, 2(  — but not 2.5 or 1e3
-                    p.isDigit() && (c.isLetter() || c == '(') -> true
-                    else -> false
+            when {
+                c.isLetter() -> {
+                    val rest = s.substring(i).lowercase()
+                    val known = KNOWN_NAMES.filter { rest.startsWith(it) }.maxByOrNull { it.length }
+                    if (known != null) {
+                        tokens.add(s.substring(i, i + known.length))
+                        i += known.length
+                    } else {
+                        tokens.add(c.toString())
+                        i++
+                    }
                 }
-                if (needsProduct) {
-                    // a function name followed by ( is a call, not a product
-                    val word = out.takeLastWhile { it.isLetterOrDigit() }.toString()
-                    if (!(c == '(' && isFunction(word))) out.append('*')
+                c.isDigit() || c == '.' -> {
+                    val start = i
+                    while (i < s.length && (s[i].isDigit() || s[i] == '.')) i++
+                    tokens.add(s.substring(start, i))
+                }
+                else -> {
+                    tokens.add(c.toString())
+                    i++
                 }
             }
-            out.append(c)
+        }
+        val out = StringBuilder(s.length + 8)
+        for (index in tokens.indices) {
+            if (index > 0 && needsProduct(tokens[index - 1], tokens[index])) out.append('*')
+            out.append(tokens[index])
         }
         return out.toString()
+    }
+
+    /** True when two tokens next to each other are a product rather than a call. */
+    private fun needsProduct(previous: String, next: String): Boolean {
+        val leftIsValue = previous.last().isLetterOrDigit() || previous == ")"
+        val rightIsValue = next.first().isLetterOrDigit() || next == "("
+        if (!leftIsValue || !rightIsValue) return false
+        // a name followed by a bracket is a function call, not a product
+        if (next == "(" && isFunction(previous)) return false
+        return true
     }
 
     /** The variables an expression needs, ignoring function and constant names. */
