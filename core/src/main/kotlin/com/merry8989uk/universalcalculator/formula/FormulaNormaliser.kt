@@ -366,15 +366,15 @@ object FormulaNormaliser {
             val c = s[i]
             when {
                 c.isLetter() -> {
-                    val rest = s.substring(i)
-                    val lower = rest.lowercase()
-
-                    // A capital is a variable of its own. The books write
-                    // "sin A cos B" for sin(A)·cos(B), and if a function name is
-                    // allowed to start at a capital the reader takes "Acos" out
-                    // of the middle and the identity becomes nonsense.
+                    // A capital is a variable of its own, and a function name is
+                    // never allowed to start at one. The books write
+                    // "sin A cos B" for sin(A)·cos(B); without this the reader
+                    // takes "Acos" out of the middle and every addition formula
+                    // in trigonometry becomes nonsense.
                     if (c.isUpperCase()) {
-                        // ...unless it is a name a book always writes in capitals
+                        val rest = s.substring(i)
+                        val lower = rest.lowercase()
+                        // ...unless the book always writes this name in capitals
                         val symbolic = SYMBOLIC_NAMES
                             .filter { lower.startsWith(it) && it.length > 1 }
                             .maxByOrNull { it.length }
@@ -383,43 +383,38 @@ object FormulaNormaliser {
                             i += symbolic.length
                             continue
                         }
-                        // a run of capitals is a name: PV, FV, EAR, AB
+                        // a run of capitals is one name: PV, FV, EAR, AB
                         val start = i
                         while (i < s.length && s[i].isUpperCase()) i++
-                        val run = s.substring(start, i)
-                        if (run.length >= 2) {
-                            tokens.add(run)
-                        } else {
-                            tokens.add(run)
-                        }
+                        tokens.add(s.substring(start, i))
                         continue
                     }
 
-                    // A function name only counts in lower case. KNOWN_NAMES is
-                    // in here too, because the stand-ins for the Greek letters
-                    // are names as well: without it θ is read as t times h.
+                    val start = i
+                    while (i < s.length && (s[i].isLetter() || s[i].isDigit() || s[i] == '_')) i++
+                    val run = s.substring(start, i)
+                    val lower = run.lowercase()
+
+                    // a name the reader knows always wins, so sinth is sin(th)
                     val known = (KNOWN_NAMES + SYMBOLIC_NAMES)
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
-                        tokens.add(rest.substring(0, known.length))
-                        i += known.length
+                        tokens.add(run.substring(0, known.length))
+                        i = start + known.length
                         continue
                     }
 
-                    // A subscripted or numbered name is one variable: l_a, a1, a2.
-                    val start = i
-                    while (i < s.length && (s[i].isLetter() || s[i].isDigit() || s[i] == '_')) i++
-                    val run = s.substring(start, i)
+                    // Otherwise a long run is a name — det, rank, nullity — and a
+                    // short one is a product of letters. A name carrying a
+                    // subscript or a number is one variable: l_a, a1, a2.
                     val hasSubscript = run.contains('_')
                     val hasDigit = run.any { it.isDigit() }
-                    if (run.length >= 2 && (hasSubscript || hasDigit)) {
+                    if (run.length >= 3 || hasSubscript || hasDigit) {
                         tokens.add(run)
                         continue
                     }
-                    // everything else is a product of single letters: abc is a·b·c
-                    tokens.add(c.toString())
-                    i = start + 1
+                    for (ch in run) tokens.add(ch.toString())
                 }
                 c.isDigit() || c == '.' -> {
                     val start = i

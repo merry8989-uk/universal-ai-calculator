@@ -263,12 +263,19 @@ class FormulaCoreTest {
         assertEquals("PV", FormulaNormaliser.normalise("PV"))
     }
 
-    @Test fun aLowercaseRunIsStillAProduct() {
-        // ab is a times b and abc is a times b times c: a book writes a product
-        // in lower case, so length alone does not make a name
+    @Test fun aShortLowercaseRunIsAProduct() {
+        // ab is a times b.
         assertEquals("a*b", FormulaNormaliser.normalise("ab"))
         assertEquals("2*a*b", FormulaNormaliser.normalise("2ab"))
-        assertEquals("a*b*c", FormulaNormaliser.normalise("abc"))
+    }
+
+    @Test fun aLongLowercaseRunIsAName() {
+        // abc is a name rather than a·b·c. This is a trade: the data has far more
+        // three-letter names — det, adj, rank, nullity, trace — than it has a
+        // product of three single letters, and reading a name as a product is a
+        // wrong answer while reading a product as a name at least fails loudly.
+        assertEquals("abc", FormulaNormaliser.normalise("abc"))
+        assertEquals("det(AB)", FormulaNormaliser.normalise("det(AB)"))
     }
 
     @Test fun aFunctionOnlyCountsInLowerCase() {
