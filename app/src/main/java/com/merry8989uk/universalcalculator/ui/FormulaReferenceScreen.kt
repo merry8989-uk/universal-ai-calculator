@@ -35,7 +35,7 @@ import com.merry8989uk.universalcalculator.formula.CalculationResult
 import com.merry8989uk.universalcalculator.formula.FormulaCalculator
 import com.merry8989uk.universalcalculator.formula.FormulaDefinition
 import com.merry8989uk.universalcalculator.formula.FormulaType
-import com.merry8989uk.universalcalculator.formula.RawFormula
+import com.merry8989uk.universalcalculator.data.RefFormula
 
 /**
  * The formula reference, with a working calculator on every formula that has one.
@@ -117,7 +117,7 @@ private fun FormulaDefinition.isReady(): Boolean =
     type == FormulaType.DIRECT_CALCULATOR || type == FormulaType.CHECKER
 
 @Composable
-private fun FormulaCard(f: RawFormula, definition: FormulaDefinition?) {
+private fun FormulaCard(f: RefFormula, definition: FormulaDefinition?) {
     var open by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<CalculationResult?>(null) }
     val typed = remember { mutableStateMapOf<String, String>() }
