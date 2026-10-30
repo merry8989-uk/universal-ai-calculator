@@ -295,6 +295,15 @@ class FormulaCoreTest {
         assertEquals("cos(p)", FormulaNormaliser.normalise("cosp"))
     }
 
+    @Test fun aWordThatMerelyContainsAFunctionIsNotSplit() {
+        // "distance" has tan inside it and "constant" has tan and an s. Looking
+        // for a name anywhere in a run turns those into arithmetic, which cost
+        // fourteen calculators the first time this rule was written.
+        assertEquals("distance", FormulaNormaliser.normalise("distance"))
+        assertEquals("constant", FormulaNormaliser.normalise("constant"))
+        assertEquals("resistance", FormulaNormaliser.normalise("resistance"))
+    }
+
     @Test fun aLongRunWithNoNameInItIsStillAName() {
         // the rule that finds a hidden name must not turn every word into letters
         assertEquals("nullity", FormulaNormaliser.normalise("nullity"))

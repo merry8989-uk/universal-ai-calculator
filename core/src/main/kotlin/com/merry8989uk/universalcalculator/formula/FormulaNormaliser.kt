@@ -416,16 +416,18 @@ object FormulaNormaliser {
                         continue
                     }
 
-                    // A name can be hiding inside the run. "isinp" is i times
-                    // sin(p) — the complex unit, the function, the angle — and
-                    // taken whole it is a variable that means nothing. Emit one
-                    // character and let the next pass find the name.
-                    val hidden = (1 until run.length).firstOrNull { at ->
-                        names.any { it.length >= 2 && lower.startsWith(it, at) }
-                    }
-                    if (hidden != null) {
-                        tokens.add(run.substring(0, hidden))
-                        i = start + hidden
+                    // A name can be hiding inside the run, but only one character
+                    // in: "isinp" is i times sin(p) — the complex unit, the
+                    // function, the angle — and taken whole it is a variable that
+                    // means nothing.
+                    //
+                    // One character, not any: "distance" has tan buried in it and
+                    // "constant" has tan and an s, and splitting those turns a
+                    // word into arithmetic. The narrow rule fixes the case that
+                    // exists without breaking the words that only look like it.
+                    if (run.length >= 3 && names.any { it.length >= 2 && lower.startsWith(it, 1) }) {
+                        tokens.add(run.substring(0, 1))
+                        i = start + 1
                         continue
                     }
 
