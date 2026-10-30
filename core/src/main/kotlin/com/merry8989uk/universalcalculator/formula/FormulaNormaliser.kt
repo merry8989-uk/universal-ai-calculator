@@ -109,7 +109,7 @@ object FormulaNormaliser {
      * outcome: the app says it cannot do this, rather than doing it badly.
      */
     private val SYMBOLIC_NAMES = setOf(
-        "det", "rank", "nullity", "adj", "trace", "var", "cov", "corr", "e",
+        "det", "rank", "nullity", "adj", "trace", "var", "cov", "corr",
         "arg", "mod", "deg", "lcm", "hcf", "gcd",
     )
 
@@ -194,6 +194,9 @@ object FormulaNormaliser {
     /** nCr and nPr, with one letter on each side. */
     private val COMBINATION = Regex("([A-Za-z0-9])C([A-Za-z0-9])")
     private val PERMUTATION = Regex("([A-Za-z0-9])P([A-Za-z0-9])")
+    /** nC(r − 1): the second argument written in brackets. */
+    private val COMBINATION_BRACKETED = Regex("([A-Za-z0-9])C\\(([^()]*)\\)")
+    private val PERMUTATION_BRACKETED = Regex("([A-Za-z0-9])P\\(([^()]*)\\)")
 
     /**
      * Rewrites nCr as ncr(n,r).
@@ -202,9 +205,22 @@ object FormulaNormaliser {
      * a row and would otherwise be taken as one name — which is at least not a
      * product, but is still not a combination.
      */
-    fun rewriteCombinations(text: String): String =
-        COMBINATION.replace(text) { m -> "ncr(" + m.groupValues[1] + "," + m.groupValues[2] + ")" }
-            .let { PERMUTATION.replace(it) { m -> "npr(" + m.groupValues[1] + "," + m.groupValues[2] + ")" } }
+    fun rewriteCombinations(text: String): String {
+        // the bracketed argument first, so nC(r − 1) is not mistaken for a
+        // one-letter argument followed by a stray bracket
+        var out = COMBINATION_BRACKETED.replace(text) { m ->
+            "ncr(" + m.groupValues[1] + "," + m.groupValues[2] + ")"
+        }
+        out = PERMUTATION_BRACKETED.replace(out) { m ->
+            "npr(" + m.groupValues[1] + "," + m.groupValues[2] + ")"
+        }
+        out = COMBINATION.replace(out) { m ->
+            "ncr(" + m.groupValues[1] + "," + m.groupValues[2] + ")"
+        }
+        return PERMUTATION.replace(out) { m ->
+            "npr(" + m.groupValues[1] + "," + m.groupValues[2] + ")"
+        }
+    }
 
     /** A logarithm with its base written as a subscript. */
     private val LOG_BASE = Regex("log([\u2080-\u2089\u2090-\u209C]+)")
@@ -350,35 +366,58 @@ object FormulaNormaliser {
             val c = s[i]
             when {
                 c.isLetter() -> {
-                    val start = i
-                    while (i < s.length && (s[i].isLetter() || s[i].isDigit() || s[i] == '_')) i++
-                    val run = s.substring(start, i)
-                    val lower = run.lowercase()
+                    val rest = s.substring(i)
+                    val lower = rest.lowercase()
 
-                    // a name the evaluator knows always wins, so sinA is sin(A)
-                    val known = KNOWN_NAMES
+                    // A capital is a variable of its own. The books write
+                    // "sin A cos B" for sin(A)·cos(B), and if a function name is
+                    // allowed to start at a capital the reader takes "Acos" out
+                    // of the middle and the identity becomes nonsense.
+                    if (c.isUpperCase()) {
+                        // ...unless it is a name a book always writes in capitals
+                        val symbolic = SYMBOLIC_NAMES
+                            .filter { lower.startsWith(it) && it.length > 1 }
+                            .maxByOrNull { it.length }
+                        if (symbolic != null) {
+                            tokens.add(rest.substring(0, symbolic.length))
+                            i += symbolic.length
+                            continue
+                        }
+                        // a run of capitals is a name: PV, FV, EAR, AB
+                        val start = i
+                        while (i < s.length && s[i].isUpperCase()) i++
+                        val run = s.substring(start, i)
+                        if (run.length >= 2) {
+                            tokens.add(run)
+                        } else {
+                            tokens.add(run)
+                        }
+                        continue
+                    }
+
+                    // A function name only counts in lower case.
+                    val known = (FUNCTIONS + SYMBOLIC_NAMES)
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
-                        tokens.add(run.substring(0, known.length))
-                        i = start + known.length
+                        tokens.add(rest.substring(0, known.length))
+                        i += known.length
                         continue
                     }
 
-                    // Otherwise: is this run a name or a product of letters?
-                    // det, rank, adj, nullity and Var are names, and read as
-                    // products they are nonsense. ab is a times b. The length,
-                    // the case and any subscript tell the two apart: a book
-                    // writes a product in lower case, and a two-letter finance
-                    // name in capitals.
-                    val allUpper = run.length >= 2 && run.all { it.isUpperCase() }
+                    // A subscripted or numbered name is one variable: l_a, a1, a2.
+                    val start = i
+                    while (i < s.length && (s[i].isLetter() || s[i].isDigit() || s[i] == '_')) i++
+                    val run = s.substring(start, i)
                     val hasSubscript = run.contains('_')
                     val hasDigit = run.any { it.isDigit() }
-                    if (run.length >= 3 || allUpper || hasSubscript || hasDigit) {
+                    if (run.length >= 2 && (hasSubscript || hasDigit)) {
                         tokens.add(run)
                         continue
                     }
-                    for (ch in run) tokens.add(ch.toString())
+                    // everything else is a product of single letters: abc is a·b·c
+                    tokens.add(c.toString())
+                    i = start + 1
                 }
                 c.isDigit() || c == '.' -> {
                     val start = i

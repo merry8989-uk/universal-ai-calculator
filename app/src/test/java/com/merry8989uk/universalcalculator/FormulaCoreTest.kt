@@ -233,6 +233,8 @@ class FormulaCoreTest {
         assertEquals("ncr(n,r)", FormulaNormaliser.normalise("nCr"))
         assertEquals("ncr(n,0)", FormulaNormaliser.normalise("nC0"))
         assertEquals("npr(n,r)", FormulaNormaliser.normalise("nPr"))
+        // and a bracketed second argument
+        assertEquals("ncr(n,r-1)", FormulaNormaliser.normalise("nC(r − 1)"))
     }
 
     @Test fun combinationsAreCountedCorrectly() {
@@ -261,10 +263,24 @@ class FormulaCoreTest {
         assertEquals("PV", FormulaNormaliser.normalise("PV"))
     }
 
-    @Test fun aLowercasePairIsStillAProduct() {
-        // ab is a times b; only names of three letters or capitals are names
+    @Test fun aLowercaseRunIsStillAProduct() {
+        // ab is a times b and abc is a times b times c: a book writes a product
+        // in lower case, so length alone does not make a name
         assertEquals("a*b", FormulaNormaliser.normalise("ab"))
         assertEquals("2*a*b", FormulaNormaliser.normalise("2ab"))
+        assertEquals("a*b*c", FormulaNormaliser.normalise("abc"))
+    }
+
+    @Test fun aFunctionOnlyCountsInLowerCase() {
+        // "sin A cos B" is sin(A) times cos(B). If a function name may start at
+        // a capital, the reader takes "Acos" out of the middle of it.
+        assertEquals("sin(A)*cos(B)", FormulaNormaliser.normalise("sin A cos B"))
+        assertEquals("cos(A)*cos(B)", FormulaNormaliser.normalise("cos A cos B"))
+    }
+
+    @Test fun aNameCanFollowALetter() {
+        // x ln a is x times ln(a), not x times l times n times a
+        assertEquals("x*ln(a)", FormulaNormaliser.normalise("x ln a"))
     }
 
     @Test fun aSubscriptedLetterStaysOneVariable() {
