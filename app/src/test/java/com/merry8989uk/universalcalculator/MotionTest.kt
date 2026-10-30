@@ -108,7 +108,8 @@ class MotionTest {
         val body = text.substringAfter("for (i in 0 until SPARKS)").substringBefore("// Sparks over")
         // y = from - climb * phase, so a growing phase is a falling y: upward
         assertTrue("the sparks do not climb", body.contains("- climb * phase"))
-        assertTrue("there is no climb", body.contains("val climb ="))
+        // the climb is worked out before the loop, not inside it
+        assertTrue("there is no climb", text.contains("val climb ="))
         assertTrue("the sparks are still sprayed in every direction", !body.contains("sin(angle)"))
     }
 
