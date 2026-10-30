@@ -129,7 +129,9 @@ class MotionTest {
         // a value that re-rolled every frame would make each spark jitter in place
         val text = magic() ?: return
         assertTrue("no stable pseudo-random", text.contains("private fun wobble("))
-        assertTrue("the wobble is not deterministic", !text.contains("kotlin.random.Random"))
+        // the comment above the helper names the class it avoids, so look for a
+        // call rather than the word
+        assertTrue("the wobble uses a random call", !text.contains("Random."))
     }
 
     @Test fun thereAreEnoughSparksToReadAsSparkling() {
