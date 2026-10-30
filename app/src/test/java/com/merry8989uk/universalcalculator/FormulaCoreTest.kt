@@ -285,13 +285,28 @@ class FormulaCoreTest {
         assertEquals("cos(A)*cos(B)", FormulaNormaliser.normalise("cos A cos B"))
     }
 
-    @Test fun aKnownLimitOfStrippingSpaces() {
-        // A known limit, written down rather than hidden: the reader strips the
-        // spaces before it tokenises, so "x ln a" arrives as "xlna" and there is
-        // nothing left to tell a product from a name. It is read as one name.
-        // Four letters with a function buried inside cannot be recovered without
-        // knowing where the words were, so this stays a limitation.
-        assertEquals("xlna", FormulaNormaliser.normalise("x ln a"))
+    @Test fun aNameHidingInsideARunIsFound() {
+        // The spaces are stripped before tokenising, so "x ln a" arrives as
+        // "xlna". It used to be one variable; a name can be found inside a run,
+        // so it is x times ln(a) now.
+        assertEquals("x*ln(a)", FormulaNormaliser.normalise("x ln a"))
+        // and the complex unit in r(cos p + i sin p)
+        assertEquals("i*sin(p)", FormulaNormaliser.normalise("isinp"))
+        assertEquals("cos(p)", FormulaNormaliser.normalise("cosp"))
+    }
+
+    @Test fun aLongRunWithNoNameInItIsStillAName() {
+        // the rule that finds a hidden name must not turn every word into letters
+        assertEquals("nullity", FormulaNormaliser.normalise("nullity"))
+        assertEquals("abc", FormulaNormaliser.normalise("abc"))
+    }
+
+    @Test fun anOperatorLetterTakesABracket() {
+        // E(X) is an expectation and f(x) is a function of x; neither is a product
+        assertEquals("E(X^2)", FormulaNormaliser.normalise("E(X²)"))
+        assertEquals("f(x)", FormulaNormaliser.normalise("f(x)"))
+        // but a plain letter before a bracket is still a multiplication
+        assertEquals("a*(b+c)", FormulaNormaliser.normalise("a(b + c)"))
     }
 
     @Test fun aSubscriptedLetterStaysOneVariable() {

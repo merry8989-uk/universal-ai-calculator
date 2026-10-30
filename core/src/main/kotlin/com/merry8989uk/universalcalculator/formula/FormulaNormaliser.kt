@@ -118,7 +118,17 @@ object FormulaNormaliser {
 
     /** True when a name is followed by a bracket, whether or not it runs. */
     fun takesBracket(name: String): Boolean =
-        name in FUNCTIONS || name.lowercase() in SYMBOLIC_NAMES
+        name in FUNCTIONS || name.lowercase() in SYMBOLIC_NAMES ||
+            name.lowercase() in OPERATOR_LETTERS
+
+    /**
+     * Single letters that are operations when a bracket follows them.
+     *
+     * E(X) is an expectation and f(x) is a function of x; neither is E times (X).
+     * The list is short on purpose — a(b + c) really is a multiplication, and
+     * treating every letter as a call would break the algebra.
+     */
+    private val OPERATOR_LETTERS = setOf("e", "v", "f", "g")
 
     /**
      * The expression, ready to evaluate, or null when it cannot be translated.
@@ -392,12 +402,26 @@ object FormulaNormaliser {
                     val lower = run.lowercase()
 
                     // a name the reader knows always wins, so sinth is sin(th)
-                    val known = KNOWN_NAMES
+                    val names = KNOWN_NAMES + SYMBOLIC_NAMES
+                    val known = names
                         .filter { lower.startsWith(it) }
                         .maxByOrNull { it.length }
                     if (known != null) {
                         tokens.add(run.substring(0, known.length))
                         i = start + known.length
+                        continue
+                    }
+
+                    // A name can be hiding inside the run. "isinp" is i times
+                    // sin(p) — the complex unit, the function, the angle — and
+                    // taken whole it is a variable that means nothing. Emit one
+                    // character and let the next pass find the name.
+                    val hidden = (1 until run.length).firstOrNull { at ->
+                        names.any { it.length >= 2 && lower.startsWith(it, at) }
+                    }
+                    if (hidden != null) {
+                        tokens.add(run.substring(0, hidden))
+                        i = start + hidden
                         continue
                     }
 
