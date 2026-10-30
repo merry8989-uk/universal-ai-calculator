@@ -130,7 +130,8 @@ object FormulaCalculator {
         definition: FormulaDefinition,
         request: CalculationRequest,
     ): CalculationResult {
-        val parts = definition.printed.split('=', limit = 2)
+        // the part being checked, when the entry holds several formulas
+        val parts = (definition.part ?: definition.printed).split('=', limit = 2)
         if (parts.size != 2) {
             return CalculationResult.failed(definition.id, "This formula has no two sides.")
         }

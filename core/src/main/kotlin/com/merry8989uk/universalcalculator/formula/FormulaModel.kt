@@ -66,6 +66,14 @@ data class FormulaDefinition(
     val inputs: List<InputSpec>,
     val output: OutputSpec,
     val validation: List<String> = emptyList(),
+    /**
+     * The single formula that is computed, when the entry holds several.
+     *
+     * A book often puts a whole topic on one line: "A = a², P = 4a, diagonal =
+     * a√2". [printed] is what the user reads; this is the part the calculator
+     * actually works out, and it is null when the entry holds only one formula.
+     */
+    val part: String? = null,
     /** Why it was classified this way, in words, for the audit. */
     val reason: String = "",
 )

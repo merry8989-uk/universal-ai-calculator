@@ -101,16 +101,20 @@ object FormulaNormaliser {
      * wrong answer.
      */
     fun normalise(printed: String): String? {
-        val out = StringBuilder(printed.length)
+        // A logarithm with its base written underneath is rewritten before
+        // anything else, because the subscript is part of the function name and
+        // would otherwise be read as a variable multiplied in.
+        val source = rewriteLogBases(printed)
+        val out = StringBuilder(source.length)
         var i = 0
-        while (i < printed.length) {
-            val c = printed[i]
+        while (i < source.length) {
+            val c = source[i]
             val sup = SUPERSCRIPTS[c]
             if (sup != null) {
                 // a run of raised characters becomes one power
                 val run = StringBuilder()
-                while (i < printed.length && SUPERSCRIPTS[printed[i]] != null) {
-                    run.append(SUPERSCRIPTS.getValue(printed[i]))
+                while (i < source.length && SUPERSCRIPTS[source[i]] != null) {
+                    run.append(SUPERSCRIPTS.getValue(source[i]))
                     i++
                 }
                 val power = run.toString()
@@ -158,6 +162,57 @@ object FormulaNormaliser {
         s = insertImplicitProducts(s)
         if (s.isBlank()) return null
         return s
+    }
+
+    /** A logarithm with its base written as a subscript. */
+    private val LOG_BASE = Regex("log([\u2080-\u2089\u2090-\u209C]+)")
+
+    /**
+     * Rewrites logₐx as ln(x)/ln(a).
+     *
+     * The evaluator's `log` is base ten and `ln` is natural, so a base written
+     * underneath has to be turned into a ratio of natural logarithms. Without
+     * this, logₐ(xy) is read as log(a) times xy, and every logarithm identity
+     * comes out wrong rather than failing loudly.
+     */
+    fun rewriteLogBases(text: String): String {
+        if (!LOG_BASE.containsMatchIn(text)) return text
+        val out = StringBuilder(text.length + 16)
+        var last = 0
+        for (match in LOG_BASE.findAll(text)) {
+            out.append(text, last, match.range.first)
+            val base = match.groupValues[1].mapNotNull { SUBSCRIPTS[it] }.joinToString("")
+            var i = match.range.last + 1
+            val argument: String
+            if (i < text.length && text[i] == '(') {
+                var depth = 0
+                val start = i
+                while (i < text.length) {
+                    if (text[i] == '(') depth++
+                    if (text[i] == ')') {
+                        depth--
+                        if (depth == 0) {
+                            i++
+                            break
+                        }
+                    }
+                    i++
+                }
+                argument = text.substring(start, i)
+            } else {
+                val start = i
+                while (i < text.length && (text[i].isLetterOrDigit() || text[i] == '√')) i++
+                argument = text.substring(start, i)
+            }
+            if (base.isEmpty() || argument.isEmpty()) {
+                out.append(text, match.range.first, match.range.last + 1)
+            } else {
+                out.append("(ln").append(argument).append("/ln(").append(base).append("))")
+            }
+            last = i
+        }
+        out.append(text, last, text.length)
+        return out.toString()
     }
 
     /**

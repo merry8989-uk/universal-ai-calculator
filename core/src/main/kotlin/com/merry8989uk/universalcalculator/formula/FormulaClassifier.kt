@@ -20,9 +20,87 @@ object FormulaClassifier {
     /** A plain identifier: one variable and nothing else. */
     private val SINGLE_VARIABLE = Regex("[A-Za-z][A-Za-z0-9]*")
 
+    /**
+     * Classifies an entry, which may hold more than one formula.
+     *
+     * 117 of the 1,413 entries put a whole topic on one line — "A = a², P = 4a,
+     * diagonal = a√2" — and reading that as one formula makes every one of them
+     * nonsense. Each part is classified on its own and the best one is used,
+     * while the full line is still what the user reads.
+     */
     fun classify(category: String, title: String, printed: String): FormulaDefinition {
+        val parts = splitParts(printed)
+        if (parts.size <= 1) return classifyOne(category, title, printed, null)
+
+        val ranked = parts
+            .map { classifyOne(category, title, it, printed) }
+            .sortedByDescending { rank(it.type) }
+        val best = ranked.first()
+        return if (best.type == FormulaType.DIRECT_CALCULATOR || best.type == FormulaType.CHECKER) {
+            best.copy(
+                reason = "of " + parts.size + " formulas on this line, this one works: " + best.reason,
+            )
+        } else {
+            classifyOne(category, title, printed, null)
+        }
+    }
+
+    /** Which outcome is more useful to the reader. */
+    private fun rank(type: FormulaType): Int = when (type) {
+        FormulaType.DIRECT_CALCULATOR -> 5
+        FormulaType.CHECKER -> 4
+        FormulaType.SOLVER -> 3
+        FormulaType.REFERENCE_ONLY -> 2
+        FormulaType.CONVERTER -> 1
+        FormulaType.NEEDS_REVIEW -> 0
+    }
+
+    /**
+     * Splits a line into its formulas.
+     *
+     * Only commas and semicolons outside brackets count — a comma inside a pair
+     * of brackets belongs to that expression, and splitting on it would cut a
+     * formula in half.
+     */
+    fun splitParts(printed: String): List<String> {
+        val parts = ArrayList<String>()
+        val current = StringBuilder()
+        var depth = 0
+        for (c in printed) {
+            when {
+                c == '(' || c == '[' || c == '{' -> {
+                    depth++
+                    current.append(c)
+                }
+                c == ')' || c == ']' || c == '}' -> {
+                    depth--
+                    current.append(c)
+                }
+                (c == ',' || c == ';') && depth == 0 -> {
+                    val piece = current.toString().trim()
+                    if (piece.isNotEmpty()) parts.add(piece)
+                    current.setLength(0)
+                }
+                else -> current.append(c)
+            }
+        }
+        val piece = current.toString().trim()
+        if (piece.isNotEmpty()) parts.add(piece)
+        return parts
+    }
+
+    private fun classifyOne(
+        category: String,
+        title: String,
+        printed: String,
+        whole: String?,
+    ): FormulaDefinition {
         val id = idFor(category, title)
         val output = OutputSpec(label = title, precision = 8)
+        // When the entry holds several formulas, the one being computed is kept
+        // so the working can show it and the checker can split it on the equals
+        // sign without picking up the rest of the line.
+        val part = if (whole != null && printed != whole) printed else null
 
         fun reference(reason: String) = FormulaDefinition(
             id = id, title = title, category = category, printed = printed,
@@ -62,10 +140,12 @@ object FormulaClassifier {
             val problem = prove(rhs, rhsVars)
             if (problem == null) {
                 return FormulaDefinition(
-                    id = id, title = title, category = category, printed = printed,
+                    id = id, title = title, category = category,
+                    printed = whole ?: printed,
                     expression = rhs, target = lhs, type = FormulaType.DIRECT_CALCULATOR,
                     inputs = rhsVars.mapIndexed { index, name -> inputFor(name, index) },
                     output = OutputSpec(label = FormulaNormaliser.friendlyName(lhs), precision = 8),
+                    part = part,
                     reason = "solves for ${FormulaNormaliser.friendlyName(lhs)} and evaluates",
                 )
             }
@@ -83,10 +163,12 @@ object FormulaClassifier {
             val problem = proveIdentity(lhs, rhs, all)
             if (problem == null) {
                 return FormulaDefinition(
-                    id = id, title = title, category = category, printed = printed,
+                    id = id, title = title, category = category,
+                    printed = whole ?: printed,
                     expression = null, target = null, type = FormulaType.CHECKER,
                     inputs = all.mapIndexed { index, name -> inputFor(name, index) },
                     output = OutputSpec(label = "Both sides"),
+                    part = part,
                     reason = "an identity: both sides agree for the values tried",
                 )
             }

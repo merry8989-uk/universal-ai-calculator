@@ -196,6 +196,38 @@ class FormulaCoreTest {
         assertEquals("sin(90*pi/180)", FormulaNormaliser.normalise("sin(90°)"))
     }
 
+    // ---- the two engines ----
+
+    @Test fun aLogarithmBaseIsARealBase() {
+        // logₐx is the log of x to base a: ln(x)/ln(a). Read as log(a) times x,
+        // every logarithm identity comes out wrong rather than failing loudly.
+        val out = FormulaNormaliser.normalise("logₐx")!!
+        assertTrue("the base was not rewritten: $out", out.contains("ln("))
+        assertFalse("the subscript was read as a variable: $out", out.startsWith("log(a)"))
+        // logₐ(8) with a = 2 is 3
+        val value = com.merry8989uk.universalcalculator.calc.Evaluator.evaluate(out, vars = mapOf("a" to 2.0, "x" to 8.0))
+        assertEquals(3.0, value, 1e-9)
+    }
+
+    @Test fun aLineHoldingSeveralFormulasIsSplit() {
+        val parts = FormulaClassifier.splitParts("A = a²,  P = 4a,  diagonal = a√2")
+        assertEquals("the line was not split: $parts", 3, parts.size)
+        assertEquals("A = a²", parts[0])
+    }
+
+    @Test fun aCommaInsideBracketsDoesNotSplit() {
+        val parts = FormulaClassifier.splitParts("f(x, y) = x + y, g = 2")
+        assertEquals("a bracket was cut in half: $parts", 2, parts.size)
+        assertEquals("f(x, y) = x + y", parts[0])
+    }
+
+    @Test fun anEntryWithSeveralFormulasStillGetsOneCalculator() {
+        val d = FormulaClassifier.classify("Geometry", "Square", "A = a²,  P = 4a,  diagonal = a√2")
+        assertTrue("nothing was calculable in that line", d.type != FormulaType.NEEDS_REVIEW)
+        assertEquals("the user must still see the whole line", "A = a²,  P = 4a,  diagonal = a√2", d.printed)
+        assertNotNull("the part being computed was not kept", d.part)
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",
