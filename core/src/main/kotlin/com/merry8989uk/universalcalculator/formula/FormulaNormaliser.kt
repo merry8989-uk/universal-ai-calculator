@@ -216,7 +216,7 @@ object FormulaNormaliser {
                 }
                 if (needsProduct) {
                     // a function name followed by ( is a call, not a product
-                    val word = out.takeLastWhile { it.isLetterOrDigit() }
+                    val word = out.takeLastWhile { it.isLetterOrDigit() }.toString()
                     if (!(c == '(' && isFunction(word))) out.append('*')
                 }
             }
