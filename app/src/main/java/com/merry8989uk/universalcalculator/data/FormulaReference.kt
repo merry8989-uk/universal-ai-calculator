@@ -1,6 +1,9 @@
 package com.merry8989uk.universalcalculator.data
 
 import android.content.Context
+import com.merry8989uk.universalcalculator.formula.FormulaDefinition
+import com.merry8989uk.universalcalculator.formula.FormulaRegistry
+import com.merry8989uk.universalcalculator.formula.RawFormula
 import org.json.JSONObject
 
 /** One entry of the built-in formula reference. */
@@ -32,6 +35,17 @@ object FormulaReference {
         cache = list
         return list
     }
+
+    /**
+     * The same entries, ready to act on.
+     *
+     * Each one has been classified and, where it claims to be a calculator, its
+     * expression has been evaluated to prove it. Built once and kept.
+     */
+    fun definitions(context: Context): List<FormulaDefinition> =
+        FormulaRegistry.of(
+            load(context).map { RawFormula(it.category, it.title, it.formula) },
+        )
 
     /** Categories in the order they appear in the data file. */
     fun categories(list: List<RefFormula>): List<String> {

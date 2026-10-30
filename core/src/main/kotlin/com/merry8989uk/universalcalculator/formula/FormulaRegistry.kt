@@ -1,0 +1,100 @@
+package com.merry8989uk.universalcalculator.formula
+
+/** One line of `formulas.json`, before anything has been decided about it. */
+data class RawFormula(
+    val category: String,
+    val title: String,
+    val printed: String,
+)
+
+/**
+ * Every reference formula, understood well enough to act on.
+ *
+ * Built once from the bundled data and then read by id. Nothing here decides
+ * anything at the moment of calculation — the classification is done up front,
+ * so a screen can say "this one has a calculator" before the user taps it, and a
+ * test can check every entry at once.
+ */
+object FormulaRegistry {
+
+    @Volatile
+    private var cache: List<FormulaDefinition>? = null
+
+    /** Builds the registry, classifying each entry. Cheap enough to do once. */
+    fun build(raw: List<RawFormula>): List<FormulaDefinition> {
+        val out = ArrayList<FormulaDefinition>(raw.size)
+        val seen = HashMap<String, Int>()
+        for (entry in raw) {
+            var definition = FormulaClassifier.classify(entry.category, entry.title, entry.printed)
+            // Two formulas in different categories can share a title. An id has to
+            // be unique, so a repeat gets a number rather than silently replacing
+            // the first one.
+            val count = seen.merge(definition.id, 1, Int::plus) ?: 1
+            if (count > 1) {
+                definition = definition.copy(id = definition.id + "_" + count)
+            }
+            out.add(definition)
+        }
+        return out
+    }
+
+    fun of(raw: List<RawFormula>): List<FormulaDefinition> {
+        cache?.let { return it }
+        val built = build(raw)
+        cache = built
+        return built
+    }
+
+    fun clearCache() {
+        cache = null
+    }
+
+    fun byId(definitions: List<FormulaDefinition>, id: String): FormulaDefinition? =
+        definitions.firstOrNull { it.id == id }
+
+    /** How many of each kind. The number the audit is actually about. */
+    fun counts(definitions: List<FormulaDefinition>): Map<FormulaType, Int> {
+        val out = LinkedHashMap<FormulaType, Int>()
+        for (type in FormulaType.entries) out[type] = 0
+        for (d in definitions) out[d.type] = (out[d.type] ?: 0) + 1
+        return out
+    }
+
+    /** The ones that can be worked out, for the calculator list. */
+    fun calculators(definitions: List<FormulaDefinition>): List<FormulaDefinition> =
+        definitions.filter { it.type == FormulaType.DIRECT_CALCULATOR }
+
+    /** The ones that can be checked rather than calculated. */
+    fun checkers(definitions: List<FormulaDefinition>): List<FormulaDefinition> =
+        definitions.filter { it.type == FormulaType.CHECKER }
+
+    fun inCategory(definitions: List<FormulaDefinition>, category: String): List<FormulaDefinition> =
+        definitions.filter { it.category == category }
+
+    /** The audit, as text: how many of each kind, and why the rest are not calculators. */
+    fun audit(definitions: List<FormulaDefinition>): String = buildString {
+        append("Reference formulas: ").append(definitions.size).append('\n')
+        val counts = counts(definitions)
+        for (type in FormulaType.entries) {
+            append("  ").append(type.name.padEnd(18)).append(counts[type] ?: 0).append('\n')
+        }
+        append('\n').append("By category:\n")
+        val byCategory = definitions.groupBy { it.category }
+        for ((category, list) in byCategory) {
+            val ready = list.count { it.type == FormulaType.DIRECT_CALCULATOR }
+            append("  ").append(category.padEnd(28))
+                .append(list.size.toString().padStart(5))
+                .append(" total, ")
+                .append(ready.toString().padStart(4))
+                .append(" calculable\n")
+        }
+        val review = definitions.filter { it.type == FormulaType.NEEDS_REVIEW }
+        if (review.isNotEmpty()) {
+            append('\n').append("Needs review (").append(review.size).append("):\n")
+            for (d in review.take(30)) {
+                append("  ").append(d.title).append(" — ").append(d.reason).append('\n')
+            }
+            if (review.size > 30) append("  ... and ").append(review.size - 30).append(" more\n")
+        }
+    }
+}
