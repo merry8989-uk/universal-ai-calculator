@@ -42,7 +42,7 @@ class FormulaCoreTest {
 
     @Test fun theFileHoldsEveryEntry() {
         if (raw.isEmpty()) return
-        assertEquals("the bundled formula file changed size", 1413, raw.size)
+        assertEquals("the bundled formula file changed size", 1410, raw.size)
         assertEquals("the category count changed", 16, raw.map { it.category }.distinct().size)
     }
 
@@ -57,7 +57,7 @@ class FormulaCoreTest {
     @Test fun everyEntryIsClassifiedAndTheCountsAddUp() {
         if (definitions.isEmpty()) return
         val counts = FormulaRegistry.counts(definitions)
-        assertEquals(1413, counts.values.sum())
+        assertEquals(1410, counts.values.sum())
         // Every kind of outcome the classifier can reach must be reached, or the
         // rule for it is dead. CONVERTER is deliberately absent: nothing in this
         // data set is a unit conversion — the seven entries that mention degrees
@@ -335,32 +335,62 @@ class FormulaCoreTest {
 
     @Test fun theCorrectedEntriesSayWhatTheyShould() {
         if (raw.isEmpty()) return
-        // a handful of the entries repaired by hand, checked so a later edit
-        // cannot quietly put the damaged text back
+        // Found by title, not by position: removing a duplicate moves every entry
+        // after it, and a test that counts positions would pass for the wrong
+        // reason. Checked so a later edit cannot quietly put the damage back.
         val expected = mapOf(
-            346 to "N₀ = {0, 1, 2, 3, ...}",
-            383 to "(a - b)³ = a³ - 3a²b + 3ab² - b³",
-            386 to "(a + b)⁴ = a⁴ + 4a³b + 6a²b² + 4ab³ + b⁴",
-            592 to "det(A) = a₁b₂ - a₂b₁",
-            622 to "u · v = X₁X₂ + Y₁Y₂ + Z₁Z₂",
-            928 to "P(A) = m / n",
+            "Whole Numbers" to "N₀ = {0, 1, 2, 3, ...}",
+            "Product Formulas: quartic of a sum" to "(a + b)⁴ = a⁴ + 4a³b + 6a²b² + 4ab³ + b⁴",
+            "Second Order Determinant" to "det(A) = a₁b₂ - a₂b₁",
+            "Scalar Product in Coordinate Form" to "u · v = X₁X₂ + Y₁Y₂ + Z₁Z₂",
+            "Probability of an Event" to "P(A) = m / n",
+            "Expected Value of Discrete Random Variables" to "μ = E(X) = Σ xᵢ Pᵢ",
         )
-        for ((n, text) in expected) {
-            assertEquals("entry $n was changed again", text, raw[n - 1].printed)
+        for ((title, text) in expected) {
+            val entry = raw.firstOrNull { it.title == title }
+            assertNotNull("the entry '$title' is gone", entry)
+            assertEquals("'$title' was changed again", text, entry!!.printed)
         }
     }
 
     @Test fun noCorrectedEntryStillHasTheDamage() {
         if (raw.isEmpty()) return
-        val repaired = listOf(346, 372, 383, 384, 386, 456, 478, 480, 500, 522, 592,
-            616, 622, 640, 645, 646, 647, 650, 736, 766, 862, 874, 907, 921, 928, 946)
-        for (n in repaired) {
-            val text = raw[n - 1].printed
-            assertFalse("entry $n still holds a Chinese character: $text",
+        // every entry that was repaired by hand
+        val repaired = setOf(
+            "Whole Numbers", "Right Circular Cylinder with: base and total surface",
+            "Scaling Vectors: scalar multiple", "Triple Product: vector rule",
+            "Converting Rectangular Coordinates to Polar Coordinates",
+            "Equation of a Line Given a Point and the Gradient", "Tangent Line",
+            "RLC Circuit", "Inverse of a Complex Number in Polar Representation",
+            "Rectangular Parallelepiped: volume", "Right Circular Cylinder: volume",
+            "Cosine Function", "Additionand Subtraction Formulas: cosine of a difference",
+            "Second Order Determinant", "Distance Between Two Points in Polar Coordinates",
+            "Indefinite Integral: scaled argument", "Fourier Series: Fourier cosine coefficient",
+            "Product Formulas: quartic of a sum", "Power Series", "Determinants",
+            "Scalar Product in Coordinate Form", "Integration by Parts: integration by parts",
+            "Separable Equations", "Probability of an Event",
+            "Expected Value of Discrete Random Variables",
+        )
+        for (title in repaired) {
+            val entry = raw.firstOrNull { it.title == title } ?: continue
+            val text = entry.printed
+            assertFalse("'$title' still holds a Chinese character: $text",
                 text.any { it in "。、中入" })
-            assertFalse("entry $n still holds a page number: $text",
+            assertFalse("'$title' still holds a page number: $text",
                 Regex("(^|\\s)\\d{2,3}(\\s|$)").containsMatchIn(text))
         }
+    }
+
+    @Test fun noFormulaAppearsTwiceAfterTheRepair() {
+        // the repair made two damaged entries identical to two that were already
+        // right; the duplicates were removed rather than kept
+        if (raw.isEmpty()) return
+        val keyed = raw.groupBy {
+            it.printed.replace("−", "-").replace("–", "-").replace(Regex("\\s+"), "")
+        }
+        val duplicates = keyed.filter { it.value.size > 1 }
+        assertTrue("the same formula is in the file twice: ${duplicates.keys.take(3)}",
+            duplicates.isEmpty())
     }
 
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
@@ -384,7 +414,7 @@ class FormulaCoreTest {
         // nobody checks is a number that is wrong.
         val readme = file("README.md") ?: return
         val text = readme.readText()
-        assertTrue("the README does not give the reference count", text.contains("1,413 formulas"))
+        assertTrue("the README does not give the reference count", text.contains("1,410 formulas"))
         assertTrue("the README does not give the topic count", text.contains("16 topics"))
         assertTrue("the README does not give the calculator count", text.contains("343 formula calculators"))
         assertFalse("the old wrong count is still in the README", text.contains("1663"))

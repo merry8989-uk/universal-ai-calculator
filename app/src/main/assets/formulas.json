@@ -1912,16 +1912,6 @@
   },
   {
    "c": "Algebra",
-   "t": "Product Formulas: cube of a difference",
-   "f": "(a - b)³ = a³ - 3a²b + 3ab² - b³"
-  },
-  {
-   "c": "Algebra",
-   "t": "Product Formulas: square of a sum",
-   "f": "(a + b)³ = a³ + 3a²b + 3ab² + b³"
-  },
-  {
-   "c": "Algebra",
    "t": "Product Formulas: quartic of a difference",
    "f": "(a-b)=a*-4a²b+6a²b²-4ab²+bd"
   },
@@ -3834,11 +3824,6 @@
    "c": "Integral Calculus",
    "t": "Indefinite Integral: power rule",
    "f": "Jf(x)r(x)dx=→f²(x)+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integration by Parts: integration by parts",
-   "f": "∫ u dv = uv - ∫ v du"
   },
   {
    "c": "Integral Calculus",
