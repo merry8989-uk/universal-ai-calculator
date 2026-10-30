@@ -93,7 +93,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Binomial theorem",
-   "f": "(a + b)ⁿ = Σ (nCr) aⁿ⁻ʳ bʳ for r = 0 … n"
+   "f": "(a + b)ⁿ = Σ (nCr) aⁿ⁻ʳ bʳ, r = 0 … n"
   },
   {
    "c": "Algebra",
@@ -313,7 +313,7 @@
   {
    "c": "Algebra",
    "t": "Arithmetic–geometric mean",
-   "f": "(a + b) / 2 ≥ √(ab) for a, b ≥ 0"
+   "f": "(a + b) / 2 ≥ √(ab), a, b ≥ 0"
   },
   {
    "c": "Algebra",
@@ -323,7 +323,7 @@
   {
    "c": "Algebra",
    "t": "Bernoulli's inequality",
-   "f": "(1 + x)ⁿ ≥ 1 + nx for x ≥ −1, n ≥ 1"
+   "f": "(1 + x)ⁿ ≥ 1 + nx, x ≥ -1, n ≥ 1"
   },
   {
    "c": "Algebra",
@@ -933,7 +933,7 @@
   {
    "c": "Differential Calculus",
    "t": "L'Hôpital's rule",
-   "f": "lim f/g = lim f′/g′ for the forms 0/0 and ∞/∞"
+   "f": "lim (f/g) = lim (f'/g'), 0/0 or ∞/∞"
   },
   {
    "c": "Differential Calculus",
@@ -1078,7 +1078,7 @@
   {
    "c": "Differential Calculus",
    "t": "Mean value theorem",
-   "f": "f′(c) = (f(b) − f(a)) / (b − a) for some c in (a, b)"
+   "f": "f'(c) = (f(b) - f(a)) / (b - a), a < c < b"
   },
   {
    "c": "Differential Calculus",
@@ -1728,7 +1728,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Whole Numbers",
-   "f": "Counting numbers and zero: N。 = {0,1,2,3"
+   "f": "N₀ = {0, 1, 2, 3, ...}"
   },
   {
    "c": "Sets & Numbers",
@@ -1858,7 +1858,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Inverse of a Complex Number in Polar Representation",
-   "f": "[cos(-Φp)+isin(-Φp)] r(cosp+isinp) 10"
+   "f": "z⁻¹ = (1/r)[cos(-θ) + i sin(-θ)]"
   },
   {
    "c": "Sets & Numbers",
@@ -1913,12 +1913,12 @@
   {
    "c": "Algebra",
    "t": "Product Formulas: cube of a difference",
-   "f": "(a-b) =a² -3a²b+3ab² -b3"
+   "f": "(a - b)³ = a³ - 3a²b + 3ab² - b³"
   },
   {
    "c": "Algebra",
    "t": "Product Formulas: square of a sum",
-   "f": "(a + b)² =a² + 3a²b+ 3ab² + b3"
+   "f": "(a + b)³ = a³ + 3a²b + 3ab² + b³"
   },
   {
    "c": "Algebra",
@@ -1928,12 +1928,12 @@
   {
    "c": "Algebra",
    "t": "Product Formulas: quartic of a sum",
-   "f": "(a + b)* = aa + 4a²b+ 6a²b² + 4ab² + b4"
+   "f": "(a + b)⁴ = a⁴ + 4a³b + 6a²b² + 4ab³ + b⁴"
   },
   {
    "c": "Algebra",
    "t": "Binomial Formula",
-   "f": "q+-q+++q+=(q+) n! are the binomial coefficients"
+   "f": "nCr = n! / (r!(n-r)!)"
   },
   {
    "c": "Algebra",
@@ -2278,7 +2278,7 @@
   {
    "c": "Geometry",
    "t": "Rectangular Parallelepiped: volume",
-   "f": "V=abc 56"
+   "f": "V = abc"
   },
   {
    "c": "Geometry",
@@ -2388,7 +2388,7 @@
   {
    "c": "Geometry",
    "t": "Right Circular Cylinder: volume",
-   "f": "V=SsH=πR²H 67"
+   "f": "V = πR²H"
   },
   {
    "c": "Geometry",
@@ -2398,7 +2398,7 @@
   {
    "c": "Geometry",
    "t": "Right Circular Cylinder with: base and total surface",
-   "f": "Sg=πR²+πR、R² 68"
+   "f": "S_base = πR², S_total = 2πR² + 2πRh"
   },
   {
    "c": "Geometry",
@@ -2498,7 +2498,7 @@
   {
    "c": "Trigonometry",
    "t": "Cosine Function",
-   "f": "y=cos x,-1≤cosx≤1. 82"
+   "f": "y = cos(x), -1 ≤ y ≤ 1"
   },
   {
    "c": "Trigonometry",
@@ -2608,7 +2608,7 @@
   {
    "c": "Trigonometry",
    "t": "Additionand Subtraction Formulas: cosine of a difference",
-   "f": "cos(α -β)= cosox.cosβ+ sinα sinβ 91"
+   "f": "cos(α - β) = cos α cos β + sin α sin β"
   },
   {
    "c": "Trigonometry",
@@ -2958,7 +2958,7 @@
   {
    "c": "Matrices & Determinants",
    "t": "Second Order Determinant",
-   "f": "a,b detA = =a,b-ab ab2 107"
+   "f": "det(A) = a₁b₂ - a₂b₁"
   },
   {
    "c": "Matrices & Determinants",
@@ -2978,7 +2978,7 @@
   {
    "c": "Matrices & Determinants",
    "t": "Determinants",
-   "f": "Laplace Expansion of n-th Order Determinant Laplace expansion by elements of the i-th row detA=,i=1, 2,...,n. j=1 Laplace expansion by elements of thej-th column"
+   "f": "det(A) = Σ aᵢⱼ Cᵢⱼ"
   },
   {
    "c": "Matrices & Determinants",
@@ -3078,7 +3078,7 @@
   {
    "c": "Vectors",
    "t": "Scaling Vectors: scalar multiple",
-   "f": "w=入u 122"
+   "f": "w = λu"
   },
   {
    "c": "Vectors",
@@ -3108,7 +3108,7 @@
   {
    "c": "Vectors",
    "t": "Scalar Product in Coordinate Form",
-   "f": "If u=(X, Y,Z),v=(X,Y,Z),then u·v=X,X+YY+ZZ"
+   "f": "u · v = X₁X₂ + Y₁Y₂ + Z₁Z₂"
   },
   {
    "c": "Vectors",
@@ -3198,7 +3198,7 @@
   {
    "c": "Vectors",
    "t": "Triple Product: vector rule",
-   "f": "If u·(vxw)=0,then the vectors u,V,and w are linearly dependent, so w =u+ μv for some scalars 入 and μ"
+   "f": "u · (v × w) = 0"
   },
   {
    "c": "Analytic Geometry",
@@ -3223,17 +3223,17 @@
   {
    "c": "Analytic Geometry",
    "t": "Orthocenter (Intersection of Altitudes)of a Triangle",
-   "f": "xx+y² x²+y2y3 X x;x +y² x²+ysy"
+   "f": "x = (x₁ tan α + x₂ tan β + x₃ tan γ) / (tan α + tan β + tan γ)"
   },
   {
    "c": "Analytic Geometry",
    "t": "Distance Between Two Points in Polar Coordinates",
-   "f": "d=AB=√r²+r²2rr,cos(Φ-Φ) 137"
+   "f": "d = √(r₁² + r₂² - 2r₁r₂ cos(θ₁ - θ₂))"
   },
   {
    "c": "Analytic Geometry",
    "t": "Converting Rectangular Coordinates to Polar Coordinates",
-   "f": "x=r cos Φ,y=rsinp. A(r,中) A(x,y)"
+   "f": "x = r cos θ, y = r sin θ"
   },
   {
    "c": "Analytic Geometry",
@@ -3248,7 +3248,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Equation of a Line Given a Point and the Gradient",
-   "f": "y=y。+k(x-xo), where k is the gradient, P(xos y。) is a point on the line. y P(xy)"
+   "f": "y = y₀ + k(x - x₀)"
   },
   {
    "c": "Analytic Geometry",
@@ -3678,7 +3678,7 @@
   {
    "c": "Differential Calculus",
    "t": "Tangent Line",
-   "f": "y-y。=f(x。)(x-x。) 217"
+   "f": "y - y₀ = f'(x₀)(x - x₀)"
   },
   {
    "c": "Differential Calculus",
@@ -3828,7 +3828,7 @@
   {
    "c": "Integral Calculus",
    "t": "Indefinite Integral: scaled argument",
-   "f": "∫f(ax)dx=F(ax)+C 227"
+   "f": "∫f(ax)dx = (1/a)F(ax) + C"
   },
   {
    "c": "Integral Calculus",
@@ -3838,7 +3838,7 @@
   {
    "c": "Integral Calculus",
    "t": "Integration by Parts: integration by parts",
-   "f": "∫udv=uv- ∫vdu, where u(x), v(x) are differentiable functions"
+   "f": "∫ u dv = uv - ∫ v du"
   },
   {
    "c": "Integral Calculus",
@@ -4308,7 +4308,7 @@
   {
    "c": "Differential Equations",
    "t": "Separable Equations",
-   "f": "d=f(xy)=g(x)h(y) dx The general solution is given by Ap g(x)dx+C"
+   "f": "∫ (1/h(y)) dy = ∫ g(x) dx + C"
   },
   {
    "c": "Differential Equations",
@@ -4368,7 +4368,7 @@
   {
    "c": "Differential Equations",
    "t": "RLC Circuit",
-   "f": "IPIP I=V’(t)=∞E。cos(ot), P dtC 301"
+   "f": "V(t) = E₀ cos(ωt)"
   },
   {
    "c": "Differential Equations",
@@ -4533,7 +4533,7 @@
   {
    "c": "Series",
    "t": "Power Series",
-   "f": "Power Series in (x -x。) an(x-x。)=a+a(x-x。)+a2(x-x。)²+..+a(x-x)²+.. =0"
+   "f": "Σ aₙ(x - x₀)ⁿ = a₀ + a₁(x - x₀) + a₂(x - x₀)² + ..."
   },
   {
    "c": "Series",
@@ -4603,7 +4603,7 @@
   {
    "c": "Series",
    "t": "Fourier Series: Fourier cosine coefficient",
-   "f": "a。 = f(x)cosnxdx"
+   "f": "aₙ = (1/π) ∫ f(x) cos(nx) dx"
   },
   {
    "c": "Series",
@@ -4638,7 +4638,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Probability of an Event",
-   "f": "P(A)=m, n where m is the number of possible positive outcomes, n is the total number of possible outcomes"
+   "f": "P(A) = m / n"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4728,7 +4728,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Expected Value of Discrete Random Variables",
-   "f": "μ=E(x)= xiPi, i=1 where x is a particular outcome, P; is its probability"
+   "f": "μ = E(X) = Σ xᵢ Pᵢ"
   },
   {
    "c": "Probability & Combinatorics",

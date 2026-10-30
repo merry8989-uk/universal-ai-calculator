@@ -331,6 +331,38 @@ class FormulaCoreTest {
         )
     }
 
+    // ---- the hand-corrected entries ----
+
+    @Test fun theCorrectedEntriesSayWhatTheyShould() {
+        if (raw.isEmpty()) return
+        // a handful of the entries repaired by hand, checked so a later edit
+        // cannot quietly put the damaged text back
+        val expected = mapOf(
+            346 to "N₀ = {0, 1, 2, 3, ...}",
+            383 to "(a - b)³ = a³ - 3a²b + 3ab² - b³",
+            386 to "(a + b)⁴ = a⁴ + 4a³b + 6a²b² + 4ab³ + b⁴",
+            592 to "det(A) = a₁b₂ - a₂b₁",
+            622 to "u · v = X₁X₂ + Y₁Y₂ + Z₁Z₂",
+            928 to "P(A) = m / n",
+        )
+        for ((n, text) in expected) {
+            assertEquals("entry $n was changed again", text, raw[n - 1].printed)
+        }
+    }
+
+    @Test fun noCorrectedEntryStillHasTheDamage() {
+        if (raw.isEmpty()) return
+        val repaired = listOf(346, 372, 383, 384, 386, 456, 478, 480, 500, 522, 592,
+            616, 622, 640, 645, 646, 647, 650, 736, 766, 862, 874, 907, 921, 928, 946)
+        for (n in repaired) {
+            val text = raw[n - 1].printed
+            assertFalse("entry $n still holds a Chinese character: $text",
+                text.any { it in "。、中入" })
+            assertFalse("entry $n still holds a page number: $text",
+                Regex("(^|\\s)\\d{2,3}(\\s|$)").containsMatchIn(text))
+        }
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",
