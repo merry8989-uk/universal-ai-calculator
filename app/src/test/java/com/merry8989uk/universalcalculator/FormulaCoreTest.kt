@@ -421,7 +421,8 @@ class FormulaCoreTest {
     @Test fun aRootIndexIsAnIndex() {
         // ⁿ√x is the nth root of x. Read as a power it became ^(n) times sqrt(x),
         // which is not a formula at all.
-        assertEquals("((ab))^(1/(n))", FormulaNormaliser.normalise("ⁿ√(ab)"))
+        // the argument still goes through the reader, so ab inside it is a times b
+        assertEquals("((a*b))^(1/(n))", FormulaNormaliser.normalise("ⁿ√(ab)"))
         // but a power in front of a root is a product: a squared times root 3
         assertEquals("2*a^2*sqrt(3)", FormulaNormaliser.normalise("2a²√3"))
     }
