@@ -145,25 +145,17 @@ object FormulaRegistry {
             }
             // The wrong readings are listed by name and by what they were read
             // as, because a count of them is not something anyone can act on.
-            val wrong = review.filter { it.reason.contains("differ by more than a rounding error") }
-            if (wrong.isNotEmpty()) {
-                append('\n').append("Read wrongly (").append(wrong.size).append("):\n")
-                for (d in wrong.take(40)) {
-                    append("  ").append(d.title).append(" — ")
-                        .append(d.reason.substringAfter("rounding error: ").take(150)).append('\n')
-                }
-                if (wrong.size > 40) append("  ... and ").append(wrong.size - 40).append(" more\n")
-            }
-            val unreadable = review.filter {
-                it.reason.contains("did not evaluate") || it.reason.contains("does not evaluate")
-            }
-            if (unreadable.isNotEmpty()) {
-                append('\n').append("Not understood (").append(unreadable.size).append("):\n")
-                for (d in unreadable.take(40)) {
-                    append("  ").append(d.title).append(" — ")
-                        .append(d.reason.substringAfter("evaluate").take(150)).append('\n')
-                }
-                if (unreadable.size > 40) append("  ... and ").append(unreadable.size - 40).append(" more\n")
+            // Every one, by position, title, text and reason. A sample is enough
+            // to spot a pattern; it is not enough to repair anything, and the
+            // repairs are done by hand from this list.
+            append('\n').append("Every one that needs review:\n")
+            val position = HashMap<String, Int>()
+            definitions.forEachIndexed { index, d -> position[d.id] = index + 1 }
+            for (d in review) {
+                append("  [").append(position[d.id] ?: 0).append("] ")
+                    .append(d.category).append(" / ").append(d.title).append('\n')
+                    .append("       text: ").append(d.printed.take(160)).append('\n')
+                    .append("       why: ").append(d.reason.take(200)).append('\n')
             }
             append('\n').append("A sample:\n")
             for (d in review.take(12)) {
