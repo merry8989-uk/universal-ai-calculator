@@ -131,7 +131,7 @@ object FormulaNormaliser {
         // A logarithm with its base written underneath is rewritten before
         // anything else, because the subscript is part of the function name and
         // would otherwise be read as a variable multiplied in.
-        val source = rewriteCombinations(rewriteLogBases(printed))
+        val source = rewriteRootIndices(rewriteCombinations(rewriteLogBases(printed)))
         val out = StringBuilder(source.length)
         var i = 0
         while (i < source.length) {
@@ -189,6 +189,61 @@ object FormulaNormaliser {
         s = insertImplicitProducts(s)
         if (s.isBlank()) return null
         return s
+    }
+
+    /** A root whose index is written above the sign: ⁿ√x is the nth root of x. */
+    private val ROOT_INDEX = Regex(
+        "(?<![A-Za-z0-9_)])([\u2070-\u2079\u207A\u207B\u207F\u02E3\u1D43-\u1D5A]+)\u221A",
+    )
+
+    /**
+     * Rewrites ⁿ√x as x^(1/n).
+     *
+     * The index sits where a power sits, so read literally it becomes a power of
+     * nothing: ⁿ√(ab) came out as ^(n) times sqrt(ab), which is not a formula.
+     *
+     * It is only an index when nothing precedes it. `a²√3` has the same shape and
+     * means a squared times the square root of three, and the letter in front is
+     * what tells the two apart.
+     */
+    fun rewriteRootIndices(text: String): String {
+        if (!ROOT_INDEX.containsMatchIn(text)) return text
+        val out = StringBuilder(text.length + 16)
+        var last = 0
+        for (match in ROOT_INDEX.findAll(text)) {
+            out.append(text, last, match.range.first)
+            val index = match.groupValues[1].mapNotNull { SUPERSCRIPTS[it] }.joinToString("")
+            var i = match.range.last + 1
+            val argument: String
+            if (i < text.length && text[i] == '(') {
+                var depth = 0
+                val start = i
+                while (i < text.length) {
+                    if (text[i] == '(') depth++
+                    if (text[i] == ')') {
+                        depth--
+                        if (depth == 0) {
+                            i++
+                            break
+                        }
+                    }
+                    i++
+                }
+                argument = text.substring(start, i)
+            } else {
+                val start = i
+                while (i < text.length && (text[i].isLetterOrDigit() || text[i] == '√')) i++
+                argument = text.substring(start, i)
+            }
+            if (index.isEmpty() || argument.isEmpty()) {
+                out.append(text, match.range.first, match.range.last + 1)
+            } else {
+                out.append("(").append(argument).append(")^(1/(").append(index).append("))")
+            }
+            last = i
+        }
+        out.append(text, last, text.length)
+        return out.toString()
     }
 
     /** nCr and nPr, with one letter on each side. */
