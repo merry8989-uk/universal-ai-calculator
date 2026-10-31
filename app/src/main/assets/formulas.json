@@ -278,7 +278,7 @@
   {
    "c": "Algebra",
    "t": "Completing the square",
-   "f": "ax² + bx + c = a(x + b/2a)² + (c − b²/4a)"
+   "f": "ax² + bx + c = a(x + b/(2a))² + (c − b²/(4a))"
   },
   {
    "c": "Algebra",
@@ -918,7 +918,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Angle between two lines (3-D)",
-   "f": "cos θ = (a₁a₂ + b₁b₂ + c₁c₂) / (√(a₁²+b₁²+c₁²) √(a₂²+b₂²+c₂²))"
+   "f": "cos θ = (a₁a₂ + b₁b₂ + c₁c₂) / (√(a₁² + b₁² + c₁²) √(a₂² + b₂² + c₂²))"
   },
   {
    "c": "Differential Calculus",
@@ -1618,7 +1618,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Normal density",
-   "f": "f(x) = (1 / (σ√(2π))) e^(−(x − μ)² / 2σ²)"
+   "f": "f(x) = (1 / (σ√(2π))) e^(−(x − μ)² / (2σ²))"
   },
   {
    "c": "Probability & Combinatorics",
@@ -1788,7 +1788,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Associative of Multiplication",
-   "f": "(a·b)-c=a-(b·c)"
+   "f": "(a·b)·c = a·(b·c)"
   },
   {
    "c": "Sets & Numbers",
@@ -1818,7 +1818,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Complex Numbers: multiplication",
-   "f": "(a + bi)(c+di)=(ac-bd)+(ad+ bc)i"
+   "f": "(a + bi)(c + di) = (ac − bd) + (ad + bc)i"
   },
   {
    "c": "Sets & Numbers",
@@ -1828,7 +1828,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Conjugate Complex Numbers",
-   "f": "a+bi=a-bi"
+   "f": "conj(a + bi) = a − bi"
   },
   {
    "c": "Sets & Numbers",
@@ -1838,7 +1838,7 @@
   {
    "c": "Sets & Numbers",
    "t": "Polar Presentation of Complex Numbers",
-   "f": "a + bi=r(cosp+isinp)"
+   "f": "a + bi = r(cos θ + i sin θ)"
   },
   {
    "c": "Sets & Numbers",
@@ -1853,12 +1853,12 @@
   {
    "c": "Sets & Numbers",
    "t": "Conjugate Numbers in Polar Representation",
-   "f": "r(cosp +isinp)=r[cos(- p)+isin(-Φ)]"
+   "f": "r(cos θ + i sin θ) = r(cos(−θ) + i sin(−θ))"
   },
   {
    "c": "Sets & Numbers",
    "t": "Inverse of a Complex Number in Polar Representation",
-   "f": "z⁻¹ = (1/r)[cos(-θ) + i sin(-θ)]"
+   "f": "z⁻¹ = (1/r)[cos(−θ) + i sin(−θ)]"
   },
   {
    "c": "Sets & Numbers",
@@ -1873,17 +1873,12 @@
   {
    "c": "Sets & Numbers",
    "t": "Formula“De Moivre”",
-   "f": "(cosp + isin p) =cos(np)+ isin(nq)"
+   "f": "(cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)"
   },
   {
    "c": "Algebra",
    "t": "Factoring Formulas: difference of squares",
    "f": "a²-b²=(a-b)(a²+ab+b²)"
-  },
-  {
-   "c": "Algebra",
-   "t": "Factoring Formulas: sum of squares",
-   "f": "a²+b²=(a+b)(a²-ab+b²)"
   },
   {
    "c": "Algebra",
@@ -1897,8 +1892,8 @@
   },
   {
    "c": "Algebra",
-   "t": "Factoring Formulas: sum of squares (2)",
-   "f": "a²+b²=(a+b)(a²-a²b+a²b²-ab²+b)"
+   "t": "Factoring Formulas: sum of 5th powers",
+   "f": "a⁵ + b⁵ = (a + b)(a⁴ − a³b + a²b² − ab³ + b⁴)"
   },
   {
    "c": "Algebra",
@@ -1913,7 +1908,7 @@
   {
    "c": "Algebra",
    "t": "Product Formulas: quartic of a difference",
-   "f": "(a-b)=a*-4a²b+6a²b²-4ab²+bd"
+   "f": "(a − b)⁴ = a⁴ − 4a³b + 6a²b² − 4ab³ + b⁴"
   },
   {
    "c": "Algebra",
@@ -1948,7 +1943,7 @@
   {
    "c": "Algebra",
    "t": "Powers: power of a power",
-   "f": "(a) =an"
+   "f": "(a^m)^n = a^(mn)"
   },
   {
    "c": "Algebra",
@@ -2013,7 +2008,7 @@
   {
    "c": "Algebra",
    "t": "Logarithm to Base 10",
-   "f": "log1o x = log x"
+   "f": "log₁₀ x = log x"
   },
   {
    "c": "Algebra",
@@ -2288,7 +2283,7 @@
   {
    "c": "Geometry",
    "t": "Regular Pyramid: total surface",
-   "f": "S=Ss +S"
+   "f": "S = S_l + S_b"
   },
   {
    "c": "Geometry",
@@ -2408,7 +2403,7 @@
   {
    "c": "Geometry",
    "t": "Right Circular Cone: base area",
-   "f": "Ss=πR²"
+   "f": "S_b = πR²"
   },
   {
    "c": "Geometry",
@@ -2418,7 +2413,7 @@
   {
    "c": "Geometry",
    "t": "Right Circular Cone: volume",
-   "f": "1 SH= πRH 1 3"
+   "f": "V = (1/3)πR²H"
   },
   {
    "c": "Geometry",
@@ -2448,7 +2443,7 @@
   {
    "c": "Geometry",
    "t": "Spherical Segment: curved surface",
-   "f": "Ss=2πRh"
+   "f": "S_l = 2πRh"
   },
   {
    "c": "Geometry",
@@ -2533,7 +2528,7 @@
   {
    "c": "Trigonometry",
    "t": "Most Important Formulas: cosecant",
-   "f": "1 cosec α = sin α"
+   "f": "1 / csc α = sin α"
   },
   {
    "c": "Trigonometry",
@@ -2588,7 +2583,7 @@
   {
    "c": "Trigonometry",
    "t": "Additionand Subtraction Formulas: sine of a difference",
-   "f": "sin(α -y)= sinαx cosβ -sinβcosα"
+   "f": "sin(α − β) = sin α cos β − cos α sin β"
   },
   {
    "c": "Trigonometry",
@@ -2603,17 +2598,17 @@
   {
    "c": "Trigonometry",
    "t": "Additionand Subtraction Formulas: tangent of a sum",
-   "f": "tan(αx+β)= tan α + tanβ 1- tanα tanβ"
+   "f": "tan(α + β) = (tan α + tan β) / (1 − tan α tan β)"
   },
   {
    "c": "Trigonometry",
    "t": "Additionand Subtraction Formulas: tangent of a difference",
-   "f": "tan(α-β)= tanα-tanβ 1+ tanα tanβ"
+   "f": "tan(α − β) = (tan α − tan β) / (1 + tan α tan β)"
   },
   {
    "c": "Trigonometry",
    "t": "Additionand Subtraction Formulas: cotangent of a sum",
-   "f": "cot(α+β)=1-tanαtanβ tan α + tanβ"
+   "f": "cot(α + β) = (1 − tan α tan β) / (tan α + tan β)"
   },
   {
    "c": "Trigonometry",
@@ -2643,12 +2638,12 @@
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: sine of a multiple angle (2)",
-   "f": "sin 4c =4sin αx ·cos α -8sin²α·cos α"
+   "f": "sin 4α = 4sin α cos³α − 4sin³α cos α"
   },
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: sine of a multiple angle (3)",
-   "f": "sin 5α =5sin α -20sinα +16sinα"
+   "f": "sin 5α = 5sin α − 20sin³α + 16sin⁵α"
   },
   {
    "c": "Trigonometry",
@@ -2663,12 +2658,12 @@
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: cosine of a multiple angle (3)",
-   "f": "cos 5α=16cos²α-20cos²α+5cosα 3tan α-tan²α"
+   "f": "cos 5α = 16cos⁵α − 20cos³α + 5cos α"
   },
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: tangent of a multiple angle",
-   "f": "tan 3α = 1-3tan²α"
+   "f": "tan 3α = (3tan α − tan³α) / (1 − 3tan²α)"
   },
   {
    "c": "Trigonometry",
@@ -2678,7 +2673,7 @@
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: cotangent of a multiple angle",
-   "f": "cot 3α= 3cot²α-1 1-6tan²α+tanα"
+   "f": "cot 3α = (cot³α − 3cot α) / (3cot²α − 1)"
   },
   {
    "c": "Trigonometry",
@@ -2688,7 +2683,7 @@
   {
    "c": "Trigonometry",
    "t": "Multiple Angle Formulas: cotangent of a multiple angle (3)",
-   "f": "cot5α= 1-10tan²α+5tan²α tan²α-10tan²α+5tan α"
+   "f": "cot 5α = (cot⁵α − 10cot³α + 5cot α) / (5cot⁴α − 10cot²α + 1)"
   },
   {
    "c": "Trigonometry",
@@ -2713,7 +2708,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: sum of tangents",
-   "f": "tan α +tanβ=- cOS O ·cos β"
+   "f": "tan α + tan β = sin(α + β) / (cos α cos β)"
   },
   {
    "c": "Trigonometry",
@@ -2723,7 +2718,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: sum of cotangents",
-   "f": "cot α+cotβ= sin α ·sin β"
+   "f": "cot α + cot β = sin(α + β) / (sin α sin β)"
   },
   {
    "c": "Trigonometry",
@@ -2733,7 +2728,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: cosine plus sine",
-   "f": "cos α+ sin α =√2co"
+   "f": "cos α + sin α = √2 cos(α − π/4)"
   },
   {
    "c": "Trigonometry",
@@ -2743,7 +2738,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: tangent minus cotangent",
-   "f": "tan α -cotβ=- cOS OL · sin β"
+   "f": "tan α − cot β = −cos(α + β) / (cos α sin β)"
   },
   {
    "c": "Trigonometry",
@@ -2758,7 +2753,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: one plus sine",
-   "f": "1+sin α =2c"
+   "f": "1 + sin α = 2cos²(π/4 − α/2)"
   },
   {
    "c": "Trigonometry",
@@ -2768,7 +2763,7 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: product of cosines",
-   "f": "cosα·cosβ= 2 sin(α -β)+ sin(α +β)"
+   "f": "cos α cos β = (1/2)(cos(α − β) + cos(α + β))"
   },
   {
    "c": "Trigonometry",
@@ -2778,12 +2773,12 @@
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: product of tangents",
-   "f": "tanα·tanβ= tan α + tan β cot α + cotβ"
+   "f": "tan α tan β = (tan α + tan β) / (cot α + cot β)"
   },
   {
    "c": "Trigonometry",
    "t": "Transforming of Trigonometric: product of cotangents",
-   "f": "cotα·cotβ= cot α+cotβ tan α + tan β"
+   "f": "cot α cot β = (cot α + cot β) / (tan α + tan β)"
   },
   {
    "c": "Trigonometry",
@@ -2792,13 +2787,8 @@
   },
   {
    "c": "Trigonometry",
-   "t": "Powers of Trigonometric Functions: sine of a multiple angle",
-   "f": "sin²α= 3sin α sin30. 4"
-  },
-  {
-   "c": "Trigonometry",
    "t": "Powers of Trigonometric Functions: sine identity",
-   "f": "sinα= cos 4o 4cos 2o + 3 8"
+   "f": "sin³α = (3sin α − sin 3α) / 4"
   },
   {
    "c": "Trigonometry",
@@ -2848,7 +2838,7 @@
   {
    "c": "Trigonometry",
    "t": "Relations between Inverse: inverse sine",
-   "f": "arcsin(-x)=-arcsinx"
+   "f": "arcsin(−x) = −arcsin x"
   },
   {
    "c": "Trigonometry",
@@ -2863,7 +2853,7 @@
   {
    "c": "Trigonometry",
    "t": "Relations between Inverse: inverse cosine",
-   "f": "arccos(-x) = π - arccos(x)"
+   "f": "arccos(−x) = π − arccos x"
   },
   {
    "c": "Trigonometry",
@@ -2873,7 +2863,7 @@
   {
    "c": "Trigonometry",
    "t": "Relations between Inverse: inverse tangent",
-   "f": "arctan(-x)=-arctanx"
+   "f": "arctan(−x) = −arctan x"
   },
   {
    "c": "Trigonometry",
@@ -2923,27 +2913,27 @@
   {
    "c": "Trigonometry",
    "t": "Relations to Hyperbolic Functions: sine identity",
-   "f": "sin(ix)=isinh x"
+   "f": "sin(ix) = i sinh x"
   },
   {
    "c": "Trigonometry",
    "t": "Relations to Hyperbolic Functions: tangent identity",
-   "f": "tan(ix)=itanh x"
+   "f": "tan(ix) = i tanh x"
   },
   {
    "c": "Trigonometry",
    "t": "Relations to Hyperbolic Functions: cotangent identity",
-   "f": "cot(ix)=-icothx"
+   "f": "cot(ix) = −i coth x"
   },
   {
    "c": "Trigonometry",
    "t": "Relations to Hyperbolic Functions: secant identity",
-   "f": "sec(ix)=sech x"
+   "f": "sec(ix) = sech x"
   },
   {
    "c": "Trigonometry",
    "t": "Relations to Hyperbolic Functions: cosecant identity",
-   "f": "csc(ix) = -i csch(x)"
+   "f": "csc(ix) = −i csch x"
   },
   {
    "c": "Matrices & Determinants",
@@ -2963,7 +2953,7 @@
   {
    "c": "Matrices & Determinants",
    "t": "Cofactor",
-   "f": "Cg =(1)i+iM"
+   "f": "Cᵢⱼ = (−1)^(i+j) Mᵢⱼ"
   },
   {
    "c": "Matrices & Determinants",

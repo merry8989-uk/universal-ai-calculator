@@ -42,7 +42,7 @@ class FormulaCoreTest {
 
     @Test fun theFileHoldsEveryEntry() {
         if (raw.isEmpty()) return
-        assertEquals("the bundled formula file changed size", 1405, raw.size)
+        assertEquals("the bundled formula file changed size", 1403, raw.size)
         assertEquals("the category count changed", 16, raw.map { it.category }.distinct().size)
     }
 
@@ -57,7 +57,7 @@ class FormulaCoreTest {
     @Test fun everyEntryIsClassifiedAndTheCountsAddUp() {
         if (definitions.isEmpty()) return
         val counts = FormulaRegistry.counts(definitions)
-        assertEquals(1405, counts.values.sum())
+        assertEquals(1403, counts.values.sum())
         // Every kind of outcome the classifier can reach must be reached, or the
         // rule for it is dead. CONVERTER is deliberately absent: nothing in this
         // data set is a unit conversion — the seven entries that mention degrees
@@ -427,6 +427,32 @@ class FormulaCoreTest {
         assertEquals("2*a^2*sqrt(3)", FormulaNormaliser.normalise("2a²√3"))
     }
 
+    @Test fun anArcNameIsTheSameFunction() {
+        // a book writes arcsin where the evaluator writes asin. Without the
+        // mapping the name is a product and the formula quietly changes.
+        assertEquals("asin(x)", FormulaNormaliser.normalise("arcsin(x)"))
+        assertEquals("asinh(x)", FormulaNormaliser.normalise("arcsinh(x)"))
+    }
+
+    @Test fun theThirdBatchOfRepairsIsIn() {
+        if (raw.isEmpty()) return
+        val expected = mapOf(
+            "Multiple Angle Formulas: cosine of a multiple angle (3)" to
+                "cos 5α = 16cos⁵α − 20cos³α + 5cos α",
+            "Transforming of Trigonometric: product of cosines" to
+                "cos α cos β = (1/2)(cos(α − β) + cos(α + β))",
+            "Cofactor" to "Cᵢⱼ = (−1)^(i+j) Mᵢⱼ",
+            "Right Circular Cone: volume" to "V = (1/3)πR²H",
+            "Factoring Formulas: sum of 5th powers" to
+                "a⁵ + b⁵ = (a + b)(a⁴ − a³b + a²b² − ab³ + b⁴)",
+        )
+        for ((title, text) in expected) {
+            val entry = raw.firstOrNull { it.title == title }
+            assertNotNull("'$title' is gone", entry)
+            assertEquals("'$title' was changed again", text, entry!!.printed)
+        }
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",
@@ -448,7 +474,7 @@ class FormulaCoreTest {
         // nobody checks is a number that is wrong.
         val readme = file("README.md") ?: return
         val text = readme.readText()
-        assertTrue("the README does not give the reference count", text.contains("1,405 formulas"))
+        assertTrue("the README does not give the reference count", text.contains("1,403 formulas"))
         assertTrue("the README does not give the topic count", text.contains("16 topics"))
         assertTrue("the README does not give the calculator count", text.contains("343 formula calculators"))
         assertFalse("the old wrong count is still in the README", text.contains("1663"))

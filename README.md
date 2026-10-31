@@ -34,7 +34,7 @@ Engineering, Construction and Math.
   number, quarter, day-of-year, add/subtract days, Unix timestamps.
 - **Fractions in results** — 0.75 is also shown as 3/4
 - **Haptic feedback**, keep screen on, save state, Modern/Classic keypad layout
-- **Formula reference** — 1,405 formulas across 16 topics, searchable
+- **Formula reference** — 1,403 formulas across 16 topics, searchable
 - **Statistics** — mean/median/mode, sample & population variance and SD,
   quartiles, IQR, skewness, kurtosis and linear regression.
 - **Handwriting pad** — write a calculation with a finger

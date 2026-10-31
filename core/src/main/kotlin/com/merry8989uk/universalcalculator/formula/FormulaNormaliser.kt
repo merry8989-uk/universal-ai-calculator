@@ -111,6 +111,12 @@ object FormulaNormaliser {
     private val SYMBOLIC_NAMES = setOf(
         "det", "rank", "nullity", "adj", "trace", "var", "cov", "corr",
         "arg", "mod", "deg", "lcm", "hcf", "gcd",
+        // names a book uses that the evaluator does not have; treated as calls
+        // so they fail to evaluate instead of being read as products
+        // Only names long enough not to sit at the front of an ordinary word:
+        // a two-letter entry here would do to some other section what "deg" did
+        // to "degree".
+        "conj", "arccoth", "arcsech", "arccsch", "arccot", "arcsec", "arccsc",
     )
 
     /** True when the evaluator has a function by this name. */
@@ -131,7 +137,9 @@ object FormulaNormaliser {
         // A logarithm with its base written underneath is rewritten before
         // anything else, because the subscript is part of the function name and
         // would otherwise be read as a variable multiplied in.
-        val source = rewriteRootIndices(rewriteCombinations(rewriteLogBases(printed)))
+        val source = rewriteArcNames(
+            rewriteRootIndices(rewriteCombinations(rewriteLogBases(printed))),
+        )
         val out = StringBuilder(source.length)
         var i = 0
         while (i < source.length) {
@@ -189,6 +197,27 @@ object FormulaNormaliser {
         s = insertImplicitProducts(s)
         if (s.isBlank()) return null
         return s
+    }
+
+    /**
+     * Books write arcsin where the evaluator writes asin.
+     *
+     * Without this the name is four letters with no bracket it recognises, so it
+     * becomes a product: arcsin(−x) read as arcsin times (−x), which is not even
+     * an error the user can see — it is a different formula.
+     */
+    private val ARC_NAMES = listOf(
+        "arcsinh" to "asinh", "arccosh" to "acosh", "arctanh" to "atanh",
+        "arcsin" to "asin", "arccos" to "acos", "arctan" to "atan",
+    )
+
+    fun rewriteArcNames(text: String): String {
+        var out = text
+        // longest first, so arcsinh is not taken for arcsin followed by h
+        for ((from, to) in ARC_NAMES) {
+            out = out.replace(from, to)
+        }
+        return out
     }
 
     /** A root whose index is written above the sign: ⁿ√x is the nth root of x. */

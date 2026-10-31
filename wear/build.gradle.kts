@@ -21,8 +21,8 @@ android {
         applicationId = "com.merry8989uk.universalcalculator"
         minSdk = 26
         targetSdk = 35
-        versionCode = 123
-        versionName = "2.17.0"
+        versionCode = 124
+        versionName = "2.18.0"
     }
 
     signingConfigs {
