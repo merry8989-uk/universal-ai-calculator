@@ -42,7 +42,7 @@ class FormulaCoreTest {
 
     @Test fun theFileHoldsEveryEntry() {
         if (raw.isEmpty()) return
-        assertEquals("the bundled formula file changed size", 1397, raw.size)
+        assertEquals("the bundled formula file changed size", 1396, raw.size)
         assertEquals("the category count changed", 16, raw.map { it.category }.distinct().size)
     }
 
@@ -57,7 +57,7 @@ class FormulaCoreTest {
     @Test fun everyEntryIsClassifiedAndTheCountsAddUp() {
         if (definitions.isEmpty()) return
         val counts = FormulaRegistry.counts(definitions)
-        assertEquals(1397, counts.values.sum())
+        assertEquals(1396, counts.values.sum())
         // Every kind of outcome the classifier can reach must be reached, or the
         // rule for it is dead. CONVERTER is deliberately absent: nothing in this
         // data set is a unit conversion — the seven entries that mention degrees
@@ -387,7 +387,8 @@ class FormulaCoreTest {
             "Powers of Trigonometric Functions: cosine squared" to "cos² α = (1 + cos 2α) / 2",
             "Second Order Determinant" to "det(A) = a₁b₂ - a₂b₁",
             "Minor" to "Mᵢⱼ = det(Aᵢⱼ)",
-            "Correlation" to "ρ(X, Y) = cov(X, Y) / √[V(X)V(Y)]",
+            // the batch wrote it with the operators spelled out, which reads better
+            "Correlation" to "ρ(X, Y) = Cov(X, Y) / √(Var(X)Var(Y))",
             "The Mole and Stoichiometry: Empirical formula from percent" to "% / atomic mass",
         )
         for ((title, text) in expected) {
@@ -500,7 +501,7 @@ class FormulaCoreTest {
         // nobody checks is a number that is wrong.
         val readme = file("README.md") ?: return
         val text = readme.readText()
-        assertTrue("the README does not give the reference count", text.contains("1,397 formulas"))
+        assertTrue("the README does not give the reference count", text.contains("1,396 formulas"))
         assertTrue("the README does not give the topic count", text.contains("16 topics"))
         assertTrue("the README does not give the calculator count", text.contains("343 formula calculators"))
         assertFalse("the old wrong count is still in the README", text.contains("1663"))

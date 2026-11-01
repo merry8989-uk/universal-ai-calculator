@@ -3337,11 +3337,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Point Direction Form: point-direction form in space",
-   "f": "A(x - x₀) + B(y - y₀) + C(z - z₀) = 0"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Intercept Form: intercept form (2)",
    "f": "x/a + y/b + z/c = 1"
   },
