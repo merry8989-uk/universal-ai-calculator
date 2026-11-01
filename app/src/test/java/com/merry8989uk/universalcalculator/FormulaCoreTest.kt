@@ -42,7 +42,7 @@ class FormulaCoreTest {
 
     @Test fun theFileHoldsEveryEntry() {
         if (raw.isEmpty()) return
-        assertEquals("the bundled formula file changed size", 1403, raw.size)
+        assertEquals("the bundled formula file changed size", 1397, raw.size)
         assertEquals("the category count changed", 16, raw.map { it.category }.distinct().size)
     }
 
@@ -57,7 +57,7 @@ class FormulaCoreTest {
     @Test fun everyEntryIsClassifiedAndTheCountsAddUp() {
         if (definitions.isEmpty()) return
         val counts = FormulaRegistry.counts(definitions)
-        assertEquals(1403, counts.values.sum())
+        assertEquals(1397, counts.values.sum())
         // Every kind of outcome the classifier can reach must be reached, or the
         // rule for it is dead. CONVERTER is deliberately absent: nothing in this
         // data set is a unit conversion — the seven entries that mention degrees
@@ -453,6 +453,32 @@ class FormulaCoreTest {
         }
     }
 
+    @Test fun independentEventsAreNotMutuallyExclusive() {
+        if (raw.isEmpty()) return
+        // P(A) + P(B) double-counts both happening. That is the rule for events
+        // that cannot both happen, and it was applied to events that can.
+        val entry = raw.firstOrNull { it.title == "Addition Rule for Independent Events" }
+        assertNotNull(entry)
+        assertTrue("the independent-event rule double-counts: ${entry!!.printed}",
+            entry.printed.contains("P(A)P(B)"))
+    }
+
+    @Test fun theFourthBatchOfRepairsIsIn() {
+        if (raw.isEmpty()) return
+        val expected = mapOf(
+            "Operations with Matrices" to "A Aᵀ = I",
+            "Integrals of Trigonometric Functions: cosine of a multiple angle" to
+                "∫cos²x dx = x/2 + (sin 2x)/4 + C",
+            "Some Finite Series: sum from k" to
+                "k + (k + 1) + (k + 2) + ... + (k + n - 1) = n(2k + n - 1) / 2",
+        )
+        for ((title, text) in expected) {
+            val entry = raw.firstOrNull { it.title == title }
+            assertNotNull("'$title' is gone", entry)
+            assertEquals("'$title' was changed again", text, entry!!.printed)
+        }
+    }
+
     @Test fun aStructuralFormulaIsNotPretendedToBeACalculator() {
         for (printed in listOf(
             "dy/dx = 2x",
@@ -474,7 +500,7 @@ class FormulaCoreTest {
         // nobody checks is a number that is wrong.
         val readme = file("README.md") ?: return
         val text = readme.readText()
-        assertTrue("the README does not give the reference count", text.contains("1,403 formulas"))
+        assertTrue("the README does not give the reference count", text.contains("1,397 formulas"))
         assertTrue("the README does not give the topic count", text.contains("16 topics"))
         assertTrue("the README does not give the calculator count", text.contains("343 formula calculators"))
         assertFalse("the old wrong count is still in the README", text.contains("1663"))

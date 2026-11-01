@@ -1871,11 +1871,6 @@
    "f": "z\"=[r(cosp+isinp)]² =r[cos(nq)+isin(np)]"
   },
   {
-   "c": "Sets & Numbers",
-   "t": "Formula“De Moivre”",
-   "f": "(cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)"
-  },
-  {
    "c": "Algebra",
    "t": "Factoring Formulas: difference of squares",
    "f": "a²-b²=(a-b)(a²+ab+b²)"
@@ -2973,7 +2968,7 @@
   {
    "c": "Matrices & Determinants",
    "t": "Operations with Matrices",
-   "f": "The matrix A is orthogonal if AAT =I"
+   "f": "A Aᵀ = I"
   },
   {
    "c": "Matrices & Determinants",
@@ -3038,7 +3033,7 @@
   {
    "c": "Vectors",
    "t": "Vector Subtraction: subtraction",
-   "f": "-v=u+(-v)"
+   "f": "u - v = u + (-v)"
   },
   {
    "c": "Vectors",
@@ -3063,7 +3058,7 @@
   {
    "c": "Vectors",
    "t": "Scaling Vectors: distributivity over scalars",
-   "f": "(+μ)=u+μu"
+   "f": "(λ + μ)u = λu + μu"
   },
   {
    "c": "Vectors",
@@ -3078,7 +3073,7 @@
   {
    "c": "Vectors",
    "t": "Scalar Product of Vectors ui andv",
-   "f": "u · v = |u||v| cos θ"
+   "f": "u · v = |u| |v| cos θ"
   },
   {
    "c": "Vectors",
@@ -3227,11 +3222,6 @@
   },
   {
    "c": "Analytic Geometry",
-   "t": "Intercept Form: intercept form",
-   "f": "x+y=1 a b"
-  },
-  {
-   "c": "Analytic Geometry",
    "t": "Normal Form: normal form in the plane",
    "f": "xcosβ+ysinβ-p=0"
   },
@@ -3273,7 +3263,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Equation of an Ellipse (Standard Form)",
-   "f": "+y² a² b² =1 F"
+   "f": "x²/a² + y²/b² = 1"
   },
   {
    "c": "Analytic Geometry",
@@ -3413,7 +3403,7 @@
   {
    "c": "Analytic Geometry",
    "t": "Perpendicular Line and Plane",
-   "f": "The straight line a b Ax + By + Cz + D = 0 are perpendicular if nlls"
+   "f": "A/a = B/b = C/c"
   },
   {
    "c": "Analytic Geometry",
@@ -3483,7 +3473,7 @@
   {
    "c": "Differential Calculus",
    "t": "Even Function",
-   "f": "f(-x)=f(x)"
+   "f": "f(-x) = f(x)"
   },
   {
    "c": "Differential Calculus",
@@ -3493,7 +3483,7 @@
   {
    "c": "Differential Calculus",
    "t": "Periodic Function",
-   "f": "f(x+nT)=f(x)"
+   "f": "f(x + nT) = f(x)"
   },
   {
    "c": "Differential Calculus",
@@ -3693,7 +3683,7 @@
   {
    "c": "Differential Calculus",
    "t": "Differential: constant multiple of a differential",
-   "f": "d(Cu)=Cdu"
+   "f": "d(Cu) = C du"
   },
   {
    "c": "Differential Calculus",
@@ -3718,7 +3708,7 @@
   {
    "c": "Differential Calculus",
    "t": "Stationary Points",
-   "f": "e oxy =0. Local maxima and local minima occur at stationary points"
+   "f": "f'(x) = 0"
   },
   {
    "c": "Differential Calculus",
@@ -3773,7 +3763,7 @@
   {
    "c": "Integral Calculus",
    "t": "Indefinite Integral: the derivative of an integral",
-   "f": "(f(x)dx)=(x)"
+   "f": "d/dx ∫f(x)dx = f(x)"
   },
   {
    "c": "Integral Calculus",
@@ -3818,7 +3808,7 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Irrational Functions: root of a linear",
-   "f": "√ax+bdx= (ax +b)+C"
+   "f": "∫√(ax+b)dx = (2/(3a))(ax+b)^(3/2) + C"
   },
   {
    "c": "Integral Calculus",
@@ -3868,7 +3858,7 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions: cosine of a multiple angle",
-   "f": "cos²xdx= x+1 sin2x+C 24"
+   "f": "∫cos²x dx = x/2 + (sin 2x)/4 + C"
   },
   {
    "c": "Integral Calculus",
@@ -3877,28 +3867,13 @@
   },
   {
    "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions: cosecant of a multiple angle",
-   "f": "csc²x dx=-cotx+C"
-  },
-  {
-   "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions: sine identity",
-   "f": "sin x cosx dx = cos2x+C 4 238"
+   "f": "∫sin x cos x dx = -(cos 2x)/4 + C"
   },
   {
    "c": "Integral Calculus",
    "t": "Intan",
    "f": "sinx + C COSX"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions: tangent of a multiple angle",
-   "f": "tan²x dx= tan x-x+C"
-  },
-  {
-   "c": "Integral Calculus",
-   "t": "Integrals of Trigonometric Functions: cotangent identity",
-   "f": "cot xdx = In|sin x|+ C"
   },
   {
    "c": "Integral Calculus",
@@ -3908,17 +3883,17 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions: cosine of a sum",
-   "f": "cos(m+n)x cos(m-n)x sin mxcosnx dx = +C 2(m+n)"
+   "f": "∫sin mx cos nx dx = -cos((m+n)x)/(2(m+n)) - cos((m-n)x)/(2(m-n)) + C"
   },
   {
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions: secant identity",
-   "f": "secxtan xdx = secx +C"
+   "f": "∫sec x tan x dx = sec x + C"
   },
   {
    "c": "Integral Calculus",
    "t": "Integrals of Trigonometric Functions: cosecant identity",
-   "f": "cscxcotxdx=-cscx+C"
+   "f": "∫csc x cot x dx = -csc x + C"
   },
   {
    "c": "Integral Calculus",
@@ -3953,17 +3928,17 @@
   {
    "c": "Integral Calculus",
    "t": "Integrals of Hyperbolic Functions: integral of hyperbolic tangent",
-   "f": "Jsech²xdx=tanhx+C"
+   "f": "∫sech²x dx = tanh x + C"
   },
   {
    "c": "Integral Calculus",
    "t": "Integrals of Hyperbolic Functions: integral of hyperbolic cotangent",
-   "f": "Jcsch²xdx=-cothx +C"
+   "f": "∫csch²x dx = -coth x + C"
   },
   {
    "c": "Integral Calculus",
    "t": "Integrals of Hyperbolic Functions: integral of hyperbolic tangent (2)",
-   "f": "Jsechx tanh xdx =-sechx+C 241"
+   "f": "∫sech x tanh x dx = -sech x + C"
   },
   {
    "c": "Integral Calculus",
@@ -4063,7 +4038,7 @@
   {
    "c": "Integral Calculus",
    "t": "Definite Integral: reversing the limits",
-   "f": "Jf(x)dx=-Jf(x)dx"
+   "f": "∫_a^b f(x)dx = -∫_b^a f(x)dx"
   },
   {
    "c": "Integral Calculus",
@@ -4258,7 +4233,7 @@
   {
    "c": "Integral Calculus",
    "t": "Gauss'Law",
-   "f": "The electric flux through any closed surface is proportional to the charge Q enclosed by the surface fE·ds= Q E0"
+   "f": "∮E·ds = Q/ε₀"
   },
   {
    "c": "Differential Equations",
@@ -4288,22 +4263,22 @@
   {
    "c": "Differential Equations",
    "t": "Population Dynamics (Logistic Model)",
-   "f": "dP_ = kP|1- P 1P M"
+   "f": "dP/dt = kP(1 − P/M)"
   },
   {
    "c": "Differential Equations",
    "t": "Inhomogeneous Linear Equations with Constant",
-   "f": "Coefficients y\"+py'+qy=f(x). The general solution is given by y=y+yh,where y, is a particular solution of the inhomogeneous equation"
+   "f": "y'' + py' + qy = f(x), y = y_p + y_h"
   },
   {
    "c": "Differential Equations",
    "t": "Differential Equations with y Missing",
-   "f": "y\"=f(x,y). Set u=y'. Then the new equation satisfied by v is u'=f(x,u), which is a first order differential equation. 299"
+   "f": "y'' = f(x, y'), u = y', u' = f(x, u)"
   },
   {
    "c": "Differential Equations",
    "t": "Differential Equations with x Missing",
-   "f": "y\"=f(y,y). Set u=y'.Since du_dudy du dxdydx"
+   "f": "y'' = f(y, y'), u = y', y'' = u(du/dy)"
   },
   {
    "c": "Differential Equations",
@@ -4313,7 +4288,7 @@
   {
    "c": "Differential Equations",
    "t": "Free Damped Vibrations",
-   "f": "my +yy + ky =0, where is the damping coefficient. There are 3 cases for the general solution: 300"
+   "f": "my'' + γy' + ky = 0"
   },
   {
    "c": "Differential Equations",
@@ -4338,7 +4313,7 @@
   {
    "c": "Series",
    "t": "Arithmetic Series: nth term",
-   "f": "a =an- +d=an- +2d= ..=a, +(n-1)d"
+   "f": "aₙ = a₁ + (n − 1)d"
   },
   {
    "c": "Series",
@@ -4348,27 +4323,27 @@
   {
    "c": "Series",
    "t": "Arithmetic Series: arithmetic mean",
-   "f": "a= ai-+ai1 2"
+   "f": "aᵢ = (aᵢ₋₁ + aᵢ₊₁) / 2"
   },
   {
    "c": "Series",
    "t": "Geometric Series: nth term",
-   "f": "a = qa- =a,q-"
+   "f": "aₙ = a₁qⁿ⁻¹"
   },
   {
    "c": "Series",
    "t": "Geometric Series: series formula",
-   "f": "a·a =a·a-=...=a;·an+1-i"
+   "f": "a₁aₙ = a₂aₙ₋₁ = ... = aᵢaₙ₊₁₋ᵢ"
   },
   {
    "c": "Series",
    "t": "Geometric Series: geometric mean of neighbours",
-   "f": "a;=√a;-·ai1"
+   "f": "aᵢ = √(aᵢ₋₁aᵢ₊₁)"
   },
   {
    "c": "Series",
    "t": "Geometric Series: sum of a geometric series",
-   "f": "s, =a.q-a = q-1"
+   "f": "Sₙ = a₁(qⁿ − 1) / (q − 1)"
   },
   {
    "c": "Series",
@@ -4378,17 +4353,17 @@
   {
    "c": "Series",
    "t": "Some Finite Series: sum of even numbers",
-   "f": "2+4+6+...+2n=n(n+1)"
+   "f": "2 + 4 + 6 + ... + 2n = n(n + 1)"
   },
   {
    "c": "Series",
    "t": "Some Finite Series: finite sum (2)",
-   "f": "1+3+5+...+(2n-1)=n²"
+   "f": "1 + 3 + 5 + ... + (2n − 1) = n²"
   },
   {
    "c": "Series",
    "t": "Some Finite Series: sum from k",
-   "f": "k+(k+ 1)+(k+2)++ (k+n1)= n(2k +n-1)"
+   "f": "k + (k + 1) + (k + 2) + ... + (k + n - 1) = n(2k + n - 1) / 2"
   },
   {
    "c": "Series",
@@ -4398,7 +4373,7 @@
   {
    "c": "Series",
    "t": "Some Finite Series: sum of odd squares",
-   "f": "1° +3² + 5² +..+(2n-1) =n²(2n²1)"
+   "f": "1² + 3² + 5² + ... + (2n − 1)² = n(4n² − 1) / 3"
   },
   {
    "c": "Series",
@@ -4443,7 +4418,7 @@
   {
    "c": "Series",
    "t": "Properties of Convergent Series: constant multiple",
-   "f": "ca=c>a =cA"
+   "f": "Σ(caₙ) = cΣaₙ = cA"
   },
   {
    "c": "Series",
@@ -4478,12 +4453,12 @@
   {
    "c": "Series",
    "t": "Conditional Convergence",
-   "f": "A series >a is conditionally convergent if the series is n=1 convergent but is not absolutely convergent"
+   "f": "Σaₙ is conditionally convergent if Σaₙ converges but Σ|aₙ| diverges"
   },
   {
    "c": "Series",
    "t": "Power Series in x",
-   "f": "ax²=a+ax+ax²+ 1=0"
+   "f": "Σaₙxⁿ = a₀ + a₁x + a₂x² + ..."
   },
   {
    "c": "Series",
@@ -4493,27 +4468,27 @@
   {
    "c": "Series",
    "t": "Interval of Convergence",
-   "f": "The set of those values of x for which the function f(x)=a(x-x) is convergent iscalled the interval of n=0 convergence. 311"
+   "f": "f(x) = Σaₙ(x − x₀)ⁿ"
   },
   {
    "c": "Series",
    "t": "Differentiation of Power Series",
-   "f": "Let f(x)=ax²=a +axx+ax²+..for |x|<R. n=0 Then, for |x|<R, f(x) is continuous, the derivative f’(x) exists and f(x)="
+   "f": "f'(x) = Σnaₙxⁿ⁻¹ for |x| < R"
   },
   {
    "c": "Series",
    "t": "Series for a to the x",
-   "f": "a²=1+ 2! iE n!"
+   "f": "aˣ = 1 + x ln a + (x² (ln a)²)/2! + ... + (xⁿ (ln a)ⁿ)/n!"
   },
   {
    "c": "Series",
    "t": "Series for cos x",
-   "f": "cos x=1- i9业 (2n)! 314"
+   "f": "cos x = Σ(−1)ⁿx²ⁿ / (2n)!"
   },
   {
    "c": "Series",
    "t": "Power Series Expansions for Some: sine series",
-   "f": "sinx=x- (1)”x2n+1 3! 5! 7! (2n +1)!"
+   "f": "sin x = Σ(−1)ⁿx²ⁿ⁺¹ / (2n + 1)!"
   },
   {
    "c": "Series",
@@ -4533,12 +4508,12 @@
   {
    "c": "Series",
    "t": "Power Series Expansions for Some: hyperbolic sine series",
-   "f": "sinhx=x+ x* 3! 5! 7! (2n + 1)!"
+   "f": "sinh x = Σx²ⁿ⁺¹ / (2n + 1)!"
   },
   {
    "c": "Series",
    "t": "Binomial Series: binomial expansion",
-   "f": "(1+x)² =1+ \"C,x+ °C,x²+..+ \"Cx n(n-1)..[n-(m-1)]"
+   "f": "(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + ..."
   },
   {
    "c": "Series",
@@ -4548,12 +4523,12 @@
   {
    "c": "Series",
    "t": "Series for the root of one plus x",
-   "f": "√1+x=1+ 1·3·5x4"
+   "f": "√(1+x) = 1 + x/2 - x²/8 + x³/16 - 5x⁴/128 + ..."
   },
   {
    "c": "Series",
    "t": "Fourier Series: the Fourier series",
-   "f": "f(x)=+(a cosnx+b sinnx)"
+   "f": "f(x) = a₀/2 + Σ(aₙcos nx + bₙsin nx)"
   },
   {
    "c": "Series",
@@ -4568,7 +4543,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Permutations and Combinations: permutations of everything",
-   "f": "\"P, =n!"
+   "f": "P(n, n) = n!"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4578,17 +4553,17 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Permutations and Combinations: symmetry of combinations",
-   "f": "\"Cm=\"Cn-m"
+   "f": "C(n, m) = C(n, n − m)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Permutations and Combinations: Pascal's rule",
-   "f": "Cm +² Cm+I ==+1 Cm+ 318"
+   "f": "C(n, m) + C(n, m − 1) = C(n + 1, m)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Permutations and Combinations: the sum of a row",
-   "f": "ⁿC₀ + ⁿC₁ + ... + ⁿCₙ = 2ⁿ"
+   "f": "C(n, 0) + C(n, 1) + ... + C(n, n) = 2ⁿ"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4608,17 +4583,17 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Addition Rule for Independent Events",
-   "f": "P(AU B)=P(A)+ P(B)"
+   "f": "P(A ∪ B) = P(A) + P(B) − P(A)P(B)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Multiplication Rule for Independent Events",
-   "f": "P(A B)=P(A)· P(B)"
+   "f": "P(A ∩ B) = P(A) · P(B)"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Probability Formulas: the multiplication rule",
-   "f": "P(AB)=P(B)·P(A/B)=P(A)·P(B/A) 320"
+   "f": "P(A ∩ B) = P(B)P(A|B) = P(A)P(B|A)"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4633,7 +4608,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Standard Normal Density Function",
-   "f": "1 p(z)= 2 √2π Average value μ = 0, deviation =1"
+   "f": "φ(z) = (1 / √(2π)) e^(−z²/2)"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4648,12 +4623,12 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Cumulative Normal Distribution Function",
-   "f": "_(t-μ) F(x)=- 2o²dt, √2π 322"
+   "f": "F(x) = ∫_{-∞}^x (1 / √(2π)) e^(−t²/2) dt"
   },
   {
    "c": "Probability & Combinatorics",
    "t": "Cumulative Distribution Function",
-   "f": "F(x)=P(x<x)={f(t)dt, where t is a variable of integration"
+   "f": "F(x) = P(X ≤ x) = ∫_{-∞}^x f(t) dt"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4683,7 +4658,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Expected Value of Continuous Random Variables",
-   "f": "μ=E(x)={xf(x)dx"
+   "f": "E(X) = ∫ x f(x) dx"
   },
   {
    "c": "Probability & Combinatorics",
@@ -4703,7 +4678,7 @@
   {
    "c": "Probability & Combinatorics",
    "t": "Correlation",
-   "f": "ρ(X, Y) = cov(X, Y) / √[V(X)V(Y)]"
+   "f": "ρ(X, Y) = Cov(X, Y) / √(Var(X)Var(Y))"
   },
   {
    "c": "Sets & Numbers",
@@ -4818,7 +4793,7 @@
   {
    "c": "Algebra",
    "t": "De Moivre's theorem",
-   "f": "(cos θ + i sin θ)ⁿ = cos nθ + i sin nθ"
+   "f": "(cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)"
   },
   {
    "c": "Algebra",
@@ -4883,7 +4858,7 @@
   {
    "c": "Vectors",
    "t": "Equation of a plane",
-   "f": "a(x − x₀) + b(y − y₀) + c(z − z₀) = 0 with normal n = (a, b, c)"
+   "f": "a(x − x₀) + b(y − y₀) + c(z − z₀) = 0"
   },
   {
    "c": "Vectors",
@@ -5148,7 +5123,7 @@
   {
    "c": "Differential Equations",
    "t": "Undetermined coefficients",
-   "f": "yₚ = A e^(ax) for R(x) = e^(ax)"
+   "f": "y_p = A e^(ax)"
   },
   {
    "c": "Differential Equations",
@@ -5193,7 +5168,7 @@
   {
    "c": "Differential Equations",
    "t": "Convolution theorem",
-   "f": "L{f ∗ g} = F(s) · G(s)"
+   "f": "L{f ∗ g} = F(s)G(s)"
   },
   {
    "c": "Differential Equations",
@@ -5223,12 +5198,12 @@
   {
    "c": "Differential Equations",
    "t": "Heun's method",
-   "f": "yₙ₊₁ = yₙ + (h/2)[f(xₙ, yₙ) + f(xₙ₊₁, y*ₙ₊₁)]"
+   "f": "yₙ₊₁ = yₙ + (h/2)[f(xₙ, yₙ) + f(xₙ₊₁, yₙ + hf(xₙ, yₙ))]"
   },
   {
    "c": "Finance & Economics",
    "t": "Prepaid forward price",
-   "f": "Fᴾ(t, T) = S_t or S_t e^(−δ(T−t))"
+   "f": "F^P(t, T) = S_t e^(−δ(T−t))"
   },
   {
    "c": "Finance & Economics",
@@ -5253,7 +5228,7 @@
   {
    "c": "Finance & Economics",
    "t": "Arbitrage weights",
-   "f": "K₂ = λK₁ + (1 − λ)K₃ with λ = (K₃ − K₂)/(K₃ − K₁)"
+   "f": "K₂ = λK₁ + (1 − λ)K₃, λ = (K₃ − K₂) / (K₃ − K₁)"
   },
   {
    "c": "Finance & Economics",
@@ -5308,12 +5283,12 @@
   {
    "c": "Finance & Economics",
    "t": "Ito's lemma",
-   "f": "df = (f_t + μ S f_S + ½ σ² S² f_SS) dt + σ S f_S dZ"
+   "f": "df = (f_t + μS f_S + ½σ²S² f_SS) dt + σS f_S dZ"
   },
   {
    "c": "Finance & Economics",
    "t": "Solution of geometric Brownian motion",
-   "f": "S_t = S₀ e^((μ − σ²/2)t + σ Z_t)"
+   "f": "S_t = S₀ e^((μ − σ²/2)t + σZ_t)"
   },
   {
    "c": "Finance & Economics",
@@ -5328,7 +5303,7 @@
   {
    "c": "Finance & Economics",
    "t": "Sharpe ratio estimate",
-   "f": "Estimated Sharpe = (α̂ − r) / σ̂"
+   "f": "Sharpe = (α̂ − r) / σ̂"
   },
   {
    "c": "Finance & Economics",
@@ -5358,7 +5333,7 @@
   {
    "c": "Finance & Economics",
    "t": "Annuity due present value",
-   "f": "PV = P · (1 + i) · (1 − (1 + i)^(−n)) / i"
+   "f": "PV = P/i · [1 − (1 + i)⁻ⁿ]"
   },
   {
    "c": "Finance & Economics",
@@ -5368,12 +5343,12 @@
   {
    "c": "Finance & Economics",
    "t": "Growing perpetuity",
-   "f": "PV = P / (i − g) with i > g"
+   "f": "PV = P / (i − g), i > g"
   },
   {
    "c": "Finance & Economics",
    "t": "Continuous present value",
-   "f": "PV = FV · e^(−rt)"
+   "f": "FV = P e^(rt)"
   },
   {
    "c": "Finance & Economics",
@@ -5488,42 +5463,42 @@
   {
    "c": "Physics",
    "t": "Mechanics: Gravitational potential energy",
-   "f": "U = m g h"
+   "f": "W = ΔKE = (1/2)m(v² − u²)"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Elastic potential energy",
-   "f": "U = ½ k x²"
+   "f": "KE = (1/2)mv²"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Mechanical energy conservation",
-   "f": "K₁ + U₁ = K₂ + U₂"
+   "f": "PE = mgh"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Power",
-   "f": "P = W / t = F v"
+   "f": "P = W / t = Fv"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Centripetal acceleration",
-   "f": "a = v² / r = ω² r"
+   "f": "a = v² / r = ω²r"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Centripetal force",
-   "f": "F = m v² / r"
+   "f": "F = mv² / r"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Angular velocity",
-   "f": "ω = 2π / T = 2π f"
+   "f": "ω = 2π / T = 2πf"
   },
   {
    "c": "Physics",
    "t": "Mechanics: Linear and angular speed",
-   "f": "v = ω r"
+   "f": "v = rω"
   },
   {
    "c": "Physics",
@@ -5533,7 +5508,7 @@
   {
    "c": "Physics",
    "t": "Mechanics: Rotational kinetic energy",
-   "f": "K = ½ I ω²"
+   "f": "KE_rot = (1/2)Iω²"
   },
   {
    "c": "Physics",
@@ -5628,7 +5603,7 @@
   {
    "c": "Physics",
    "t": "Mechanics: Bernoulli's equation",
-   "f": "P + ½ ρ v² + ρ g h = constant"
+   "f": "P + (1/2)ρv² + ρgh = constant"
   },
   {
    "c": "Physics",
@@ -6468,7 +6443,7 @@
   {
    "c": "Chemistry",
    "t": "Chemical Thermodynamics: Calorimetry",
-   "f": "qᵣₑₐᶜₜᵢₒₙ = −qₛᵤᵣᵣₒᵤₙᵈᵢₙᵏₛ"
+   "f": "q_reaction = −q_surroundings"
   },
   {
    "c": "Chemistry",
@@ -6723,22 +6698,22 @@
   {
    "c": "Financial Derivatives",
    "t": "Forward price (no dividend)",
-   "f": "F(t,T) = S(t)·e^{r(T−t)}"
+   "f": "F(t, T) = S(t) e^(r(T−t))"
   },
   {
    "c": "Financial Derivatives",
    "t": "Forward price (dividend yield)",
-   "f": "F(t,T) = S(t)·e^{(r−δ)(T−t)}"
+   "f": "F(t, T) = S(t) e^((r−δ)(T−t))"
   },
   {
    "c": "Financial Derivatives",
    "t": "Prepaid forward",
-   "f": "F^P(t,T) = S(t) − PV(dividends)"
+   "f": "F^P(t, T) = S(t) − PV(dividends)"
   },
   {
    "c": "Financial Derivatives",
    "t": "Forward value at delivery",
-   "f": "V(T) = S(T) − F(t,T)"
+   "f": "V(T) = S(T) − F(t, T)"
   },
   {
    "c": "Financial Derivatives",
@@ -6772,11 +6747,6 @@
   },
   {
    "c": "Financial Derivatives",
-   "t": "Arbitrage strike weights",
-   "f": "K₂ = λK₁ + (1−λ)K₃,  λ = (K₃−K₂)/(K₃−K₁)"
-  },
-  {
-   "c": "Financial Derivatives",
    "t": "American vs European call",
    "f": "c(S,K,t,T) ≤ C(S,K,t,T) ≤ S(t)"
   },
@@ -6798,7 +6768,7 @@
   {
    "c": "Financial Derivatives",
    "t": "One-period binomial price",
-   "f": "Δ = (C_u − C_d)/(S_u − S_d)"
+   "f": "Δ = (C_u − C_d) / (S_u − S_d)"
   },
   {
    "c": "Financial Derivatives",
