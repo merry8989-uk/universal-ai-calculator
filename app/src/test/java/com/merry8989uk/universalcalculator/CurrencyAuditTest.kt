@@ -37,9 +37,17 @@ class CurrencyAuditTest {
     @Test fun theCommonOnesComeFirst() {
         val offered = orderedCodes(rates)
         assertEquals("INR", offered.first())
-        // and the rest are alphabetical after them
-        val tail = offered.drop(4)
+        // Everything that is not one of the common ones must come after them, and
+        // be alphabetical among itself. Written without a fixed count, because
+        // how many of the common ones are in a given table is not the point.
+        val common = setOf("INR", "USD", "EUR", "GBP", "AED", "SGD", "JPY", "CNY",
+            "AUD", "CAD", "CHF", "HKD", "MYR", "THB", "SAR", "ZAR",
+            "NZD", "KRW", "BRL", "RUB")
+        val firstRare = offered.indexOfFirst { it !in common }
+        val tail = if (firstRare < 0) emptyList() else offered.drop(firstRare)
         assertEquals("the remainder is not alphabetical", tail.sorted(), tail)
+        assertTrue("a common currency came after a rare one",
+            offered.take(if (firstRare < 0) offered.size else firstRare).all { it in common })
     }
 
     @Test fun aCurrencyWithNoRateIsNotSilentlyDropped() {
