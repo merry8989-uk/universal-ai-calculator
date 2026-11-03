@@ -5,7 +5,6 @@ import com.merry8989uk.universalcalculator.calc.Countries
 import com.merry8989uk.universalcalculator.calc.Crypto
 import com.merry8989uk.universalcalculator.calc.CryptoRates
 import com.merry8989uk.universalcalculator.calc.ExchangeMath
-import com.merry8989uk.universalcalculator.calc.CurrencyMath
 import com.merry8989uk.universalcalculator.ui.orderedCodes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -62,30 +61,30 @@ class CurrencyAuditTest {
     @Test fun aCurrencyWithNoRateIsNotSilentlyDropped() {
         // convert returns null for an unknown code, and the screen used to skip
         // the row, so a missing currency looked like a missing app feature.
-        assertNull(CurrencyMath.convert(100.0, "XYZ", rates))
-        assertNotNull(CurrencyMath.convert(100.0, "INR", rates))
+        assertNull(ExchangeMath.convert(100.0, "USD", "XYZ", rates, emptyMap()))
+        assertNotNull(ExchangeMath.convert(100.0, "USD", "INR", rates, emptyMap()))
     }
 
     @Test fun theRegionalCurrenciesWork() {
         // the ones a user in India is most likely to look for
-        assertEquals(100.0 * 278.0, CurrencyMath.convert(100.0, "PKR", rates)!!, 1e-9)
-        assertEquals(100.0 * 133.0, CurrencyMath.convert(100.0, "NPR", rates)!!, 1e-9)
-        assertEquals(100.0 * 110.0, CurrencyMath.convert(100.0, "BDT", rates)!!, 1e-9)
-        assertEquals(100.0 * 300.0, CurrencyMath.convert(100.0, "LKR", rates)!!, 1e-9)
+        assertEquals(100.0 * 278.0, ExchangeMath.convert(100.0, "USD", "PKR", rates, emptyMap())!!, 1e-9)
+        assertEquals(100.0 * 133.0, ExchangeMath.convert(100.0, "USD", "NPR", rates, emptyMap())!!, 1e-9)
+        assertEquals(100.0 * 110.0, ExchangeMath.convert(100.0, "USD", "BDT", rates, emptyMap())!!, 1e-9)
+        assertEquals(100.0 * 300.0, ExchangeMath.convert(100.0, "USD", "LKR", rates, emptyMap())!!, 1e-9)
     }
 
     @Test fun aCrossRateIsTheRatioOfTheTwoRates() {
         // 1 INR in PKR is the PKR rate over the INR rate
-        assertEquals(278.0 / 83.0, CurrencyMath.crossRate("INR", "PKR", rates)!!, 1e-12)
-        assertEquals(1.0, CurrencyMath.crossRate("INR", "INR", rates)!!, 1e-12)
+        assertEquals(278.0 / 83.0, ExchangeMath.rate("INR", "PKR", rates, emptyMap())!!, 1e-12)
+        assertEquals(1.0, ExchangeMath.rate("INR", "INR", rates, emptyMap())!!, 1e-12)
         assertNull("a code with no rate must not produce a number",
-            CurrencyMath.crossRate("INR", "XYZ", rates))
+            ExchangeMath.rate("INR", "XYZ", rates, emptyMap()))
     }
 
     @Test fun aZeroRateIsRefusedRatherThanDividedBy() {
         val broken = mapOf("USD" to 1.0, "INR" to 0.0)
-        assertNull(CurrencyMath.convert(10.0, "INR", broken))
-        assertNull(CurrencyMath.crossRate("INR", "USD", broken))
+        assertNull(ExchangeMath.convert(10.0, "USD", "INR", broken, emptyMap()))
+        assertNull(ExchangeMath.usdPerUnit("INR", broken, emptyMap()))
     }
 
     @Test fun theAgeOfTheSavedRatesIsReadable() {
@@ -155,7 +154,7 @@ class CurrencyAuditTest {
     @Test fun theConvertersOwnPairWorks() {
         // 100 rupees in Nepalese rupees, which is the example the whole two-picker
         // design exists for
-        val r = CurrencyMath.convertBetween(100.0, "INR", "NPR", rates)
+        val r = ExchangeMath.convert(100.0, "INR", "NPR", rates, emptyMap())
         assertNotNull("INR to NPR produced nothing", r)
         assertEquals(100.0 * 133.0 / 83.0, r!!, 1e-9)
     }
