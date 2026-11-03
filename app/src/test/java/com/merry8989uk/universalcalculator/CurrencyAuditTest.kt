@@ -1,6 +1,7 @@
 package com.merry8989uk.universalcalculator
 
 import com.merry8989uk.universalcalculator.calc.CacheAge
+import com.merry8989uk.universalcalculator.calc.Countries
 import com.merry8989uk.universalcalculator.calc.CurrencyMath
 import com.merry8989uk.universalcalculator.ui.orderedCodes
 import org.junit.Assert.assertEquals
@@ -86,6 +87,69 @@ class CurrencyAuditTest {
         assertEquals("2 hours ago", CacheAge.describe(now - 2 * 3_600_000L, now))
         assertTrue("a day-old table should be called stale",
             CacheAge.isStale(now - 25 * 3_600_000L, now))
+    }
+
+    // ---- the country list ----
+
+    @Test fun thereAreCountriesToChooseFrom() {
+        // a converter that only knows twenty currencies cannot answer "what is my
+        // rupee worth in Nepal" for most of the world
+        assertTrue("only ${Countries.all.size} countries", Countries.all.size >= 190)
+        assertTrue("only ${Countries.codes().size} currencies", Countries.codes().size >= 140)
+    }
+
+    @Test fun aCountryKnowsItsCurrency() {
+        assertEquals("INR", Countries.codeFor("India"))
+        assertEquals("NPR", Countries.codeFor("Nepal"))
+        assertEquals("USD", Countries.codeFor("United States"))
+        assertEquals("GBP", Countries.codeFor("United Kingdom"))
+        // and it does not care about case or stray spaces
+        assertEquals("INR", Countries.codeFor("  india "))
+        assertNull(Countries.codeFor("Atlantis"))
+    }
+
+    @Test fun everyCountryHasAThreeLetterCode() {
+        for (c in Countries.all) {
+            assertTrue("${c.name} has the code ${c.code}", Regex("^[A-Z]{3}$").matches(c.code))
+            assertTrue("${c.name} has no currency name", Countries.currencyName(c.code).isNotBlank())
+        }
+    }
+
+    @Test fun searchingFindsACountryByAnyOfItsNames() {
+        // typing the country, the code or the currency should all reach Nepal
+        for (q in listOf("nep", "Nepal", "NPR", "nepalese")) {
+            assertTrue("searching '$q' did not find Nepal",
+                Countries.search(q).any { it.name == "Nepal" })
+        }
+    }
+
+    @Test fun aCurrencyUsedByManyCountriesFindsThemAll() {
+        // the euro belongs to twenty countries, and the franc to a dozen more
+        val euro = Countries.byCode("EUR").map { it.name }
+        assertTrue("the euro should belong to many countries, found ${euro.size}", euro.size >= 15)
+        assertTrue("Germany is missing from the euro", "Germany" in euro)
+        assertTrue("France is missing from the euro", "France" in euro)
+    }
+
+    @Test fun anEmptySearchReturnsEverything() {
+        assertEquals(Countries.all.size, Countries.search("").size)
+        assertEquals(Countries.all.size, Countries.search("   ").size)
+    }
+
+    @Test fun aCountryLabelSaysWhatTheMoneyIsCalled() {
+        val india = Countries.all.first { it.name == "India" }
+        val label = Countries.label(india)
+        assertTrue("the label does not name the country: $label", label.contains("India"))
+        assertTrue("the label does not give the code: $label", label.contains("INR"))
+        assertTrue("the label does not name the currency: $label", label.contains("Rupee"))
+    }
+
+    @Test fun theConvertersOwnPairWorks() {
+        // 100 rupees in Nepalese rupees, which is the example the whole two-picker
+        // design exists for
+        val r = CurrencyMath.convertBetween(100.0, "INR", "NPR", rates)
+        assertNotNull("INR to NPR produced nothing", r)
+        assertEquals(100.0 * 133.0 / 83.0, r!!, 1e-9)
     }
 
     @Test fun theConverterIsReachableFromTheToolsList() {
