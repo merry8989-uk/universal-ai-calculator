@@ -27,6 +27,11 @@ class CurrencyCache(private val context: Context) {
         val BASE = stringPreferencesKey("base")
         val RATES = stringPreferencesKey("rates_json")
         val TIME = longPreferencesKey("timestamp")
+        // the coin prices live in the same store but under their own keys: they
+        // come from a different service and go stale at a different speed, so
+        // they must not be able to overwrite the currency table
+        val CRYPTO = stringPreferencesKey("crypto_json")
+        val CRYPTO_TIME = longPreferencesKey("crypto_timestamp")
     }
 
     val flow: Flow<CachedRates?> = context.currencyStore.data.map { p ->
@@ -45,6 +50,25 @@ class CurrencyCache(private val context: Context) {
             it[Keys.BASE] = base
             it[Keys.RATES] = encode(rates)
             it[Keys.TIME] = timestampMillis
+        }
+    }
+
+    /** The last coin prices seen, or null when there are none saved. */
+    suspend fun cryptoSnapshot(): com.merry8989uk.universalcalculator.calc.CachedCrypto? {
+        val p = context.currencyStore.data.first()
+        val json = p[Keys.CRYPTO] ?: return null
+        val prices = decode(json)
+        if (prices.isEmpty()) return null
+        return com.merry8989uk.universalcalculator.calc.CachedCrypto(
+            prices, p[Keys.CRYPTO_TIME] ?: 0L,
+        )
+    }
+
+    suspend fun saveCrypto(prices: Map<String, Double>, timestampMillis: Long) {
+        if (prices.isEmpty()) return
+        context.currencyStore.edit {
+            it[Keys.CRYPTO] = encode(prices)
+            it[Keys.CRYPTO_TIME] = timestampMillis
         }
     }
 

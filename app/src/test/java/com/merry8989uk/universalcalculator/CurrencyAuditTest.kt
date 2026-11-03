@@ -2,9 +2,13 @@ package com.merry8989uk.universalcalculator
 
 import com.merry8989uk.universalcalculator.calc.CacheAge
 import com.merry8989uk.universalcalculator.calc.Countries
+import com.merry8989uk.universalcalculator.calc.Crypto
+import com.merry8989uk.universalcalculator.calc.CryptoRates
+import com.merry8989uk.universalcalculator.calc.ExchangeMath
 import com.merry8989uk.universalcalculator.calc.CurrencyMath
 import com.merry8989uk.universalcalculator.ui.orderedCodes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -24,6 +28,10 @@ class CurrencyAuditTest {
         "PKR" to 278.0, "NPR" to 133.0, "BDT" to 110.0, "LKR" to 300.0,
         "JPY" to 150.0, "ZAR" to 18.0,
     )
+
+    /** The rate table as the screen fetches it: always against the dollar. */
+    private val usdFiat = mapOf("USD" to 1.0, "INR" to 83.0, "NPR" to 133.0, "EUR" to 0.92)
+    private val usdCoins = mapOf("BTC" to 67000.0, "ETH" to 3300.0)
 
     @Test fun everyCurrencyInTheTableIsOffered() {
         // The converter used to show a fixed list of twenty and hide the rest,
@@ -150,6 +158,100 @@ class CurrencyAuditTest {
         val r = CurrencyMath.convertBetween(100.0, "INR", "NPR", rates)
         assertNotNull("INR to NPR produced nothing", r)
         assertEquals(100.0 * 133.0 / 83.0, r!!, 1e-9)
+    }
+
+    // ---- crypto ----
+
+    @Test fun thereAreCoinsToChooseFrom() {
+        assertTrue("only ${Crypto.all.size} coins", Crypto.all.size >= 60)
+        assertEquals("Bitcoin", Crypto.name("BTC"))
+        assertEquals("Ethereum", Crypto.name("ETH"))
+        assertTrue(Crypto.isCrypto("btc"))
+        assertFalse(Crypto.isCrypto("INR"))
+    }
+
+    @Test fun aCoinIsFoundByItsSymbolOrItsName() {
+        // a trader knows the symbol and a beginner knows the name; both must work
+        for (q in listOf("BTC", "btc", "Bitcoin", "bitco", "BITCOIN")) {
+            assertTrue("searching '$q' did not find Bitcoin",
+                Crypto.search(q).any { it.symbol == "BTC" })
+        }
+        assertTrue("searching 'ethereum' did not find ETH",
+            Crypto.search("ethereum").any { it.symbol == "ETH" })
+    }
+
+    @Test fun everyCoinHasASymbolAndAName() {
+        for (c in Crypto.all) {
+            assertTrue("${c.symbol} has no name", c.name.isNotBlank())
+            assertTrue("${c.symbol} is not a symbol", Regex("^[A-Z0-9]{2,10}$").matches(c.symbol))
+        }
+        assertEquals("a symbol appears twice", Crypto.all.size, Crypto.all.map { it.symbol }.distinct().size)
+    }
+
+    @Test fun aCoinIsConvertedThroughTheDollar() {
+        // the whole point of the dollar price: every pair is one division
+        assertEquals(67000.0 * 83.0,
+            ExchangeMath.convert(1.0, "BTC", "INR", usdFiat, usdCoins)!!, 1e-6)
+        assertEquals(100.0 / 83.0 / 67000.0,
+            ExchangeMath.convert(100.0, "INR", "BTC", usdFiat, usdCoins)!!, 1e-15)
+    }
+
+    @Test fun oneCoinIsWorthAnother() {
+        // BTC to ETH, which is the question crypto has and currencies do not
+        assertEquals(67000.0 / 3300.0,
+            ExchangeMath.convert(1.0, "BTC", "ETH", usdFiat, usdCoins)!!, 1e-9)
+        assertEquals(3300.0 / 67000.0,
+            ExchangeMath.convert(1.0, "ETH", "BTC", usdFiat, usdCoins)!!, 1e-12)
+        // and it works from the other direction too
+        assertEquals(2.0 * 3300.0 / 67000.0,
+            ExchangeMath.convert(2.0, "ETH", "BTC", usdFiat, usdCoins)!!, 1e-12)
+    }
+
+    @Test fun aCurrencyIsWorthADollarDividedByItsRate() {
+        // the table is "1 USD = rate of that currency"
+        assertEquals(1.0 / 83.0, ExchangeMath.usdPerUnit("INR", usdFiat, usdCoins)!!, 1e-15)
+        assertEquals(1.0, ExchangeMath.usdPerUnit("USD", usdFiat, usdCoins)!!, 1e-15)
+        assertEquals(67000.0, ExchangeMath.usdPerUnit("BTC", usdFiat, usdCoins)!!, 1e-9)
+        assertNull(ExchangeMath.usdPerUnit("XYZ", usdFiat, usdCoins))
+    }
+
+    @Test fun convertingACodeToItselfChangesNothing() {
+        assertEquals(5.0, ExchangeMath.convert(5.0, "BTC", "BTC", usdFiat, usdCoins)!!, 1e-12)
+        assertEquals(5.0, ExchangeMath.convert(5.0, "INR", "inr", usdFiat, usdCoins)!!, 1e-12)
+    }
+
+    @Test fun aCoinWithNoPriceDoesNotBecomeFree() {
+        // a zero price would make the coin infinitely valuable the other way round
+        val noBtc = mapOf("ETH" to 3300.0)
+        assertNull(ExchangeMath.convert(1.0, "BTC", "INR", usdFiat, noBtc))
+        val zeroBtc = mapOf("BTC" to 0.0)
+        assertNull(ExchangeMath.usdPerUnit("BTC", usdFiat, zeroBtc))
+    }
+
+    @Test fun aCoinWithNoPriceIsSkippedRatherThanStoredAsZero() {
+        // The rule, tested without the JSON layer: org.json is an Android stub and
+        // is not available in a unit test, so the reading is kept separate from it.
+        val rows = listOf(
+            CryptoRates.Row("btc", "Bitcoin", 67000.5),
+            CryptoRates.Row("eth", "Ethereum", 3300.25),
+            CryptoRates.Row("bad", "No Price", Double.NaN),
+            CryptoRates.Row("zero", "Zero", 0.0),
+            CryptoRates.Row("btc", "Bitcoin again", 1.0),
+        )
+        val prices = CryptoRates.toPriceMap(rows)!!
+        assertEquals(67000.5, prices["BTC"]!!, 1e-9)
+        assertEquals(3300.25, prices["ETH"]!!, 1e-9)
+        assertFalse("a coin with no price was stored", prices.containsKey("BAD"))
+        assertFalse("a zero price was stored", prices.containsKey("ZERO"))
+        // the first entry wins, so a duplicate does not overwrite the real one
+        assertEquals(67000.5, prices["BTC"]!!, 1e-9)
+    }
+
+    @Test fun anEmptyFeedGivesNothingRatherThanAnEmptyTable() {
+        // an empty map would read as "no coin has a price", which is a different
+        // thing from "the call failed", and the screen says them differently
+        assertNull(CryptoRates.toPriceMap(emptyList()))
+        assertNull(CryptoRates.toPriceMap(listOf(CryptoRates.Row("x", "X", 0.0))))
     }
 
     @Test fun theConverterIsReachableFromTheToolsList() {

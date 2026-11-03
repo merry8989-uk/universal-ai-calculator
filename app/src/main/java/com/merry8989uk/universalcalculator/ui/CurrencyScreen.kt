@@ -32,9 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.merry8989uk.universalcalculator.calc.CacheAge
 import com.merry8989uk.universalcalculator.calc.Countries
-import com.merry8989uk.universalcalculator.calc.Country
-import com.merry8989uk.universalcalculator.calc.CurrencyMath
+import com.merry8989uk.universalcalculator.calc.Crypto
+import com.merry8989uk.universalcalculator.calc.CryptoRates
 import com.merry8989uk.universalcalculator.calc.CurrencyRates
+import com.merry8989uk.universalcalculator.calc.ExchangeMath
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.data.CurrencyCache
 import kotlinx.coroutines.Dispatchers
@@ -57,24 +58,56 @@ private val COMMON_CURRENCIES = listOf(
     "NZD", "KRW", "BRL", "RUB",
 )
 
+/** One row of the picker: a country's money, or a coin. */
+private data class PickEntry(
+    val code: String,
+    val title: String,
+    val subtitle: String,
+    val isCrypto: Boolean,
+)
+
+private fun entries(query: String): List<PickEntry> {
+    val countries = Countries.search(query).map {
+        PickEntry(it.code, it.name, "${it.code} \u00B7 ${Countries.currencyName(it.code)}", false)
+    }
+    val coins = Crypto.search(query).map {
+        PickEntry(it.symbol, it.name, "${it.symbol} \u00B7 crypto", true)
+    }
+    return countries + coins
+}
+
+/** What to call a code, whichever kind it is. */
+private fun titleOf(code: String): String =
+    if (Crypto.isCrypto(code)) Crypto.name(code)
+    else Countries.byCode(code).firstOrNull()?.name ?: code
+
+private fun subtitleOf(code: String): String =
+    if (Crypto.isCrypto(code)) "${code.uppercase()} \u00B7 crypto"
+    else {
+        val where = Countries.byCode(code)
+        val name = Countries.currencyName(code)
+        if (where.isEmpty()) "${code.uppercase()} \u00B7 $name"
+        else "${code.uppercase()} \u00B7 $name \u00B7 ${where.joinToString(", ") { it.name }}"
+    }
+
 /**
- * The currency converter.
+ * The converter.
  *
- * The question a person actually has is "what is my money worth over there",
- * and that is a question about two countries, not two codes. So it is asked with
- * two pickers — the country you are in and the country you are looking at — and
- * the answer is the one rate between them, large. The whole table stays below,
- * because sometimes the question is "and what about everywhere else".
+ * The question a person actually has is "what is my money worth over there", and
+ * that is a question about two places — or about two coins, which have no place
+ * at all. So it is asked with two pickers that hold both: a country you can find
+ * by its name, and a coin you can find by its symbol or its name. The answer is
+ * the one rate between them, large. The whole table stays below.
  */
 @Composable
 fun CurrencyScreen(onBack: () -> Unit) {
-    var from by remember { mutableStateOf(Countries.all.first { it.code == "INR" }) }
-    var to by remember { mutableStateOf(Countries.all.first { it.code == "NPR" }) }
+    var fromCode by remember { mutableStateOf("INR") }
+    var toCode by remember { mutableStateOf("NPR") }
     var amountText by remember { mutableStateOf("100") }
-    var rates by remember { mutableStateOf<Map<String, Double>>(emptyMap()) }
+    var fiat by remember { mutableStateOf<Map<String, Double>>(emptyMap()) }
+    var coins by remember { mutableStateOf<Map<String, Double>>(emptyMap()) }
     var status by remember { mutableStateOf("Loading the saved rates\u2026") }
     var loading by remember { mutableStateOf(false) }
-    var cachedAt by remember { mutableStateOf(0L) }
     var filter by remember { mutableStateOf("") }
     var picking by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -83,69 +116,63 @@ fun CurrencyScreen(onBack: () -> Unit) {
 
     // Whatever was saved is shown at once, so the converter is usable offline.
     LaunchedEffect(Unit) {
-        val saved = cache.snapshot()
-        if (saved != null && rates.isEmpty()) {
-            rates = saved.rates
-            cachedAt = saved.timestampMillis
-            val age = CacheAge.describe(saved.timestampMillis, System.currentTimeMillis())
-            status = "Saved rates for 1 ${saved.base} \u00B7 $age" +
-                if (CacheAge.isStale(saved.timestampMillis, System.currentTimeMillis()))
-                    " (tap Refresh for today's rates)" else ""
+        val savedFiat = cache.snapshot()
+        val savedCoins = cache.cryptoSnapshot()
+        if (savedFiat != null && fiat.isEmpty()) fiat = savedFiat.rates
+        if (savedCoins != null && coins.isEmpty()) coins = savedCoins.prices
+        if (savedFiat != null || savedCoins != null) {
+            val when1 = savedFiat?.timestampMillis ?: 0L
+            val age = CacheAge.describe(when1, System.currentTimeMillis())
+            status = "Saved rates \u00B7 $age (tap Refresh for today's)"
         }
     }
 
-    // Fetch for the currency you are converting from, and again whenever it
-    // changes — the table is always "one unit of this currency".
-    LaunchedEffect(from.code) {
+    // The currency table is always fetched against the dollar, because every
+    // conversion goes through it: a coin has a dollar price, a currency has a
+    // dollar price, and a pair is the ratio.
+    LaunchedEffect(Unit) {
         loading = true
-        status = "Getting rates for 1 ${from.code}\u2026"
-        val fresh = withContext(Dispatchers.IO) { CurrencyRates.fetch(from.code) }
-        if (fresh == null) {
-            val saved = cache.snapshot()
-            status = if (saved != null && saved.base == from.code) {
-                val age = CacheAge.describe(saved.timestampMillis, System.currentTimeMillis())
-                "Offline \u2014 saved rates for 1 ${from.code} ($age)."
-            } else {
-                "Could not get rates for ${from.code}. Check the connection and tap Refresh."
-            }
-        } else {
-            rates = fresh
-            val now = System.currentTimeMillis()
-            cachedAt = now
-            cache.save(from.code, fresh, now)
-            status = "Live rates for 1 ${from.code} \u00B7 ${fresh.size} currencies"
+        status = "Getting today's rates\u2026"
+        val freshFiat = withContext(Dispatchers.IO) { CurrencyRates.fetch("USD") }
+        val freshCoins = withContext(Dispatchers.IO) { CryptoRates.fetch() }
+        val now = System.currentTimeMillis()
+        if (freshFiat != null) {
+            fiat = freshFiat
+            cache.save("USD", freshFiat, now)
+        }
+        if (freshCoins != null) {
+            coins = freshCoins
+            cache.saveCrypto(freshCoins, now)
+        }
+        status = when {
+            freshFiat != null && freshCoins != null ->
+                "Live \u00B7 ${freshFiat.size} currencies and ${freshCoins.size} coins"
+            freshFiat != null -> "Live currencies \u00B7 coins could not be reached, showing the saved ones"
+            freshCoins != null -> "Live coins \u00B7 currencies could not be reached, showing the saved ones"
+            else -> "Offline \u2014 showing the saved rates."
         }
         loading = false
     }
 
     val amount = amountText.toDoubleOrNull() ?: 1.0
-    val pairRate = CurrencyMath.crossRate(from.code, to.code, rates)
-    val converted = CurrencyMath.convertBetween(amount, from.code, to.code, rates)
+    val pairRate = ExchangeMath.rate(fromCode, toCode, fiat, coins)
+    val converted = ExchangeMath.convert(amount, fromCode, toCode, fiat, coins)
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
     ) {
         TextButton(onClick = onBack) { Text("\u2190 Back") }
-        Text("Currency converter", style = MaterialTheme.typography.titleLarge)
+        Text("Currency and crypto", style = MaterialTheme.typography.titleLarge)
         Text(
-            "Live rates from open.er-api.com, saved on your device so the converter still works offline.",
+            "Live rates from open.er-api.com and CoinGecko, saved on your device so the converter still works offline.",
             style = MaterialTheme.typography.bodySmall,
         )
 
-        // ---- the two countries ----
-        Text(
-            "From",
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(top = 12.dp),
-        )
-        CountryButton(from, onClick = { picking = "from" })
+        Text("From", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 12.dp))
+        AssetButton(fromCode, onClick = { picking = "from" })
 
-        Text(
-            "To",
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        CountryButton(to, onClick = { picking = "to" })
+        Text("To", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 8.dp))
+        AssetButton(toCode, onClick = { picking = "to" })
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -153,44 +180,43 @@ fun CurrencyScreen(onBack: () -> Unit) {
         ) {
             OutlinedTextField(
                 value = amountText, onValueChange = { amountText = it },
-                label = { Text("Amount in ${from.code}") },
+                label = { Text("Amount in ${fromCode.uppercase()}") },
                 singleLine = true, modifier = Modifier.weight(1f),
             )
             TextButton(
-                onClick = { val t = from; from = to; to = t },
+                onClick = { val t = fromCode; fromCode = toCode; toCode = t },
                 modifier = Modifier.padding(top = 8.dp),
             ) { Text("Swap") }
         }
 
-        // ---- the answer, in one place ----
         Card(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
-                if (converted != null && pairRate != null) {
+                if (converted != null && pairRate != null && pairRate > 0.0) {
                     Text(
-                        "${Format.number(converted)} ${to.code}",
+                        "${Format.number(converted)} ${toCode.uppercase()}",
                         style = MaterialTheme.typography.headlineMedium,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        "${Format.number(amount)} ${from.code} = " +
-                            "${Format.number(converted)} ${to.code}",
+                        "${Format.number(amount)} ${fromCode.uppercase()} = " +
+                            "${Format.number(converted)} ${toCode.uppercase()}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 4.dp),
                     )
                     Text(
-                        "1 ${from.code} = ${Format.number(pairRate)} ${to.code}",
+                        "1 ${fromCode.uppercase()} = ${Format.number(pairRate)} ${toCode.uppercase()}",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 2.dp),
                     )
                     Text(
-                        "1 ${to.code} = ${Format.number(1.0 / pairRate)} ${from.code}",
+                        "1 ${toCode.uppercase()} = ${Format.number(1.0 / pairRate)} ${fromCode.uppercase()}",
                         style = MaterialTheme.typography.bodySmall,
                     )
                 } else {
                     Text(
-                        if (rates.isEmpty()) "No rates yet — tap Refresh."
-                        else "No rate for ${to.code} in this table.",
+                        if (fiat.isEmpty() && coins.isEmpty()) "No rates yet — tap Refresh."
+                        else "No rate for ${toCode.uppercase()} yet.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -203,16 +229,23 @@ fun CurrencyScreen(onBack: () -> Unit) {
                 scope.launch {
                     loading = true
                     status = "Loading\u2026"
-                    val fresh = withContext(Dispatchers.IO) { CurrencyRates.fetch(from.code) }
-                    if (fresh == null) {
-                        status = "Could not get rates for ${from.code}. " +
-                            "Check the connection and the currency code."
-                    } else {
-                        rates = fresh
-                        val now = System.currentTimeMillis()
-                        cachedAt = now
-                        cache.save(from.code, fresh, now)
-                        status = "Live rates for 1 ${from.code} \u00B7 ${fresh.size} currencies"
+                    val freshFiat = withContext(Dispatchers.IO) { CurrencyRates.fetch("USD") }
+                    val freshCoins = withContext(Dispatchers.IO) { CryptoRates.fetch() }
+                    val now = System.currentTimeMillis()
+                    if (freshFiat != null) {
+                        fiat = freshFiat
+                        cache.save("USD", freshFiat, now)
+                    }
+                    if (freshCoins != null) {
+                        coins = freshCoins
+                        cache.saveCrypto(freshCoins, now)
+                    }
+                    status = when {
+                        freshFiat != null && freshCoins != null ->
+                            "Live \u00B7 ${freshFiat.size} currencies and ${freshCoins.size} coins"
+                        freshFiat != null -> "Live currencies \u00B7 coins unavailable"
+                        freshCoins != null -> "Live coins \u00B7 currencies unavailable"
+                        else -> "Could not reach the rate services. Check the connection."
                     }
                     loading = false
                 }
@@ -223,42 +256,43 @@ fun CurrencyScreen(onBack: () -> Unit) {
 
         Text(status, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
 
-        // ---- and the whole table ----
-        if (rates.isNotEmpty()) {
-            val codes = orderedCodes(rates)
+        // ---- the whole table, currencies and coins ----
+        if (fiat.isNotEmpty() || coins.isNotEmpty()) {
+            val codes = orderedCodes(fiat) + coins.keys.sorted()
             val shown = if (filter.isBlank()) {
                 codes
             } else {
                 val q = filter.trim().uppercase()
-                codes.filter { it.contains(q) }
+                codes.filter { it.contains(q) || titleOf(it).uppercase().contains(q) }
             }
             OutlinedTextField(
                 value = filter,
                 onValueChange = { filter = it },
-                label = { Text("Find a currency, e.g. INR, PKR, NPR") },
+                label = { Text("Find a currency or coin, e.g. INR, Nepal, BTC") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
             Text(
-                "${shown.count { it != from.code }} of ${codes.count { it != from.code }} currencies",
+                "${shown.count { it != fromCode }} of ${codes.count { it != fromCode }}",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 4.dp),
             )
-            shown.filter { it != from.code }.forEach { code ->
+            shown.filter { it != fromCode }.forEach { code ->
                 // through the tested helper, so a wrong rate has one place to be
                 // wrong in rather than two
-                val value = CurrencyMath.convert(amount, code, rates) ?: return@forEach
+                val value = ExchangeMath.convert(amount, fromCode, code, fiat, coins) ?: return@forEach
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Column {
-                        Text(code, style = MaterialTheme.typography.bodyMedium)
-                        val where = Countries.byCode(code)
+                    Column(modifier = Modifier.padding(end = 8.dp)) {
                         Text(
-                            if (where.isEmpty()) Countries.currencyName(code)
-                            else where.joinToString(", ") { it.name },
+                            "${code.uppercase()} \u00B7 ${titleOf(code)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            subtitleOf(code),
                             style = MaterialTheme.typography.labelSmall,
                         )
                     }
@@ -269,9 +303,9 @@ fun CurrencyScreen(onBack: () -> Unit) {
                     )
                 }
             }
-            if (shown.count { it != from.code } == 0 && filter.isNotBlank()) {
+            if (shown.count { it != fromCode } == 0 && filter.isNotBlank()) {
                 Text(
-                    "No currency matches \"$filter\".",
+                    "Nothing matches \"$filter\".",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 8.dp),
                 )
@@ -280,10 +314,10 @@ fun CurrencyScreen(onBack: () -> Unit) {
     }
 
     if (picking.isNotEmpty()) {
-        CountryPickerDialog(
-            title = if (picking == "from") "The country you are in" else "The country to compare with",
-            onPick = { picked ->
-                if (picking == "from") from = picked else to = picked
+        AssetPickerDialog(
+            title = if (picking == "from") "Convert from" else "Convert to",
+            onPick = { code ->
+                if (picking == "from") fromCode = code else toCode = code
                 picking = ""
             },
             onDismiss = { picking = "" },
@@ -292,32 +326,31 @@ fun CurrencyScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun CountryButton(country: Country, onClick: () -> Unit) {
+private fun AssetButton(code: String, onClick: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().padding(top = 4.dp).clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(country.name, style = MaterialTheme.typography.titleMedium)
-            Text(
-                "${country.code} \u00B7 ${Countries.currencyName(country.code)}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Text(titleOf(code), style = MaterialTheme.typography.titleMedium)
+            Text(subtitleOf(code), style = MaterialTheme.typography.bodySmall)
         }
     }
 }
 
 /**
- * Picks a country, with a search box.
+ * Picks a currency or a coin, with a search box.
  *
- * A dropdown of two hundred entries is not a list anyone scrolls, so the search
- * is the way in: typing "nep" or "NPR" both find Nepal.
+ * Two hundred countries and seventy coins is not a list anyone scrolls, so the
+ * search is the way in: "nep", "NPR" and "nepalese" all reach Nepal, and "bit",
+ * "BTC" and "bitcoin" all reach Bitcoin. The coins are marked so the list does
+ * not read as one long run of places and things.
  */
 @Composable
-private fun CountryPickerDialog(
+private fun AssetPickerDialog(
     title: String,
-    onPick: (Country) -> Unit,
+    onPick: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
-    val shown = remember(query) { Countries.search(query) }
+    val shown = remember(query) { entries(query) }
     Dialog(onDismissRequest = onDismiss) {
         Card {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -325,28 +358,25 @@ private fun CountryPickerDialog(
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    label = { Text("Search a country or currency") },
+                    label = { Text("Country, currency, or coin") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
                 Text(
-                    "${shown.size} of ${Countries.all.size} countries",
+                    "${shown.size} of ${Countries.all.size + Crypto.all.size}",
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(top = 4.dp),
                 )
                 LazyColumn(modifier = Modifier.heightIn(max = 360.dp).padding(top = 8.dp)) {
-                    items(shown) { c ->
+                    items(shown) { e ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onPick(c) }
+                                .clickable { onPick(e.code) }
                                 .padding(vertical = 8.dp),
                         ) {
-                            Text(c.name, style = MaterialTheme.typography.bodyLarge)
-                            Text(
-                                "${c.code} \u00B7 ${Countries.currencyName(c.code)}",
-                                style = MaterialTheme.typography.labelSmall,
-                            )
+                            Text(e.title, style = MaterialTheme.typography.bodyLarge)
+                            Text(e.subtitle, style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
