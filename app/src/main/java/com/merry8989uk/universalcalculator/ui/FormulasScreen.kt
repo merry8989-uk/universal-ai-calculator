@@ -83,6 +83,7 @@ private val TOOLS = listOf(
     Tool("date", "Date calculator", "Difference, age, working days, week number, add/subtract, timestamps."),
     Tool("programmer", "Programmer (base & bitwise)", "Base conversion and bitwise operations."),
     Tool("currency", "Currency converter", "Live exchange rates between world currencies."),
+    Tool("interest", "Interest calculator", "Any rate period and any duration \u2014 daily, weekly, monthly, or two dates."),
 )
 
 @Composable
@@ -195,6 +196,7 @@ fun FormulasScreen(
                 .valueOf(settings.bitWidth),
         )
         tool == "currency" -> CurrencyScreen { tool = "" }
+        tool == "interest" -> InterestScreen { tool = "" }
         else -> FormulaList(
             custom = custom,
             onCreate = { creating = true },

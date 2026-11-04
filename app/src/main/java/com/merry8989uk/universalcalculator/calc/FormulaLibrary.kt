@@ -156,8 +156,9 @@ object FormulaLibrary {
 
         // ---------------- Finance ----------------
         Formula(
-            "simple_interest", "Simple interest", "Finance",
-            "Interest = P x R x T / 100.",
+            "simple_interest", "Simple interest (rate per year)", "Finance",
+            "Interest = P x R x T / 100, with R per year and T in years. " +
+                "For a daily, weekly or monthly rate use the Interest calculator in Tools.",
             listOf(
                 InputSpec("p", "Principal", 100000.0),
                 InputSpec("r", "Rate (% per year)", 8.0),
@@ -186,19 +187,24 @@ object FormulaLibrary {
 
         Formula(
             "emi", "Loan EMI", "Finance",
-            "Equated monthly instalment for a loan.",
+            "Equated instalment for a loan. Set the instalments per year to 52 for weekly, " +
+                "4 for quarterly, or 365 for daily.",
             listOf(
                 InputSpec("p", "Loan amount", 500000.0),
                 InputSpec("r", "Annual interest (%)", 9.0),
                 InputSpec("t", "Tenure (years)", 5.0),
+                InputSpec("n", "Instalments per year", 12.0),
             ),
         ) { m ->
-            val n = v(m, "t") * 12.0
-            val i = v(m, "r") / 100.0 / 12.0
+            // was fixed at 12, which is only right for a monthly instalment
+            val perYear = v(m, "n").takeIf { it > 0.0 } ?: 12.0
+            val n = v(m, "t") * perYear
+            val i = v(m, "r") / 100.0 / perYear
             val emi = if (i == 0.0) v(m, "p") / n
             else v(m, "p") * i * (1.0 + i).pow(n) / ((1.0 + i).pow(n) - 1.0)
             listOf(
-                out("Monthly EMI", emi),
+                out("Instalment", emi),
+                out("Instalments", n),
                 out("Total payment", emi * n),
                 out("Total interest", emi * n - v(m, "p")),
             )
@@ -206,15 +212,18 @@ object FormulaLibrary {
 
         Formula(
             "sip", "SIP / recurring investment", "Finance",
-            "Future value of a monthly investment.",
+            "Future value of a regular investment. Set the contributions per year to 52 for weekly.",
             listOf(
-                InputSpec("m", "Monthly investment", 5000.0),
+                InputSpec("m", "Amount each time", 5000.0),
                 InputSpec("r", "Expected return (% per year)", 12.0),
                 InputSpec("t", "Years", 10.0),
+                InputSpec("n", "Contributions per year", 12.0),
             ),
         ) { m ->
-            val n = v(m, "t") * 12.0
-            val i = v(m, "r") / 100.0 / 12.0
+            // was fixed at 12, which only fits a monthly SIP
+            val perYear = v(m, "n").takeIf { it > 0.0 } ?: 12.0
+            val n = v(m, "t") * perYear
+            val i = v(m, "r") / 100.0 / perYear
             val fv = if (i == 0.0) v(m, "m") * n
             else v(m, "m") * ((1.0 + i).pow(n) - 1.0) / i * (1.0 + i)
             listOf(
