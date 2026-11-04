@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -93,6 +94,12 @@ fun DiagnosticsScreen(
                     }
                     Switch(checked = enabled, onCheckedChange = onEnabledChange)
                 }
+                Text(
+                    stringResource(R.string.diag_collect_help, humanSize(vm.logBytes)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
                 if (!enabled) {
                     Text(
                         "Collection is off. Nothing new is written; what is already here can still be exported or cleared.",
@@ -229,10 +236,11 @@ private fun UsageTab(context: android.content.Context, vm: DiagnosticsViewModel)
     }
 
     Text(
-        "How the app is used",
+        stringResource(R.string.diag_usage),
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(top = 14.dp),
     )
+    Text(stringResource(R.string.diag_usage_help), style = MaterialTheme.typography.bodySmall)
     if (groups.isEmpty()) {
         Text(stringResource(R.string.diag_usage_empty), style = MaterialTheme.typography.bodySmall)
     } else {
@@ -318,7 +326,7 @@ private fun ConnectionTab() {
     val scope = rememberCoroutineScope()
 
     Text(
-        "Round trip to the app's own server",
+        stringResource(R.string.diag_connection),
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(top = 14.dp),
     )
@@ -397,7 +405,7 @@ private fun ExportTab(appName: String, vm: DiagnosticsViewModel) {
         enabled = !vm.exporting,
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
     ) {
-        Text(if (vm.exporting) "Exporting\u2026" else "Export and share")
+        Text(if (vm.exporting) "Exporting\u2026" else stringResource(R.string.diag_export))
     }
 
     // The result of the last export, shown here rather than being thrown away:
@@ -431,6 +439,13 @@ private fun ExportTab(appName: String, vm: DiagnosticsViewModel) {
 }
 
 // ----------------------------------------------------------------- shared
+
+/** "0 B", "12 KB", "1.4 MB" — a size a person can read. */
+internal fun humanSize(bytes: Long): String = when {
+    bytes < 1024 -> "$bytes B"
+    bytes < 1024 * 1024 -> "${bytes / 1024} KB"
+    else -> String.format(java.util.Locale.US, "%.1f MB", bytes / 1024.0 / 1024.0)
+}
 
 @Composable
 private fun LogBox(lines: List<String>, empty: String, colour: Color, height: androidx.compose.ui.unit.Dp) {
