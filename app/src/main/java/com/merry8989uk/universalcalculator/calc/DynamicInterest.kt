@@ -33,7 +33,7 @@ enum class TimeUnit(val label: String, val days: Double, val commercialDays: Dou
  * Banks disagree about this, and the disagreement is worth real money on a large
  * principal, so it is a choice rather than a constant.
  */
-enum class DayCount(val label: String, val note: String) {
+enum class DayCountBasis(val label: String, val note: String) {
     ACTUAL_365("Actual/365", "The usual bank default. A year is 365 days."),
     ACTUAL_360("Actual/360", "Commercial paper. The same days, divided by 360 — about 1.4% more interest."),
     THIRTY_360("30/360", "Every month counts as 30 days and every year as 360, whatever the calendar says."),
@@ -43,8 +43,8 @@ enum class DayCount(val label: String, val note: String) {
 /** A rate such as "2.5% per month", or "1.2% every 10 days". */
 data class RateSpec(val value: Double, val per: TimeUnit, val customEvery: Double = 1.0) {
     /** How many days one charge covers. */
-    fun daysPerCharge(dayCount: DayCount): Double {
-        val unitDays = if (dayCount == DayCount.THIRTY_360) per.commercialDays else per.days
+    fun daysPerCharge(dayCount: DayCountBasis): Double {
+        val unitDays = if (dayCount == DayCountBasis.THIRTY_360) per.commercialDays else per.days
         return unitDays * customEvery
     }
 }
@@ -52,7 +52,7 @@ data class RateSpec(val value: Double, val per: TimeUnit, val customEvery: Doubl
 /** A duration such as "45 days", "3 months", or two calendar dates. */
 sealed interface Duration {
     /** Total days, under [dayCount]. */
-    fun days(dayCount: DayCount): Double
+    fun days(dayCount: DayCountBasis): Double
 }
 
 /** A number of units — 45 days, 3 months, or "every 2 weeks" repeated N times. */
@@ -61,8 +61,8 @@ data class DurationSpan(
     val unit: TimeUnit,
     val customEvery: Double = 1.0,
 ) : Duration {
-    override fun days(dayCount: DayCount): Double {
-        val unitDays = if (dayCount == DayCount.THIRTY_360) unit.commercialDays else unit.days
+    override fun days(dayCount: DayCountBasis): Double {
+        val unitDays = if (dayCount == DayCountBasis.THIRTY_360) unit.commercialDays else unit.days
         return value * unitDays * customEvery
     }
 }
@@ -72,13 +72,13 @@ data class DateRange(
     val to: LocalDate,
     val includeBothDays: Boolean = false,
 ) : Duration {
-    override fun days(dayCount: DayCount): Double {
+    override fun days(dayCount: DayCountBasis): Double {
         if (to.isBefore(from)) return 0.0
         val raw = ChronoUnit.DAYS.between(from, to).toDouble()
         val counted = if (includeBothDays) raw + 1.0 else raw
         return when (dayCount) {
-            DayCount.ACTUAL_365, DayCount.ACTUAL_360, DayCount.ACTUAL_ACTUAL -> counted
-            DayCount.THIRTY_360 -> {
+            DayCountBasis.ACTUAL_365, DayCountBasis.ACTUAL_360, DayCountBasis.ACTUAL_ACTUAL -> counted
+            DayCountBasis.THIRTY_360 -> {
                 // the commercial convention: every month is 30 days
                 val months = (to.year - from.year) * 12 + (to.monthValue - from.monthValue)
                 val dayBits = to.dayOfMonth - from.dayOfMonth
@@ -120,7 +120,7 @@ object DynamicInterest {
         rate: RateSpec,
         duration: Duration,
         fees: Double = 0.0,
-        dayCount: DayCount = DayCount.ACTUAL_365,
+        dayCount: DayCountBasis = DayCountBasis.ACTUAL_365,
         compoundEvery: TimeUnit? = null,
     ): InterestBreakdown {
         val daysPerCharge = rate.daysPerCharge(dayCount)
@@ -135,7 +135,7 @@ object DynamicInterest {
         var compound: Double? = null
         var periods: Double? = null
         if (compoundEvery != null) {
-            val periodDays = if (dayCount == DayCount.THIRTY_360) {
+            val periodDays = if (dayCount == DayCountBasis.THIRTY_360) {
                 compoundEvery.commercialDays
             } else {
                 compoundEvery.days
@@ -151,9 +151,9 @@ object DynamicInterest {
         val interest = compound ?: simple
         // The annual figure is a comparison, not a constant: it is whatever this
         // rate works out to over a year of the same convention.
-        val yearDays = if (dayCount == DayCount.THIRTY_360) 360.0 else 365.0
+        val yearDays = if (dayCount == DayCountBasis.THIRTY_360) 360.0 else 365.0
         val annualPercent = dailyRate * yearDays * 100.0
-        val monthlyPercent = dailyRate * (if (dayCount == DayCount.THIRTY_360) 30.0 else 30.4375) * 100.0
+        val monthlyPercent = dailyRate * (if (dayCount == DayCountBasis.THIRTY_360) 30.0 else 30.4375) * 100.0
 
         return InterestBreakdown(
             principal = principal,

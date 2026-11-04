@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import com.merry8989uk.universalcalculator.calc.DateRange
-import com.merry8989uk.universalcalculator.calc.DayCount
+import com.merry8989uk.universalcalculator.calc.DayCountBasis
 import com.merry8989uk.universalcalculator.calc.Duration
 import com.merry8989uk.universalcalculator.calc.DurationSpan
 import com.merry8989uk.universalcalculator.calc.DynamicInterest
@@ -64,7 +64,7 @@ fun InterestScreen(onBack: () -> Unit) {
     var toText by remember { mutableStateOf(LocalDate.now().plusDays(30).toString()) }
     var includeBoth by remember { mutableStateOf(false) }
 
-    var dayCount by remember { mutableStateOf(DayCount.ACTUAL_365) }
+    var dayCount by remember { mutableStateOf(DayCountBasis.ACTUAL_365) }
     var compoundOn by remember { mutableStateOf(false) }
     var compoundUnit by remember { mutableStateOf(TimeUnit.MONTH) }
 
@@ -227,10 +227,10 @@ fun InterestScreen(onBack: () -> Unit) {
         Text("Rules", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 14.dp))
         ChoiceRow(
             label = "Day count",
-            options = DayCount.entries.map { Choice(it.name, it.label, it.note) },
+            options = DayCountBasis.entries.map { Choice(it.name, it.label, it.note) },
             selected = dayCount.name,
             moreLabel = "More conventions",
-            onSelect = { name -> DayCount.entries.firstOrNull { it.name == name }?.let { dayCount = it } },
+            onSelect = { name -> DayCountBasis.entries.firstOrNull { it.name == name }?.let { dayCount = it } },
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -1,7 +1,7 @@
 package com.merry8989uk.universalcalculator
 
 import com.merry8989uk.universalcalculator.calc.DateRange
-import com.merry8989uk.universalcalculator.calc.DayCount
+import com.merry8989uk.universalcalculator.calc.DayCountBasis
 import com.merry8989uk.universalcalculator.calc.DurationSpan
 import com.merry8989uk.universalcalculator.calc.DynamicInterest
 import com.merry8989uk.universalcalculator.calc.RateSpec
@@ -48,7 +48,7 @@ class DynamicInterestTest {
             principal = 200_000.0,
             rate = RateSpec(2.0, TimeUnit.MONTH),
             duration = DurationSpan(75.0, TimeUnit.DAY),
-            dayCount = DayCount.THIRTY_360,
+            dayCount = DayCountBasis.THIRTY_360,
         )
         assertEquals(10_000.0, money(commercial.totalInterest), 0.01)
     }
@@ -59,7 +59,7 @@ class DynamicInterestTest {
             principal = 10_000.0,
             rate = RateSpec(1.5, TimeUnit.FORTNIGHT),
             duration = DurationSpan(180.0, TimeUnit.DAY),
-            dayCount = DayCount.THIRTY_360,
+            dayCount = DayCountBasis.THIRTY_360,
             compoundEvery = TimeUnit.FORTNIGHT,
         )
         // 12.857 periods of 1.5%
@@ -127,15 +127,15 @@ class DynamicInterestTest {
     @Test fun aDateRangeCountsTheDaysItSays() {
         val from = LocalDate.of(2026, 1, 1)
         val to = LocalDate.of(2026, 1, 31)
-        assertEquals(30.0, DateRange(from, to).days(DayCount.ACTUAL_365), 1e-9)
-        assertEquals(31.0, DateRange(from, to, includeBothDays = true).days(DayCount.ACTUAL_365), 1e-9)
+        assertEquals(30.0, DateRange(from, to).days(DayCountBasis.ACTUAL_365), 1e-9)
+        assertEquals(31.0, DateRange(from, to, includeBothDays = true).days(DayCountBasis.ACTUAL_365), 1e-9)
         // the commercial convention calls that a month
-        assertEquals(30.0, DateRange(from, to).days(DayCount.THIRTY_360), 1e-9)
+        assertEquals(30.0, DateRange(from, to).days(DayCountBasis.THIRTY_360), 1e-9)
     }
 
     @Test fun aBackwardsDateRangeIsZeroRatherThanNegative() {
         val r = DateRange(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 1, 1))
-        assertEquals(0.0, r.days(DayCount.ACTUAL_365), 1e-9)
+        assertEquals(0.0, r.days(DayCountBasis.ACTUAL_365), 1e-9)
     }
 
     @Test fun theSameArrangementInTwoUnitsGivesTheSameMoney() {
