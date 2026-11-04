@@ -49,16 +49,37 @@ object LogExporter {
         return out
     }
 
-    /** Opens the system share sheet for the exported file. */
-    fun share(context: Context, file: File, mime: String) {
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-        val send = Intent(Intent.ACTION_SEND).apply {
-            type = mime
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, file.name)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    /**
+     * Opens the system share sheet for the exported file.
+     *
+     * Returns null when the sheet opened, or a sentence to show the user when it
+     * did not. It used to return nothing and throw: the call came from the
+     * application context, and starting an activity from one needs
+     * FLAG_ACTIVITY_NEW_TASK. Without the flag it threw, the exception was lost
+     * inside a coroutine, and the export looked like it had simply done nothing.
+     */
+    fun share(context: Context, file: File, mime: String): String? {
+        if (!file.exists() || file.length() == 0L) {
+            return "The export file was not written. Try a different format."
         }
-        context.startActivity(Intent.createChooser(send, "Share diagnostics"))
+        return try {
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = mime
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, file.name)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooser = Intent.createChooser(send, "Share diagnostics").apply {
+                // the caller is the application, not an activity
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooser)
+            null
+        } catch (e: Exception) {
+            "Could not open the share sheet (${e.javaClass.simpleName}). " +
+                "The file is saved as ${file.name} and can be picked with a file manager."
+        }
     }
 
     private fun asMarkdown(raw: String, appName: String, version: String, stamp: String) =

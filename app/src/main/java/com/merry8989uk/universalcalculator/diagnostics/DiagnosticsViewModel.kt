@@ -30,13 +30,38 @@ class DiagnosticsViewModel(app: Application) : AndroidViewModel(app) {
         message = "Logs cleared"
     }
 
+    /** Where the last export landed, so it can be named even if sharing fails. */
+    var lastExportPath: String? by mutableStateOf(null)
+        private set
+
+    var exporting: Boolean by mutableStateOf(false)
+        private set
+
     fun exportAndShare(format: LogExporter.Format, appName: String, version: String) {
+        if (exporting) return
+        exporting = true
         viewModelScope.launch {
-            val file = withContext(Dispatchers.IO) {
-                LogExporter.export(context, format, appName, version)
+            try {
+                val file = withContext(Dispatchers.IO) {
+                    LogExporter.export(context, format, appName, version)
+                }
+                lastExportPath = file.absolutePath
+                // share now reports its own failure instead of throwing into the void
+                val problem = LogExporter.share(context, file, format.mime)
+                message = if (problem == null) {
+                    "Exported ${file.name} · ${(file.length() / 1024).coerceAtLeast(1)} KB"
+                } else {
+                    problem
+                }
+            } catch (e: Exception) {
+                message = "Export failed: ${e.message ?: e.javaClass.simpleName}"
+            } finally {
+                exporting = false
             }
-            LogExporter.share(context, file, format.mime)
-            message = "Exported ${file.name}"
         }
+    }
+
+    fun dismissMessage() {
+        message = null
     }
 }

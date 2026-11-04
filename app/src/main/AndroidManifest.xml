@@ -3,6 +3,8 @@
 
     <!-- In-app update check + download (Rule 6). -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Recording a key tone. Asked for only when the user taps Record. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- Voice input and the photo solver hand off to the system apps, so the

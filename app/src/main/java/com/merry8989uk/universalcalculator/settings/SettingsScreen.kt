@@ -47,7 +47,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
+import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsScreen
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsSection
+import com.merry8989uk.universalcalculator.sound.ToneRecorder
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import android.Manifest
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.merry8989uk.universalcalculator.sound.ToneLibrary
@@ -119,6 +125,9 @@ fun SettingsScreen(
     // The archive is opened from here, so it sits with the other settings
     // rather than among the formulas.
     var showArchive by remember { mutableStateOf(false) }
+    // Diagnostics is its own screen now: the log, the counters, the ping and the
+    // export were one long column in here, which made Settings a debugging screen.
+    var showDiagnostics by remember { mutableStateOf(false) }
     // The account screen, and who is signed in — re-read whenever it closes.
     var showAccount by remember { mutableStateOf(false) }
     // Themes the user built, and the builder for one of them.
@@ -163,6 +172,14 @@ fun SettingsScreen(
             pickTone = false
         }
     }
+    // Recording a tone: one press listens for about a second and keeps it.
+    val toneScope = rememberCoroutineScope()
+    var recording by remember { mutableStateOf(false) }
+    val askForMic = rememberLauncherForActivityResult(RequestPermission()) { granted ->
+        if (!granted) {
+            toneProblem = "Microphone permission was refused, so nothing can be recorded."
+        }
+    }
     var signedInId by remember { mutableStateOf("") }
     LaunchedEffect(showAccount) {
         signedInId = com.merry8989uk.universalcalculator.sync.AccountStore.id(context)
@@ -170,6 +187,15 @@ fun SettingsScreen(
     if (showAccount) {
         com.merry8989uk.universalcalculator.sync.AccountScreen(
             onBack = { showAccount = false },
+        )
+        return
+    }
+
+    if (showDiagnostics) {
+        DiagnosticsScreen(
+            enabled = state.diagnosticsEnabled,
+            onEnabledChange = vm::setDiagnosticsEnabled,
+            onBack = { showDiagnostics = false },
         )
         return
     }
@@ -228,7 +254,11 @@ fun SettingsScreen(
                 )
             }
 
-            Section(stringResource(R.string.section_appearance))
+            Folder(
+                stringResource(R.string.section_appearance),
+                "Theme, text size, density",
+                initiallyOpen = false,
+            ) {
 
             Text("Theme")
             SingleChoiceSegmentedButtonRow {
@@ -351,36 +381,50 @@ fun SettingsScreen(
                 Text("\u203A", style = MaterialTheme.typography.titleLarge)
             }
 
-            Section(stringResource(R.string.section_general))
-
-            Text(stringResource(R.string.language))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LANGUAGES.forEach { lang ->
-                    FilterChip(
-                        selected = state.language == lang,
-                        onClick = {
-                            vm.setLanguage(lang)
-                            // Reload so the new language takes effect at once.
-                            (context as? android.app.Activity)?.recreate()
-                        },
-                        label = { Text(languageName(lang)) },
-                    )
-                }
             }
+
+            // General: language, number format, sounds
+            Folder(
+                stringResource(R.string.section_general),
+                "Language, numbers, sounds",
+                initiallyOpen = false,
+            ) {
+
+            // English and Hindi on the surface, the other twenty-three behind More.
+            // A row of twenty-five chips is not a choice; it is a wall.
+            val langOptions = ArrayList<Choice>()
+            langOptions.add(Choice("en", languageName("en"), "Default"))
+            if ("hi" in LANGUAGES) langOptions.add(Choice("hi", languageName("hi")))
+            for (tag in LANGUAGES) {
+                if (tag == "en" || tag == "hi") continue
+                langOptions.add(Choice(tag, languageName(tag)))
+            }
+            ChoiceRow(
+                label = stringResource(R.string.language),
+                options = langOptions,
+                selected = state.language,
+                moreLabel = "More languages",
+                onSelect = { lang ->
+                    vm.setLanguage(lang)
+                    // Reload so the new language takes effect at once.
+                    (context as? android.app.Activity)?.recreate()
+                },
+            )
 
             ToggleRow(stringResource(R.string.notifications), state.notificationsEnabled, vm::setNotifications)
             ToggleRow(stringResource(R.string.live_preview), state.livePreview, vm::setLivePreview)
             ToggleRow(stringResource(R.string.degrees_default), state.degreesMode, vm::setDegreesMode)
-            Text(stringResource(R.string.number_format), style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Indian", "International", "European", "None").forEach { fmt ->
-                    FilterChip(
-                        selected = state.numberFormat == fmt,
-                        onClick = { vm.setNumberFormat(fmt) },
-                        label = { Text(fmt) },
-                    )
-                }
-            }
+            ChoiceRow(
+                label = stringResource(R.string.number_format),
+                options = listOf(
+                    Choice("Indian", "Indian", "30,00,000.5 — lakh and crore grouping."),
+                    Choice("International", "International", "3,000,000.5 — thousands grouping."),
+                    Choice("European", "European", "3.000.000,5 — dot groups, comma decimal."),
+                    Choice("None", "None", "3000000.5 — no separators."),
+                ),
+                selected = state.numberFormat,
+                onSelect = { vm.setNumberFormat(it) },
+            )
             Text(
                 when (state.numberFormat) {
                     "Indian" -> "30,00,000.5 \u2014 lakh and crore grouping."
@@ -391,19 +435,19 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Text(stringResource(R.string.decimal_places), style = MaterialTheme.typography.bodyMedium)
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                listOf(-1 to "Auto", 0 to "0", 2 to "2", 3 to "3", 4 to "4", 6 to "6").forEach { (n, name) ->
-                    FilterChip(
-                        selected = state.decimals == n,
-                        onClick = { vm.setDecimals(n) },
-                        label = { Text(name) },
-                    )
-                }
-            }
+            ChoiceRow(
+                label = stringResource(R.string.decimal_places),
+                options = listOf(
+                    Choice("-1", "Auto", "Results keep as many decimals as they need."),
+                    Choice("2", "2 decimals", "Rounded to two places."),
+                    Choice("0", "0 decimals", "Whole numbers only."),
+                    Choice("3", "3 decimals", "Rounded to three places."),
+                    Choice("4", "4 decimals", "Rounded to four places."),
+                    Choice("6", "6 decimals", "Rounded to six places."),
+                ),
+                selected = state.decimals.toString(),
+                onSelect = { vm.setDecimals(it.toIntOrNull() ?: -1) },
+            )
             Text(
                 if (state.decimals < 0) "Results keep as many decimals as they need."
                 else "Results are rounded to ${state.decimals} decimal places.",
@@ -413,24 +457,72 @@ fun SettingsScreen(
             ToggleRow(stringResource(R.string.calculation_history), state.historyEnabled, vm::setHistoryEnabled)
             ToggleRow(stringResource(R.string.haptic_feedback), state.hapticsEnabled, vm::setHapticsEnabled)
 
-            Text(stringResource(R.string.key_sounds), style = MaterialTheme.typography.bodyMedium)
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                SoundPlayer.CHOICES.forEach { choice ->
-                    FilterChip(
-                        selected = state.keySound == choice,
-                        onClick = {
-                            vm.setKeySound(choice)
-                            // play it straight away so the choice is audible
-                            SoundPlayer.setChoice(choice)
-                            SoundPlayer.key()
-                        },
-                        label = { Text(toneName(choice)) },
-                    )
-                }
+            val toneOptions = ArrayList<Choice>()
+            for (choice in SoundPlayer.CHOICES) {
+                toneOptions.add(Choice(choice, toneName(choice)))
             }
+            ChoiceRow(
+                label = stringResource(R.string.key_sounds),
+                options = toneOptions,
+                selected = state.keySound,
+                moreLabel = "More tones",
+                onSelect = { choice ->
+                    vm.setKeySound(choice)
+                    // play it straight away so the choice is audible
+                    SoundPlayer.setChoice(choice)
+                    SoundPlayer.key()
+                },
+                extra = { dismiss ->
+                    // Both ways of getting your own tone live in here, because
+                    // they are the same idea: a sound that is yours.
+                    Text(
+                        "Your own tone",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { dismiss(); pickTone = true }) {
+                            Text("Upload a file")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                if (!ToneRecorder.hasPermission(context)) {
+                                    askForMic.launch(Manifest.permission.RECORD_AUDIO)
+                                } else {
+                                    recording = true
+                                    toneScope.launch {
+                                        val result = ToneRecorder.record(context)
+                                        recording = false
+                                        if (result.path == null) {
+                                            toneProblem = result.problem
+                                        } else {
+                                            toneProblem = ""
+                                            ToneRecorder.prune(context, result.path)
+                                            vm.setCustomTonePath(result.path)
+                                            vm.setKeySound(ToneLibrary.CUSTOM)
+                                            SoundPlayer.setCustomPath(result.path)
+                                            SoundPlayer.setChoice(ToneLibrary.CUSTOM)
+                                            SoundPlayer.key()
+                                            dismiss()
+                                        }
+                                    }
+                                }
+                            },
+                            enabled = !recording,
+                        ) {
+                            Text(if (recording) "Listening…" else "Record 1 second")
+                        }
+                    }
+                    Text(
+                        if (state.customTonePath.isBlank()) {
+                            "Upload a short sound, or record one. Either becomes a key tone."
+                        } else {
+                            "You have your own tone set. Pick it from the list, or record another."
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
 
             // How loud, and the user's own recording.
             Text(
@@ -521,6 +613,14 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
 
+            }
+
+            // The calculator itself: tools, display, the assistant
+            Folder(
+                "The calculator",
+                "Tools, keypad, display, Ask AI",
+                initiallyOpen = false,
+            ) {
             // ---- the tools ----
             Section(stringResource(R.string.section_tools))
 
@@ -576,6 +676,8 @@ fun SettingsScreen(
                 stringResource(R.string.enable_ask_ai_help),
                 style = MaterialTheme.typography.bodySmall,
             )
+
+            }
 
             // ---- the account ----
             Section("Your account")
@@ -641,6 +743,7 @@ fun SettingsScreen(
             DiagnosticsSection(
                 enabled = state.diagnosticsEnabled,
                 onEnabledChange = vm::setDiagnosticsEnabled,
+                onOpen = { showDiagnostics = true },
             )
 
             Section(stringResource(R.string.section_reset))

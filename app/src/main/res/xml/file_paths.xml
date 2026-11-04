@@ -4,4 +4,7 @@
     <cache-path name="updates" path="." />
     <!-- Where diagnostics exports are written before sharing (Rule 7). -->
     <files-path name="logs" path="logs/" />
+    <!-- The export itself is written to cacheDir/exports; naming it here means the
+         share sheet can read it even if the cache path above is ever narrowed. -->
+    <cache-path name="exports" path="exports/" />
 </paths>
