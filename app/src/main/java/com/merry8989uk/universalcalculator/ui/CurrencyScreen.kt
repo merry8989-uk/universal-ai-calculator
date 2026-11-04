@@ -192,8 +192,8 @@ fun CurrencyScreen(onBack: () -> Unit) {
         Card(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
                 if (converted != null && pairRate != null && pairRate > 0.0) {
-                    Text(
-                        "${Format.number(converted)} ${toCode.uppercase()}",
+                    Copyable(
+                        text = "${Format.number(converted)} ${toCode.uppercase()}",
                         style = MaterialTheme.typography.headlineMedium,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.primary,
@@ -212,6 +212,11 @@ fun CurrencyScreen(onBack: () -> Unit) {
                     Text(
                         "1 ${toCode.uppercase()} = ${Format.number(1.0 / pairRate)} ${fromCode.uppercase()}",
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                    CopyShareRow(
+                        text = "${Format.number(amount)} ${fromCode.uppercase()} = " +
+                            "${Format.number(converted)} ${toCode.uppercase()}",
+                        subject = "Currency conversion",
                     )
                 } else {
                     Text(

@@ -90,12 +90,16 @@ fun ConverterScreen(onBack: () -> Unit) {
 
         TextButton(onClick = { convert() }) { Text("Convert") }
 
-        Text(
-            output.ifEmpty { "\u2014" },
+        // the converted text is the whole point of the screen, so it can be taken out
+        Copyable(
+            text = output.ifEmpty { "\u2014" },
             style = MaterialTheme.typography.titleLarge,
             fontFamily = FontFamily.Monospace,
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
+        if (output.isNotEmpty()) {
+            CopyShareRow(text = output, subject = "Converted text")
+        }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
 }

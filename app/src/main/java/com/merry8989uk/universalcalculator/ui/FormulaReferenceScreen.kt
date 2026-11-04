@@ -125,11 +125,17 @@ private fun FormulaCard(f: RefFormula, definition: FormulaDefinition?) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(f.title, style = MaterialTheme.typography.titleMedium)
-            Text(
-                f.formula,
+            // selectable, so a long-press gives the handles and the Copy /
+            // Select all toolbar that text has on a web page
+            Copyable(
+                text = f.formula,
                 style = MaterialTheme.typography.bodyLarge,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(top = 4.dp),
+            )
+            CopyShareRow(
+                text = f.formula,
+                subject = f.title,
             )
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
@@ -196,19 +202,26 @@ private fun FormulaCard(f: RefFormula, definition: FormulaDefinition?) {
                 result?.let { r ->
                     Column(modifier = Modifier.padding(top = 8.dp)) {
                         if (r.success) {
-                            Text(
-                                (r.exactValue ?: "") + (r.outputUnit?.let { " $it" } ?: ""),
+                            val answer = (r.exactValue ?: "") +
+                                (r.outputUnit?.let { " $it" } ?: "")
+                            Copyable(
+                                text = answer,
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.primary,
                             )
-                            r.steps.forEach { step ->
-                                Text(
-                                    "${step.description}: ${step.expression}" +
-                                        if (step.result.isNotEmpty()) " = ${step.result}" else "",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = FontFamily.Monospace,
-                                )
+                            val working = r.steps.joinToString("\n") { step ->
+                                "${step.description}: ${step.expression}" +
+                                    if (step.result.isNotEmpty()) " = ${step.result}" else ""
                             }
+                            Copyable(
+                                text = working,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontFamily = FontFamily.Monospace,
+                            )
+                            CopyShareRow(
+                                text = answer + if (working.isEmpty()) "" else "\n" + working,
+                                subject = f.title,
+                            )
                             r.warnings.forEach { w ->
                                 Text(w, style = MaterialTheme.typography.bodySmall)
                             }

@@ -94,19 +94,22 @@ fun ConvertScreen() {
             UnitPicker("To", category.units, toIndex, Modifier.weight(1f)) { toIndex = it }
         }
 
-        Text(
+        // the answer is the thing people came for; it has to be takeable
+        Copyable(
             text = result?.let { Format.number(it) } ?: "\u2014",
             style = MaterialTheme.typography.headlineMedium,
             fontFamily = FontFamily.Monospace,
-            textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth(),
         )
         if (result != null) {
-            Text(
-                "${Format.number(value ?: 0.0)} ${from.symbol} = ${Format.number(result)} ${to.symbol}",
+            val line = "${Format.number(value ?: 0.0)} ${from.symbol} = " +
+                "${Format.number(result)} ${to.symbol}"
+            Copyable(
+                text = line,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            CopyShareRow(text = line, subject = "Unit conversion")
         }
     }
 }
