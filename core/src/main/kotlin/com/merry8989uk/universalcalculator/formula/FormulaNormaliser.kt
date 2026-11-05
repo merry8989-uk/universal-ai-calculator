@@ -137,8 +137,15 @@ object FormulaNormaliser {
         // A logarithm with its base written underneath is rewritten before
         // anything else, because the subscript is part of the function name and
         // would otherwise be read as a variable multiplied in.
-        val source = rewriteArcNames(
-            rewriteRootIndices(rewriteCombinations(rewriteLogBases(printed))),
+        // Arc names first, then bare applications: arcsin x has to become asin
+        // before the bracketing rule can see it, or the rule blocks on the "c"
+        // in front of sin and the name glues to the variable after it.
+        val source = rewriteBareApplications(
+            rewriteArcNames(
+                rewriteRootIndices(
+                    rewriteCombinations(rewriteLogBases(rewriteInversePowers(printed))),
+                ),
+            ),
         )
         val out = StringBuilder(source.length)
         var i = 0
@@ -210,6 +217,62 @@ object FormulaNormaliser {
         "arcsinh" to "asinh", "arccosh" to "acosh", "arctanh" to "atanh",
         "arcsin" to "asin", "arccos" to "acos", "arctan" to "atan",
     )
+
+    /**
+     * sin⁻¹x is arcsin, not sine raised to the power minus one.
+     *
+     * Read as a power it becomes sin^(-1) times x — which is not an error anyone
+     * can see, it is a different formula, and it silently made the whole inverse
+     * trigonometry section unreadable.
+     */
+    private val INVERSE_POWERS = listOf(
+        "sinh" to "asinh", "cosh" to "acosh", "tanh" to "atanh",
+        "coth" to "acoth", "sech" to "asech", "csch" to "acsch",
+        "sin" to "asin", "cos" to "acos", "tan" to "atan",
+        "cot" to "acot", "sec" to "asec", "csc" to "acsc",
+    )
+
+    private val INVERSE_APPLICATION = Regex(
+        "(" + "sinh|cosh|tanh|coth|sech|csch|sin|cos|tan|cot|sec|csc" +
+            ")\u207B\u00B9\\s*([A-Za-z][A-Za-z0-9_]*|[0-9]+(?:\\.[0-9]+)?)?",
+    )
+
+    fun rewriteInversePowers(text: String): String {
+        if (!text.contains("\u207B\u00B9")) return text
+        return INVERSE_APPLICATION.replace(text) { m ->
+            val name = m.groupValues[1]
+            val inverse = INVERSE_POWERS.toMap()[name] ?: name
+            val argument = m.groupValues.getOrNull(2).orEmpty()
+            // tan⁻¹x is atan(x): the argument has to come with it, or the name
+            // becomes "atanx" and the evaluator has never heard of that
+            if (argument.isEmpty()) inverse else "$inverse($argument)"
+        }
+    }
+
+    /**
+     * A function written without brackets: `ln a`, `sin x`, `sqrt 2`.
+     *
+     * Spaces are removed further down, so `ln a` used to become the single
+     * identifier `lna`, which the evaluator has never heard of. Bracketing the
+     * one argument that follows keeps the meaning the book intended.
+     *
+     * Only a single following name or number is taken — `sin x cos y` is two
+     * applications and is handled by the second one still being adjacent.
+     */
+    private val BARE_APPLICATION = Regex(
+        "(?<![A-Za-z0-9_])(" + "sinh|cosh|tanh|coth|sech|csch|asin|acos|atan|" +
+            "sin|cos|tan|cot|sec|csc|ln|log|sqrt|cbrt|abs|exp|sign" +
+            ")(\\s+)([A-Za-z][A-Za-z0-9_]*|[0-9]+(?:\\.[0-9]+)?)",
+    )
+
+    fun rewriteBareApplications(text: String): String =
+        BARE_APPLICATION.replace(text) { m ->
+            val name = m.groupValues[1]
+            val argument = m.groupValues[3]
+            // "log x" is the common logarithm; leaving it bare would glue the
+            // name to the variable exactly as before
+            name + "(" + argument + ")"
+        }
 
     fun rewriteArcNames(text: String): String {
         var out = text
