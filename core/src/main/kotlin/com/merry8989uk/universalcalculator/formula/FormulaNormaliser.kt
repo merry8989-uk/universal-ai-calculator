@@ -336,6 +336,8 @@ object FormulaNormaliser {
             out.append(text, last, match.range.first)
             val index = match.groupValues[1].mapNotNull { SUPERSCRIPTS[it] }.joinToString("")
             var i = match.range.last + 1
+            // log_b a has a space where log_a(x) has a bracket
+            while (i < text.length && text[i] == ' ') i++
             val argument: String
             if (i < text.length && text[i] == '(') {
                 var depth = 0
@@ -400,7 +402,18 @@ object FormulaNormaliser {
     }
 
     /** A logarithm with its base written as a subscript. */
-    private val LOG_BASE = Regex("log([\u2080-\u2089\u2090-\u209C]+)")
+    /**
+     * logₐx with a raised base, and log_b a with the base written after an
+     * underscore.
+     *
+     * Both are the same thing written two ways. The second was being read as
+     * "log" times the variable "_b" times the argument, so 1/log_b a became
+     * 1/log_b*a — an expression that means something else and evaluates to a
+     * different number.
+     */
+    private val LOG_BASE = Regex(
+        "log(?:[_\\s]?([A-Za-z0-9]+)|([\u2080-\u2089\u2090-\u209C]+))",
+    )
 
     /**
      * Rewrites logₐx as ln(x)/ln(a).
@@ -418,10 +431,13 @@ object FormulaNormaliser {
             out.append(text, last, match.range.first)
             // the underscore marks a subscripted variable name; a base is a
             // plain name, so it is stripped here
-            val base = match.groupValues[1]
-                .mapNotNull { SUBSCRIPTS[it] }
-                .joinToString("")
-                .replace("_", "")
+            val plain = match.groupValues[1]
+            val raised = match.groupValues[2]
+            val base = if (plain.isNotEmpty()) {
+                plain
+            } else {
+                raised.mapNotNull { SUBSCRIPTS[it] }.joinToString("").replace("_", "")
+            }
             var i = match.range.last + 1
             val argument: String
             if (i < text.length && text[i] == '(') {

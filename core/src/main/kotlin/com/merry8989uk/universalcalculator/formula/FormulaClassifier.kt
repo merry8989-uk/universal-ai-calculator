@@ -40,13 +40,20 @@ object FormulaClassifier {
             .map { classifyOne(category, title, it, printed) }
             .sortedByDescending { rank(it.type) }
         val best = ranked.first()
-        return if (best.type == FormulaType.DIRECT_CALCULATOR || best.type == FormulaType.CHECKER) {
-            best.copy(
+        if (best.type == FormulaType.DIRECT_CALCULATOR || best.type == FormulaType.CHECKER) {
+            return best.copy(
                 reason = "of " + parts.size + " formulas on this line, this one works: " + best.reason,
             )
-        } else {
-            classifyOne(category, title, core, null)
         }
+        // Nothing on the line is computable. Take the best of the parts rather
+        // than re-reading the whole line: "x1 + x2 = -b/a, x1x2 = c/a" read as one
+        // expression is not a formula at all, and the reason it gives is about a
+        // sentence nobody wrote.
+        return best.copy(
+            printed = printed,
+            reason = "of " + parts.size + " formulas on this line, none can be computed: " +
+                best.reason,
+        )
     }
 
     /** Keeps the sentence the book wrote while reading only the formula. */
