@@ -69,6 +69,53 @@ object CsvExport {
         return out
     }
 
+    /** The growth plan: the summary, then every period, then the years rolled up. */
+    fun writeGrowth(context: Context, plan: com.merry8989uk.universalcalculator.calc.GrowthPlan,
+                    name: String = "growth"): File {
+        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+        val dir = File(context.cacheDir, "exports").apply { mkdirs() }
+        val out = File(dir, "$name-$stamp.csv")
+        val sb = StringBuilder()
+
+        fun row(vararg cells: String) {
+            sb.append(cells.joinToString(",") { esc(it) }).append('\n')
+        }
+
+        row("Field", "Value")
+        row("Deposit", num(plan.principal))
+        row("Extra deposits", num(plan.totalDeposits))
+        row("Invested", num(plan.invested))
+        row("Interest earned", num(plan.totalInterest))
+        row("Maturity", num(plan.maturity))
+        row("Rate per period, percent", num(plan.ratePerPeriod * 100.0))
+        row("Periods", plan.periods.toString())
+        row("Years", num(plan.years))
+        row("Yearly growth, percent", num(plan.apy * 100.0))
+        row("Simple interest would pay", num(plan.simpleBenchmark))
+
+        sb.append('\n')
+        row("Period", "Year", "Opening", "Interest", "Deposit", "Closing")
+        for (r in plan.rows) {
+            row(
+                r.period.toString(),
+                r.year.toString(),
+                num(r.opening),
+                num(r.interest),
+                num(r.deposit),
+                num(r.closing),
+            )
+        }
+
+        sb.append('\n')
+        row("Year", "Interest", "Deposit", "Closing")
+        for (r in plan.byYear()) {
+            row(r.period.toString(), num(r.interest), num(r.deposit), num(r.closing))
+        }
+
+        out.writeText(sb.toString())
+        return out
+    }
+
     fun share(context: Context, file: File): String? {
         if (!file.exists() || file.length() == 0L) return "The CSV was not written."
         return try {

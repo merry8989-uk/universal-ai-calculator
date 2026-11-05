@@ -57,7 +57,7 @@ import java.time.LocalDate
  * is shown beside the answer as a comparison, not used as a constant.
  */
 @Composable
-fun InterestScreen(onBack: () -> Unit) {
+internal fun LendingMode(onBack: () -> Unit) {
     var principalText by remember { mutableStateOf("100000") }
     var feesText by remember { mutableStateOf("0") }
     var rateText by remember { mutableStateOf("2") }
