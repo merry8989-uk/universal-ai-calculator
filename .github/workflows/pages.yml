@@ -45,10 +45,17 @@ jobs:
         with:
           node-version: '20'
 
+      # The wrapper is not committed; the tests workflow generates it the same
+      # way, so this does too rather than assuming it is there.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Ensure the Gradle wrapper exists
+        run: test -f gradlew || gradle wrapper --gradle-version 8.9
+
       - name: Build the formula file from the app's registry
         run: |
-          chmod +x ./gradlew || true
-          ./gradlew :app:testDebugUnitTest --tests "*FormulaExportTest*" --console=plain
+          ./gradlew --no-daemon :app:testDebugUnitTest --tests "*FormulaExportTest*" --console=plain
           ls -la docs/formulas.json
 
       - name: Check the site against the app
