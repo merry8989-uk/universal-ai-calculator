@@ -95,8 +95,11 @@ class GrowthPlanTest {
         assertEquals(2, plan.periods)
         assertEquals(2000.0, money(plan.totalDeposits), 0.01)
         assertEquals(27_000.00, money(plan.invested), 0.01)
-        assertEquals(1290.62, money(plan.totalInterest), 0.01)
-        assertEquals(28_290.62, money(plan.maturity), 0.01)
+        // the exact figure is 1290.625, which sits on a rounding boundary — asserted
+        // unrounded so the test is about the maths and not about which way half a
+        // paisa falls
+        assertEquals(1290.625, plan.totalInterest, 1e-6)
+        assertEquals(28_290.625, plan.maturity, 1e-6)
     }
 
     @Test fun simpleIsChargedOnTheOriginalPrincipalNotTheBalance() {
