@@ -58,7 +58,16 @@ class FormulaExportTest {
 
             // the app's own answer, used to check the site's engine
             var expected: Double? = null
-            if (d.type == FormulaType.DIRECT_CALCULATOR || d.type == FormulaType.CHECKER) {
+            val offered = d.type == FormulaType.DIRECT_CALCULATOR || d.type == FormulaType.CHECKER
+            // An expression carrying OCR damage — a subscript rendered as "ᴄ", a
+            // stray CJK character — is not something the browser engine can read,
+            // and offering it as a calculator would be offering a wrong number.
+            // The site shows those as reference only; the app's own review list
+            // already holds them.
+            val readable = d.expression != null && d.expression.all { ch ->
+                ch.isLetterOrDigit() && ch.code < 128 || ch in " +-*/^().,%!\u00B0_"
+            }
+            if (offered && readable) {
                 val result = FormulaCalculator.calculate(d, CalculationRequest(d.id, sample))
                 if (result.success) {
                     expected = result.approximateValue
@@ -89,7 +98,8 @@ class FormulaExportTest {
                 out.append('}')
             }
             out.append("],")
-            out.append("\"expected\":").append(expected?.let { num(it) } ?: "null")
+            out.append("\"expected\":").append(expected?.let { num(it) } ?: "null").append(',')
+            out.append("\"review\":").append(if (offered && !readable) "true" else "false")
             out.append('}')
         }
         out.append("]}")

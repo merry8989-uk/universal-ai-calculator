@@ -139,6 +139,9 @@
   }
 
   function canCalculate(f) {
+    // review: the expression carries OCR damage the browser engine cannot read,
+    // so the formula is shown to read and not offered as a calculator
+    if (f.review) return false;
     return f.expression && (f.type === 'DIRECT_CALCULATOR' || f.type === 'CHECKER');
   }
 
