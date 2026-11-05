@@ -47,22 +47,4 @@ object FormulaReference {
             load(context).map { RawFormula(it.category, it.title, it.formula) },
         )
 
-    /** Categories in the order they appear in the data file. */
-    fun categories(list: List<RefFormula>): List<String> {
-        val seen = LinkedHashSet<String>()
-        list.forEach { seen.add(it.category) }
-        return seen.toList()
-    }
-
-    /** Case-insensitive search over the title, the formula and the category. */
-    fun search(list: List<RefFormula>, query: String, category: String?): List<RefFormula> {
-        val q = query.trim().lowercase()
-        return list.filter { f ->
-            (category == null || f.category == category) &&
-                (q.isEmpty() ||
-                    f.title.lowercase().contains(q) ||
-                    f.formula.lowercase().contains(q) ||
-                    f.category.lowercase().contains(q))
-        }
-    }
 }

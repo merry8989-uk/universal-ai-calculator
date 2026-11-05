@@ -92,12 +92,7 @@ class FormulaReferenceTest {
         assertEquals(16, cats.size)
     }
 
-    @Test fun searchFindsThings() {
-        val list = entries.map { RefFormula(it.first, it.second, it.third) }
-        assertTrue("no match for 'cos'", FormulaReference.search(list, "cos", null).isNotEmpty())
-        assertTrue("no match for 'Bayes'", FormulaReference.search(list, "Bayes", null).isNotEmpty())
-        assertTrue("no match for 'integral'", FormulaReference.search(list, "integral", null).isNotEmpty())
-        assertEquals(list.size, FormulaReference.search(list, "", null).size)
-        assertTrue(FormulaReference.search(list, "", "Geometry").all { it.category == "Geometry" })
-    }
+    // The search moved into the page, which filters as you type. What is left to
+    // check here is the data it searches: the categories are all present and the
+    // count is right, which the test above does.
 }
