@@ -3,6 +3,13 @@ name: Pages
 # Publishes the public app page (docs/) to GitHub Pages on every push.
 # Rule 5: the page documents every feature and ends with the @osintgram_io
 # contact. Turn Pages on once: Settings -> Pages -> Source: GitHub Actions.
+#
+# The formula site is generated here rather than committed: the export test
+# writes docs/formulas.json straight out of the app's own registry, and the
+# Node check then runs the site's JavaScript engine over every one of those
+# formulas and compares it with the answer the app produced. A site that
+# computes something different from the app is worse than no site, so the
+# deploy does not happen if they disagree.
 on:
   push:
     branches: [ main ]
@@ -26,6 +33,26 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v4
+
+      - name: Set up the JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build the formula file from the app's registry
+        run: |
+          chmod +x ./gradlew || true
+          ./gradlew :app:testDebugUnitTest --tests "*FormulaExportTest*" --console=plain
+          ls -la docs/formulas.json
+
+      - name: Check the site against the app
+        run: node tools/check_formulas.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

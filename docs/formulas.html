@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="icon.png">
+<title>Nexus Calc — the formula library, working</title>
+<style>
+  :root { --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#30363d;
+          --text:#e6edf3; --muted:#9198a1; --accent:#1565c0; --accent2:#4f9cf0;
+          --ok:#3fb950; --warn:#d29922; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); line-height:1.55;
+         font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  a { color:var(--accent2); }
+  .wrap { max-width:1000px; margin:0 auto; padding:32px 18px 80px; }
+
+  header { border-bottom:1px solid var(--border); padding-bottom:20px; }
+  h1 { font-size:1.9rem; margin:0 0 6px; }
+  .tagline { color:var(--muted); margin:0 0 4px; }
+  .stats { color:var(--muted); font-size:.9rem; }
+
+  .controls { position:sticky; top:0; z-index:5; background:var(--bg);
+              padding:14px 0 10px; border-bottom:1px solid var(--border); }
+  input[type=search] { width:100%; padding:12px 14px; border-radius:10px;
+              border:1px solid var(--border); background:var(--panel); color:var(--text);
+              font-size:1rem; }
+  input[type=search]:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .chip { padding:5px 11px; border-radius:999px; border:1px solid var(--border);
+          background:var(--panel); color:var(--muted); font-size:.82rem; cursor:pointer;
+          user-select:none; }
+  .chip[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .chip .n { opacity:.7; margin-left:4px; font-size:.75rem; }
+
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:12px;
+          padding:16px; margin-top:12px; }
+  .card h3 { margin:0 0 8px; font-size:1.02rem; font-weight:600; }
+  .formula { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.95rem;
+             background:var(--panel2); border-radius:8px; padding:10px 12px;
+             white-space:pre-wrap; word-break:break-word; }
+  .meta { display:flex; gap:10px; align-items:center; margin-top:8px;
+          font-size:.78rem; color:var(--muted); flex-wrap:wrap; }
+  .type { padding:1px 8px; border-radius:999px; border:1px solid var(--border); }
+  .type.calc { color:var(--ok); border-color:#2ea04326; background:#2ea04315; }
+  .type.ref { color:var(--warn); border-color:#d2992226; background:#d2992215; }
+
+  .inputs { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+            gap:8px; margin-top:12px; }
+  .field label { display:block; font-size:.75rem; color:var(--muted); margin-bottom:3px; }
+  .field input { width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border);
+                 background:var(--bg); color:var(--text); font-size:.92rem;
+                 font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .field input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  .out { margin-top:10px; padding:10px 12px; border-radius:8px; background:var(--panel2);
+         font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.05rem; }
+  .out .label { color:var(--muted); font-size:.78rem; font-family:inherit; display:block; }
+  .out.bad { color:#f85149; }
+  .actions { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  button.act { padding:6px 12px; border-radius:8px; border:1px solid var(--border);
+               background:var(--panel2); color:var(--text); cursor:pointer; font-size:.82rem; }
+  button.act:hover { border-color:var(--accent); }
+  button.act.done { color:var(--ok); border-color:#2ea04366; }
+
+  #more { display:block; margin:22px auto 0; padding:12px 26px; border-radius:10px;
+          background:var(--accent); color:#fff; border:0; font-size:.95rem;
+          font-weight:600; cursor:pointer; }
+  .empty { text-align:center; color:var(--muted); padding:60px 0; }
+  footer { margin-top:56px; padding-top:24px; border-top:1px solid var(--border);
+           text-align:center; color:var(--muted); font-size:.9rem; }
+  footer .ig { display:inline-block; margin-top:6px; font-size:1.05rem; font-weight:600; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f6f8fa; --panel:#fff; --panel2:#f0f3f6; --border:#d0d7de;
+            --text:#1f2328; --muted:#656d76; --accent:#1565c0; --accent2:#0969da; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>The formula library, working</h1>
+    <p class="tagline">Every formula in Nexus Calc, computed in your browser by the same engine the app uses.</p>
+    <p class="stats" id="stats">Loading…</p>
+  </header>
+
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search a formula — try cos, Bayes, interest, variance" autocomplete="off">
+    <div class="chips" id="cats"></div>
+  </div>
+
+  <div id="list"></div>
+  <div class="empty" id="empty" hidden>Nothing matches that search.</div>
+  <button id="more" hidden>Show more</button>
+
+  <footer>
+    <p>Nexus Calc — the same formulas, the same engine, in the app and here.</p>
+    <a class="ig" href="https://www.instagram.com/osintgram_io/" target="_blank" rel="noopener">@osintgram_io</a>
+  </footer>
+</div>
+
+<script src="evaluator.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var PAGE = 40;
+  var all = [];
+  var shown = PAGE;
+  var query = '';
+  var category = null;
+
+  var listEl = document.getElementById('list');
+  var catsEl = document.getElementById('cats');
+  var statsEl = document.getElementById('stats');
+  var emptyEl = document.getElementById('empty');
+  var moreEl = document.getElementById('more');
+  var qEl = document.getElementById('q');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function num(v) {
+    if (v === null || v === undefined || !isFinite(v)) return '—';
+    if (Number.isInteger(v) && Math.abs(v) < 1e15) return v.toLocaleString('en-IN');
+    var a = Math.abs(v);
+    if (a !== 0 && (a < 1e-6 || a >= 1e12)) return v.toExponential(6);
+    return v.toLocaleString('en-IN', { maximumFractionDigits: 8 });
+  }
+
+  function matches(f) {
+    if (category && f.category !== category) return false;
+    if (!query) return true;
+    var q = query.toLowerCase();
+    return (f.title + ' ' + f.printed + ' ' + f.category + ' ' + (f.expression || ''))
+      .toLowerCase().indexOf(q) >= 0;
+  }
+
+  function canCalculate(f) {
+    return f.expression && (f.type === 'DIRECT_CALCULATOR' || f.type === 'CHECKER');
+  }
+
+  function cardHtml(f, index) {
+    var h = '<div class="card" data-i="' + index + '">';
+    h += '<h3>' + esc(f.title) + '</h3>';
+    h += '<div class="formula">' + esc(f.printed) + '</div>';
+    h += '<div class="meta">';
+    h += '<span class="type ' + (canCalculate(f) ? 'calc' : 'ref') + '">' +
+         esc(canCalculate(f) ? 'calculates' : f.type.replace(/_/g, ' ').toLowerCase()) + '</span>';
+    h += '<span>' + esc(f.category) + '</span>';
+    h += '</div>';
+
+    if (canCalculate(f)) {
+      h += '<div class="inputs">';
+      f.inputs.forEach(function (inp) {
+        h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
+             '<input type="number" step="any" data-id="' + esc(inp.id) + '" value="' + inp.sample + '"></div>';
+      });
+      h += '</div>';
+      h += '<div class="out"><span class="label">' + esc(f.output.label) +
+           (f.output.unit ? ' (' + esc(f.output.unit) + ')' : '') + '</span>' +
+           '<span class="val">—</span></div>';
+      h += '<div class="actions">' +
+           '<button class="act copy">Copy formula</button>' +
+           '<button class="act share">Share</button>' +
+           '</div>';
+    } else {
+      h += '<div class="actions"><button class="act copy">Copy formula</button></div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function calculateCard(card, f) {
+    var vars = {};
+    var inputs = card.querySelectorAll('input[data-id]');
+    for (var i = 0; i < inputs.length; i++) {
+      var v = parseFloat(inputs[i].value);
+      vars[inputs[i].getAttribute('data-id')] = isNaN(v) ? 0 : v;
+    }
+    var outEl = card.querySelector('.out');
+    var valEl = card.querySelector('.out .val');
+    if (!outEl || !valEl) return;
+    try {
+      var result = window.NexusEvaluator.evaluate(f.expression, vars);
+      valEl.textContent = num(result);
+      outEl.classList.remove('bad');
+    } catch (e) {
+      valEl.textContent = e.message;
+      outEl.classList.add('bad');
+    }
+  }
+
+  function render() {
+    var filtered = all.filter(matches);
+    var slice = filtered.slice(0, shown);
+    var html = '';
+    for (var i = 0; i < slice.length; i++) html += cardHtml(slice[i], i);
+    listEl.innerHTML = html;
+
+    // wire each card once, after it is in the document
+    var cards = listEl.querySelectorAll('.card');
+    for (var c = 0; c < cards.length; c++) {
+      (function (card, f) {
+        if (canCalculate(f)) {
+          calculateCard(card, f);
+          card.querySelectorAll('input[data-id]').forEach(function (inp) {
+            inp.addEventListener('input', function () { calculateCard(card, f); });
+          });
+        }
+        card.querySelector('.copy').addEventListener('click', function (ev) {
+          copyText(f.printed, ev.target);
+        });
+        var shareBtn = card.querySelector('.share');
+        if (shareBtn) {
+          shareBtn.addEventListener('click', function () {
+            var val = card.querySelector('.out .val').textContent;
+            shareText(f.title + '\n' + f.printed + '\n= ' + val);
+          });
+        }
+      })(cards[c], slice[c]);
+    }
+
+    emptyEl.hidden = filtered.length !== 0;
+    moreEl.hidden = filtered.length <= shown;
+    moreEl.textContent = 'Show ' + Math.min(PAGE, filtered.length - shown) +
+                         ' more of ' + filtered.length;
+    statsEl.textContent = filtered.length + ' of ' + all.length + ' formulas' +
+      (category ? ' in ' + category : '');
+  }
+
+  function copyText(text, btn) {
+    function done() {
+      if (!btn) return;
+      var old = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.classList.add('done');
+      setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1400);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+    } else {
+      fallback(text, done);
+    }
+  }
+
+  function fallback(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { /* the browser refused */ }
+    document.body.removeChild(ta);
+  }
+
+  function shareText(text) {
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () { /* the user changed their mind */ });
+    } else {
+      copyText(text, null);
+    }
+  }
+
+  function buildCategories() {
+    var counts = {};
+    all.forEach(function (f) { counts[f.category] = (counts[f.category] || 0) + 1; });
+    var names = Object.keys(counts).sort();
+    var html = '<button class="chip" data-c="" aria-pressed="true">All<span class="n">' +
+               all.length + '</span></button>';
+    names.forEach(function (n) {
+      html += '<button class="chip" data-c="' + esc(n) + '" aria-pressed="false">' +
+              esc(n) + '<span class="n">' + counts[n] + '</span></button>';
+    });
+    catsEl.innerHTML = html;
+    catsEl.addEventListener('click', function (e) {
+      var chip = e.target.closest('.chip');
+      if (!chip) return;
+      category = chip.getAttribute('data-c') || null;
+      shown = PAGE;
+      catsEl.querySelectorAll('.chip').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x === chip));
+      });
+      render();
+    });
+  }
+
+  qEl.addEventListener('input', function () {
+    query = qEl.value.trim();
+    shown = PAGE;
+    render();
+  });
+
+  moreEl.addEventListener('click', function () {
+    shown += PAGE;
+    render();
+  });
+
+  fetch('formulas.json')
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      all = data.formulas || [];
+      if (!all.length) {
+        statsEl.textContent = 'The formula file is empty.';
+        return;
+      }
+      buildCategories();
+      render();
+    })
+    .catch(function (e) {
+      statsEl.textContent = 'Could not load the formulas: ' + e.message;
+    });
+})();
+</script>
+</body>
+</html>

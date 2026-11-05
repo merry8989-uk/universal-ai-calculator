@@ -1,0 +1,123 @@
+package com.merry8989uk.universalcalculator
+
+import com.merry8989uk.universalcalculator.formula.CalculationRequest
+import com.merry8989uk.universalcalculator.formula.FormulaCalculator
+import com.merry8989uk.universalcalculator.formula.FormulaRegistry
+import com.merry8989uk.universalcalculator.formula.FormulaType
+import com.merry8989uk.universalcalculator.formula.RawFormula
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.io.File
+
+/**
+ * Publishes the whole formula library as JSON for the website.
+ *
+ * The site runs the same formulas in JavaScript, and a website that quietly
+ * computes something different from the app is worse than no website. So this
+ * does not just dump the formulas — it also evaluates each one with the app's own
+ * engine on its own sample inputs and writes the answer alongside. The site's
+ * engine is then checked against those numbers in CI, which makes the app the
+ * oracle rather than a second opinion.
+ *
+ * The file it writes is `docs/formulas.json`, which the Pages workflow deploys.
+ */
+class FormulaExportTest {
+
+    private fun repoFile(relative: String): File {
+        // unit tests run with the module as the working directory, but be
+        // forgiving about it so this does not depend on which module runs it
+        val candidates = listOf(
+            File(relative),
+            File("../$relative"),
+            File("../../$relative"),
+        )
+        return candidates.firstOrNull { it.parentFile?.exists() == true } ?: File(relative)
+    }
+
+    @Test fun theWholeLibraryIsPublishedForTheSite() {
+        val assetFile = listOf(
+            File("src/main/assets/formulas.json"),
+            File("app/src/main/assets/formulas.json"),
+            File("../app/src/main/assets/formulas.json"),
+        ).firstOrNull { it.exists() }
+        assertTrue("the bundled formula asset was not found", assetFile != null)
+
+        val raw = MiniJson.readFormulas(assetFile!!.readText())
+        assertTrue("the formula asset is empty", raw.isNotEmpty())
+
+        val definitions = FormulaRegistry.of(raw)
+        assertTrue("the registry came back empty", definitions.isNotEmpty())
+
+        val out = StringBuilder()
+        out.append("{\"generated\":\"from the app's own registry\",\"formulas\":[")
+        var first = true
+        var computed = 0
+
+        for (d in definitions) {
+            val sample = d.inputs.associate { it.id to it.sample }
+
+            // the app's own answer, used to check the site's engine
+            var expected: Double? = null
+            if (d.type == FormulaType.DIRECT_CALCULATOR || d.type == FormulaType.CHECKER) {
+                val result = FormulaCalculator.calculate(d, CalculationRequest(d.id, sample))
+                if (result.success) {
+                    expected = result.approximateValue
+                    if (expected != null) computed++
+                }
+            }
+
+            if (!first) out.append(',')
+            first = false
+            out.append('{')
+            out.append("\"id\":").append(quote(d.id)).append(',')
+            out.append("\"title\":").append(quote(d.title)).append(',')
+            out.append("\"category\":").append(quote(d.category)).append(',')
+            out.append("\"printed\":").append(quote(d.printed)).append(',')
+            out.append("\"expression\":").append(d.expression?.let { quote(it) } ?: "null").append(',')
+            out.append("\"type\":").append(quote(d.type.name)).append(',')
+            out.append("\"output\":{")
+            out.append("\"label\":").append(quote(d.output.label)).append(',')
+            out.append("\"unit\":").append(d.output.unit?.let { quote(it) } ?: "null")
+            out.append("},")
+            out.append("\"inputs\":[")
+            d.inputs.forEachIndexed { i, spec ->
+                if (i > 0) out.append(',')
+                out.append('{')
+                out.append("\"id\":").append(quote(spec.id)).append(',')
+                out.append("\"label\":").append(quote(spec.label)).append(',')
+                out.append("\"sample\":").append(num(spec.sample))
+                out.append('}')
+            }
+            out.append("],")
+            out.append("\"expected\":").append(expected?.let { num(it) } ?: "null")
+            out.append('}')
+        }
+        out.append("]}")
+
+        val target = repoFile("docs/formulas.json")
+        target.parentFile?.mkdirs()
+        target.writeText(out.toString())
+
+        assertTrue("nothing in the library could be computed", computed > 0)
+        assertTrue("the export is suspiciously small", out.length > 100_000)
+        assertTrue("the file was not written where the site expects it: ${target.absolutePath}", target.exists())
+    }
+
+    private fun quote(s: String): String {
+        val b = StringBuilder("\"")
+        for (c in s) {
+            when (c) {
+                '"' -> b.append("\\\"")
+                '\\' -> b.append("\\\\")
+                '\n' -> b.append("\\n")
+                '\r' -> b.append("\\r")
+                '\t' -> b.append("\\t")
+                else -> if (c < ' ') b.append(String.format("\\u%04x", c.code)) else b.append(c)
+            }
+        }
+        return b.append('"').toString()
+    }
+
+    private fun num(v: Double): String =
+        if (v.isNaN() || v.isInfinite()) "null" else v.toString()
+}
