@@ -336,8 +336,6 @@ object FormulaNormaliser {
             out.append(text, last, match.range.first)
             val index = match.groupValues[1].mapNotNull { SUPERSCRIPTS[it] }.joinToString("")
             var i = match.range.last + 1
-            // log_b a has a space where log_a(x) has a bracket
-            while (i < text.length && text[i] == ' ') i++
             val argument: String
             if (i < text.length && text[i] == '(') {
                 var depth = 0
@@ -439,6 +437,8 @@ object FormulaNormaliser {
                 raised.mapNotNull { SUBSCRIPTS[it] }.joinToString("").replace("_", "")
             }
             var i = match.range.last + 1
+            // log_b a has a space where log_a(x) has a bracket
+            while (i < text.length && text[i] == ' ') i++
             val argument: String
             if (i < text.length && text[i] == '(') {
                 var depth = 0
