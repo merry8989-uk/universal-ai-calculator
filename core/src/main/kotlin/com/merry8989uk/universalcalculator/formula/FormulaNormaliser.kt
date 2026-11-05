@@ -289,8 +289,13 @@ object FormulaNormaliser {
             val name = m.groupValues[1]
             val argument = m.groupValues[3]
             if (out.isNotEmpty()) {
-                val before = out[out.length - 1]
-                if (before.isLetterOrDigit() || before == ')' || before == '_') out.append('*')
+                // the factor is behind whatever spaces were between them
+                var j = out.length - 1
+                while (j >= 0 && out[j] == ' ') j--
+                if (j >= 0 && (out[j].isLetterOrDigit() || out[j] == ')' || out[j] == '_')) {
+                    out.setLength(j + 1)
+                    out.append('*')
+                }
             }
             out.append(name).append('(').append(argument).append(')')
             last = m.range.last + 1

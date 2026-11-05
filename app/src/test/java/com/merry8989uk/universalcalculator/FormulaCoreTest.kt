@@ -285,13 +285,14 @@ class FormulaCoreTest {
         assertEquals("cos(A)*cos(B)", FormulaNormaliser.normalise("cos A cos B"))
     }
 
-    @Test fun aKnownLimitOfStrippingSpaces() {
-        // A known limit, written down rather than hidden: the reader strips the
-        // spaces before it tokenises, so "x ln a" arrives as "xlna" and there is
-        // nothing left to tell a product from a name. It is read as one name.
-        // Four letters with a function buried inside cannot be recovered without
-        // knowing where the words were, so this stays a limitation.
-        assertEquals("xlna", FormulaNormaliser.normalise("x ln a"))
+    @Test fun aFunctionAfterAFactorIsNoLongerLost() {
+        // This used to be a documented limitation: the spaces were stripped
+        // before tokenising, so "x ln a" arrived as "xlna" and was read as one
+        // name. The bracketing now happens while the words are still apart, so
+        // the function survives and the product is explicit.
+        val out = FormulaNormaliser.normalise("x ln a")!!
+        assertTrue("the reading was $out", out.contains("ln(a)"))
+        assertTrue("the product was not made explicit: $out", out.contains("x*ln"))
     }
 
     @Test fun aSubscriptedLetterStaysOneVariable() {
