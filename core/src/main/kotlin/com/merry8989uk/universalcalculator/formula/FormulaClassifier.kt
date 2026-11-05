@@ -29,8 +29,12 @@ object FormulaClassifier {
      * while the full line is still what the user reads.
      */
     fun classify(category: String, title: String, printed: String): FormulaDefinition {
-        val parts = splitParts(printed)
-        if (parts.size <= 1) return classifyOne(category, title, printed, null)
+        // the prose after a colon is for the reader, not for the parser
+        val core = stripTrailingProse(printed)
+        val parts = splitParts(core)
+        if (parts.size <= 1) {
+            return classifyOne(category, title, core, null).withPrinted(printed)
+        }
 
         val ranked = parts
             .map { classifyOne(category, title, it, printed) }
@@ -41,9 +45,13 @@ object FormulaClassifier {
                 reason = "of " + parts.size + " formulas on this line, this one works: " + best.reason,
             )
         } else {
-            classifyOne(category, title, printed, null)
+            classifyOne(category, title, core, null)
         }
     }
+
+    /** Keeps the sentence the book wrote while reading only the formula. */
+    private fun FormulaDefinition.withPrinted(original: String): FormulaDefinition =
+        if (original == printed) this else copy(printed = original)
 
     /**
      * Where the equals sign that divides the two sides is.
@@ -80,6 +88,66 @@ object FormulaClassifier {
      * of brackets belongs to that expression, and splitting on it would cut a
      * formula in half.
      */
+    /**
+     * A book often writes the rule after the formula: "D = b² − 4ac: two real
+     * roots if D > 0, one if D = 0".
+     *
+     * The prose is part of what the reader needs, but it is not part of the
+     * formula, and read as an expression it fails — which put the discriminant
+     * on the review list for the sake of a sentence after a colon.
+     *
+     * Only a colon outside brackets, followed by something that reads as words,
+     * is taken as prose. A ratio has no spaces in it.
+     */
+    fun stripTrailingProse(printed: String): String {
+        val at = printed.indexOf(':')
+        if (at <= 0) return printed
+        var depth = 0
+        for (i in 0 until at) {
+            when (printed[i]) {
+                '(', '[', '{' -> depth++
+                ')', ']', '}' -> depth--
+            }
+        }
+        // a colon inside brackets belongs to the maths, not to a sentence
+        if (depth != 0) return printed
+        val after = printed.substring(at + 1).trim()
+        // a sentence has a word of three letters or more in it; "a : b : c" does
+        // not, and neither does a ratio written with spaces
+        val looksLikeWords = after.split(' ').any { word ->
+            word.count { it.isLetter() } >= 3
+        }
+        if (!looksLikeWords) return printed
+        return printed.substring(0, at).trim()
+    }
+
+    /**
+     * Operations a book writes as a name that this calculator does not have.
+     *
+     * A determinant of a matrix is not a reading failure and it is not something
+     * to go and fix — the engine works on numbers, not matrices. Calling it
+     * "needs review" says someone made a mistake, which is untrue, and it buries
+     * the entries that really are mistakes among them.
+     */
+    private val MATRIX_NAMES = listOf(
+        "determinant", "det", "adjugate", "adj", "rank", "nullity", "trace",
+        "transpose", "eigen", "eigs", "svd", "cofactor", "minor", "inv",
+    )
+
+    /** The name of a matrix operation this formula uses, if it uses one. */
+    fun matrixOperationIn(vararg expressions: String?): String? {
+        for (expression in expressions) {
+            if (expression == null) continue
+            for (name in MATRIX_NAMES) {
+                val used = Regex(
+                    "(?<![A-Za-z0-9_])" + name + "\\s*\\(",
+                ).containsMatchIn(expression)
+                if (used) return name
+            }
+        }
+        return null
+    }
+
     fun splitParts(printed: String): List<String> {
         val parts = ArrayList<String>()
         val current = StringBuilder()
@@ -171,6 +239,9 @@ object FormulaClassifier {
                     reason = "solves for ${FormulaNormaliser.friendlyName(lhs)} and evaluates",
                 )
             }
+            matrixOperationIn(lhs, rhs)?.let { name ->
+                return reference("uses $name, a matrix operation this calculator does not have")
+            }
             return FormulaDefinition(
                 id = id, title = title, category = category, printed = printed,
                 expression = null, target = null, type = FormulaType.NEEDS_REVIEW,
@@ -193,6 +264,9 @@ object FormulaClassifier {
                     part = part,
                     reason = "an identity: both sides agree for the values tried",
                 )
+            }
+            matrixOperationIn(lhs, rhs)?.let { name ->
+                return reference("uses $name, a matrix operation this calculator does not have")
             }
             return FormulaDefinition(
                 id = id, title = title, category = category, printed = printed,
