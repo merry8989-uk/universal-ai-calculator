@@ -41,7 +41,16 @@ class NormaliserReadingsTest {
     @Test fun aFunctionWithoutBracketsGetsThem() {
         assertEquals("ln(a)", FormulaNormaliser.rewriteBareApplications("ln a"))
         assertEquals("sin(x)", FormulaNormaliser.rewriteBareApplications("sin x"))
-        assertEquals("sqrt(2)", FormulaNormaliser.rewriteBareApplications("sqrt 2"))
+    }
+
+    @Test fun aCoefficientAndItsVariableAreLeftToTheTokeniser() {
+        // cos 2θ is cos(2θ); taking the 2 alone here would break it
+        assertEquals("cos 2\u03B8", FormulaNormaliser.rewriteBareApplications("cos 2\u03B8"))
+    }
+
+    @Test fun aFactorInFrontIsMadeExplicit() {
+        // x ln a must become x*ln(a), or the brackets re-glue to the x
+        assertEquals("x*ln(a)", FormulaNormaliser.rewriteBareApplications("x ln a"))
     }
 
     @Test fun everyApplicationOnTheLineIsBracketed() {

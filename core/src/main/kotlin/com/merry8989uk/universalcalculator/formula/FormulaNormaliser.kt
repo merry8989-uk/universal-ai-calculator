@@ -260,19 +260,44 @@ object FormulaNormaliser {
      * applications and is handled by the second one still being adjacent.
      */
     private val BARE_APPLICATION = Regex(
-        "(?<![A-Za-z0-9_])(" + "sinh|cosh|tanh|coth|sech|csch|asin|acos|atan|" +
+        "(" + "sinh|cosh|tanh|coth|sech|csch|asin|acos|atan|" +
             "sin|cos|tan|cot|sec|csc|ln|log|sqrt|cbrt|abs|exp|sign" +
-            ")(\\s+)([A-Za-z][A-Za-z0-9_]*|[0-9]+(?:\\.[0-9]+)?)",
+            ")(\\s+)([A-Za-z][A-Za-z0-9_]*)",
     )
 
-    fun rewriteBareApplications(text: String): String =
-        BARE_APPLICATION.replace(text) { m ->
+    /**
+     * A function written without brackets takes the one name after it.
+     *
+     * `ln a` is `ln(a)`. Without this the spaces are stripped first and the two
+     * become the single identifier "lna", which the evaluator has never heard of
+     * — the review list is full of entries that failed for exactly this.
+     *
+     * A number is deliberately not taken: `cos 2θ` is a coefficient and its
+     * variable, which the tokeniser already reads as one argument, and taking
+     * the 2 alone would break it.
+     *
+     * When a factor sits in front, the multiplication is made explicit: `x ln a`
+     * has to become `x*ln(a)`, or the brackets re-glue to the x once the spaces
+     * go and the name is lost again.
+     */
+    fun rewriteBareApplications(text: String): String {
+        if (!BARE_APPLICATION.containsMatchIn(text)) return text
+        val out = StringBuilder(text.length + 16)
+        var last = 0
+        for (m in BARE_APPLICATION.findAll(text)) {
+            out.append(text, last, m.range.first)
             val name = m.groupValues[1]
             val argument = m.groupValues[3]
-            // "log x" is the common logarithm; leaving it bare would glue the
-            // name to the variable exactly as before
-            name + "(" + argument + ")"
+            if (out.isNotEmpty()) {
+                val before = out[out.length - 1]
+                if (before.isLetterOrDigit() || before == ')' || before == '_') out.append('*')
+            }
+            out.append(name).append('(').append(argument).append(')')
+            last = m.range.last + 1
         }
+        out.append(text, last, text.length)
+        return out.toString()
+    }
 
     fun rewriteArcNames(text: String): String {
         var out = text
