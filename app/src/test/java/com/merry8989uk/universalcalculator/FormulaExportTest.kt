@@ -100,7 +100,11 @@ class FormulaExportTest {
             }
             out.append("],")
             out.append("\"expected\":").append(expected?.let { num(it) } ?: "null").append(',')
-            out.append("\"review\":").append(if (offered && !readable) "true" else "false")
+            // only a formula that HAS an expression we cannot read is "under
+            // review"; one with no expression at all is simply not a calculator,
+            // and labelling it damaged would be untrue
+            out.append("\"review\":")
+                .append(if (offered && expr != null && !readable) "true" else "false")
             out.append('}')
         }
         out.append("]}")
