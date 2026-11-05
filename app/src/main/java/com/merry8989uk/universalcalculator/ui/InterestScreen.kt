@@ -26,6 +26,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import com.merry8989uk.universalcalculator.calc.DateRange
+import com.merry8989uk.universalcalculator.calc.FeeMode
+import com.merry8989uk.universalcalculator.calc.Penalty
+import com.merry8989uk.universalcalculator.calc.Tier
+import androidx.compose.material3.Button
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.merry8989uk.universalcalculator.calc.DayCountBasis
 import com.merry8989uk.universalcalculator.calc.Duration
 import com.merry8989uk.universalcalculator.calc.DurationSpan
@@ -68,6 +77,21 @@ fun InterestScreen(onBack: () -> Unit) {
     var compoundOn by remember { mutableStateOf(false) }
     var compoundUnit by remember { mutableStateOf(TimeUnit.MONTH) }
 
+    // the five from the PDF's expansion matrix
+    var feeMode by remember { mutableStateOf(FeeMode.ADDED_TO_TOTAL) }
+    var tdsText by remember { mutableStateOf("0") }
+    var tierOn by remember { mutableStateOf(false) }
+    var tierDaysText by remember { mutableStateOf("10") }
+    var tierRateText by remember { mutableStateOf("3") }
+    var penaltyOn by remember { mutableStateOf(false) }
+    var penaltyRateText by remember { mutableStateOf("0.1") }
+    var penaltyDaysText by remember { mutableStateOf("5") }
+    var instalmentsOn by remember { mutableStateOf(false) }
+    var instalmentUnit by remember { mutableStateOf(TimeUnit.MONTH) }
+    var csvMessage by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
     val principal = principalText.trim().toDoubleOrNull()
     val fees = feesText.trim().toDoubleOrNull() ?: 0.0
     val rateValue = rateText.trim().toDoubleOrNull()
@@ -94,6 +118,32 @@ fun InterestScreen(onBack: () -> Unit) {
             fees = fees,
             dayCount = dayCount,
             compoundEvery = if (compoundOn) compoundUnit else null,
+            feeMode = feeMode,
+            tdsPercent = tdsText.trim().toDoubleOrNull() ?: 0.0,
+            tiers = if (tierOn && rate != null) {
+                listOf(
+                    Tier(tierDaysText.trim().toDoubleOrNull() ?: 10.0, rate),
+                    Tier(
+                        Double.MAX_VALUE,
+                        RateSpec(
+                            tierRateText.trim().toDoubleOrNull() ?: rate.value,
+                            rate.per,
+                            rate.customEvery,
+                        ),
+                    ),
+                )
+            } else {
+                emptyList()
+            },
+            penalty = if (penaltyOn) {
+                Penalty(
+                    RateSpec(penaltyRateText.trim().toDoubleOrNull() ?: 0.0, TimeUnit.DAY),
+                    penaltyDaysText.trim().toDoubleOrNull() ?: 0.0,
+                )
+            } else {
+                null
+            },
+            instalmentEvery = if (instalmentsOn) instalmentUnit else null,
         )
     } else {
         null
@@ -257,6 +307,108 @@ fun InterestScreen(onBack: () -> Unit) {
             )
         }
 
+        // ---- a rate that changes part way through ----
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 10.dp),
+        ) {
+            FilterChip(
+                selected = tierOn,
+                onClick = { tierOn = !tierOn },
+                label = { Text("Rate changes part way") },
+            )
+        }
+        if (tierOn) {
+            Text(
+                "For the first N days the rate above applies; after that, the rate below.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = tierDaysText, onValueChange = { tierDaysText = it },
+                    label = { Text("For the first (days)") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = tierRateText, onValueChange = { tierRateText = it },
+                    label = { Text("Then % per ${rateUnit.label.lowercase()}") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        // ---- a late charge ----
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 10.dp),
+        ) {
+            FilterChip(
+                selected = penaltyOn,
+                onClick = { penaltyOn = !penaltyOn },
+                label = { Text("Late payment charge") },
+            )
+        }
+        if (penaltyOn) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = penaltyRateText, onValueChange = { penaltyRateText = it },
+                    label = { Text("% per day") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = penaltyDaysText, onValueChange = { penaltyDaysText = it },
+                    label = { Text("Days overdue") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        // ---- where the fee goes, and tax ----
+        ChoiceRow(
+            label = "The fee is",
+            options = FeeMode.entries.map { Choice(it.name, it.label, it.note) },
+            selected = feeMode.name,
+            moreLabel = "Both ways",
+            onSelect = { name -> FeeMode.entries.firstOrNull { it.name == name }?.let { feeMode = it } },
+        )
+        OutlinedTextField(
+            value = tdsText, onValueChange = { tdsText = it },
+            label = { Text("Tax withheld from the interest (%)") }, singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        // ---- how it is repaid ----
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 10.dp),
+        ) {
+            FilterChip(
+                selected = !instalmentsOn,
+                onClick = { instalmentsOn = false },
+                label = { Text("One payment at the end") },
+            )
+            FilterChip(
+                selected = instalmentsOn,
+                onClick = { instalmentsOn = true },
+                label = { Text("Equal instalments") },
+            )
+        }
+        if (instalmentsOn) {
+            ChoiceRow(
+                label = "Instalments",
+                options = unitChoices,
+                selected = instalmentUnit.name,
+                moreLabel = "More periods",
+                onSelect = { name -> TimeUnit.entries.firstOrNull { it.name == name }?.let { instalmentUnit = it } },
+            )
+        }
+
         // ---- the answer ----
         Card(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -284,6 +436,20 @@ fun InterestScreen(onBack: () -> Unit) {
                         style = MaterialTheme.typography.labelMedium,
                     )
 
+                    if (breakdown.penaltyAmount > 0.0) {
+                        Text(
+                            "plus ${Format.number(breakdown.penaltyAmount)} late charge",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    if (breakdown.upfrontDeducted > 0.0) {
+                        Text(
+                            "You receive ${Format.number(breakdown.amountReceived)} after the fee",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                     val lines = buildList {
                         add("Principal ${Format.number(breakdown.principal)}")
                         add("Rate ${rateText.trim()}% every ${Format.number(breakdown.daysPerRateCharge)} days")
@@ -299,7 +465,27 @@ fun InterestScreen(onBack: () -> Unit) {
                         add("Interest per day ${Format.number(breakdown.dailyInterestAmount)}")
                         add("That is ${Format.number(breakdown.effectiveAnnualPercent)}% a year")
                         add("and ${Format.number(breakdown.effectiveMonthlyPercent)}% a month")
+                        if (breakdown.penaltyAmount > 0.0) {
+                            add("Late charge ${Format.number(breakdown.penaltyAmount)}")
+                        }
+                        if (breakdown.tdsAmount > 0.0) {
+                            add("Tax withheld ${Format.number(breakdown.tdsAmount)}")
+                            add("Interest kept ${Format.number(breakdown.netInterest)}")
+                        }
+                        if (breakdown.upfrontDeducted > 0.0) {
+                            add("Fee taken up front ${Format.number(breakdown.upfrontDeducted)}")
+                            add("Received ${Format.number(breakdown.amountReceived)}")
+                        }
                         add("Total payable ${Format.number(breakdown.totalAmount)}")
+                        for ((label, amount) in breakdown.tierInterest) {
+                            add("$label = ${Format.number(amount)}")
+                        }
+                        if (breakdown.schedule.isNotEmpty()) {
+                            add(
+                                "${breakdown.schedule.size} instalments of about " +
+                                    Format.number(breakdown.instalmentAmount),
+                            )
+                        }
                     }
                     Column(modifier = Modifier.padding(top = 10.dp)) {
                         for (line in lines) {
@@ -314,6 +500,21 @@ fun InterestScreen(onBack: () -> Unit) {
                         text = lines.joinToString("\n"),
                         subject = "Interest calculation",
                     )
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                val file = withContext(Dispatchers.IO) {
+                                    CsvExport.write(context, breakdown)
+                                }
+                                val problem = CsvExport.share(context, file)
+                                csvMessage = problem ?: "Saved ${file.name}"
+                            }
+                        },
+                        modifier = Modifier.padding(top = 6.dp),
+                    ) { Text("Export the schedule as CSV") }
+                    csvMessage?.let {
+                        Text(it, style = MaterialTheme.typography.labelSmall)
+                    }
                 }
             }
         }
