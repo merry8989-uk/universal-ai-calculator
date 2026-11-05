@@ -62,7 +62,8 @@ class PeriodInputsTest {
             "mortgage",
             mapOf("price" to 5_000_000.0, "down" to 20.0, "rate" to 8.5, "years" to 20.0, "per" to 52.0),
         )
-        assertEquals(1040.0, monthly["Payments"]!!, 1e-9)
+        // 20 years of monthly payments is 240; of weekly ones, 1040
+        assertEquals(240.0, monthly["Payments"]!!, 1e-9)
         assertEquals(1040.0, weekly["Payments"]!!, 1e-9)
         // a weekly payment is smaller than a monthly one, and there are more of them
         assertTrue(
