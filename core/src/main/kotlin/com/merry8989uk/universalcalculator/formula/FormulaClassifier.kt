@@ -271,6 +271,27 @@ object FormulaClassifier {
             )
         }
 
+        // ---- a chain: a / sin A = b / sin B = c / sin C = 2R ----
+        //
+        // Books write one relation as a chain of equalities. Splitting on the
+        // first equals sign leaves the rest of the chain on the right, which is
+        // not an expression at all — so the sine rule and several others were
+        // unreadable for the sake of a second equals sign.
+        //
+        // It is a reference and not a checker, deliberately. The parts are equal
+        // only because the variables are related — the sine rule holds for the
+        // sides and opposite angles of one triangle, not for six free numbers.
+        // Checking it with independent values would call it false; checking it
+        // with equal values would call "a = b = c" true. Either way the app would
+        // be claiming something it has not shown.
+        if (topLevelEquals(rhsPrinted) >= 0) {
+            val parts = 1 + splitOnEquals(rhsPrinted).size
+            return reference(
+                "a chain of $parts equal parts, which hold because the values are " +
+                    "related rather than for any numbers put in",
+            )
+        }
+
         // ---- variables on both sides: an identity to check ----
         if (lhsVars.isNotEmpty() && rhsVars.isNotEmpty()) {
             val all = (lhsVars + rhsVars).distinct()
@@ -298,6 +319,25 @@ object FormulaClassifier {
         }
 
         return reference("no variables to put numbers into")
+    }
+
+    /** The segments of a chain, split on every equals sign outside brackets. */
+    private fun splitOnEquals(text: String): List<String> {
+        val out = ArrayList<String>()
+        var depth = 0
+        var start = 0
+        for ((index, c) in text.withIndex()) {
+            when (c) {
+                '(', '[', '{' -> depth++
+                ')', ']', '}' -> depth--
+                '=' -> if (depth == 0) {
+                    out.add(text.substring(start, index).trim())
+                    start = index + 1
+                }
+            }
+        }
+        out.add(text.substring(start).trim())
+        return out.filter { it.isNotEmpty() }
     }
 
     /** Runs the expression with sample values. Returns null when it works. */

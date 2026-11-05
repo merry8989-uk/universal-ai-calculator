@@ -569,8 +569,13 @@ object FormulaNormaliser {
                     val lower = run.lowercase()
 
                     // a name the reader knows always wins, so sinth is sin(th)
+                    // EAR is the effective annual rate, not E times AR. The
+                    // trap is a one-letter known name sitting at the front of a
+                    // capitalised run: "e" is Euler's number on its own, but not
+                    // the first letter of an acronym.
+                    val acronym = run.length >= 2 && run.all { it.isUpperCase() }
                     val known = KNOWN_NAMES
-                        .filter { lower.startsWith(it) }
+                        .filter { lower.startsWith(it) && !(acronym && it.length == 1) }
                         .maxByOrNull { it.length }
                     if (known != null) {
                         tokens.add(run.substring(0, known.length))
