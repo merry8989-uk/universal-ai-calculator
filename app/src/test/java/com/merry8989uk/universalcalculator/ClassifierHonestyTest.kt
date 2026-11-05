@@ -72,6 +72,28 @@ class ClassifierHonestyTest {
         }
     }
 
+    // ---- a statement is not a calculation ----
+
+    @Test fun aStatementIsAReferenceRatherThanAReview() {
+        val d = FormulaClassifier.classify(
+            "Vectors",
+            "Perpendicular vectors",
+            "a \u00B7 b = 0 \u21D4 a \u22A5 b",
+        )
+        assertEquals(FormulaType.REFERENCE_ONLY, d.type)
+        assertTrue("the reason did not name the symbol: ${d.reason}", d.reason.contains("\u21D4"))
+    }
+
+    @Test fun aSetRelationIsAStatement() {
+        val d = FormulaClassifier.classify("Sets", "Union", "A \u222A B = { x : x \u2208 A }")
+        assertEquals(FormulaType.REFERENCE_ONLY, d.type)
+    }
+
+    @Test fun anOrdinaryFormulaIsNotAStatement() {
+        assertEquals(null, FormulaClassifier.statementSymbolIn("a + b = c"))
+        assertEquals(null, FormulaClassifier.statementSymbolIn("x = (-b + sqrt(b^2-4ac))/(2a)"))
+    }
+
     @Test fun anOrdinaryWordContainingAMatrixNameIsNotOne() {
         // "detail" starts with det and must not be taken for a determinant
         assertEquals(null, FormulaClassifier.matrixOperationIn("detail(x)"))

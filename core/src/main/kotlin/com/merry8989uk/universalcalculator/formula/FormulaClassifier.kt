@@ -134,6 +134,23 @@ object FormulaClassifier {
         "transpose", "eigen", "eigs", "svd", "cofactor", "minor", "inv",
     )
 
+    /**
+     * Symbols that make a line a statement rather than a calculation.
+     *
+     * "a · b = 0 ⇔ a ⊥ b" says when two vectors are perpendicular. There is no
+     * number to compute and nothing is broken — but read as an expression it
+     * fails, and it was sitting on the review list as though someone had made a
+     * mistake.
+     */
+    private val STATEMENT_SYMBOLS = listOf(
+        "\u21D4", "\u22A5", "\u2225", "\u2208", "\u2209", "\u2282", "\u2283",
+        "\u2286", "\u2287", "\u2229", "\u222A", "\u2200", "\u2203", "\u2261",
+    )
+
+    /** The symbol that makes this a statement, if there is one. */
+    fun statementSymbolIn(printed: String): String? =
+        STATEMENT_SYMBOLS.firstOrNull { printed.contains(it) }
+
     /** The name of a matrix operation this formula uses, if it uses one. */
     fun matrixOperationIn(vararg expressions: String?): String? {
         for (expression in expressions) {
@@ -196,6 +213,10 @@ object FormulaClassifier {
 
         if (topLevelEquals(printed) < 0) {
             return reference("no equals sign outside a bracket, so there is nothing to compute")
+        }
+
+        statementSymbolIn(printed)?.let { symbol ->
+            return reference("a statement rather than a calculation: it contains $symbol")
         }
 
         FormulaNormaliser.containsStructure(printed)?.let {
