@@ -652,17 +652,23 @@ object FormulaLibrary {
         },
 
         Formula("pv_fv", "Present / future value", "Finance",
-            "Time value of money: PV and FV of a lump sum.",
+            "Time value of money: PV and FV of a lump sum. Set periods per year to 1 for annual, " +
+                "12 for monthly, or 365 for daily.",
             listOf(
                 InputSpec("amount", "Amount", 100000.0),
                 InputSpec("rate", "Rate (% per year)", 8.0),
                 InputSpec("years", "Years", 5.0),
+                InputSpec("per", "Periods per year", 1.0),
             ),
         ) { m ->
-            val r = v(m, "rate") / 100.0; val n = v(m, "years")
+            // was annual-only, which understates a monthly or daily arrangement
+            val perYear = v(m, "per").takeIf { it > 0.0 } ?: 1.0
+            val r = v(m, "rate") / 100.0 / perYear
+            val n = v(m, "years") * perYear
             listOf(
                 out("Future value", v(m, "amount") * (1.0 + r).pow(n)),
                 out("Present value", v(m, "amount") / (1.0 + r).pow(n)),
+                out("Periods", n),
             )
         },
 
@@ -672,9 +678,12 @@ object FormulaLibrary {
                 InputSpec("amount", "Amount today", 100000.0),
                 InputSpec("rate", "Inflation (% per year)", 6.0),
                 InputSpec("years", "Years", 10.0),
+                InputSpec("per", "Periods per year", 1.0),
             ),
         ) { m ->
-            val f = (1.0 + v(m, "rate") / 100.0).pow(v(m, "years"))
+            // the same annual-only shape as PV/FV, and the same fix
+            val perYear = v(m, "per").takeIf { it > 0.0 } ?: 1.0
+            val f = (1.0 + v(m, "rate") / 100.0 / perYear).pow(v(m, "years") * perYear)
             listOf(
                 out("Future cost of the same basket", v(m, "amount") * f),
                 out("Future value of today's money", v(m, "amount") / f),
@@ -690,14 +699,18 @@ object FormulaLibrary {
         ) { m -> listOf(out("Gratuity", 15.0 / 26.0 * v(m, "salary") * v(m, "years"))) },
 
         Formula("pf_maturity", "Provident fund maturity", "Finance",
-            "EPF-style monthly contribution growth.",
+            "Contribution growth over time. Set contributions per year to 12 for a monthly EPF, " +
+                "52 for weekly, or 4 for quarterly.",
             listOf(
-                InputSpec("monthly", "Monthly contribution", 5000.0),
+                InputSpec("monthly", "Amount each time", 5000.0),
                 InputSpec("rate", "Interest (% per year)", 8.25),
                 InputSpec("years", "Years", 20.0),
+                InputSpec("per", "Contributions per year", 12.0),
             ),
         ) { m ->
-            val n = v(m, "years") * 12.0; val i = v(m, "rate") / 100.0 / 12.0
+            // was fixed at 12, which only fits a monthly contribution
+            val perYear = v(m, "per").takeIf { it > 0.0 } ?: 12.0
+            val n = v(m, "years") * perYear; val i = v(m, "rate") / 100.0 / perYear
             val fv = if (i == 0.0) v(m, "monthly") * n
             else v(m, "monthly") * ((1.0 + i).pow(n) - 1.0) / i * (1.0 + i)
             listOf(out("Invested", v(m, "monthly") * n), out("Maturity", fv))
@@ -753,18 +766,27 @@ object FormulaLibrary {
         },
 
         Formula("mortgage", "Home affordability", "Finance",
-            "Loan needed and monthly payment for a home purchase.",
+            "Loan needed and the payment for a home purchase. Set payments per year to 12 for " +
+                "monthly, 26 for fortnightly, or 52 for weekly.",
             listOf(
                 InputSpec("price", "Home price", 5000000.0),
                 InputSpec("down", "Down payment (%)", 20.0),
                 InputSpec("rate", "Interest (% per year)", 8.5),
                 InputSpec("years", "Tenure (years)", 20.0),
+                InputSpec("per", "Payments per year", 12.0),
             ),
         ) { m ->
             val loan = v(m, "price") * (1.0 - v(m, "down") / 100.0)
-            val n = v(m, "years") * 12.0; val i = v(m, "rate") / 100.0 / 12.0
+            // was fixed at 12, which only fits a monthly payment
+            val perYear = v(m, "per").takeIf { it > 0.0 } ?: 12.0
+            val n = v(m, "years") * perYear; val i = v(m, "rate") / 100.0 / perYear
             val emi = if (i == 0.0) loan / n else loan * i * (1.0 + i).pow(n) / ((1.0 + i).pow(n) - 1.0)
-            listOf(out("Loan amount", loan), out("Monthly payment", emi), out("Total interest", emi * n - loan))
+            listOf(
+                out("Loan amount", loan),
+                out("Payment", emi),
+                out("Payments", n),
+                out("Total interest", emi * n - loan),
+            )
         },
 
         // ================= HEALTH (extended) =================
@@ -2963,7 +2985,9 @@ object FormulaLibrary {
             val discrete = if (n <= 0.0) i else (1 + i / n).pow(n) - 1
             listOf(out("Effective annual rate", discrete * 100.0, "%"),
                 out("Continuous (e^i - 1)", (exp(i) - 1) * 100.0, "%"),
-                out("Monthly rate", i / 12.0 * 100.0, "%"))
+                // was labelled "monthly" and divided by 12 whatever n was set to,
+                // so a quarterly arrangement was shown a monthly number it had not asked for
+                out("Rate per compounding period", if (n > 0.0) i / n * 100.0 else i * 100.0, "%"))
         },
 
         Formula("wacc", "WACC (weighted average cost of capital)", "Finance",
