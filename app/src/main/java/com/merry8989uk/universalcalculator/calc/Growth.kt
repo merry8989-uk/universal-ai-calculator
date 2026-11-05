@@ -48,6 +48,8 @@ enum class InterestTreatment(val label: String, val note: String) {
 data class GrowthRow(
     val period: Int,
     val year: Int,
+    /** Which week of the plan this period falls in, for a week-wise table. */
+    val week: Int = 0,
     val opening: Double,
     val interest: Double,
     val deposit: Double,
@@ -73,14 +75,26 @@ data class GrowthPlan(
     /** What plain simple interest on the original principal would have paid. */
     val simpleBenchmark: Double,
 ) {
+    /**
+     * The rows rolled up by week.
+     *
+     * A month is four and a third weeks, so a monthly plan does not divide
+     * evenly into weeks — the week a period falls in is worked out from where
+     * that period sits in time, not by counting periods.
+     */
+    fun byWeek(): List<GrowthRow> = groupBy { it.week }
+
     /** The rows rolled up by year, for a plan with many periods. */
-    fun byYear(): List<GrowthRow> {
+    fun byYear(): List<GrowthRow> = groupBy { it.year }
+
+    /** Rolls rows up by whatever number the caller groups on. */
+    private fun groupBy(key: (GrowthRow) -> Int): List<GrowthRow> {
         val out = ArrayList<GrowthRow>()
         var current: GrowthRow? = null
         for (r in rows) {
             val c = current
-            if (c == null || c.year != r.year) {
-                current = r.copy(period = r.year, interest = r.interest, deposit = r.deposit)
+            if (c == null || key(c) != key(r)) {
+                current = r.copy(period = key(r), interest = r.interest, deposit = r.deposit)
                 out.add(current)
             } else {
                 val merged = c.copy(
@@ -95,6 +109,8 @@ data class GrowthPlan(
         }
         return out
     }
+
+
 }
 
 /**
@@ -152,6 +168,8 @@ object Growth {
                 GrowthRow(
                     period = p,
                     year = (p - 1) / ppy + 1,
+                    // a period is 1/ppy of a year, which is 52/ppy weeks
+                    week = ((p - 1) * 52.0 / ppy).toInt() + 1,
                     opening = opening,
                     interest = interest,
                     deposit = extraDeposit,

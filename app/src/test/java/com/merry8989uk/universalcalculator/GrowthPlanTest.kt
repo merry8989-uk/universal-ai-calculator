@@ -149,6 +149,32 @@ class GrowthPlanTest {
         assertEquals(1.0, Growth.years(12.0, TimeUnit.MONTH), 1e-9)
     }
 
+    @Test fun thePlanAlsoRollsUpIntoWeeks() {
+        // a weekly plan is one period a week, so the week view is the period view
+        val weekly = Growth.plan(10_000.0, 8.0, 1.0, Compounding.WEEKLY)
+        assertEquals(52, weekly.periods)
+        assertEquals(52, weekly.byWeek().size)
+        assertEquals(1, weekly.byWeek().first().period)
+
+        // a monthly plan is four and a third weeks a month, so the weeks it
+        // lands in are 1, 5, 9, 14 ... — not 1, 2, 3
+        val monthly = Growth.plan(10_000.0, 8.0, 1.0, Compounding.MONTHLY)
+        val weeks = monthly.byWeek().map { it.period }
+        assertEquals(12, weeks.size)
+        assertEquals(listOf(1, 5, 9, 14), weeks.take(4))
+        // and the same interest, however it is grouped
+        assertEquals(
+            monthly.totalInterest,
+            monthly.byWeek().sumOf { it.interest },
+            1e-6,
+        )
+        assertEquals(
+            monthly.totalInterest,
+            monthly.byYear().sumOf { it.interest },
+            1e-6,
+        )
+    }
+
     @Test fun aZeroRateStillProducesAPlan() {
         val plan = Growth.plan(10_000.0, 0.0, 1.0, Compounding.MONTHLY)
         assertEquals(12, plan.periods)

@@ -85,7 +85,8 @@ internal fun GrowthMode(onBack: () -> Unit) {
     var compounding by remember { mutableStateOf(Compounding.WEEKLY) }
     var treatment by remember { mutableStateOf(InterestTreatment.REINVESTED) }
     var extraText by remember { mutableStateOf("0") }
-    var yearView by remember { mutableStateOf(false) }
+    // 0 = period, 1 = week, 2 = year
+    var tableView by remember { mutableStateOf(0) }
     var csvMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -262,30 +263,38 @@ internal fun GrowthMode(onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(top = 8.dp),
                     ) {
-                        FilterChip(selected = !yearView, onClick = { yearView = false }, label = { Text("Period-wise") })
-                        FilterChip(selected = yearView, onClick = { yearView = true }, label = { Text("Year-wise") })
+                        FilterChip(selected = tableView == 0, onClick = { tableView = 0 }, label = { Text("Period-wise") })
+                        FilterChip(selected = tableView == 1, onClick = { tableView = 1 }, label = { Text("Week-wise") })
+                        FilterChip(selected = tableView == 2, onClick = { tableView = 2 }, label = { Text("Year-wise") })
                     }
 
-                    val rows = if (yearView) plan.byYear() else plan.rows
-                    val shown = if (rows.size > 60) rows.takeLast(60) else rows
-                    if (rows.size > 60) {
-                        Text(
-                            "Showing the last 60 of ${rows.size}. Export for all of them.",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    val rows = when (tableView) {
+                        1 -> plan.byWeek()
+                        2 -> plan.byYear()
+                        else -> plan.rows
                     }
+                    val unitName = when (tableView) {
+                        1 -> "Week"
+                        2 -> "Year"
+                        else -> "Period"
+                    }
+                    Text(
+                        "The whole table \u2014 ${rows.size} rows. Export as CSV for a spreadsheet.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
                     Column(modifier = Modifier.padding(top = 6.dp)) {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                if (yearView) "Year" else "Period",
+                                unitName,
                                 style = MaterialTheme.typography.labelSmall,
                                 modifier = Modifier.weight(1f),
                             )
                             Text("Interest", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
                             Text("Closing", style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1.4f))
                         }
-                        for (r in shown) {
+                        for (r in rows) {
                             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp)) {
                                 Text(
                                     "${r.period}",
