@@ -113,6 +113,37 @@ class FormulaExportTest {
         target.parentFile?.mkdirs()
         target.writeText(out.toString())
 
+        // A second file, for reading rather than for the page: everything the
+        // library could not turn into a calculator, with the reason the
+        // classifier gave. Without this the "why is this one not working"
+        // question can only be answered by guessing.
+        val review = StringBuilder()
+        val byType = definitions.groupingBy { it.type.name }.eachCount()
+        review.append("# Formula library \u2014 what is not a calculator, and why\n\n")
+        review.append("| Type | Count |\n| --- | --- |\n")
+        for ((type, count) in byType.entries.sortedByDescending { it.value }) {
+            review.append("| $type | $count |\n")
+        }
+        review.append("\nTotal: ${definitions.size}. Computed: $computed.\n")
+
+        for (type in listOf(
+            FormulaType.NEEDS_REVIEW,
+            FormulaType.SOLVER,
+            FormulaType.REFERENCE_ONLY,
+            FormulaType.CONVERTER,
+        )) {
+            val group = definitions.filter { it.type == type }
+            if (group.isEmpty()) continue
+            review.append("\n## $type (${group.size})\n\n")
+            for (d in group) {
+                review.append("- **${d.title}** (${d.category}) \u2014 ${d.printed}\n")
+                review.append("  - ${d.reason}\n")
+            }
+        }
+        val reviewTarget = repoFile("docs/formula-review.md")
+        reviewTarget.parentFile?.mkdirs()
+        reviewTarget.writeText(review.toString())
+
         assertTrue("nothing in the library could be computed", computed > 0)
         assertTrue("the export is suspiciously small", out.length > 100_000)
         assertTrue("the file was not written where the site expects it: ${target.absolutePath}", target.exists())
