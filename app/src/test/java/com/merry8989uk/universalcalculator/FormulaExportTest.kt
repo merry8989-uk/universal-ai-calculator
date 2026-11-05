@@ -64,8 +64,9 @@ class FormulaExportTest {
             // and offering it as a calculator would be offering a wrong number.
             // The site shows those as reference only; the app's own review list
             // already holds them.
-            val readable = d.expression != null && d.expression.all { ch ->
-                ch.isLetterOrDigit() && ch.code < 128 || ch in " +-*/^().,%!\u00B0_"
+            val expr = d.expression
+            val readable = expr != null && expr.all { ch ->
+                (ch.isLetterOrDigit() && ch.code < 128) || ch in " +-*/^().,%!\u00B0_"
             }
             if (offered && readable) {
                 val result = FormulaCalculator.calculate(d, CalculationRequest(d.id, sample))
