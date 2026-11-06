@@ -512,6 +512,14 @@ internal fun LendingMode(onBack: () -> Unit) {
                         },
                         modifier = Modifier.padding(top = 6.dp),
                     ) { Text("Export the schedule as CSV") }
+                    Button(
+                        onClick = {
+                            val html = ReportDocument.lending(breakdown, rateText.trim())
+                            val problem = PrintExport.print(context, "Interest calculation", html)
+                            csvMessage = problem ?: "Opening the print dialog\u2026"
+                        },
+                        modifier = Modifier.padding(top = 6.dp),
+                    ) { Text("Print or save as PDF") }
                     csvMessage?.let {
                         Text(it, style = MaterialTheme.typography.labelSmall)
                     }
