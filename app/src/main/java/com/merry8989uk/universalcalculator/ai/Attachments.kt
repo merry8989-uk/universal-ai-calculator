@@ -28,16 +28,6 @@ object Attachments {
     // has a million-token window, so the ceiling here is the phone's patience in
     // reading the pages, not the model's.
     private const val MAX_TEXT_CHARS = 60_000
-    /** How many pages of a PDF are read, so a big document stays quick. */
-    /**
-     * How many pages are read.
-     *
-     * Every page is drawn and read by the vision model, which takes a few
-     * seconds each, so this is a patience limit rather than a technical one. A
-     * question paper fits easily; a five-hundred-page book does not, and the
-     * user is told how many pages were read.
-     */
-    private const val MAX_PDF_PAGES = 20
 
     suspend fun read(context: Context, uri: Uri, question: String = ""): Read = withContext(Dispatchers.IO) {
         val name = displayName(context, uri) ?: "file"
@@ -167,9 +157,20 @@ object Attachments {
         return try {
             val pdfStart = System.currentTimeMillis()
             val renderer = PdfRenderer(descriptor)
-            val pages = minOf(renderer.pageCount, MAX_PDF_PAGES)
+            val total = renderer.pageCount
             val chunks = ArrayList<String>()
-            for (index in 0 until pages) {
+            var chars = 0
+            var pagesRead = 0
+            var stop: PdfBudget.Stop = PdfBudget.Stop.Finished
+            // The budgets decide, whichever runs out first: a book is not a
+            // hundred pages of waiting, and a handout is not made to wait.
+            for (index in 0 until total) {
+                val elapsed = System.currentTimeMillis() - pdfStart
+                val reason = PdfBudget.stopReason(pagesRead, elapsed, chars, total)
+                if (reason != null) {
+                    stop = reason
+                    break
+                }
                 val page = renderer.openPage(index)
                 try {
                     val width = (page.width * 1.6f).toInt().coerceIn(1, 2000)
@@ -183,19 +184,23 @@ object Attachments {
                     }
                     bitmap.recycle()
                     val text = AiClient.readImage(bytes, mode = "text")
-                    if (!text.isNullOrBlank()) chunks.add("Page ${index + 1}:\n$text")
+                    pagesRead = index + 1
+                    if (!text.isNullOrBlank()) {
+                        chunks.add("Page ${index + 1}:\n$text")
+                        chars += text.length
+                    }
                 } finally {
                     page.close()
                 }
             }
-            val total = renderer.pageCount
             renderer.close()
             EventLog.ocr(
                 if (chunks.isEmpty()) "pdf.failed" else "pdf.read",
                 mapOf(
                     "duration_ms" to (System.currentTimeMillis() - pdfStart).toString(),
                     "pages_total" to total.toString(),
-                    "pages_read" to pages.toString(),
+                    "pages_read" to pagesRead.toString(),
+                    "stopped_by" to stop::class.simpleName.orEmpty(),
                     "pages_with_text" to chunks.size.toString(),
                     "text_chars" to chunks.sumOf { it.length }.toString(),
                 ),
@@ -203,11 +208,7 @@ object Attachments {
             if (chunks.isEmpty()) return null
             // Say what was actually read, so a long book does not look like a
             // short document.
-            val note = if (total > pages) {
-                "Read the first $pages pages of $total. The rest was not read."
-            } else {
-                "Read all $total page" + (if (total == 1) "" else "s") + "."
-            }
+            val note = PdfBudget.note(stop, pagesRead, total)
             (note + "\n\n" + chunks.joinToString("\n\n")).take(MAX_TEXT_CHARS)
         } catch (e: Exception) {
             null
