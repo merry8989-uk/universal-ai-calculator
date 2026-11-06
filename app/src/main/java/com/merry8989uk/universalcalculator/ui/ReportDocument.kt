@@ -45,6 +45,16 @@ compared with one quoted the usual way.</p>
 </body></html>
 """
 
+    /**
+     * An amount with its thousands grouped, the way it is written on paper.
+     *
+     * Format.number deliberately gives a bare 50000 — it is a calculator's
+     * readout, where every character is typed and space is short. A printed
+     * statement is read, not typed, and 1,00,000 is easier to check than 100000.
+     */
+    private fun money(v: Double): String =
+        String.format(java.util.Locale("en", "IN"), "%,.2f", v)
+
     private fun row(k: String, v: String) =
         "<div class=\"row\"><span class=\"k\">${esc(k)}</span><span>${esc(v)}</span></div>"
 
@@ -55,29 +65,29 @@ compared with one quoted the usual way.</p>
         body.append("<p class=\"sub\">Nexus Calc \u00B7 growth plan</p>")
 
         body.append("<h2>The arrangement</h2>")
-        body.append(row("Deposit", Format.number(plan.principal)))
+        body.append(row("Deposit", money(plan.principal)))
         body.append(row("Rate", "$rateText% a year, $basis"))
         body.append(row("Compounding", compounding))
         body.append(row("Tenure", years))
-        body.append(row("Extra deposit each period", Format.number(plan.totalDeposits / plan.periods.coerceAtLeast(1))))
+        body.append(row("Extra deposit each period", money(plan.totalDeposits / plan.periods.coerceAtLeast(1))))
 
         body.append("<h2>The answer</h2>")
-        body.append("<div class=\"big\">${esc(Format.number(plan.maturity))}</div>")
-        body.append(row("Invested", Format.number(plan.invested)))
-        body.append(row("Interest earned", Format.number(plan.totalInterest)))
+        body.append("<div class=\"big\">${esc(money(plan.maturity))}</div>")
+        body.append(row("Invested", money(plan.invested)))
+        body.append(row("Interest earned", money(plan.totalInterest)))
         body.append(row("Growth a year", Format.number(plan.apy * 100.0) + "%"))
         body.append(row("Rate each period", Format.number(plan.ratePerPeriod * 100.0) + "%"))
         body.append(row("Periods", plan.periods.toString()))
-        body.append(row("Simple interest would have paid", Format.number(plan.simpleBenchmark)))
+        body.append(row("Simple interest would have paid", money(plan.simpleBenchmark)))
 
         body.append("<h2>The schedule</h2>")
         body.append("<table><thead><tr><th>Period</th><th>Year</th><th class=\"n\">Opening</th>")
         body.append("<th class=\"n\">Interest</th><th class=\"n\">Closing</th></tr></thead><tbody>")
         for (r in plan.rows) {
             body.append("<tr><td>${r.period}</td><td>${r.year}</td>")
-            body.append("<td class=\"n\">${esc(Format.number(r.opening))}</td>")
-            body.append("<td class=\"n\">${esc(Format.number(r.interest))}</td>")
-            body.append("<td class=\"n\">${esc(Format.number(r.closing))}</td></tr>")
+            body.append("<td class=\"n\">${esc(money(r.opening))}</td>")
+            body.append("<td class=\"n\">${esc(money(r.interest))}</td>")
+            body.append("<td class=\"n\">${esc(money(r.closing))}</td></tr>")
         }
         body.append("</tbody></table>")
         return page("Growth plan", body.toString())
@@ -90,20 +100,20 @@ compared with one quoted the usual way.</p>
         body.append("<p class=\"sub\">Nexus Calc \u00B7 loan and interest</p>")
 
         body.append("<h2>The arrangement</h2>")
-        body.append(row("Principal", Format.number(b.principal)))
-        body.append(row("Rate", "$rateText% every ${Format.number(b.daysPerRateCharge)} days"))
+        body.append(row("Principal", money(b.principal)))
+        body.append(row("Rate", "$rateText% every ${money(b.daysPerRateCharge)} days"))
         body.append(row("Daily rate", Format.number(b.dailyRatePercent) + "%"))
-        body.append(row("Duration", Format.number(b.totalDays) + " days"))
-        body.append(row("Fees", Format.number(b.fees)))
+        body.append(row("Duration", money(b.totalDays) + " days"))
+        body.append(row("Fees", money(b.fees)))
 
         body.append("<h2>The answer</h2>")
-        body.append("<div class=\"big\">${esc(Format.number(b.totalInterest))}</div>")
-        body.append(row("Interest", Format.number(b.totalInterest)))
-        body.append(row("Interest a day", Format.number(b.dailyInterestAmount)))
-        body.append(row("Total payable", Format.number(b.totalAmount)))
-        if (b.penaltyAmount > 0.0) body.append(row("Late charge", Format.number(b.penaltyAmount)))
-        if (b.tdsAmount > 0.0) body.append(row("Tax withheld", Format.number(b.tdsAmount)))
-        if (b.upfrontDeducted > 0.0) body.append(row("Received after the fee", Format.number(b.amountReceived)))
+        body.append("<div class=\"big\">${esc(money(b.totalInterest))}</div>")
+        body.append(row("Interest", money(b.totalInterest)))
+        body.append(row("Interest a day", money(b.dailyInterestAmount)))
+        body.append(row("Total payable", money(b.totalAmount)))
+        if (b.penaltyAmount > 0.0) body.append(row("Late charge", money(b.penaltyAmount)))
+        if (b.tdsAmount > 0.0) body.append(row("Tax withheld", money(b.tdsAmount)))
+        if (b.upfrontDeducted > 0.0) body.append(row("Received after the fee", money(b.amountReceived)))
         body.append(row("That is a year", Format.number(b.effectiveAnnualPercent) + "%"))
         body.append(row("That is a month", Format.number(b.effectiveMonthlyPercent) + "%"))
 
@@ -112,7 +122,7 @@ compared with one quoted the usual way.</p>
             body.append("<th class=\"n\">Interest</th></tr></thead><tbody>")
             for ((label, amount) in b.tierInterest) {
                 body.append("<tr><td>${esc(label)}</td>")
-                body.append("<td class=\"n\">${esc(Format.number(amount))}</td></tr>")
+                body.append("<td class=\"n\">${esc(money(amount))}</td></tr>")
             }
             body.append("</tbody></table>")
         }
@@ -124,11 +134,11 @@ compared with one quoted the usual way.</p>
             body.append("<th class=\"n\">Instalment</th><th class=\"n\">Closing</th></tr></thead><tbody>")
             for (r in b.schedule) {
                 body.append("<tr><td>${r.period}</td>")
-                body.append("<td class=\"n\">${esc(Format.number(r.opening))}</td>")
-                body.append("<td class=\"n\">${esc(Format.number(r.interest))}</td>")
-                body.append("<td class=\"n\">${esc(Format.number(r.principal))}</td>")
-                body.append("<td class=\"n\">${esc(Format.number(r.instalment))}</td>")
-                body.append("<td class=\"n\">${esc(Format.number(r.closing))}</td></tr>")
+                body.append("<td class=\"n\">${esc(money(r.opening))}</td>")
+                body.append("<td class=\"n\">${esc(money(r.interest))}</td>")
+                body.append("<td class=\"n\">${esc(money(r.principal))}</td>")
+                body.append("<td class=\"n\">${esc(money(r.instalment))}</td>")
+                body.append("<td class=\"n\">${esc(money(r.closing))}</td></tr>")
             }
             body.append("</tbody></table>")
         }
