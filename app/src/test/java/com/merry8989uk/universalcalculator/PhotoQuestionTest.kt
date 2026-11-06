@@ -193,14 +193,20 @@ class PhotoQuestionTest {
     }
 
     @Test fun aPdfIsReadPastItsFirstFewPages() {
+        // The cap lives in PdfBudget now, with a time and a text budget beside
+        // it, and the decision is a pure function of its own so it can be tested
+        // without a phone. What matters here is that twenty is no longer the
+        // answer: a forty-page question paper has to be read whole.
         val file = listOf(
-            File("../app/src/main/java/com/merry8989uk/universalcalculator/ai/Attachments.kt"),
-            File("app/src/main/java/com/merry8989uk/universalcalculator/ai/Attachments.kt"),
+            File("../app/src/main/java/com/merry8989uk/universalcalculator/ai/PdfBudget.kt"),
+            File("app/src/main/java/com/merry8989uk/universalcalculator/ai/PdfBudget.kt"),
         ).firstOrNull { it.exists() } ?: return
         val text = file.readText()
-        val pages = Regex("MAX_PDF_PAGES = (\\d+)").find(text)?.groupValues?.get(1)?.toIntOrNull()
-        assertTrue("only $pages pages are read", pages != null && pages >= 20)
-        assertTrue("the reader does not say how much it read", text.contains("The rest was not read"))
+        val pages = Regex("MAX_PAGES = (\\d+)").find(text)?.groupValues?.get(1)?.toIntOrNull()
+        assertTrue("only $pages pages are read", pages != null && pages >= 40)
+        assertTrue("the reader does not say what it missed", text.contains("was not read"))
+        assertTrue("there is no time budget", text.contains("TIME_BUDGET_MS"))
+        assertTrue("there is no text budget", text.contains("TEXT_BUDGET_CHARS"))
     }
 
     @Test fun theSearchHasARealEngineAndTwoFallbacks() {
