@@ -71,14 +71,20 @@ class MatrixVectorTest {
         assertEquals(0.4, r["Bottom right"]!!, 1e-9)
     }
 
-    @Test fun theInverseOfASingularMatrixIsNotANumber() {
-        // [[1,2],[2,4]] has determinant zero; the app must not pretend otherwise
-        val r = run("inv2", mapOf("a" to 1.0, "b" to 2.0, "c" to 2.0, "d" to 4.0))
-        assertEquals(0.0, r["Determinant"]!!, 1e-9)
-        val topLeft = r["Top left"]!!
+    @Test fun aSingularMatrixSaysSoRatherThanInventingAnInverse() {
+        // [[1,2],[2,4]] has determinant zero and no inverse. The engine refuses
+        // rather than dividing by zero quietly, and the screen turns the refusal
+        // into a sentence — which is the behaviour worth pinning down.
+        val thrown = try {
+            run("inv2", mapOf("a" to 1.0, "b" to 2.0, "c" to 2.0, "d" to 4.0))
+            null
+        } catch (e: Exception) {
+            e
+        }
+        assertNotNull("a singular matrix was given an inverse", thrown)
         assertTrue(
-            "a singular matrix produced a finite inverse: $topLeft",
-            topLeft.isInfinite() || topLeft.isNaN(),
+            "the refusal did not mention the division: ${thrown!!.message}",
+            thrown.message?.contains("zero", ignoreCase = true) == true,
         )
     }
 
