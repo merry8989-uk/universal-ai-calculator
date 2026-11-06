@@ -273,5 +273,146 @@ internal object ExtraFormulas {
             "How much the call moves when the spot moves.",
             listOf(InputSpec("s", "Spot price", 100.0), InputSpec("k", "Strike", 100.0), InputSpec("r", "Risk-free rate", 0.05), InputSpec("sig", "Volatility", 0.2), InputSpec("t", "Time to expiry", 1.0)),
         ) { m -> listOf(out("Delta", Evaluator.evaluate("0.5+0.5*erf(((ln(s/k)+(r+sig^2/2)*t)/(sig*sqrt(t)))/sqrt(2))", vars = m))) },
+        // ---- matrices and vectors, where the arithmetic is scalar ----
+        //
+        // A determinant of a matrix is not something a number engine can do, and
+        // these are not that: they take the entries as numbers and work out the
+        // one number the formula produces. What cannot be done this way — the
+        // transpose of a product, an inverse written with det(A) still inside it
+        // — stays a reference, which is the honest place for it.
+        Formula("det2", "Determinant of a 2x2 matrix", "Matrices & Determinants",
+            "det [[a, b], [c, d]] = ad - bc.",
+            listOf(
+                InputSpec("a", "a", 1.0), InputSpec("b", "b", 2.0),
+                InputSpec("c", "c", 3.0), InputSpec("d", "d", 4.0),
+            ),
+        ) { m -> listOf(out("Determinant", Evaluator.evaluate("a*d-b*c", vars = m))) },
+
+        Formula("det3", "Determinant of a 3x3 matrix", "Matrices & Determinants",
+            "Expanded along the first row.",
+            listOf(
+                InputSpec("a", "a", 1.0), InputSpec("b", "b", 2.0), InputSpec("c", "c", 3.0),
+                InputSpec("d", "d", 4.0), InputSpec("e", "e", 5.0), InputSpec("f", "f", 6.0),
+                InputSpec("g", "g", 7.0), InputSpec("h", "h", 8.0), InputSpec("i", "i", 10.0),
+            ),
+        ) { m ->
+            listOf(
+                out(
+                    "Determinant",
+                    Evaluator.evaluate("a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g)", vars = m),
+                ),
+            )
+        },
+
+        Formula("inv2", "Inverse of a 2x2 matrix", "Matrices & Determinants",
+            "A inverse = (1 / det A) [[d, -b], [-c, a]].",
+            listOf(
+                InputSpec("a", "a", 4.0), InputSpec("b", "b", 7.0),
+                InputSpec("c", "c", 2.0), InputSpec("d", "d", 6.0),
+            ),
+        ) { m ->
+            val det = Evaluator.evaluate("a*d-b*c", vars = m)
+            listOf(
+                out("Determinant", det),
+                out("Top left", Evaluator.evaluate("d/(a*d-b*c)", vars = m)),
+                out("Top right", Evaluator.evaluate("0-b/(a*d-b*c)", vars = m)),
+                out("Bottom left", Evaluator.evaluate("0-c/(a*d-b*c)", vars = m)),
+                out("Bottom right", Evaluator.evaluate("a/(a*d-b*c)", vars = m)),
+            )
+        },
+
+        Formula("trace3", "Trace of a 3x3 matrix", "Matrices & Determinants",
+            "The sum of the diagonal entries.",
+            listOf(
+                InputSpec("a", "a", 1.0), InputSpec("e", "e", 5.0), InputSpec("i", "i", 10.0),
+            ),
+        ) { m -> listOf(out("Trace", Evaluator.evaluate("a+e+i", vars = m))) },
+
+        Formula("vec_magnitude", "Magnitude of a vector", "Vectors",
+            "The length of a three-dimensional vector.",
+            listOf(
+                InputSpec("x", "x", 1.0), InputSpec("y", "y", 2.0), InputSpec("z", "z", 3.0),
+            ),
+        ) { m -> listOf(out("Magnitude", Evaluator.evaluate("sqrt(x^2+y^2+z^2)", vars = m))) },
+
+        Formula("dot_components", "Dot product from components", "Vectors",
+            "a . b = a1b1 + a2b2 + a3b3.",
+            listOf(
+                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 2.0), InputSpec("a3", "a3", 3.0),
+                InputSpec("b1", "b1", 4.0), InputSpec("b2", "b2", 5.0), InputSpec("b3", "b3", 6.0),
+            ),
+        ) { m -> listOf(out("Dot product", Evaluator.evaluate("a1*b1+a2*b2+a3*b3", vars = m))) },
+
+        Formula("dot_magnitudes", "Dot product from magnitudes", "Vectors",
+            "a . b = |a| |b| cos of the angle between them.",
+            listOf(
+                InputSpec("a", "Magnitude of a", 3.0),
+                InputSpec("b", "Magnitude of b", 4.0),
+                InputSpec("th", "Angle between, in degrees", 60.0),
+            ),
+        ) { m ->
+            listOf(
+                out(
+                    "Dot product",
+                    Evaluator.evaluate("a*b*cos(th*pi/180)", vars = m),
+                ),
+            )
+        },
+
+        Formula("cross_magnitude", "Cross product magnitude", "Vectors",
+            "The area of the parallelogram the two vectors span.",
+            listOf(
+                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 2.0), InputSpec("a3", "a3", 3.0),
+                InputSpec("b1", "b1", 4.0), InputSpec("b2", "b2", 5.0), InputSpec("b3", "b3", 6.0),
+            ),
+        ) { m ->
+            listOf(
+                out(
+                    "Magnitude",
+                    Evaluator.evaluate(
+                        "sqrt((a2*b3-a3*b2)^2+(a3*b1-a1*b3)^2+(a1*b2-a2*b1)^2)",
+                        vars = m,
+                    ),
+                ),
+            )
+        },
+
+        Formula("scalar_triple", "Scalar triple product", "Vectors",
+            "The volume of the box the three vectors span. Zero when they are coplanar.",
+            listOf(
+                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 2.0), InputSpec("a3", "a3", 3.0),
+                InputSpec("b1", "b1", 4.0), InputSpec("b2", "b2", 5.0), InputSpec("b3", "b3", 6.0),
+                InputSpec("c1", "c1", 7.0), InputSpec("c2", "c2", 8.0), InputSpec("c3", "c3", 9.0),
+            ),
+        ) { m ->
+            listOf(
+                out(
+                    "Triple product",
+                    Evaluator.evaluate(
+                        "a1*(b2*c3-b3*c2)-a2*(b1*c3-b3*c1)+a3*(b1*c2-b2*c1)",
+                        vars = m,
+                    ),
+                ),
+            )
+        },
+
+        Formula("angle_between_vectors", "Angle between two vectors", "Vectors",
+            "The angle between two three-dimensional vectors, in degrees.",
+            listOf(
+                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 0.0), InputSpec("a3", "a3", 0.0),
+                InputSpec("b1", "b1", 0.0), InputSpec("b2", "b2", 1.0), InputSpec("b3", "b3", 0.0),
+            ),
+        ) { m ->
+            listOf(
+                out(
+                    "Angle in degrees",
+                    Evaluator.evaluate(
+                        "acos((a1*b1+a2*b2+a3*b3)/" +
+                            "(sqrt(a1^2+a2^2+a3^2)*sqrt(b1^2+b2^2+b3^2)))*180/pi",
+                        vars = m,
+                    ),
+                ),
+            )
+        },
     )
 }
