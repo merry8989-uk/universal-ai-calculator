@@ -119,6 +119,18 @@ object Attachments {
                 }
             }
 
+            // A Word, Excel or PowerPoint file is a zip of XML. Read before the
+            // generic branch, because the system reports them with long types
+            // that are easy to miss and the extension is what people go by.
+            OfficeText.handles(name) -> {
+                val text = OfficeText.extract(bytes, name)
+                if (text.isNullOrBlank()) {
+                    Read("file", name, "", "That file opened but had no readable text in it.")
+                } else {
+                    Read("text", name, "The attached file ($name) contains:\n${text.take(MAX_TEXT_CHARS)}", null)
+                }
+            }
+
             else -> Read("file", name, "", "Unsupported file type: ${type.ifBlank { "unknown" }}")
         }
     }
