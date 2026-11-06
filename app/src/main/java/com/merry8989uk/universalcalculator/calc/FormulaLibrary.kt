@@ -47,6 +47,7 @@ object FormulaLibrary {
     val categories = listOf(
         "Everyday", "Finance", "Economics", "Health",
         "Geometry", "Trigonometry", "Analytic Geometry", "Vectors",
+        "Matrices & Determinants",
         "Physics", "Engineering", "Construction",
         "Probability", "Series", "Number Theory", "Math",
     )

@@ -292,14 +292,16 @@ internal object ExtraFormulas {
             "Expanded along the first row.",
             listOf(
                 InputSpec("a", "a", 1.0), InputSpec("b", "b", 2.0), InputSpec("c", "c", 3.0),
-                InputSpec("d", "d", 4.0), InputSpec("e", "e", 5.0), InputSpec("f", "f", 6.0),
+                // the key is e2 because "e" is Euler's number to the evaluator,
+                // which would ignore whatever was typed into it
+                InputSpec("d", "d", 4.0), InputSpec("e2", "e", 5.0), InputSpec("f", "f", 6.0),
                 InputSpec("g", "g", 7.0), InputSpec("h", "h", 8.0), InputSpec("i", "i", 10.0),
             ),
         ) { m ->
             listOf(
                 out(
                     "Determinant",
-                    Evaluator.evaluate("a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g)", vars = m),
+                    Evaluator.evaluate("a*(e2*i-f*h)-b*(d*i-f*g)+c*(d*h-e2*g)", vars = m),
                 ),
             )
         },
@@ -324,95 +326,9 @@ internal object ExtraFormulas {
         Formula("trace3", "Trace of a 3x3 matrix", "Matrices & Determinants",
             "The sum of the diagonal entries.",
             listOf(
-                InputSpec("a", "a", 1.0), InputSpec("e", "e", 5.0), InputSpec("i", "i", 10.0),
+                InputSpec("a", "a", 1.0), InputSpec("e2", "e", 5.0), InputSpec("i", "i", 10.0),
             ),
-        ) { m -> listOf(out("Trace", Evaluator.evaluate("a+e+i", vars = m))) },
+        ) { m -> listOf(out("Trace", Evaluator.evaluate("a+e2+i", vars = m))) },
 
-        Formula("vec_magnitude", "Magnitude of a vector", "Vectors",
-            "The length of a three-dimensional vector.",
-            listOf(
-                InputSpec("x", "x", 1.0), InputSpec("y", "y", 2.0), InputSpec("z", "z", 3.0),
-            ),
-        ) { m -> listOf(out("Magnitude", Evaluator.evaluate("sqrt(x^2+y^2+z^2)", vars = m))) },
-
-        Formula("dot_components", "Dot product from components", "Vectors",
-            "a . b = a1b1 + a2b2 + a3b3.",
-            listOf(
-                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 2.0), InputSpec("a3", "a3", 3.0),
-                InputSpec("b1", "b1", 4.0), InputSpec("b2", "b2", 5.0), InputSpec("b3", "b3", 6.0),
-            ),
-        ) { m -> listOf(out("Dot product", Evaluator.evaluate("a1*b1+a2*b2+a3*b3", vars = m))) },
-
-        Formula("dot_magnitudes", "Dot product from magnitudes", "Vectors",
-            "a . b = |a| |b| cos of the angle between them.",
-            listOf(
-                InputSpec("a", "Magnitude of a", 3.0),
-                InputSpec("b", "Magnitude of b", 4.0),
-                InputSpec("th", "Angle between, in degrees", 60.0),
-            ),
-        ) { m ->
-            listOf(
-                out(
-                    "Dot product",
-                    Evaluator.evaluate("a*b*cos(th*pi/180)", vars = m),
-                ),
-            )
-        },
-
-        Formula("cross_magnitude", "Cross product magnitude", "Vectors",
-            "The area of the parallelogram the two vectors span.",
-            listOf(
-                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 2.0), InputSpec("a3", "a3", 3.0),
-                InputSpec("b1", "b1", 4.0), InputSpec("b2", "b2", 5.0), InputSpec("b3", "b3", 6.0),
-            ),
-        ) { m ->
-            listOf(
-                out(
-                    "Magnitude",
-                    Evaluator.evaluate(
-                        "sqrt((a2*b3-a3*b2)^2+(a3*b1-a1*b3)^2+(a1*b2-a2*b1)^2)",
-                        vars = m,
-                    ),
-                ),
-            )
-        },
-
-        Formula("scalar_triple", "Scalar triple product", "Vectors",
-            "The volume of the box the three vectors span. Zero when they are coplanar.",
-            listOf(
-                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 2.0), InputSpec("a3", "a3", 3.0),
-                InputSpec("b1", "b1", 4.0), InputSpec("b2", "b2", 5.0), InputSpec("b3", "b3", 6.0),
-                InputSpec("c1", "c1", 7.0), InputSpec("c2", "c2", 8.0), InputSpec("c3", "c3", 9.0),
-            ),
-        ) { m ->
-            listOf(
-                out(
-                    "Triple product",
-                    Evaluator.evaluate(
-                        "a1*(b2*c3-b3*c2)-a2*(b1*c3-b3*c1)+a3*(b1*c2-b2*c1)",
-                        vars = m,
-                    ),
-                ),
-            )
-        },
-
-        Formula("angle_between_vectors", "Angle between two vectors", "Vectors",
-            "The angle between two three-dimensional vectors, in degrees.",
-            listOf(
-                InputSpec("a1", "a1", 1.0), InputSpec("a2", "a2", 0.0), InputSpec("a3", "a3", 0.0),
-                InputSpec("b1", "b1", 0.0), InputSpec("b2", "b2", 1.0), InputSpec("b3", "b3", 0.0),
-            ),
-        ) { m ->
-            listOf(
-                out(
-                    "Angle in degrees",
-                    Evaluator.evaluate(
-                        "acos((a1*b1+a2*b2+a3*b3)/" +
-                            "(sqrt(a1^2+a2^2+a3^2)*sqrt(b1^2+b2^2+b3^2)))*180/pi",
-                        vars = m,
-                    ),
-                ),
-            )
-        },
     )
 }

@@ -7,12 +7,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Matrices and vectors, where the arithmetic is scalar.
+ * The four matrix calculators a number engine really can do.
  *
- * A determinant of a matrix is not something a number engine can do, and these
- * are not that: they take the entries as numbers and produce the one number the
- * formula is for. What cannot be done this way — the transpose of a product, an
- * inverse still written with det(A) inside it — stays a reference.
+ * A determinant is not something an engine of scalars can work on — these take
+ * the entries as numbers and produce the one number the formula is for, which is
+ * what a formula calculator is for.
+ *
+ * The vectors are not here because the library already had them: magnitude, dot,
+ * cross magnitude, angle, projection and triple product were all built before
+ * this. Writing them again under new names would have been six duplicates with
+ * two sets of answers to keep in step.
  */
 class MatrixVectorTest {
 
@@ -34,11 +38,27 @@ class MatrixVectorTest {
             "det3",
             mapOf(
                 "a" to 1.0, "b" to 2.0, "c" to 3.0,
-                "d" to 4.0, "e" to 5.0, "f" to 6.0,
+                "d" to 4.0, "e2" to 5.0, "f" to 6.0,
                 "g" to 7.0, "h" to 8.0, "i" to 10.0,
             ),
         )
         assertEquals(-3.0, r["Determinant"]!!, 1e-9)
+    }
+
+    @Test fun theMiddleEntryIsNotEulersNumber() {
+        // the key is e2 for exactly this reason: "e" is a constant to the
+        // evaluator, so a box labelled e would have been ignored
+        val withFive = run(
+            "trace3",
+            mapOf("a" to 1.0, "e2" to 5.0, "i" to 10.0),
+        )
+        assertEquals(16.0, withFive["Trace"]!!, 1e-9)
+
+        val withTwenty = run(
+            "trace3",
+            mapOf("a" to 1.0, "e2" to 20.0, "i" to 10.0),
+        )
+        assertEquals(31.0, withTwenty["Trace"]!!, 1e-9)
     }
 
     @Test fun theInverseOfATwoByTwo() {
@@ -51,82 +71,35 @@ class MatrixVectorTest {
         assertEquals(0.4, r["Bottom right"]!!, 1e-9)
     }
 
-    @Test fun aTraceIsTheDiagonal() {
-        val r = run("trace3", mapOf("a" to 1.0, "e" to 5.0, "i" to 10.0))
-        assertEquals(16.0, r["Trace"]!!, 1e-9)
-    }
-
-    @Test fun theLengthOfAVector() {
-        val r = run("vec_magnitude", mapOf("x" to 1.0, "y" to 2.0, "z" to 3.0))
-        assertEquals(Math.sqrt(14.0), r["Magnitude"]!!, 1e-9)
-    }
-
-    @Test fun aDotProductFromComponents() {
-        val r = run(
-            "dot_components",
-            mapOf("a1" to 1.0, "a2" to 2.0, "a3" to 3.0, "b1" to 4.0, "b2" to 5.0, "b3" to 6.0),
+    @Test fun theInverseOfASingularMatrixIsNotANumber() {
+        // [[1,2],[2,4]] has determinant zero; the app must not pretend otherwise
+        val r = run("inv2", mapOf("a" to 1.0, "b" to 2.0, "c" to 2.0, "d" to 4.0))
+        assertEquals(0.0, r["Determinant"]!!, 1e-9)
+        val topLeft = r["Top left"]!!
+        assertTrue(
+            "a singular matrix produced a finite inverse: $topLeft",
+            topLeft.isInfinite() || topLeft.isNaN(),
         )
-        assertEquals(32.0, r["Dot product"]!!, 1e-9)
     }
 
-    @Test fun aDotProductFromMagnitudes() {
-        // 3 x 4 x cos 60 = 6
-        val r = run("dot_magnitudes", mapOf("a" to 3.0, "b" to 4.0, "th" to 60.0))
-        assertEquals(6.0, r["Dot product"]!!, 1e-9)
-    }
-
-    @Test fun perpendicularVectorsHaveNoDotProduct() {
-        // the check that the angle is being read in degrees and not radians
-        val r = run("dot_magnitudes", mapOf("a" to 5.0, "b" to 7.0, "th" to 90.0))
-        assertEquals(0.0, r["Dot product"]!!, 1e-9)
-    }
-
-    @Test fun theMagnitudeOfACrossProduct() {
-        val r = run(
-            "cross_magnitude",
-            mapOf("a1" to 1.0, "a2" to 2.0, "a3" to 3.0, "b1" to 4.0, "b2" to 5.0, "b3" to 6.0),
-        )
-        assertEquals(Math.sqrt(54.0), r["Magnitude"]!!, 1e-9)
-    }
-
-    @Test fun aScalarTripleProductIsZeroWhenCoplanar() {
-        // (1,2,3), (4,5,6), (7,8,9) lie in one plane, so the box has no volume
-        val r = run(
-            "scalar_triple",
-            mapOf(
-                "a1" to 1.0, "a2" to 2.0, "a3" to 3.0,
-                "b1" to 4.0, "b2" to 5.0, "b3" to 6.0,
-                "c1" to 7.0, "c2" to 8.0, "c3" to 9.0,
-            ),
-        )
-        assertEquals(0.0, r["Triple product"]!!, 1e-9)
-    }
-
-    @Test fun theAngleBetweenTwoAxes() {
-        val r = run(
-            "angle_between_vectors",
-            mapOf("a1" to 1.0, "a2" to 0.0, "a3" to 0.0, "b1" to 0.0, "b2" to 1.0, "b3" to 0.0),
-        )
-        assertEquals(90.0, r["Angle in degrees"]!!, 1e-9)
-    }
-
-    @Test fun theSameVectorWithItselfIsNoAngle() {
-        val r = run(
-            "angle_between_vectors",
-            mapOf("a1" to 2.0, "a2" to 3.0, "a3" to 4.0, "b1" to 2.0, "b2" to 3.0, "b3" to 4.0),
-        )
-        assertEquals(0.0, r["Angle in degrees"]!!, 1e-9)
-    }
-
-    @Test fun everyNewEntryIsInTheLibraryAndInACategory() {
-        for (id in listOf(
-            "det2", "det3", "inv2", "trace3", "vec_magnitude", "dot_components",
-            "dot_magnitudes", "cross_magnitude", "scalar_triple", "angle_between_vectors",
-        )) {
+    @Test fun everyNewEntryIsInTheLibraryAndInADeclaredCategory() {
+        for (id in listOf("det2", "det3", "inv2", "trace3")) {
             val f = FormulaLibrary.formulas.firstOrNull { it.id == id }
             assertNotNull("missing from the library: $id", f)
-            assertTrue("no category on $id", f!!.category.isNotBlank())
+            assertTrue("'${f!!.category}' is not a declared category", f.category in FormulaLibrary.categories)
             assertTrue("no inputs on $id", f.inputs.isNotEmpty())
         }
+    }
+
+    @Test fun theVectorsWereAlreadyThere() {
+        // written down so that nobody adds them a second time
+        for (id in listOf(
+            "vec_magnitude", "vec_dot", "vec_cross_magnitude", "vec_angle", "vec_triple",
+        )) {
+            val f = FormulaLibrary.formulas.firstOrNull { it.id == id }
+            assertNotNull("the library lost its $id", f)
+        }
+        val magnitudes = FormulaLibrary.formulas.count { it.id == "vec_magnitude" }
+        assertEquals("vec_magnitude was added twice", 1, magnitudes)
     }
 }
