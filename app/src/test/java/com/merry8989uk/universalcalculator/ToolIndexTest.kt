@@ -38,7 +38,10 @@ class ToolIndexTest {
 
     @Test fun caseAndPunctuationDoNotMatter() {
         assertEquals(ToolIndex.key("Heron's formula"), ToolIndex.key("herons formula"))
-        assertEquals(ToolIndex.key("Area (base \u00D7 height)"), ToolIndex.key("area base height"))
+        // a multiplication sign is an x, not nothing: "base × height" is written
+        // "base x height" by a tool, and dropping the sign would make it
+        // "baseheight" and match nothing
+        assertEquals(ToolIndex.key("Area (base \u00D7 height)"), ToolIndex.key("area base x height"))
     }
 
     @Test fun theNumberInAMatrixSizeSurvives() {
