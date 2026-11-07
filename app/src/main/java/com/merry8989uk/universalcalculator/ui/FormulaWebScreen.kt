@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -28,6 +30,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}) {
+    // Declared before the view that fills it: Kotlin reads a val from where it is
+    // written downwards, and the factory below is written above the handler.
+    val web = remember { mutableStateOf<WebView?>(null) }
+
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
@@ -35,6 +41,7 @@ fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}
                 // the application context, so the bridge cannot outlive an activity
                 val bridge = FormulaBridge(ctx.applicationContext)
                 WebView(ctx).apply {
+                    web.value = this
                     setBackgroundColor(0xFF0D1117.toInt())
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = false
@@ -55,8 +62,13 @@ fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}
         )
     }
 
-    // the phone's back button leaves the screen rather than the page's history
-    BackHandler { onBack() }
+    // The phone's back button walks back through the pages before it leaves the
+    // screen: every formula is its own page now, and a back that jumps straight
+    // out of a formula the reader just opened is a back that loses their place.
+    BackHandler {
+        val view = web.value
+        if (view != null && view.canGoBack()) view.goBack() else onBack()
+    }
 }
 
 /**

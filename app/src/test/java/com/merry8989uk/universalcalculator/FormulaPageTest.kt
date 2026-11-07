@@ -34,6 +34,21 @@ class FormulaPageTest {
         assertTrue("the page never runs a reference formula", text.contains("Android.calculate("))
     }
 
+    @Test fun everyFormulaIsItsOwnPage() {
+        val text = page() ?: return
+        // a list that navigates, and a route for each kind
+        assertTrue("there is no route for a formula", text.contains("#/f/"))
+        assertTrue("there is no route for a calculator", text.contains("#/t/"))
+        assertTrue("the route is not read", text.contains("hashchange"))
+        assertTrue("there is no back from a page", text.contains("history.back()"))
+        // and the phone's back button walks those pages rather than leaving
+        val screen = listOf(
+            File("app/src/main/java/com/merry8989uk/universalcalculator/ui/FormulaWebScreen.kt"),
+            File("src/main/java/com/merry8989uk/universalcalculator/ui/FormulaWebScreen.kt"),
+        ).firstOrNull { it.exists() }?.readText() ?: return
+        assertTrue("the phone back button ignores the page history", screen.contains("canGoBack()"))
+    }
+
     @Test fun thePageHasASwitchBetweenThem() {
         val text = page() ?: return
         assertTrue("no switch between calculators and reference", text.contains("Calculators "))

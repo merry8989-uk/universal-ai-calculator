@@ -38,12 +38,9 @@
   .list { padding:10px 12px 0; }
   .card { background:var(--panel); border:1px solid var(--border); border-radius:14px;
           padding:14px; margin-bottom:10px; }
-  .card h2 { font-size:.98rem; margin:0 0 8px; font-weight:600; }
-  .about { color:var(--muted); font-size:.8rem; margin:0 0 8px; }
-  .formula { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92rem;
-             background:var(--panel2); border-radius:10px; padding:10px 12px;
-             white-space:pre-wrap; word-break:break-word;
-             -webkit-user-select:text; user-select:text; }
+  .card h2 { font-size:.98rem; margin:0 0 6px; font-weight:600; }
+  .peek { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.85rem;
+          color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .meta { display:flex; gap:8px; align-items:center; margin-top:8px;
           font-size:.72rem; color:var(--muted); flex-wrap:wrap; }
   .badge { padding:1px 8px; border-radius:999px; font-size:.68rem; }
@@ -51,28 +48,38 @@
   .badge.ref { color:var(--warn); background:#d2992222; }
   .badge.tool { color:var(--accent); background:#4f9cf022; }
 
-  .inputs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
-  .field label { display:block; font-size:.68rem; color:var(--muted); margin-bottom:3px; }
-  .field input { width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--border);
-                 background:var(--bg); color:var(--text); font-size:.92rem;
+  /* ---- the page for one formula ---- */
+  .detail { padding:14px; }
+  .detail h1 { font-size:1.15rem; margin:0 0 4px; }
+  .detail .cat { color:var(--muted); font-size:.75rem; margin-bottom:12px; }
+  .formula { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1rem;
+             background:var(--panel2); border-radius:12px; padding:14px;
+             white-space:pre-wrap; word-break:break-word; margin-bottom:12px;
+             -webkit-user-select:text; user-select:text; }
+  .about { color:var(--muted); font-size:.85rem; margin:0 0 12px; }
+
+  .inputs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .field label { display:block; font-size:.7rem; color:var(--muted); margin-bottom:3px; }
+  .field input { width:100%; padding:10px; border-radius:8px; border:1px solid var(--border);
+                 background:var(--bg); color:var(--text); font-size:.95rem;
                  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; -webkit-appearance:none; }
   .field input:focus { outline:2px solid var(--accent); outline-offset:1px; }
 
-  .answer { margin-top:10px; border-radius:10px; background:var(--panel2); padding:11px 12px; }
-  .answer .label { color:var(--muted); font-size:.7rem; }
-  .answer .value { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.35rem;
+  .answer { margin-top:12px; border-radius:12px; background:var(--panel2); padding:12px 14px; }
+  .answer .label { color:var(--muted); font-size:.72rem; }
+  .answer .value { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.5rem;
                    color:var(--accent); -webkit-user-select:text; user-select:text; }
   .answer.bad .value { font-size:.9rem; color:var(--bad); }
-  .outrow { display:flex; justify-content:space-between; gap:10px; padding:3px 0;
+  .outrow { display:flex; justify-content:space-between; gap:10px; padding:5px 0;
             border-bottom:1px solid var(--border); }
   .outrow:last-child { border-bottom:0; }
-  .outrow .k { color:var(--muted); font-size:.78rem; }
-  .outrow .v { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92rem;
+  .outrow .k { color:var(--muted); font-size:.8rem; }
+  .outrow .v { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.95rem;
                -webkit-user-select:text; user-select:text; }
 
-  .steps { margin:10px 0 0; padding:0; list-style:none; }
-  .steps li { display:flex; gap:8px; padding:5px 0; border-top:1px solid var(--border);
-              font-size:.8rem; }
+  .steps { margin:12px 0 0; padding:0; list-style:none; }
+  .steps li { display:flex; gap:8px; padding:6px 0; border-top:1px solid var(--border);
+              font-size:.82rem; }
   .steps li:first-child { border-top:0; }
   .steps .n { flex:0 0 18px; color:var(--muted); font-size:.72rem; padding-top:2px; }
   .steps .body { flex:1; -webkit-user-select:text; user-select:text; }
@@ -80,9 +87,9 @@
   .steps .e { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; word-break:break-word; }
   .steps .r { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--accent); }
 
-  .hint { color:var(--muted); font-size:.72rem; margin-top:8px; }
-  .open-tool { margin-top:10px; padding:9px 14px; border-radius:9px; border:0;
-               background:var(--accent); color:#fff; font-size:.85rem; font-weight:600; }
+  .hint { color:var(--muted); font-size:.72rem; margin-top:10px; }
+  .action { display:block; width:100%; margin-top:10px; padding:11px; border-radius:10px;
+            border:0; background:var(--accent); color:#fff; font-size:.9rem; font-weight:600; }
   .empty { text-align:center; color:var(--muted); padding:60px 0; font-size:.9rem; }
   .more { display:block; width:100%; margin:14px 0 30px; padding:12px; border-radius:10px;
           background:var(--accent); color:#fff; border:0; font-size:.9rem; font-weight:600; }
@@ -90,22 +97,25 @@
 </head>
 <body>
 
-<div class="top">
-  <div class="head">
-    <div>
-      <h1>Formulas</h1>
-      <div class="sub" id="sub">Loading…</div>
+<div id="indexView">
+  <div class="top">
+    <div class="head">
+      <div>
+        <h1>Formulas</h1>
+        <div class="sub" id="sub">Loading…</div>
+      </div>
+      <button class="back" onclick="Android.back()">Back</button>
     </div>
-    <button class="back" onclick="Android.back()">Back</button>
+    <input type="search" id="q" placeholder="Search — try cos, Bayes, interest" autocomplete="off">
+    <div class="chips" id="kinds"></div>
+    <div class="chips" id="cats"></div>
   </div>
-  <input type="search" id="q" placeholder="Search — try cos, Bayes, interest" autocomplete="off">
-  <div class="chips" id="kinds"></div>
-  <div class="chips" id="cats"></div>
+  <div class="list" id="list"></div>
+  <div class="empty" id="empty" hidden>Nothing matches that search.</div>
+  <button class="more" id="more" hidden>Show more</button>
 </div>
 
-<div class="list" id="list"></div>
-<div class="empty" id="empty" hidden>Nothing matches that search.</div>
-<button class="more" id="more" hidden>Show more</button>
+<div id="detailView" hidden></div>
 
 <script>
 (function () {
@@ -114,12 +124,15 @@
   var PAGE = 25;
   var tools = [];
   var refs = [];
+  var byId = {};
   var all = [];
   var shown = PAGE;
   var query = '';
   var category = null;
-  var kind = 'all';          // all | tool | ref
+  var kind = 'all';
 
+  var indexView = document.getElementById('indexView');
+  var detailView = document.getElementById('detailView');
   var listEl = document.getElementById('list');
   var kindsEl = document.getElementById('kinds');
   var catsEl = document.getElementById('cats');
@@ -142,50 +155,56 @@
     return v.toLocaleString('en-IN', { maximumFractionDigits: 8 });
   }
 
-  function matches(f) {
-    if (kind !== 'all' && f.kind !== kind) return false;
-    if (category && f.category !== category) return false;
-    if (!query) return true;
-    var q = query.toLowerCase();
-    var hay = f.kind === 'tool'
-      ? (f.title + ' ' + f.about + ' ' + f.category)
-      : (f.title + ' ' + f.printed + ' ' + f.category);
-    return hay.toLowerCase().indexOf(q) >= 0;
+  function parse(raw) {
+    try { return JSON.parse(raw); } catch (e) { return { ok: false, error: 'The app did not answer.' }; }
   }
 
-  // ---- a card that is worked out ----
+  // ---- routing: one page per formula ----
 
-  function toolCard(f) {
-    var h = '<div class="card" data-id="' + esc(f.id) + '" data-kind="tool">';
-    h += '<h2>' + esc(f.title) + '</h2>';
-    if (f.about) h += '<p class="about">' + esc(f.about) + '</p>';
-    h += '<div class="meta"><span class="badge tool">calculator</span><span>' +
-         esc(f.category) + '</span></div>';
-    h += '<div class="inputs">';
-    f.inputs.forEach(function (inp) {
-      h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
-           '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.k) +
-           '" value="' + inp.v + '"></div>';
-    });
-    h += '</div>';
-    h += '<div class="answer"><div class="outs"></div></div>';
-    h += '<div class="hint">Hold any answer to copy or share it.</div>';
-    h += '</div>';
-    return h;
+  function go(hash) { location.hash = hash; }
+
+  function route() {
+    var h = location.hash || '#/';
+    var m = h.match(/^#\/([ft])\/(.+)$/);
+    if (m) {
+      var item = byId[m[1] + ':' + decodeURIComponent(m[2])];
+      if (item) {
+        showDetail(item);
+        return;
+      }
+    }
+    showIndex();
   }
 
-  // ---- a card that is written down ----
+  function showIndex() {
+    detailView.hidden = true;
+    indexView.hidden = false;
+    render();
+  }
 
-  function refCard(f) {
+  function showDetail(item) {
+    indexView.hidden = true;
+    detailView.hidden = false;
+    detailView.innerHTML = item.kind === 'tool' ? toolPage(item) : refPage(item);
+    wireDetail(item);
+    window.scrollTo(0, 0);
+  }
+
+  // ---- the page for one reference formula ----
+
+  function refPage(f) {
     var workable = f.workable;
-    var h = '<div class="card" data-id="' + esc(f.id) + '" data-kind="ref">';
-    h += '<h2>' + esc(f.title) + '</h2>';
+    var h = '<div class="top"><div class="head"><div><h1>' + esc(f.title) + '</h1>' +
+            '<div class="sub">reference formula</div></div>' +
+            '<button class="back" onclick="history.back()">\u2190 Back</button></div></div>';
+    h += '<div class="detail">';
+    h += '<div class="cat">' + esc(f.category) + '</div>';
     h += '<div class="formula">' + esc(f.printed) + '</div>';
     h += '<div class="meta"><span class="badge ' + (workable ? 'calc' : 'ref') + '">' +
-         (workable ? 'works it out' : 'to read') + '</span><span>' + esc(f.category) + '</span></div>';
+         (workable ? 'works it out' : 'to read') + '</span></div>';
 
     if (workable) {
-      h += '<div class="inputs">';
+      h += '<div class="inputs" style="margin-top:12px">';
       f.inputs.forEach(function (inp) {
         h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
              '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.id) +
@@ -196,33 +215,71 @@
            (f.unit ? ' (' + esc(f.unit) + ')' : '') + '</span>' +
            '<div class="value">—</div></div>';
       h += '<ol class="steps"></ol>';
-      h += '<div class="hint">Hold the formula or any step to copy or share it.</div>';
+      h += '<div class="hint">Hold the formula, the answer or any step to copy or share it.</div>';
     } else if (f.tool) {
-      h += '<button class="open-tool" data-tool="' + esc(f.tool) + '">Open the calculator \u2192</button>';
+      h += '<button class="action" data-goto="#/t/' + encodeURIComponent(f.tool) + '">' +
+           'Open the calculator \u2192</button>';
+    } else {
+      h += '<div class="hint">This one is read, not worked out — it is a rule, a table or a ' +
+           'statement rather than a sum.</div>';
     }
     h += '</div>';
     return h;
   }
 
-  // ---- running them ----
+  // ---- the page for one calculator ----
 
-  function pairsOf(card) {
+  function toolPage(f) {
+    var h = '<div class="top"><div class="head"><div><h1>' + esc(f.title) + '</h1>' +
+            '<div class="sub">calculator</div></div>' +
+            '<button class="back" onclick="history.back()">\u2190 Back</button></div></div>';
+    h += '<div class="detail">';
+    h += '<div class="cat">' + esc(f.category) + '</div>';
+    if (f.about) h += '<p class="about">' + esc(f.about) + '</p>';
+    h += '<div class="inputs">';
+    f.inputs.forEach(function (inp) {
+      h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
+           '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.k) +
+           '" value="' + inp.v + '"></div>';
+    });
+    h += '</div>';
+    h += '<div class="answer"><div class="outs"></div></div>';
+    h += '<div class="hint">Hold any answer to copy or share it.</div>';
+    h += '<button class="action" data-opentool="' + esc(f.id) + '">Open in the calculator tab</button>';
+    h += '</div>';
+    return h;
+  }
+
+  function wireDetail(item) {
+    var root = detailView;
+    root.querySelectorAll('[data-goto]').forEach(function (b) {
+      b.addEventListener('click', function () { go(b.getAttribute('data-goto')); });
+    });
+    root.querySelectorAll('[data-opentool]').forEach(function (b) {
+      b.addEventListener('click', function () { Android.openTool(b.getAttribute('data-opentool')); });
+    });
+
+    if (!item.workable && item.kind !== 'tool') return;
+    var run = function () { item.kind === 'tool' ? workTool(root, item) : workRef(root, item); };
+    run();
+    root.querySelectorAll('input[data-k]').forEach(function (inp) {
+      inp.addEventListener('input', run);
+    });
+  }
+
+  function pairsOf(root) {
     var pairs = [];
-    card.querySelectorAll('input[data-k]').forEach(function (inp) {
+    root.querySelectorAll('input[data-k]').forEach(function (inp) {
       pairs.push(encodeURIComponent(inp.getAttribute('data-k')) + '=' +
                  encodeURIComponent(inp.value === '' ? '0' : inp.value));
     });
     return pairs.join('&');
   }
 
-  function parse(raw) {
-    try { return JSON.parse(raw); } catch (e) { return { ok: false, error: 'The app did not answer.' }; }
-  }
-
-  function workTool(card, f) {
-    var r = parse(Android.calculateTool(f.id, pairsOf(card)));
-    var box = card.querySelector('.answer');
-    var outs = card.querySelector('.outs');
+  function workTool(root, f) {
+    var r = parse(Android.calculateTool(f.id, pairsOf(root)));
+    var box = root.querySelector('.answer');
+    var outs = root.querySelector('.outs');
     if (!r.ok) {
       box.classList.add('bad');
       outs.innerHTML = '<div class="value">' + esc(r.error || 'That did not work.') + '</div>';
@@ -231,18 +288,17 @@
     box.classList.remove('bad');
     var h = '';
     (r.outputs || []).forEach(function (o) {
-      var shown = num(o.value) + (o.unit ? ' ' + o.unit : '');
       h += '<div class="outrow"><span class="k">' + esc(o.label) + '</span>' +
-           '<span class="v">' + esc(shown) + '</span></div>';
+           '<span class="v">' + esc(num(o.value) + (o.unit ? ' ' + o.unit : '')) + '</span></div>';
     });
     outs.innerHTML = h;
   }
 
-  function workRef(card, f) {
-    var r = parse(Android.calculate(f.id, pairsOf(card)));
-    var box = card.querySelector('.answer');
-    var val = card.querySelector('.answer .value');
-    var steps = card.querySelector('.steps');
+  function workRef(root, f) {
+    var r = parse(Android.calculate(f.id, pairsOf(root)));
+    var box = root.querySelector('.answer');
+    var val = root.querySelector('.answer .value');
+    var steps = root.querySelector('.steps');
     steps.innerHTML = '';
 
     if (r.ok) {
@@ -270,38 +326,40 @@
     });
   }
 
-  function work(card, f) {
-    if (f.kind === 'tool') workTool(card, f); else workRef(card, f);
+  // ---- the list ----
+
+  function matches(f) {
+    if (kind !== 'all' && f.kind !== kind) return false;
+    if (category && f.category !== category) return false;
+    if (!query) return true;
+    var q = query.toLowerCase();
+    var hay = f.kind === 'tool'
+      ? (f.title + ' ' + f.about + ' ' + f.category)
+      : (f.title + ' ' + f.printed + ' ' + f.category);
+    return hay.toLowerCase().indexOf(q) >= 0;
   }
 
-  // ---- drawing ----
+  function listCard(f) {
+    var href = f.kind === 'tool'
+      ? '#/t/' + encodeURIComponent(f.id)
+      : '#/f/' + encodeURIComponent(f.id);
+    var peek = f.kind === 'tool' ? (f.about || '') : f.printed;
+    var badge = f.kind === 'tool'
+      ? '<span class="badge tool">calculator</span>'
+      : '<span class="badge ' + (f.workable ? 'calc' : 'ref') + '">' +
+        (f.workable ? 'works it out' : 'to read') + '</span>';
+    return '<a class="card" href="' + href + '" style="display:block;text-decoration:none;color:inherit">' +
+      '<h2>' + esc(f.title) + '</h2>' +
+      '<div class="peek">' + esc(peek) + '</div>' +
+      '<div class="meta">' + badge + '<span>' + esc(f.category) + '</span></div></a>';
+  }
 
   function render() {
     var filtered = all.filter(matches);
     var slice = filtered.slice(0, shown);
     var html = '';
-    for (var i = 0; i < slice.length; i++) {
-      html += slice[i].kind === 'tool' ? toolCard(slice[i]) : refCard(slice[i]);
-    }
+    for (var i = 0; i < slice.length; i++) html += listCard(slice[i]);
     listEl.innerHTML = html;
-
-    listEl.querySelectorAll('.open-tool').forEach(function (b) {
-      b.addEventListener('click', function () {
-        Android.openTool(b.getAttribute('data-tool'));
-      });
-    });
-
-    var cards = listEl.querySelectorAll('.card');
-    for (var c = 0; c < cards.length; c++) {
-      (function (card, f) {
-        var runs = (f.kind === 'tool') || f.workable;
-        if (!runs) return;
-        work(card, f);
-        card.querySelectorAll('input[data-k]').forEach(function (inp) {
-          inp.addEventListener('input', function () { work(card, f); });
-        });
-      })(cards[c], slice[c]);
-    }
 
     emptyEl.hidden = filtered.length !== 0;
     moreEl.hidden = filtered.length <= shown;
@@ -323,6 +381,7 @@
       kindsEl.querySelectorAll('.chip').forEach(function (x) {
         x.setAttribute('aria-pressed', String(x === chip));
       });
+      buildCats();
       render();
     });
   }
@@ -340,6 +399,7 @@
            esc(n) + ' ' + counts[n] + '</button>';
     });
     catsEl.innerHTML = h;
+    category = null;
     catsEl.addEventListener('click', function (e) {
       var chip = e.target.closest('.chip');
       if (!chip) return;
@@ -363,15 +423,19 @@
     render();
   });
 
+  window.addEventListener('hashchange', route);
+
   // ---- load ----
 
   try {
     tools = (parse(Android.tools()).tools || []).map(function (t) {
       t.kind = 'tool';
+      byId['t:' + t.id] = t;
       return t;
     });
     refs = (parse(Android.library()).formulas || []).map(function (r) {
       r.kind = 'ref';
+      byId['f:' + r.id] = r;
       return r;
     });
     all = tools.concat(refs);
@@ -382,7 +446,7 @@
   if (!all.length) { subEl.textContent = 'The library is empty.'; return; }
   buildKinds();
   buildCats();
-  render();
+  route();
 })();
 </script>
 </body>
