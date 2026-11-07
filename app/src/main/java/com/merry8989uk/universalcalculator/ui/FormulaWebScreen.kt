@@ -27,7 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun FormulaReferenceScreen(onBack: () -> Unit) {
+fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
