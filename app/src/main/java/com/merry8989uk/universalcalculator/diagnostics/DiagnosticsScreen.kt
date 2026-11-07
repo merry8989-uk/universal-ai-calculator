@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.BuildConfig
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.ui.copyToClipboard
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -301,6 +302,49 @@ private fun UsageTab(context: android.content.Context, vm: DiagnosticsViewModel)
                 colour = Color(0xFFE7B9C4),
                 height = 220.dp,
             )
+        }
+    }
+
+    // What a build server cannot check: whether the files made it into the
+    // package and whether the engines run on this phone rather than on a
+    // desktop. It is the answer to "something is wrong and I cannot say what".
+    var checkResults by remember { mutableStateOf<List<CheckResult>?>(null) }
+    Text(
+        "Self-check",
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(top = 16.dp),
+    )
+    Text(
+        "Reads what is in the app and runs the engines once. No network, nothing written.",
+        style = MaterialTheme.typography.bodySmall,
+    )
+    Button(
+        onClick = { checkResults = SelfCheck.run(context) },
+        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+    ) { Text("Run the self-check") }
+    checkResults?.let { results ->
+        Column(modifier = Modifier.padding(top = 6.dp)) {
+            for (r in results) {
+                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                    Text(
+                        if (r.ok) "ok" else "FAIL",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (r.ok) Color(0xFF3FB950) else MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    Column {
+                        Text(r.name, style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            r.detail,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+            TextButton(onClick = {
+                copyToClipboard(context, "self-check", SelfCheck.report(results))
+            }) { Text("Copy the report") }
         }
     }
 
