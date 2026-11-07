@@ -33,11 +33,13 @@
   .chip { flex:0 0 auto; padding:5px 11px; border-radius:999px; border:1px solid var(--border);
           background:var(--panel); color:var(--muted); font-size:.78rem; white-space:nowrap; }
   .chip[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .chip.kind[aria-pressed=true] { background:#238636; border-color:#238636; }
 
   .list { padding:10px 12px 0; }
   .card { background:var(--panel); border:1px solid var(--border); border-radius:14px;
           padding:14px; margin-bottom:10px; }
   .card h2 { font-size:.98rem; margin:0 0 8px; font-weight:600; }
+  .about { color:var(--muted); font-size:.8rem; margin:0 0 8px; }
   .formula { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92rem;
              background:var(--panel2); border-radius:10px; padding:10px 12px;
              white-space:pre-wrap; word-break:break-word;
@@ -47,6 +49,7 @@
   .badge { padding:1px 8px; border-radius:999px; font-size:.68rem; }
   .badge.calc { color:var(--ok); background:#2ea04322; }
   .badge.ref { color:var(--warn); background:#d2992222; }
+  .badge.tool { color:var(--accent); background:#4f9cf022; }
 
   .inputs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
   .field label { display:block; font-size:.68rem; color:var(--muted); margin-bottom:3px; }
@@ -60,6 +63,12 @@
   .answer .value { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.35rem;
                    color:var(--accent); -webkit-user-select:text; user-select:text; }
   .answer.bad .value { font-size:.9rem; color:var(--bad); }
+  .outrow { display:flex; justify-content:space-between; gap:10px; padding:3px 0;
+            border-bottom:1px solid var(--border); }
+  .outrow:last-child { border-bottom:0; }
+  .outrow .k { color:var(--muted); font-size:.78rem; }
+  .outrow .v { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92rem;
+               -webkit-user-select:text; user-select:text; }
 
   .steps { margin:10px 0 0; padding:0; list-style:none; }
   .steps li { display:flex; gap:8px; padding:5px 0; border-top:1px solid var(--border);
@@ -90,6 +99,7 @@
     <button class="back" onclick="Android.back()">Back</button>
   </div>
   <input type="search" id="q" placeholder="Search — try cos, Bayes, interest" autocomplete="off">
+  <div class="chips" id="kinds"></div>
   <div class="chips" id="cats"></div>
 </div>
 
@@ -101,14 +111,17 @@
 (function () {
   'use strict';
 
-  var PAGE = 30;
+  var PAGE = 25;
+  var tools = [];
+  var refs = [];
   var all = [];
   var shown = PAGE;
   var query = '';
   var category = null;
-  var onlyWorkable = false;
+  var kind = 'all';          // all | tool | ref
 
   var listEl = document.getElementById('list');
+  var kindsEl = document.getElementById('kinds');
   var catsEl = document.getElementById('cats');
   var subEl = document.getElementById('sub');
   var emptyEl = document.getElementById('empty');
@@ -121,29 +134,62 @@
       .replace(/"/g, '&quot;');
   }
 
-  function canWork(f) { return f.workable; }
+  function num(v) {
+    if (v === null || v === undefined || !isFinite(v)) return '—';
+    if (Number.isInteger(v) && Math.abs(v) < 1e15) return v.toLocaleString('en-IN');
+    var a = Math.abs(v);
+    if (a !== 0 && (a < 1e-6 || a >= 1e12)) return v.toExponential(6);
+    return v.toLocaleString('en-IN', { maximumFractionDigits: 8 });
+  }
 
   function matches(f) {
-    if (onlyWorkable && !canWork(f)) return false;
+    if (kind !== 'all' && f.kind !== kind) return false;
     if (category && f.category !== category) return false;
     if (!query) return true;
     var q = query.toLowerCase();
-    return (f.title + ' ' + f.printed + ' ' + f.category).toLowerCase().indexOf(q) >= 0;
+    var hay = f.kind === 'tool'
+      ? (f.title + ' ' + f.about + ' ' + f.category)
+      : (f.title + ' ' + f.printed + ' ' + f.category);
+    return hay.toLowerCase().indexOf(q) >= 0;
   }
 
-  function cardHtml(f) {
-    var h = '<div class="card" data-id="' + esc(f.id) + '">';
-    h += '<h2>' + esc(f.title) + '</h2>';
-    // the formula is text the reader owns: hold it and the phone offers Copy and Share
-    h += '<div class="formula">' + esc(f.printed) + '</div>';
-    h += '<div class="meta"><span class="badge ' + (canWork(f) ? 'calc' : 'ref') + '">' +
-         (canWork(f) ? 'works it out' : 'to read') + '</span><span>' + esc(f.category) + '</span></div>';
+  // ---- a card that is worked out ----
 
-    if (canWork(f)) {
+  function toolCard(f) {
+    var h = '<div class="card" data-id="' + esc(f.id) + '" data-kind="tool">';
+    h += '<h2>' + esc(f.title) + '</h2>';
+    if (f.about) h += '<p class="about">' + esc(f.about) + '</p>';
+    h += '<div class="meta"><span class="badge tool">calculator</span><span>' +
+         esc(f.category) + '</span></div>';
+    h += '<div class="inputs">';
+    f.inputs.forEach(function (inp) {
+      h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
+           '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.k) +
+           '" value="' + inp.v + '"></div>';
+    });
+    h += '</div>';
+    h += '<div class="answer"><div class="outs"></div></div>';
+    h += '<div class="hint">Hold any answer to copy or share it.</div>';
+    h += '</div>';
+    return h;
+  }
+
+  // ---- a card that is written down ----
+
+  function refCard(f) {
+    var workable = f.workable;
+    var h = '<div class="card" data-id="' + esc(f.id) + '" data-kind="ref">';
+    h += '<h2>' + esc(f.title) + '</h2>';
+    h += '<div class="formula">' + esc(f.printed) + '</div>';
+    h += '<div class="meta"><span class="badge ' + (workable ? 'calc' : 'ref') + '">' +
+         (workable ? 'works it out' : 'to read') + '</span><span>' + esc(f.category) + '</span></div>';
+
+    if (workable) {
       h += '<div class="inputs">';
       f.inputs.forEach(function (inp) {
         h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
-             '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.id) + '" value="' + inp.sample + '"></div>';
+             '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.id) +
+             '" value="' + inp.sample + '"></div>';
       });
       h += '</div>';
       h += '<div class="answer"><span class="label">' + esc(f.out) +
@@ -152,23 +198,48 @@
       h += '<ol class="steps"></ol>';
       h += '<div class="hint">Hold the formula or any step to copy or share it.</div>';
     } else if (f.tool) {
-      // the app can work this one out, just not on this page
       h += '<button class="open-tool" data-tool="' + esc(f.tool) + '">Open the calculator \u2192</button>';
     }
     h += '</div>';
     return h;
   }
 
-  function work(card, f) {
+  // ---- running them ----
+
+  function pairsOf(card) {
     var pairs = [];
     card.querySelectorAll('input[data-k]').forEach(function (inp) {
       pairs.push(encodeURIComponent(inp.getAttribute('data-k')) + '=' +
                  encodeURIComponent(inp.value === '' ? '0' : inp.value));
     });
-    var raw = Android.calculate(f.id, pairs.join('&'));
-    var r;
-    try { r = JSON.parse(raw); } catch (e) { return; }
+    return pairs.join('&');
+  }
 
+  function parse(raw) {
+    try { return JSON.parse(raw); } catch (e) { return { ok: false, error: 'The app did not answer.' }; }
+  }
+
+  function workTool(card, f) {
+    var r = parse(Android.calculateTool(f.id, pairsOf(card)));
+    var box = card.querySelector('.answer');
+    var outs = card.querySelector('.outs');
+    if (!r.ok) {
+      box.classList.add('bad');
+      outs.innerHTML = '<div class="value">' + esc(r.error || 'That did not work.') + '</div>';
+      return;
+    }
+    box.classList.remove('bad');
+    var h = '';
+    (r.outputs || []).forEach(function (o) {
+      var shown = num(o.value) + (o.unit ? ' ' + o.unit : '');
+      h += '<div class="outrow"><span class="k">' + esc(o.label) + '</span>' +
+           '<span class="v">' + esc(shown) + '</span></div>';
+    });
+    outs.innerHTML = h;
+  }
+
+  function workRef(card, f) {
+    var r = parse(Android.calculate(f.id, pairsOf(card)));
     var box = card.querySelector('.answer');
     var val = card.querySelector('.answer .value');
     var steps = card.querySelector('.steps');
@@ -182,7 +253,6 @@
       val.textContent = r.error || 'That did not work.';
     }
 
-    // the working: how the answer was reached, not just what it is
     (r.steps || []).forEach(function (s, i) {
       var li = document.createElement('li');
       li.innerHTML = '<span class="n">' + (i + 1) + '</span>' +
@@ -200,11 +270,19 @@
     });
   }
 
+  function work(card, f) {
+    if (f.kind === 'tool') workTool(card, f); else workRef(card, f);
+  }
+
+  // ---- drawing ----
+
   function render() {
     var filtered = all.filter(matches);
     var slice = filtered.slice(0, shown);
     var html = '';
-    for (var i = 0; i < slice.length; i++) html += cardHtml(slice[i]);
+    for (var i = 0; i < slice.length; i++) {
+      html += slice[i].kind === 'tool' ? toolCard(slice[i]) : refCard(slice[i]);
+    }
     listEl.innerHTML = html;
 
     listEl.querySelectorAll('.open-tool').forEach(function (b) {
@@ -216,7 +294,8 @@
     var cards = listEl.querySelectorAll('.card');
     for (var c = 0; c < cards.length; c++) {
       (function (card, f) {
-        if (!canWork(f)) return;
+        var runs = (f.kind === 'tool') || f.workable;
+        if (!runs) return;
         work(card, f);
         card.querySelectorAll('input[data-k]').forEach(function (inp) {
           inp.addEventListener('input', function () { work(card, f); });
@@ -227,28 +306,44 @@
     emptyEl.hidden = filtered.length !== 0;
     moreEl.hidden = filtered.length <= shown;
     moreEl.textContent = 'Show more (' + Math.max(0, filtered.length - shown) + ' left)';
-    subEl.textContent = filtered.length + ' of ' + all.length + ' formulas' +
+    subEl.textContent = filtered.length + ' of ' + all.length +
       (category ? ' · ' + category : '');
   }
 
-  function buildChips() {
-    var counts = {};
-    all.forEach(function (f) { counts[f.category] = (counts[f.category] || 0) + 1; });
-    var workable = all.filter(canWork).length;
-    var names = Object.keys(counts).sort();
-    var html = '<button class="chip" data-c="" data-w="1" aria-pressed="false">Can work out ' +
-               workable + '</button>';
-    html += '<button class="chip" data-c="" data-w="0" aria-pressed="true">All ' + all.length + '</button>';
-    names.forEach(function (n) {
-      html += '<button class="chip" data-c="' + esc(n) + '" data-w="0" aria-pressed="false">' +
-              esc(n) + ' ' + counts[n] + '</button>';
+  function buildKinds() {
+    var h = '<button class="chip kind" data-k="all" aria-pressed="true">Everything ' + all.length + '</button>';
+    h += '<button class="chip kind" data-k="tool" aria-pressed="false">Calculators ' + tools.length + '</button>';
+    h += '<button class="chip kind" data-k="ref" aria-pressed="false">Reference ' + refs.length + '</button>';
+    kindsEl.innerHTML = h;
+    kindsEl.addEventListener('click', function (e) {
+      var chip = e.target.closest('.chip');
+      if (!chip) return;
+      kind = chip.getAttribute('data-k');
+      shown = PAGE;
+      kindsEl.querySelectorAll('.chip').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x === chip));
+      });
+      render();
     });
-    catsEl.innerHTML = html;
+  }
+
+  function buildCats() {
+    var counts = {};
+    all.forEach(function (f) {
+      if (kind !== 'all' && f.kind !== kind) return;
+      counts[f.category] = (counts[f.category] || 0) + 1;
+    });
+    var names = Object.keys(counts).sort();
+    var h = '<button class="chip" data-c="" aria-pressed="true">All</button>';
+    names.forEach(function (n) {
+      h += '<button class="chip" data-c="' + esc(n) + '" aria-pressed="false">' +
+           esc(n) + ' ' + counts[n] + '</button>';
+    });
+    catsEl.innerHTML = h;
     catsEl.addEventListener('click', function (e) {
       var chip = e.target.closest('.chip');
       if (!chip) return;
       category = chip.getAttribute('data-c') || null;
-      onlyWorkable = chip.getAttribute('data-w') === '1';
       shown = PAGE;
       catsEl.querySelectorAll('.chip').forEach(function (x) {
         x.setAttribute('aria-pressed', String(x === chip));
@@ -268,15 +363,25 @@
     render();
   });
 
+  // ---- load ----
+
   try {
-    var data = JSON.parse(Android.library());
-    all = data.formulas || [];
+    tools = (parse(Android.tools()).tools || []).map(function (t) {
+      t.kind = 'tool';
+      return t;
+    });
+    refs = (parse(Android.library()).formulas || []).map(function (r) {
+      r.kind = 'ref';
+      return r;
+    });
+    all = tools.concat(refs);
   } catch (e) {
     subEl.textContent = 'Could not load the formulas.';
     return;
   }
   if (!all.length) { subEl.textContent = 'The library is empty.'; return; }
-  buildChips();
+  buildKinds();
+  buildCats();
   render();
 })();
 </script>

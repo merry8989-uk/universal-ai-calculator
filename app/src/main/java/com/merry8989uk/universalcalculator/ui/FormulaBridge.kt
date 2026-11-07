@@ -132,6 +132,81 @@ class FormulaBridge(private val context: Context) {
         return out.toString()
     }
 
+    /**
+     * The calculators, as the page wants them.
+     *
+     * These are the ones that are worked out rather than written down: they take
+     * numbers in and give numbers back, and the page draws them beside the
+     * reference entries so there is one place to look instead of two.
+     */
+    fun toolsJson(): String {
+        val out = StringBuilder(1 shl 19)
+        out.append("{\"tools\":[")
+        var first = true
+        for (tool in FormulaLibrary.formulas) {
+            if (!first) out.append(',')
+            first = false
+            out.append('{')
+            out.append("\"id\":").append(q(tool.id)).append(',')
+            out.append("\"title\":").append(q(tool.title)).append(',')
+            out.append("\"category\":").append(q(tool.category)).append(',')
+            out.append("\"about\":").append(q(tool.description)).append(',')
+            out.append("\"inputs\":[")
+            tool.inputs.forEachIndexed { i, spec ->
+                if (i > 0) out.append(',')
+                out.append('{')
+                out.append("\"k\":").append(q(spec.key)).append(',')
+                out.append("\"label\":").append(q(spec.label)).append(',')
+                out.append("\"v\":").append(num(spec.default))
+                out.append('}')
+            }
+            out.append("]}")
+        }
+        out.append("]}")
+        return out.toString()
+    }
+
+    /**
+     * Works one calculator out.
+     *
+     * The outputs are a list rather than a single number because several of
+     * these produce more than one figure — an inverse matrix gives four, an
+     * instalment plan gives the instalment and the total.
+     */
+    fun calculateToolJson(id: String, inputs: String): String {
+        val tool = FormulaLibrary.formulas.firstOrNull { it.id == id }
+            ?: return "{\"ok\":false,\"error\":\"That calculator is no longer in the library.\"}"
+
+        val values = HashMap<String, Double>()
+        for (pair in inputs.split('&')) {
+            if (pair.isBlank()) continue
+            val at = pair.indexOf('=')
+            if (at <= 0) continue
+            val key = Uri.decode(pair.substring(0, at))
+            val text = Uri.decode(pair.substring(at + 1)).trim()
+            val v = text.toDoubleOrNull()
+            if (v != null) values[key] = v
+        }
+
+        val out = StringBuilder(256)
+        return try {
+            val results = tool.compute(values)
+            out.append("{\"ok\":true,\"outputs\":[")
+            results.forEachIndexed { i, o ->
+                if (i > 0) out.append(',')
+                out.append('{')
+                out.append("\"label\":").append(q(o.label)).append(',')
+                out.append("\"value\":").append(num(o.value)).append(',')
+                out.append("\"unit\":").append(q(o.unit))
+                out.append('}')
+            }
+            out.append("]}")
+            out.toString()
+        } catch (e: Exception) {
+            "{\"ok\":false,\"error\":${q(e.message ?: "That combination has no answer.")}}"
+        }
+    }
+
     private fun q(s: String): String {
         val b = StringBuilder(s.length + 2)
         b.append('"')

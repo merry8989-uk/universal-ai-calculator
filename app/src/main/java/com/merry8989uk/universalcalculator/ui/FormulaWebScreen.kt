@@ -82,6 +82,15 @@ private class AppBridge(
     @JavascriptInterface
     fun calculate(id: String, inputs: String): String = bridge.calculateJson(id, inputs)
 
+    /** The calculators, as opposed to the reference entries. */
+    @JavascriptInterface
+    fun tools(): String = toolsJson
+
+    @JavascriptInterface
+    fun calculateTool(id: String, inputs: String): String = bridge.calculateToolJson(id, inputs)
+
+    private val toolsJson: String by lazy { bridge.toolsJson() }
+
     @JavascriptInterface
     fun back() {
         onBack()

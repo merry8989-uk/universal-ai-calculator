@@ -82,6 +82,7 @@ private val TOOLS = listOf(
     Tool("converter", "Converters", "Roman numerals, words, binary/hex/ASCII text, colour codes, timestamps."),
     Tool("date", "Date calculator", "Difference, age, working days, week number, add/subtract, timestamps."),
     Tool("programmer", "Programmer (base & bitwise)", "Base conversion and bitwise operations."),
+    Tool("allformulas", "Every formula", "Every calculator and every reference formula, in one page."),
     Tool("currency", "Currency converter", "Live exchange rates between world currencies."),
     Tool("interest", "Interest calculator", "Any rate period and any duration \u2014 daily, weekly, monthly, or two dates."),
 )
@@ -209,6 +210,14 @@ fun FormulasScreen(
         )
         tool == "currency" -> CurrencyScreen { tool = "" }
         tool == "interest" -> InterestScreen { tool = "" }
+        tool == "allformulas" -> FormulaReferenceScreen(
+            onBack = { tool = "" },
+            onOpenTool = { id ->
+                val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
+                    .firstOrNull { it.id == id }
+                if (found != null) { tool = ""; selected = found }
+            },
+        )
         else -> FormulaList(
             custom = custom,
             onCreate = { creating = true },
