@@ -229,13 +229,17 @@ fun AppRoot(settings: SettingsState) {
         if (minimal && tab !in MINIMAL_TABS && tab != SETTINGS_TAB) tab = STANDARD_TAB
         // Turning Ask AI off must not leave the user stranded on its screen.
         if (!aiVisible && tab == AI_TAB) tab = STANDARD_TAB
-        // and the archive it opened has to go with it
-        if (!aiVisible) chatArchiveOpen = false
     }
     var aiContext by rememberSaveable { mutableStateOf("") }
     // The conversation archive, opened from the Ask AI screen.
     var chatArchiveOpen by rememberSaveable { mutableStateOf(false) }
     var aiAsk by rememberSaveable { mutableStateOf("") }
+
+    // The archive the assistant opened has to go when the assistant does. It is
+    // remembered across a restart, so it cannot be trusted to be closed already.
+    LaunchedEffect(aiVisible) {
+        if (!aiVisible) chatArchiveOpen = false
+    }
 
     // Pressing the tab you are already on takes that tab back to its own home.
     var resetTick by rememberSaveable { mutableIntStateOf(0) }
