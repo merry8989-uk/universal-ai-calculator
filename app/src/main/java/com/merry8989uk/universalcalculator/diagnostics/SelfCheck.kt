@@ -102,7 +102,7 @@ object SelfCheck {
         var broken = 0
         for (f in formulas) {
             try {
-                val values = f.inputs.associate { it.id to it.default }
+                val values = f.inputs.associate { it.key to it.default }
                 val out = f.compute(values)
                 if (out.isEmpty() || out.any { it.value.isNaN() }) broken++
             } catch (e: Exception) {
