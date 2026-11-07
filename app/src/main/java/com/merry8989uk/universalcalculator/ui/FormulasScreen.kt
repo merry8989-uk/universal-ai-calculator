@@ -151,7 +151,19 @@ fun FormulasScreen(
             onBack = { creating = false; editing = null },
         )
         selected != null -> FormulaDetailScreen(selected!!) { selected = null }
-        tool == "reference" -> FormulaReferenceScreen { tool = "" }
+        // A formula the app can work out opens its calculator rather than
+        // leaving the reader to find it in the tools by hand.
+        tool == "reference" -> FormulaReferenceScreen(
+            onBack = { tool = "" },
+            onOpenTool = { id ->
+                val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
+                    .firstOrNull { it.id == id }
+                if (found != null) {
+                    tool = ""
+                    selected = found
+                }
+            },
+        )
         tool == "statistics" -> StatisticsScreen(
             onBack = { tool = "" },
             frequencyColumn = settings.frequencyColumn,

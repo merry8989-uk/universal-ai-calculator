@@ -44,7 +44,7 @@ fun FormulaReferenceScreen(onBack: () -> Unit) {
                     settings.loadWithOverviewMode = false
                     settings.textZoom = 100
                     webViewClient = WebViewClient()
-                    addJavascriptInterface(AppBridge(bridge, onBack), "Android")
+                    addJavascriptInterface(AppBridge(bridge, onBack, onOpenTool), "Android")
                     loadUrl("file:///android_asset/formula-site.html")
                 }
             },
@@ -70,6 +70,7 @@ fun FormulaReferenceScreen(onBack: () -> Unit) {
 private class AppBridge(
     private val bridge: FormulaBridge,
     private val onBack: () -> Unit,
+    private val onOpenTool: (String) -> Unit,
 ) {
 
     /** Built once by the bridge; the library does not change while the app runs. */
@@ -84,5 +85,11 @@ private class AppBridge(
     @JavascriptInterface
     fun back() {
         onBack()
+    }
+
+    /** Opens the calculator that does this formula, when there is one. */
+    @JavascriptInterface
+    fun openTool(id: String) {
+        onOpenTool(id)
     }
 }

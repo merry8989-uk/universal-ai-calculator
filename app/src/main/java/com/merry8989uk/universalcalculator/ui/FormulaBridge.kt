@@ -6,6 +6,8 @@ import com.merry8989uk.universalcalculator.data.FormulaReference
 import com.merry8989uk.universalcalculator.formula.CalculationRequest
 import com.merry8989uk.universalcalculator.formula.FormulaCalculator
 import com.merry8989uk.universalcalculator.formula.FormulaDefinition
+import com.merry8989uk.universalcalculator.calc.FormulaLibrary
+import com.merry8989uk.universalcalculator.calc.ToolIndex
 import com.merry8989uk.universalcalculator.formula.FormulaType
 
 /**
@@ -27,6 +29,17 @@ class FormulaBridge(private val context: Context) {
 
     private val byId: Map<String, FormulaDefinition> by lazy {
         definitions.associateBy { it.id }
+    }
+
+    /**
+     * The tools, by folded title.
+     *
+     * A reference entry and a tool can describe the same formula, and until now
+     * the page did not know that: somebody searching "determinant" was told it
+     * was something to read while a determinant calculator sat one tab away.
+     */
+    private val tools: Map<String, com.merry8989uk.universalcalculator.calc.Formula> by lazy {
+        ToolIndex.byTitle(FormulaLibrary.formulas)
     }
 
     /**
@@ -53,6 +66,9 @@ class FormulaBridge(private val context: Context) {
             out.append("\"workable\":").append(workable).append(',')
             out.append("\"out\":").append(q(d.output.label)).append(',')
             out.append("\"unit\":").append(d.output.unit?.let { q(it) } ?: "null").append(',')
+            // the calculator that does this formula, when there is one
+            val tool = ToolIndex.forTitle(d.title, tools)
+            out.append("\"tool\":").append(tool?.let { q(it.id) } ?: "null").append(',')
             out.append("\"inputs\":[")
             d.inputs.forEachIndexed { i, spec ->
                 if (i > 0) out.append(',')
