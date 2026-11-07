@@ -75,7 +75,7 @@ class FormulaPageTest {
         val text = page() ?: return
         assertTrue("no switch between calculators and reference", text.contains("Calculators "))
         assertTrue("no reference option", text.contains("Reference "))
-        assertTrue("no everything option", text.contains("Everything "))
+        assertTrue("no option showing both", text.contains('data-k="all"'))
     }
 
     @Test fun theBridgePublishesTheCalculators() {
