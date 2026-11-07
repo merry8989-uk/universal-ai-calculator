@@ -177,16 +177,14 @@ internal fun GrowthMode(onBack: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(top = 6.dp),
         ) {
-            val quick = when (tenureUnit) {
-                TimeUnit.WEEK -> listOf("4 weeks" to "4", "26 weeks" to "26", "52 weeks" to "52")
-                TimeUnit.MONTH -> listOf("3 months" to "3", "6 months" to "6", "1 year" to "12", "5 years" to "60")
-                else -> listOf("6 months" to "0.5", "1 year" to "1", "5 years" to "5", "10 years" to "10")
-            }
-            for ((label, value) in quick) {
+            // One tap for the tenure most people mean, and each chip sets the
+            // unit as well as the number: "6 months" while the box says years
+            // would be 6 years, which is not what anybody read on the chip.
+            for (preset in TENURE_PRESETS) {
                 FilterChip(
-                    selected = tenureText == value,
-                    onClick = { tenureText = value },
-                    label = { Text(label) },
+                    selected = tenureText == preset.value && tenureUnit == preset.unit,
+                    onClick = { tenureText = preset.value; tenureUnit = preset.unit },
+                    label = { Text(preset.label) },
                 )
             }
         }
@@ -357,3 +355,19 @@ internal fun GrowthMode(onBack: () -> Unit) {
         }
     }
 }
+
+/**
+ * The tenures offered as one tap.
+ *
+ * Each sets its own unit as well as its number. A chip reading "6 months" while
+ * the box beside it says years would set six years, which is not what anybody
+ * read on the chip — so the pair travels together.
+ */
+internal data class TenurePreset(val label: String, val value: String, val unit: TimeUnit)
+
+internal val TENURE_PRESETS: List<TenurePreset> = listOf(
+    TenurePreset("52 weeks", "52", TimeUnit.WEEK),
+    TenurePreset("6 months", "6", TimeUnit.MONTH),
+    TenurePreset("1 year", "1", TimeUnit.YEAR),
+    TenurePreset("5 years", "5", TimeUnit.YEAR),
+)
