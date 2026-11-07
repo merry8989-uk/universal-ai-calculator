@@ -49,6 +49,28 @@ class FormulaPageTest {
         assertTrue("the phone back button ignores the page history", screen.contains("canGoBack()"))
     }
 
+    @Test fun thePageIsLightAndSimple() {
+        val text = page() ?: return
+        // the design it was asked to match: light paper, one accent, no chrome
+        assertTrue("no light background", text.contains("#f5f7fb"))
+        assertTrue("no white cards", text.contains("--card:#ffffff"))
+        assertTrue("the dark theme is still there", !text.contains("#0d1117"))
+        // and the WebView behind it must not flash dark before it paints
+        val screen = listOf(
+            File("app/src/main/java/com/merry8989uk/universalcalculator/ui/FormulaWebScreen.kt"),
+            File("src/main/java/com/merry8989uk/universalcalculator/ui/FormulaWebScreen.kt"),
+        ).firstOrNull { it.exists() }?.readText() ?: return
+        assertTrue("the view behind the page is still dark",
+            screen.contains("0xFFF5F7FB"))
+    }
+
+    @Test fun thePageHasAnAToZIndex() {
+        val text = page() ?: return
+        assertTrue("there is no A-Z strip", text.contains("A–Z"))
+        assertTrue("the letters are not built", text.contains("String.fromCharCode"))
+        assertTrue("a letter does not filter", text.contains("firstLetter"))
+    }
+
     @Test fun thePageHasASwitchBetweenThem() {
         val text = page() ?: return
         assertTrue("no switch between calculators and reference", text.contains("Calculators "))

@@ -5,109 +5,137 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Formulas</title>
 <style>
-  :root {
-    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#30363d;
-    --text:#e6edf3; --muted:#9198a1; --accent:#4f9cf0;
-    --ok:#3fb950; --warn:#d29922; --bad:#f85149;
+  :root{
+    --ink:#0f172a; --ink-2:#334155; --muted:#64748b; --line:#e2e8f0; --line-2:#eef2f7;
+    --bg:#f5f7fb; --card:#ffffff; --accent:#1d4ed8; --accent-soft:#eef3ff;
+    --good:#0f766e; --good-soft:#e7f6f3; --warn:#b45309; --warn-soft:#fef6e7;
+    --bad:#b91c1c; --radius:14px;
+    --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px -12px rgba(15,23,42,.18);
   }
-  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { margin:0; background:var(--bg); color:var(--text); line-height:1.5;
-         font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-         padding-bottom:80px; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+    padding-bottom:40px;
+  }
+  .num{font-variant-numeric:tabular-nums}
 
-  .top { position:sticky; top:0; z-index:10; background:var(--bg);
-         border-bottom:1px solid var(--border); padding:12px 14px 8px; }
-  .head { display:flex; align-items:baseline; justify-content:space-between; }
-  h1 { font-size:1.25rem; margin:0; }
-  .sub { color:var(--muted); font-size:.75rem; }
-  .back { color:var(--accent); background:none; border:0; font-size:.9rem; padding:4px 0; }
+  /* ---------- header ---------- */
+  .top{position:sticky; top:0; z-index:10; background:var(--bg); padding:14px 16px 8px}
+  .brand{display:flex; align-items:center; gap:11px}
+  .mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+        background:linear-gradient(140deg,#1d4ed8,#0ea5a4); color:#fff; font-weight:700; font-size:14px}
+  h1{font-size:19px; margin:0; letter-spacing:-.2px}
+  .sub{font-size:12.5px; color:var(--muted); margin-top:1px}
+  .back{margin-left:auto; border:1px solid var(--line); background:var(--card); color:var(--ink-2);
+        border-radius:10px; padding:8px 12px; font-size:13px; font-weight:600}
 
-  input[type=search] { width:100%; margin-top:10px; padding:11px 13px; border-radius:10px;
-      border:1px solid var(--border); background:var(--panel); color:var(--text);
-      font-size:.95rem; -webkit-appearance:none; }
-  input[type=search]:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  .search{width:100%; margin-top:12px; padding:12px 14px; font-size:16px; color:var(--ink);
+          background:var(--card); border:1px solid var(--line); border-radius:11px; outline:none}
+  .search:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
 
-  .chips { display:flex; gap:7px; overflow-x:auto; margin-top:9px; padding-bottom:3px;
-           scrollbar-width:none; }
-  .chips::-webkit-scrollbar { display:none; }
-  .chip { flex:0 0 auto; padding:5px 11px; border-radius:999px; border:1px solid var(--border);
-          background:var(--panel); color:var(--muted); font-size:.78rem; white-space:nowrap; }
-  .chip[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .chip.kind[aria-pressed=true] { background:#238636; border-color:#238636; }
+  .seg{display:flex; gap:4px; background:#eef2f7; padding:4px; border-radius:11px; margin-top:10px}
+  .seg button{flex:1; border:0; background:transparent; padding:8px 6px; border-radius:8px;
+              font-size:12.5px; font-weight:600; color:var(--muted); white-space:nowrap}
+  .seg button[aria-pressed=true]{background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(15,23,42,.08)}
 
-  .list { padding:10px 12px 0; }
-  .card { background:var(--panel); border:1px solid var(--border); border-radius:14px;
-          padding:14px; margin-bottom:10px; }
-  .card h2 { font-size:.98rem; margin:0 0 6px; font-weight:600; }
-  .peek { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.85rem;
-          color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .meta { display:flex; gap:8px; align-items:center; margin-top:8px;
-          font-size:.72rem; color:var(--muted); flex-wrap:wrap; }
-  .badge { padding:1px 8px; border-radius:999px; font-size:.68rem; }
-  .badge.calc { color:var(--ok); background:#2ea04322; }
-  .badge.ref { color:var(--warn); background:#d2992222; }
-  .badge.tool { color:var(--accent); background:#4f9cf022; }
+  .strip{display:flex; gap:4px; overflow-x:auto; margin-top:10px; padding-bottom:2px; scrollbar-width:none}
+  .strip::-webkit-scrollbar{display:none}
+  .letter{flex:0 0 auto; min-width:28px; height:28px; border-radius:8px; border:1px solid var(--line);
+          background:var(--card); color:var(--ink-2); font-size:12px; font-weight:600; padding:0 6px}
+  .letter[aria-pressed=true]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .letter:disabled{opacity:.35}
 
-  /* ---- the page for one formula ---- */
-  .detail { padding:14px; }
-  .detail h1 { font-size:1.15rem; margin:0 0 4px; }
-  .detail .cat { color:var(--muted); font-size:.75rem; margin-bottom:12px; }
-  .formula { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1rem;
-             background:var(--panel2); border-radius:12px; padding:14px;
-             white-space:pre-wrap; word-break:break-word; margin-bottom:12px;
-             -webkit-user-select:text; user-select:text; }
-  .about { color:var(--muted); font-size:.85rem; margin:0 0 12px; }
+  .chips{display:flex; gap:6px; overflow-x:auto; margin-top:8px; padding-bottom:2px; scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto; padding:6px 11px; border-radius:999px; border:1px solid var(--line);
+        background:var(--card); color:var(--muted); font-size:12.5px; white-space:nowrap}
+  .chip[aria-pressed=true]{background:var(--accent-soft); border-color:#c7d7ff; color:var(--accent); font-weight:600}
 
-  .inputs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .field label { display:block; font-size:.7rem; color:var(--muted); margin-bottom:3px; }
-  .field input { width:100%; padding:10px; border-radius:8px; border:1px solid var(--border);
-                 background:var(--bg); color:var(--text); font-size:.95rem;
-                 font-family:ui-monospace,SFMono-Regular,Menlo,monospace; -webkit-appearance:none; }
-  .field input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  /* ---------- the list ---------- */
+  .list{padding:10px 16px 0}
+  .row{display:block; background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+       padding:14px 15px; margin-bottom:10px; text-decoration:none; color:inherit}
+  .row h2{font-size:15px; margin:0 0 5px; font-weight:600; letter-spacing:-.1px}
+  .peek{font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .meta{display:flex; gap:8px; align-items:center; margin-top:9px; font-size:11.5px; color:var(--muted); flex-wrap:wrap}
+  .badge{padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600}
+  .badge.calc{color:var(--good); background:var(--good-soft)}
+  .badge.ref{color:var(--warn); background:var(--warn-soft)}
+  .badge.tool{color:var(--accent); background:var(--accent-soft)}
 
-  .answer { margin-top:12px; border-radius:12px; background:var(--panel2); padding:12px 14px; }
-  .answer .label { color:var(--muted); font-size:.72rem; }
-  .answer .value { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.5rem;
-                   color:var(--accent); -webkit-user-select:text; user-select:text; }
-  .answer.bad .value { font-size:.9rem; color:var(--bad); }
-  .outrow { display:flex; justify-content:space-between; gap:10px; padding:5px 0;
-            border-bottom:1px solid var(--border); }
-  .outrow:last-child { border-bottom:0; }
-  .outrow .k { color:var(--muted); font-size:.8rem; }
-  .outrow .v { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.95rem;
-               -webkit-user-select:text; user-select:text; }
+  /* ---------- one formula's page ---------- */
+  .page{padding:12px 16px 0}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+        box-shadow:var(--shadow); margin-bottom:12px}
+  .card-h{padding:12px 15px; border-bottom:1px solid var(--line-2)}
+  .card-h h2{font-size:12px; margin:0; text-transform:uppercase; letter-spacing:.06em;
+             color:var(--muted); font-weight:600}
+  .card-b{padding:15px}
+  .title{font-size:18px; font-weight:650; letter-spacing:-.2px; margin:0 0 3px}
+  .cat{font-size:12.5px; color:var(--muted)}
 
-  .steps { margin:12px 0 0; padding:0; list-style:none; }
-  .steps li { display:flex; gap:8px; padding:6px 0; border-top:1px solid var(--border);
-              font-size:.82rem; }
-  .steps li:first-child { border-top:0; }
-  .steps .n { flex:0 0 18px; color:var(--muted); font-size:.72rem; padding-top:2px; }
-  .steps .body { flex:1; -webkit-user-select:text; user-select:text; }
-  .steps .d { color:var(--muted); font-size:.7rem; display:block; }
-  .steps .e { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; word-break:break-word; }
-  .steps .r { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--accent); }
+  .formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:15px;
+           background:#fbfcfe; border:1px solid var(--line); border-radius:11px; padding:14px;
+           white-space:pre-wrap; word-break:break-word; -webkit-user-select:text; user-select:text}
+  .about{font-size:13px; color:var(--muted); margin:0 0 12px}
 
-  .hint { color:var(--muted); font-size:.72rem; margin-top:10px; }
-  .action { display:block; width:100%; margin-top:10px; padding:11px; border-radius:10px;
-            border:0; background:var(--accent); color:#fff; font-size:.9rem; font-weight:600; }
-  .empty { text-align:center; color:var(--muted); padding:60px 0; font-size:.9rem; }
-  .more { display:block; width:100%; margin:14px 0 30px; padding:12px; border-radius:10px;
-          background:var(--accent); color:#fff; border:0; font-size:.9rem; font-weight:600; }
+  .fields{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+  .field input{width:100%; padding:11px 12px; font-size:16px; font-weight:600; color:var(--ink);
+               background:#fbfcfe; border:1px solid var(--line); border-radius:10px; outline:none;
+               font-variant-numeric:tabular-nums}
+  .field input:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); background:#fff}
+
+  .answer{background:var(--accent-soft); border:1px solid #c7d7ff; border-radius:11px; padding:13px 15px}
+  .answer .label{font-size:12px; color:var(--accent); font-weight:600}
+  .answer .value{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:26px;
+                 font-weight:600; color:var(--accent); letter-spacing:-.5px;
+                 -webkit-user-select:text; user-select:text}
+  .answer.bad{background:#fef2f2; border-color:#fecaca}
+  .answer.bad .value{font-size:14px; color:var(--bad); font-weight:500}
+  .out{display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid #dbe6ff}
+  .out:last-child{border-bottom:0}
+  .out .k{font-size:13px; color:var(--ink-2)}
+  .out .v{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; font-weight:600;
+          -webkit-user-select:text; user-select:text}
+
+  .steps{margin:0; padding:0; list-style:none}
+  .steps li{display:flex; gap:10px; padding:9px 0; border-top:1px solid var(--line-2)}
+  .steps li:first-child{border-top:0; padding-top:0}
+  .steps .n{flex:0 0 18px; color:var(--muted); font-size:12px; font-weight:600; padding-top:1px}
+  .steps .body{flex:1; -webkit-user-select:text; user-select:text}
+  .steps .d{color:var(--muted); font-size:11.5px; display:block; margin-bottom:2px}
+  .steps .e{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; word-break:break-word}
+  .steps .r{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
+            font-weight:600; color:var(--accent)}
+
+  .hint{font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.45}
+  .action{display:block; width:100%; margin-top:12px; padding:12px; border-radius:11px; border:0;
+          background:var(--accent); color:#fff; font-size:14px; font-weight:600}
+  .empty{text-align:center; color:var(--muted); padding:56px 0; font-size:14px}
+  .more{display:block; width:100%; margin:4px 0 24px; padding:12px; border-radius:11px;
+        border:1px solid var(--line); background:var(--card); color:var(--ink-2);
+        font-size:13.5px; font-weight:600}
 </style>
 </head>
 <body>
 
 <div id="indexView">
   <div class="top">
-    <div class="head">
+    <div class="brand">
+      <div class="mark">&#8721;</div>
       <div>
         <h1>Formulas</h1>
         <div class="sub" id="sub">Loading…</div>
       </div>
       <button class="back" onclick="Android.back()">Back</button>
     </div>
-    <input type="search" id="q" placeholder="Search — try cos, Bayes, interest" autocomplete="off">
-    <div class="chips" id="kinds"></div>
+    <input class="search" type="search" id="q" placeholder="Search any formula" autocomplete="off">
+    <div class="seg" id="kinds"></div>
+    <div class="strip" id="letters"></div>
     <div class="chips" id="cats"></div>
   </div>
   <div class="list" id="list"></div>
@@ -121,7 +149,7 @@
 (function () {
   'use strict';
 
-  var PAGE = 25;
+  var PAGE = 20;
   var tools = [];
   var refs = [];
   var byId = {};
@@ -130,11 +158,13 @@
   var query = '';
   var category = null;
   var kind = 'all';
+  var letter = null;
 
   var indexView = document.getElementById('indexView');
   var detailView = document.getElementById('detailView');
   var listEl = document.getElementById('list');
   var kindsEl = document.getElementById('kinds');
+  var lettersEl = document.getElementById('letters');
   var catsEl = document.getElementById('cats');
   var subEl = document.getElementById('sub');
   var emptyEl = document.getElementById('empty');
@@ -159,19 +189,20 @@
     try { return JSON.parse(raw); } catch (e) { return { ok: false, error: 'The app did not answer.' }; }
   }
 
+  function firstLetter(title) {
+    var c = String(title || '').trim().charAt(0).toUpperCase();
+    return /[A-Z]/.test(c) ? c : '#';
+  }
+
   // ---- routing: one page per formula ----
 
   function go(hash) { location.hash = hash; }
 
   function route() {
-    var h = location.hash || '#/';
-    var m = h.match(/^#\/([ft])\/(.+)$/);
+    var m = (location.hash || '#/').match(/^#\/([ft])\/(.+)$/);
     if (m) {
       var item = byId[m[1] + ':' + decodeURIComponent(m[2])];
-      if (item) {
-        showDetail(item);
-        return;
-      }
+      if (item) { showDetail(item); return; }
     }
     showIndex();
   }
@@ -190,35 +221,42 @@
     window.scrollTo(0, 0);
   }
 
-  // ---- the page for one reference formula ----
+  function topBar(title, what) {
+    return '<div class="top"><div class="brand"><div class="mark">&#8721;</div><div>' +
+      '<h1>' + esc(title) + '</h1><div class="sub">' + esc(what) + '</div></div>' +
+      '<button class="back" onclick="history.back()">&#8592; Back</button></div></div>';
+  }
 
   function refPage(f) {
     var workable = f.workable;
-    var h = '<div class="top"><div class="head"><div><h1>' + esc(f.title) + '</h1>' +
-            '<div class="sub">reference formula</div></div>' +
-            '<button class="back" onclick="history.back()">\u2190 Back</button></div></div>';
-    h += '<div class="detail">';
+    var h = topBar(f.title, 'reference formula');
+    h += '<div class="page">';
+    h += '<div class="card"><div class="card-b">';
     h += '<div class="cat">' + esc(f.category) + '</div>';
-    h += '<div class="formula">' + esc(f.printed) + '</div>';
-    h += '<div class="meta"><span class="badge ' + (workable ? 'calc' : 'ref') + '">' +
-         (workable ? 'works it out' : 'to read') + '</span></div>';
+    h += '<div class="formula" style="margin-top:10px">' + esc(f.printed) + '</div>';
+    h += '<div class="meta" style="margin-top:10px"><span class="badge ' +
+         (workable ? 'calc' : 'ref') + '">' + (workable ? 'works it out' : 'to read') +
+         '</span></div>';
+    h += '</div></div>';
 
     if (workable) {
-      h += '<div class="inputs" style="margin-top:12px">';
+      h += '<div class="card"><div class="card-h"><h2>Put the values in</h2></div>' +
+           '<div class="card-b"><div class="fields">';
       f.inputs.forEach(function (inp) {
         h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
              '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.id) +
              '" value="' + inp.sample + '"></div>';
       });
-      h += '</div>';
-      h += '<div class="answer"><span class="label">' + esc(f.out) +
-           (f.unit ? ' (' + esc(f.unit) + ')' : '') + '</span>' +
-           '<div class="value">—</div></div>';
-      h += '<ol class="steps"></ol>';
+      h += '</div></div></div>';
+      h += '<div class="card"><div class="card-h"><h2>' + esc(f.out) +
+           (f.unit ? ' (' + esc(f.unit) + ')' : '') + '</h2></div>' +
+           '<div class="card-b"><div class="answer"><div class="value">—</div></div></div></div>';
+      h += '<div class="card"><div class="card-h"><h2>How it is worked out</h2></div>' +
+           '<div class="card-b"><ol class="steps"></ol></div></div>';
       h += '<div class="hint">Hold the formula, the answer or any step to copy or share it.</div>';
     } else if (f.tool) {
       h += '<button class="action" data-goto="#/t/' + encodeURIComponent(f.tool) + '">' +
-           'Open the calculator \u2192</button>';
+           'Open the calculator</button>';
     } else {
       h += '<div class="hint">This one is read, not worked out — it is a rule, a table or a ' +
            'statement rather than a sum.</div>';
@@ -227,23 +265,21 @@
     return h;
   }
 
-  // ---- the page for one calculator ----
-
   function toolPage(f) {
-    var h = '<div class="top"><div class="head"><div><h1>' + esc(f.title) + '</h1>' +
-            '<div class="sub">calculator</div></div>' +
-            '<button class="back" onclick="history.back()">\u2190 Back</button></div></div>';
-    h += '<div class="detail">';
+    var h = topBar(f.title, 'calculator');
+    h += '<div class="page">';
+    h += '<div class="card"><div class="card-b">';
     h += '<div class="cat">' + esc(f.category) + '</div>';
-    if (f.about) h += '<p class="about">' + esc(f.about) + '</p>';
-    h += '<div class="inputs">';
+    if (f.about) h += '<p class="about" style="margin-top:8px">' + esc(f.about) + '</p>';
+    h += '<div class="fields" style="margin-top:10px">';
     f.inputs.forEach(function (inp) {
       h += '<div class="field"><label>' + esc(inp.label) + '</label>' +
            '<input type="number" step="any" inputmode="decimal" data-k="' + esc(inp.k) +
            '" value="' + inp.v + '"></div>';
     });
-    h += '</div>';
-    h += '<div class="answer"><div class="outs"></div></div>';
+    h += '</div></div></div>';
+    h += '<div class="card"><div class="card-h"><h2>Answer</h2></div>' +
+         '<div class="card-b"><div class="answer"><div class="outs"></div></div></div></div>';
     h += '<div class="hint">Hold any answer to copy or share it.</div>';
     h += '<button class="action" data-opentool="' + esc(f.id) + '">Open in the calculator tab</button>';
     h += '</div>';
@@ -258,7 +294,6 @@
     root.querySelectorAll('[data-opentool]').forEach(function (b) {
       b.addEventListener('click', function () { Android.openTool(b.getAttribute('data-opentool')); });
     });
-
     if (!item.workable && item.kind !== 'tool') return;
     var run = function () { item.kind === 'tool' ? workTool(root, item) : workRef(root, item); };
     run();
@@ -288,7 +323,7 @@
     box.classList.remove('bad');
     var h = '';
     (r.outputs || []).forEach(function (o) {
-      h += '<div class="outrow"><span class="k">' + esc(o.label) + '</span>' +
+      h += '<div class="out"><span class="k">' + esc(o.label) + '</span>' +
            '<span class="v">' + esc(num(o.value) + (o.unit ? ' ' + o.unit : '')) + '</span></div>';
     });
     outs.innerHTML = h;
@@ -331,6 +366,7 @@
   function matches(f) {
     if (kind !== 'all' && f.kind !== kind) return false;
     if (category && f.category !== category) return false;
+    if (letter && firstLetter(f.title) !== letter) return false;
     if (!query) return true;
     var q = query.toLowerCase();
     var hay = f.kind === 'tool'
@@ -339,7 +375,7 @@
     return hay.toLowerCase().indexOf(q) >= 0;
   }
 
-  function listCard(f) {
+  function listRow(f) {
     var href = f.kind === 'tool'
       ? '#/t/' + encodeURIComponent(f.id)
       : '#/f/' + encodeURIComponent(f.id);
@@ -348,7 +384,7 @@
       ? '<span class="badge tool">calculator</span>'
       : '<span class="badge ' + (f.workable ? 'calc' : 'ref') + '">' +
         (f.workable ? 'works it out' : 'to read') + '</span>';
-    return '<a class="card" href="' + href + '" style="display:block;text-decoration:none;color:inherit">' +
+    return '<a class="row" href="' + href + '">' +
       '<h2>' + esc(f.title) + '</h2>' +
       '<div class="peek">' + esc(peek) + '</div>' +
       '<div class="meta">' + badge + '<span>' + esc(f.category) + '</span></div></a>';
@@ -358,30 +394,56 @@
     var filtered = all.filter(matches);
     var slice = filtered.slice(0, shown);
     var html = '';
-    for (var i = 0; i < slice.length; i++) html += listCard(slice[i]);
+    for (var i = 0; i < slice.length; i++) html += listRow(slice[i]);
     listEl.innerHTML = html;
 
     emptyEl.hidden = filtered.length !== 0;
     moreEl.hidden = filtered.length <= shown;
-    moreEl.textContent = 'Show more (' + Math.max(0, filtered.length - shown) + ' left)';
-    subEl.textContent = filtered.length + ' of ' + all.length +
-      (category ? ' · ' + category : '');
+    moreEl.textContent = 'Show ' + Math.max(0, filtered.length - shown) + ' more';
+    subEl.textContent = filtered.length + ' of ' + all.length + ' formulas';
   }
 
   function buildKinds() {
-    var h = '<button class="chip kind" data-k="all" aria-pressed="true">Everything ' + all.length + '</button>';
-    h += '<button class="chip kind" data-k="tool" aria-pressed="false">Calculators ' + tools.length + '</button>';
-    h += '<button class="chip kind" data-k="ref" aria-pressed="false">Reference ' + refs.length + '</button>';
+    var h = '<button data-k="all" aria-pressed="true">All ' + all.length + '</button>';
+    h += '<button data-k="tool" aria-pressed="false">Calculators ' + tools.length + '</button>';
+    h += '<button data-k="ref" aria-pressed="false">Reference ' + refs.length + '</button>';
     kindsEl.innerHTML = h;
     kindsEl.addEventListener('click', function (e) {
-      var chip = e.target.closest('.chip');
-      if (!chip) return;
-      kind = chip.getAttribute('data-k');
+      var b = e.target.closest('button');
+      if (!b) return;
+      kind = b.getAttribute('data-k');
       shown = PAGE;
-      kindsEl.querySelectorAll('.chip').forEach(function (x) {
-        x.setAttribute('aria-pressed', String(x === chip));
+      kindsEl.querySelectorAll('button').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x === b));
       });
+      buildLetters();
       buildCats();
+      render();
+    });
+  }
+
+  function buildLetters() {
+    var have = {};
+    all.forEach(function (f) {
+      if (kind !== 'all' && f.kind !== kind) return;
+      have[firstLetter(f.title)] = true;
+    });
+    var h = '<button class="letter" data-l="" aria-pressed="true">A–Z</button>';
+    for (var c = 65; c <= 90; c++) {
+      var ch = String.fromCharCode(c);
+      h += '<button class="letter" data-l="' + ch + '" aria-pressed="false"' +
+           (have[ch] ? '' : ' disabled') + '>' + ch + '</button>';
+    }
+    if (have['#']) h += '<button class="letter" data-l="#" aria-pressed="false">#</button>';
+    lettersEl.innerHTML = h;
+    lettersEl.addEventListener('click', function (e) {
+      var b = e.target.closest('.letter');
+      if (!b || b.disabled) return;
+      letter = b.getAttribute('data-l') || null;
+      shown = PAGE;
+      lettersEl.querySelectorAll('.letter').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x === b));
+      });
       render();
     });
   }
@@ -393,7 +455,7 @@
       counts[f.category] = (counts[f.category] || 0) + 1;
     });
     var names = Object.keys(counts).sort();
-    var h = '<button class="chip" data-c="" aria-pressed="true">All</button>';
+    var h = '<button class="chip" data-c="" aria-pressed="true">All categories</button>';
     names.forEach(function (n) {
       h += '<button class="chip" data-c="' + esc(n) + '" aria-pressed="false">' +
            esc(n) + ' ' + counts[n] + '</button>';
@@ -401,12 +463,12 @@
     catsEl.innerHTML = h;
     category = null;
     catsEl.addEventListener('click', function (e) {
-      var chip = e.target.closest('.chip');
-      if (!chip) return;
-      category = chip.getAttribute('data-c') || null;
+      var b = e.target.closest('.chip');
+      if (!b) return;
+      category = b.getAttribute('data-c') || null;
       shown = PAGE;
       catsEl.querySelectorAll('.chip').forEach(function (x) {
-        x.setAttribute('aria-pressed', String(x === chip));
+        x.setAttribute('aria-pressed', String(x === b));
       });
       render();
     });
@@ -445,6 +507,7 @@
   }
   if (!all.length) { subEl.textContent = 'The library is empty.'; return; }
   buildKinds();
+  buildLetters();
   buildCats();
   route();
 })();
