@@ -176,6 +176,18 @@ internal fun modeTarget(id: String, minimal: Boolean): String = when (id) {
 
 internal fun aiIsVisible(aiEnabled: Boolean, minimal: Boolean): Boolean = aiEnabled && !minimal
 
+/**
+ * Whether the conversation archive may be on screen.
+ *
+ * The archive is the assistant's own place — every chat in it is something the
+ * assistant said. Switching Ask AI off has to take it away too, or the switch
+ * hides the button and leaves the conversations one tap behind it. The open flag
+ * is remembered across a rotation and a restart, so it cannot be trusted on its
+ * own.
+ */
+internal fun chatArchiveVisible(aiEnabled: Boolean, minimal: Boolean, open: Boolean): Boolean =
+    open && aiIsVisible(aiEnabled, minimal)
+
 internal fun usesClassicPad(
     layout: String,
     isScientificTab: Boolean,
@@ -217,6 +229,8 @@ fun AppRoot(settings: SettingsState) {
         if (minimal && tab !in MINIMAL_TABS && tab != SETTINGS_TAB) tab = STANDARD_TAB
         // Turning Ask AI off must not leave the user stranded on its screen.
         if (!aiVisible && tab == AI_TAB) tab = STANDARD_TAB
+        // and the archive it opened has to go with it
+        if (!aiVisible) chatArchiveOpen = false
     }
     var aiContext by rememberSaveable { mutableStateOf("") }
     // The conversation archive, opened from the Ask AI screen.
@@ -381,7 +395,7 @@ fun AppRoot(settings: SettingsState) {
         Box(modifier = Modifier.padding(padding)) {
             // The conversation archive takes the whole screen while it is open.
             // It is its own place: nothing here is a calculation.
-            if (chatArchiveOpen) {
+            if (chatArchiveVisible(settings.aiEnabled, minimal, chatArchiveOpen)) {
                 ChatArchiveScreen(
                     onBack = { chatArchiveOpen = false },
                     onOpen = { /* the viewer is drawn by the screen itself */ },
