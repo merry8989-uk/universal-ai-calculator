@@ -562,13 +562,19 @@ object FormulaLibrary {
             "ncr", "Combinations nCr", "Math",
             "Number of ways to choose r from n.",
             listOf(InputSpec("n", "n", 5.0), InputSpec("r", "r", 2.0)),
-        ) { m -> listOf(out("nCr", Evaluator.combinations(v(m, "n"), v(m, "r")))) },
+        ) { m ->
+            // a count is a count: 5.5 ways of choosing is not a thing, and
+            // refusing is worse than rounding the way a calculator does
+            listOf(out("nCr", Evaluator.combinations(Math.round(v(m, "n")).toDouble(), Math.round(v(m, "r")).toDouble())))
+        },
 
         Formula(
             "npr", "Permutations nPr", "Math",
             "Number of ordered arrangements of r from n.",
             listOf(InputSpec("n", "n", 5.0), InputSpec("r", "r", 2.0)),
-        ) { m -> listOf(out("nPr", Evaluator.permutations(v(m, "n"), v(m, "r")))) },
+        ) { m ->
+            listOf(out("nPr", Evaluator.permutations(Math.round(v(m, "n")).toDouble(), Math.round(v(m, "r")).toDouble())))
+        },
 
         Formula(
             "quadratic", "Quadratic roots", "Math",

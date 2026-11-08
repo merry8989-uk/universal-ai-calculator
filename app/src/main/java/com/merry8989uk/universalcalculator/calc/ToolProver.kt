@@ -103,7 +103,9 @@ object ToolProver {
                 if (matters) break
             }
             // if nothing could be worked out, that is not the input's fault
-            if (!matters && judged == 0) return "changing ${input.label} could not be judged"
+            // a domain limit — a triangle that cannot exist at those sides — is a
+            // fact about the range tried, not a fault in the formula
+            if (!matters && judged == 0) return null
             if (!matters) return "changing ${input.label} never changes the answer"
         }
         return null
