@@ -111,10 +111,24 @@ fun StudioTheme(content: @Composable () -> Unit) {
             surfaceVariant = Studio.ItemBg,
             onSurfaceVariant = Studio.Muted,
             outline = Studio.Border,
+            outlineVariant = Studio.Border,
             error = Studio.Error,
         ),
         content = content,
     )
+}
+
+/**
+ * The frame every tool screen is opened in.
+ *
+ * The palette is applied once, here, instead of in nineteen screens: each of
+ * them already draws with MaterialTheme's colours, so handing them the studio
+ * scheme and the studio backdrop is the whole change. A screen that wants a
+ * surface of its own still paints one, on top of this.
+ */
+@Composable
+fun StudioHost(content: @Composable () -> Unit) {
+    StudioTheme { StudioBackdrop { content() } }
 }
 
 /** The lit-from-above backdrop the page paints behind everything. */

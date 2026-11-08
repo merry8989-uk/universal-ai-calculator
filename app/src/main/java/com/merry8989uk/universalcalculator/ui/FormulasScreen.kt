@@ -124,102 +124,106 @@ fun FormulasScreen(
         CustomCalcStore.save(context, next)
     }
 
-    when {
-        creating || editing != null -> CustomCalcEditor(
-            existing = editing,
-            onSave = { saved ->
-                val next = custom.filterNot { it.id == saved.id } + saved
-                persist(next)
-                creating = false
-                editing = null
-            },
-            onDelete = { gone ->
-                persist(custom.filterNot { it.id == gone.id })
-                editing = null
-            },
-            onBack = { creating = false; editing = null },
-        )
-        selected != null -> FormulaDetailScreen(selected!!) { selected = null }
-        // A formula the app can work out opens its calculator rather than
-        // leaving the reader to find it in the tools by hand.
-        tool == "reference" -> FormulaReferenceScreen(
-            onBack = { tool = "" },
-            onOpenTool = { id ->
-                val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
-                    .firstOrNull { it.id == id }
-                if (found != null) {
-                    tool = ""
-                    selected = found
-                }
-            },
-        )
-        tool == "statistics" -> StatisticsScreen(
-            onBack = { tool = "" },
-            frequencyColumn = settings.frequencyColumn,
-        )
-        tool == "distributions" -> DistributionsScreen { tool = "" }
-        tool == "complex" -> ComplexScreen(
-            onBack = { tool = "" },
-            format = com.merry8989uk.universalcalculator.calc.ComplexFormat
-                .valueOf(settings.complexFormat),
-        )
-        tool == "rpn" -> RpnScreen { tool = "" }
-        tool == "matrix" -> MatrixScreen { tool = "" }
-        tool == "handwriting" -> HandwritingScreen { tool = "" }
-        tool == "solver" -> EquationSolverScreen(
-            onClose = { tool = "" },
-            notation = com.merry8989uk.universalcalculator.calc.IntervalNotation
-                .valueOf(settings.intervalNotation),
-        )
-        tool == "table" -> TableScreen { tool = "" }
-        // CAS mode off: the symbolic screens are unreachable, so send the user back
-        !settings.casMode && tool in CAS_TOOLS -> {
-            tool = ""
-            FormulaList(
+    // Every tool this tab opens is drawn in the studio's colours: they all
+    // draw with MaterialTheme, and this hands them the studio's scheme.
+    StudioHost {
+        when {
+            creating || editing != null -> CustomCalcEditor(
+                existing = editing,
+                onSave = { saved ->
+                    val next = custom.filterNot { it.id == saved.id } + saved
+                    persist(next)
+                    creating = false
+                    editing = null
+                },
+                onDelete = { gone ->
+                    persist(custom.filterNot { it.id == gone.id })
+                    editing = null
+                },
+                onBack = { creating = false; editing = null },
+            )
+            selected != null -> FormulaDetailScreen(selected!!) { selected = null }
+            // A formula the app can work out opens its calculator rather than
+            // leaving the reader to find it in the tools by hand.
+            tool == "reference" -> FormulaReferenceScreen(
+                onBack = { tool = "" },
+                onOpenTool = { id ->
+                    val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
+                        .firstOrNull { it.id == id }
+                    if (found != null) {
+                        tool = ""
+                        selected = found
+                    }
+                },
+            )
+            tool == "statistics" -> StatisticsScreen(
+                onBack = { tool = "" },
+                frequencyColumn = settings.frequencyColumn,
+            )
+            tool == "distributions" -> DistributionsScreen { tool = "" }
+            tool == "complex" -> ComplexScreen(
+                onBack = { tool = "" },
+                format = com.merry8989uk.universalcalculator.calc.ComplexFormat
+                    .valueOf(settings.complexFormat),
+            )
+            tool == "rpn" -> RpnScreen { tool = "" }
+            tool == "matrix" -> MatrixScreen { tool = "" }
+            tool == "handwriting" -> HandwritingScreen { tool = "" }
+            tool == "solver" -> EquationSolverScreen(
+                onClose = { tool = "" },
+                notation = com.merry8989uk.universalcalculator.calc.IntervalNotation
+                    .valueOf(settings.intervalNotation),
+            )
+            tool == "table" -> TableScreen { tool = "" }
+            // CAS mode off: the symbolic screens are unreachable, so send the user back
+            !settings.casMode && tool in CAS_TOOLS -> {
+                tool = ""
+                FormulaList(
+                    custom = custom,
+                    onCreate = { creating = true },
+                    onEdit = { editing = it },
+                    onOpen = { selected = it },
+                    onTool = { tool = it },
+                    tools = shownTools,
+                )
+            }
+            tool == "symbolic" -> SymbolicScreen { tool = "" }
+            tool == "limits" -> LimitsScreen { tool = "" }
+            tool == "partial" -> PartialFractionsScreen { tool = "" }
+            tool == "calculus" -> CalculusScreen { tool = "" }
+            tool == "graph" -> GraphScreen { tool = "" }
+            tool == "converter" -> ConverterScreen { tool = "" }
+            tool == "date" -> DateScreen { tool = "" }
+            tool == "programmer" -> ProgrammerScreen(
+                onBack = { tool = "" },
+                width = com.merry8989uk.universalcalculator.calc.BitWidth
+                    .valueOf(settings.bitWidth),
+            )
+            tool == "currency" -> CurrencyScreen { tool = "" }
+            tool == "interest" -> InterestScreen { tool = "" }
+            tool == "allformulas" -> FormulaReferenceScreen(
+                onBack = { tool = "" },
+                onOpenTool = { id ->
+                    val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
+                        .firstOrNull { it.id == id }
+                    if (found != null) { tool = ""; selected = found }
+                },
+            )
+            else -> FormulaList(
                 custom = custom,
                 onCreate = { creating = true },
                 onEdit = { editing = it },
-                onOpen = { selected = it },
-                onTool = { tool = it },
                 tools = shownTools,
+                onOpen = {
+                    selected = it
+                    analytics(it.id)
+                },
+                onTool = {
+                    tool = it
+                    analytics("tool:$it")
+                },
             )
         }
-        tool == "symbolic" -> SymbolicScreen { tool = "" }
-        tool == "limits" -> LimitsScreen { tool = "" }
-        tool == "partial" -> PartialFractionsScreen { tool = "" }
-        tool == "calculus" -> CalculusScreen { tool = "" }
-        tool == "graph" -> GraphScreen { tool = "" }
-        tool == "converter" -> ConverterScreen { tool = "" }
-        tool == "date" -> DateScreen { tool = "" }
-        tool == "programmer" -> ProgrammerScreen(
-            onBack = { tool = "" },
-            width = com.merry8989uk.universalcalculator.calc.BitWidth
-                .valueOf(settings.bitWidth),
-        )
-        tool == "currency" -> CurrencyScreen { tool = "" }
-        tool == "interest" -> InterestScreen { tool = "" }
-        tool == "allformulas" -> FormulaReferenceScreen(
-            onBack = { tool = "" },
-            onOpenTool = { id ->
-                val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
-                    .firstOrNull { it.id == id }
-                if (found != null) { tool = ""; selected = found }
-            },
-        )
-        else -> FormulaList(
-            custom = custom,
-            onCreate = { creating = true },
-            onEdit = { editing = it },
-            tools = shownTools,
-            onOpen = {
-                selected = it
-                analytics(it.id)
-            },
-            onTool = {
-                tool = it
-                analytics("tool:$it")
-            },
-        )
     }
 }
 
@@ -248,128 +252,124 @@ private fun FormulaList(
         }
     } else emptyList()
 
-    // Drawn in the studio's own colours: this hub and the formula page it opens
-    // are the same feature, and they were in two different themes.
-    StudioTheme {
-        StudioBackdrop {
-            Column(modifier = Modifier.fillMaxSize().padding(14.dp)) {
-                StudioHeader(
-                    subtitle = stringResource(
-                        R.string.calculator_count,
-                        FormulaLibrary.formulas.size,
-                        custom.size,
-                        tools.size,
-                    ),
-                    pill = FormulaLibrary.formulas.size.toString(),
-                )
+    // The frame and the colours come from the tab that opened this screen, so
+    // the hub and the tools behind it are drawn as one app.
+    Column(modifier = Modifier.fillMaxSize().padding(14.dp)) {
+        StudioHeader(
+            subtitle = stringResource(
+                R.string.calculator_count,
+                FormulaLibrary.formulas.size,
+                custom.size,
+                tools.size,
+            ),
+            pill = FormulaLibrary.formulas.size.toString(),
+        )
 
-                StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
-                    Text(
-                        stringResource(R.string.calculators),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = Studio.Text,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    OutlinedTextField(
-                        value = query,
-                        onValueChange = { query = it },
-                        label = { Text(stringResource(R.string.search_hint)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+        StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
+            Text(
+                stringResource(R.string.calculators),
+                style = MaterialTheme.typography.titleSmall,
+                color = Studio.Text,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text(stringResource(R.string.search_hint)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-                    if (!searching) Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        StudioPill(
-                            text = stringResource(R.string.tools),
-                            selected = category == "Tools",
-                        ) { category = "Tools" }
-                        StudioPill(
-                            text = stringResource(R.string.my_calculators),
-                            selected = category == CustomCalculator.CATEGORY,
-                        ) { category = CustomCalculator.CATEGORY }
-                        FormulaLibrary.categories.forEach { c ->
-                            StudioPill(text = c, selected = category == c) { category = c }
+            if (!searching) Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                StudioPill(
+                    text = stringResource(R.string.tools),
+                    selected = category == "Tools",
+                ) { category = "Tools" }
+                StudioPill(
+                    text = stringResource(R.string.my_calculators),
+                    selected = category == CustomCalculator.CATEGORY,
+                ) { category = CustomCalculator.CATEGORY }
+                FormulaLibrary.categories.forEach { c ->
+                    StudioPill(text = c, selected = category == c) { category = c }
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (searching) {
+                    if (results.isEmpty()) {
+                        item {
+                            Text(
+                                "No calculator matches your search.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Studio.Muted,
+                            )
                         }
                     }
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        if (searching) {
-                            if (results.isEmpty()) {
-                                item {
-                                    Text(
-                                        "No calculator matches your search.",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Studio.Muted,
-                                    )
-                                }
-                            }
-                            items(results) { f ->
-                                StudioItem(
-                                    title = f.title,
-                                    subtitle = f.description,
-                                    accent = CategoryColors.of(f.category),
-                                    meta = f.category,
-                                    onClick = { onOpen(f) },
+                    items(results) { f ->
+                        StudioItem(
+                            title = f.title,
+                            subtitle = f.description,
+                            accent = CategoryColors.of(f.category),
+                            meta = f.category,
+                            onClick = { onOpen(f) },
+                        )
+                    }
+                } else {
+                    if (category == "Tools") {
+                        itemsIndexed(tools) { i, t ->
+                            StudioItem(
+                                title = t.title,
+                                subtitle = t.subtitle,
+                                accent = TOOL_COLORS[i % TOOL_COLORS.size],
+                                onClick = { onTool(t.id) },
+                            )
+                        }
+                    }
+                    if (category == CustomCalculator.CATEGORY) {
+                        item {
+                            StudioItem(
+                                title = stringResource(R.string.create_calculator),
+                                subtitle = stringResource(R.string.create_calculator_blurb),
+                                accent = TOOL_COLORS.first(),
+                                onClick = onCreate,
+                            )
+                        }
+                        if (custom.isEmpty()) {
+                            item {
+                                Text(
+                                    stringResource(R.string.no_custom_yet),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Studio.Muted,
                                 )
                             }
-                        } else {
-                            if (category == "Tools") {
-                                itemsIndexed(tools) { i, t ->
-                                    StudioItem(
-                                        title = t.title,
-                                        subtitle = t.subtitle,
-                                        accent = TOOL_COLORS[i % TOOL_COLORS.size],
-                                        onClick = { onTool(t.id) },
-                                    )
-                                }
-                            }
-                            if (category == CustomCalculator.CATEGORY) {
-                                item {
-                                    StudioItem(
-                                        title = stringResource(R.string.create_calculator),
-                                        subtitle = stringResource(R.string.create_calculator_blurb),
-                                        accent = TOOL_COLORS.first(),
-                                        onClick = onCreate,
-                                    )
-                                }
-                                if (custom.isEmpty()) {
-                                    item {
-                                        Text(
-                                            stringResource(R.string.no_custom_yet),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Studio.Muted,
-                                        )
-                                    }
-                                }
-                            }
-                            items(list) { f ->
-                                StudioItem(
-                                    title = f.title,
-                                    subtitle = f.description,
-                                    accent = CategoryColors.of(f.category),
-                                    meta = f.category,
-                                    onClick = { onOpen(f) },
-                                )
-                            }
-                            if (category == CustomCalculator.CATEGORY) {
-                                items(custom) { c ->
-                                    StudioItem(
-                                        title = c.name,
-                                        subtitle = c.expression,
-                                        accent = TOOL_COLORS.last(),
-                                        onClick = { onEdit(c) },
-                                    )
-                                }
-                            }
+                        }
+                    }
+                    items(list) { f ->
+                        StudioItem(
+                            title = f.title,
+                            subtitle = f.description,
+                            accent = CategoryColors.of(f.category),
+                            meta = f.category,
+                            onClick = { onOpen(f) },
+                        )
+                    }
+                    if (category == CustomCalculator.CATEGORY) {
+                        items(custom) { c ->
+                            StudioItem(
+                                title = c.name,
+                                subtitle = c.expression,
+                                accent = TOOL_COLORS.last(),
+                                onClick = { onEdit(c) },
+                            )
                         }
                     }
                 }
@@ -395,60 +395,56 @@ private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
         }
     }
 
-    // The same surface as the reference page: a panel on the backdrop, the
-    // inputs in the theme's own fields, and each answer on its own result block.
-    StudioTheme {
-        StudioBackdrop {
-            Column(modifier = Modifier.fillMaxSize().padding(14.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    TextButton(onClick = onBack) { Text("\u2190 Back") }
-                    StudioLabel(formula.category)
+    // A panel on the studio's backdrop: the inputs in the theme's own fields,
+    // and each answer on its own result block.
+    Column(modifier = Modifier.fillMaxSize().padding(14.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TextButton(onClick = onBack) { Text("\u2190 Back") }
+            StudioLabel(formula.category)
+        }
+
+        Text(
+            formula.title,
+            style = MaterialTheme.typography.titleLarge,
+            color = Studio.Text,
+            modifier = Modifier.padding(top = 6.dp),
+        )
+        Text(
+            formula.description,
+            style = MaterialTheme.typography.bodySmall,
+            color = Studio.Muted,
+        )
+
+        StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                items(formula.inputs) { spec ->
+                    OutlinedTextField(
+                        value = values[spec.key] ?: "",
+                        onValueChange = { values = values + (spec.key to it) },
+                        label = { Text(spec.label) },
+                        supportingText = if (spec.hint.isNotEmpty()) {
+                            { Text(spec.hint) }
+                        } else null,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
-
-                Text(
-                    formula.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Studio.Text,
-                    modifier = Modifier.padding(top = 6.dp),
-                )
-                Text(
-                    formula.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Studio.Muted,
-                )
-
-                StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth().weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        items(formula.inputs) { spec ->
-                            OutlinedTextField(
-                                value = values[spec.key] ?: "",
-                                onValueChange = { values = values + (spec.key to it) },
-                                label = { Text(spec.label) },
-                                supportingText = if (spec.hint.isNotEmpty()) {
-                                    { Text(spec.hint) }
-                                } else null,
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
-                        item { HorizontalDivider() }
-                        items(results) { r ->
-                            StudioResult(
-                                label = r.label,
-                                value = Format.number(r.value) +
-                                    (if (r.unit.isNotEmpty()) " ${r.unit}" else ""),
-                                note = r.note,
-                            )
-                        }
-                    }
+                item { HorizontalDivider() }
+                items(results) { r ->
+                    StudioResult(
+                        label = r.label,
+                        value = Format.number(r.value) +
+                            (if (r.unit.isNotEmpty()) " ${r.unit}" else ""),
+                        note = r.note,
+                    )
                 }
             }
         }
