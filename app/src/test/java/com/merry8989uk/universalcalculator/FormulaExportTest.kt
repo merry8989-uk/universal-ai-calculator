@@ -181,7 +181,7 @@ class FormulaExportTest {
         coverage.append("| # | Title | Category | Type |\n| --- | --- | --- | --- |\n")
         coverage.append(none.joinToString("\n"))
         coverage.append("\n")
-        val coverageFile = File("docs/formula-coverage.md")
+        val coverageFile = repoFile("docs/formula-coverage.md")
         coverageFile.writeText(coverage.toString())
         println("COVERAGE total=$total own=$ownPage tool=$viaTool both=$both none=${none.size}")
         assertTrue("the export is suspiciously small", out.length > 100_000)
