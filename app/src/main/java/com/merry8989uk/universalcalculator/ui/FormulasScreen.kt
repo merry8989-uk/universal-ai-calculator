@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.CustomCalculator
@@ -35,6 +36,7 @@ import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.Formula
+import com.merry8989uk.universalcalculator.calc.FormulaHindi
 import com.merry8989uk.universalcalculator.calc.FormulaLibrary
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.OutputSpec
@@ -240,6 +242,7 @@ private fun FormulaList(
     var category by remember { mutableStateOf("Tools") }
     var query by remember { mutableStateOf("") }
     val searching = query.isNotBlank()
+    val hindi = readingHindi()
     // The user's own calculators behave exactly like the built-in ones.
     val customFormulas = remember(custom) { custom.map { it.toFormula() } }
     val everything = FormulaLibrary.formulas + customFormulas
@@ -247,8 +250,14 @@ private fun FormulaList(
     else FormulaLibrary.byCategory(category)
     val results = if (searching) {
         everything.filter {
+            // a Hindi reader types in Hindi, and the row in front of them is in
+            // Hindi, so the Hindi words have to match as well
             it.title.contains(query, ignoreCase = true) ||
-                it.description.contains(query, ignoreCase = true)
+                it.description.contains(query, ignoreCase = true) ||
+                (hindi && (
+                    FormulaHindi.title(it.id)?.contains(query, ignoreCase = true) == true ||
+                        FormulaHindi.description(it.id)?.contains(query, ignoreCase = true) == true
+                    ))
         }
     } else emptyList()
 
@@ -296,7 +305,10 @@ private fun FormulaList(
                     selected = category == CustomCalculator.CATEGORY,
                 ) { category = CustomCalculator.CATEGORY }
                 FormulaLibrary.categories.forEach { c ->
-                    StudioPill(text = c, selected = category == c) { category = c }
+                    StudioPill(
+                        text = if (hindi) FormulaHindi.category(c) ?: c else c,
+                        selected = category == c,
+                    ) { category = c }
                 }
             }
 
@@ -316,10 +328,10 @@ private fun FormulaList(
                     }
                     items(results) { f ->
                         StudioItem(
-                            title = f.title,
-                            subtitle = f.description,
+                            title = calcTitle(hindi, f.id, f.title),
+                            subtitle = calcBlurb(hindi, f.id, f.description),
                             accent = CategoryColors.of(f.category),
-                            meta = f.category,
+                            meta = if (hindi) FormulaHindi.category(f.category) ?: f.category else f.category,
                             onClick = { onOpen(f) },
                         )
                     }
@@ -327,8 +339,10 @@ private fun FormulaList(
                     if (category == "Tools") {
                         itemsIndexed(tools) { i, t ->
                             StudioItem(
-                                title = t.title,
-                                subtitle = t.subtitle,
+                                title = if (hindi) FormulaHindi.tool(t.id) ?: t.title else t.title,
+                                subtitle = if (hindi) {
+                                    FormulaHindi.toolSubtitle(t.id) ?: t.subtitle
+                                } else t.subtitle,
                                 accent = TOOL_COLORS[i % TOOL_COLORS.size],
                                 onClick = { onTool(t.id) },
                             )
@@ -355,10 +369,10 @@ private fun FormulaList(
                     }
                     items(list) { f ->
                         StudioItem(
-                            title = f.title,
-                            subtitle = f.description,
+                            title = calcTitle(hindi, f.id, f.title),
+                            subtitle = calcBlurb(hindi, f.id, f.description),
                             accent = CategoryColors.of(f.category),
-                            meta = f.category,
+                            meta = if (hindi) FormulaHindi.category(f.category) ?: f.category else f.category,
                             onClick = { onOpen(f) },
                         )
                     }
@@ -380,8 +394,27 @@ private fun FormulaList(
 
 private val TOOL_COLORS = listOf(Cyan, Violet, Indigo, Emerald, Orange, Teal, Pink, Cyan)
 
+/**
+ * True when the app is being read in Hindi.
+ *
+ * The locale comes from the wrapped context, so this answers the same way the
+ * strings around it do: chosen in Settings, or inherited from the phone.
+ */
+@Composable
+private fun readingHindi(): Boolean =
+    LocalConfiguration.current.locales[0].language == "hi"
+
+/** A calculator's name, in the language the screen is in. */
+private fun calcTitle(hindi: Boolean, id: String, english: String): String =
+    if (hindi) FormulaHindi.title(id) ?: english else english
+
+/** The line under it, likewise. */
+private fun calcBlurb(hindi: Boolean, id: String, english: String): String =
+    if (hindi) FormulaHindi.description(id) ?: english else english
+
 @Composable
 private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
+    val hindi = readingHindi()
     var values by remember(formula.id) {
         mutableStateOf(formula.inputs.associate { it.key to it.default.toString() })
     }
@@ -404,17 +437,20 @@ private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             TextButton(onClick = onBack) { Text("\u2190 Back") }
-            StudioLabel(formula.category)
+            StudioLabel(
+                if (hindi) FormulaHindi.category(formula.category) ?: formula.category
+                else formula.category,
+            )
         }
 
         Text(
-            formula.title,
+            calcTitle(hindi, formula.id, formula.title),
             style = MaterialTheme.typography.titleLarge,
             color = Studio.Text,
             modifier = Modifier.padding(top = 6.dp),
         )
         Text(
-            formula.description,
+            calcBlurb(hindi, formula.id, formula.description),
             style = MaterialTheme.typography.bodySmall,
             color = Studio.Muted,
         )
