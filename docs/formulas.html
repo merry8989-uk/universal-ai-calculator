@@ -140,6 +140,7 @@ const formulas=[{"serial": 1, "title": "Union", "category": "Sets & Numbers", "f
     webOnly: 'Calculators app ke andar chalte hain — ye page browser mein sirf reference dikhata hai.',
     formulaCount: '%s / %s formulas',
     home: '← Nexus Calc',
+    openCalculator: 'Calculator kholo',
     variablesCount: '%s rashi',
   };
 
@@ -180,6 +181,7 @@ const formulas=[{"serial": 1, "title": "Union", "category": "Sets & Numbers", "f
     webOnly: 'The calculators run inside the app. In a browser this page is the reference only.',
     formulaCount: '%s / %s formulas',
     home: '← Nexus Calc',
+    openCalculator: 'Calculator kholo',
     variablesCount: '%s variables',
   };
 
@@ -351,6 +353,22 @@ const formulas=[{"serial": 1, "title": "Union", "category": "Sets & Numbers", "f
 
     var eq = line('formula', f.formula);
     d.append(eq);
+
+    // Only inside the app: on the site there is nothing to open.
+    var toolId = bridge() ? toolsByTitle()[fold(f.title)] : null;
+    if (toolId) {
+      var open = line('actions', '');
+      open.textContent = '';
+      var go = document.createElement('button');
+      go.className = 'primary';
+      go.textContent = t('openCalculator');
+      go.onclick = function () {
+        try { bridge().openTool(toolId); } catch (e) { /* the app is gone */ }
+      };
+      open.append(go);
+      d.append(open);
+    }
+
     d.append(line('warning', t('glossary')));
 
     // The left-hand side is the answer, not an input. Asking for "A" when the
@@ -447,6 +465,41 @@ const formulas=[{"serial": 1, "title": "Union", "category": "Sets & Numbers", "f
     } catch (e) {
       out.textContent = t('failed') + (e && e.message ? e.message : String(e));
     }
+  }
+
+  // ---- a calculator for the formula being read ----
+  // The bridge already knows which reference title has a calculator behind it
+  // (ToolIndex matches them by folded title). Asking for that once turns the
+  // reference page into a way into the tools, instead of a page that describes
+  // something the app can work out two taps away.
+  var toolMap = null;
+
+  function fold(s) {
+    var out = '';
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
+      if (/[a-z0-9]/i.test(c)) out += c.toLowerCase();
+      else if (c === '\u00D7' || c === '\u2715') out += 'x';
+    }
+    return out;
+  }
+
+  function toolsByTitle() {
+    if (toolMap) return toolMap;
+    toolMap = {};
+    var b = bridge();
+    if (!b) return toolMap;
+    try {
+      var index = JSON.parse(b.index());
+      index.items.forEach(function (row) {
+        if (row.k !== 'f' || !row.g) return;
+        var key = fold(row.t);
+        if (key && !toolMap[key]) toolMap[key] = row.g;
+      });
+    } catch (e) {
+      // no mapping is better than a button that opens the wrong calculator
+    }
+    return toolMap;
   }
 
   // ---- the calculators, which only exist inside the app ----
