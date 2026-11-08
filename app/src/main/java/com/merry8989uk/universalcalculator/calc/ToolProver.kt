@@ -18,7 +18,7 @@ import kotlin.random.Random
  */
 object ToolProver {
 
-    private const val LOW = 0.5
+    private const val LOW = 0.2
     private const val HIGH = 20.0
 
     data class Failure(val title: String, val why: String)
@@ -73,28 +73,37 @@ object ToolProver {
         // an input is only called dead when it makes no difference at any of them.
         for (input in tool.inputs) {
             var matters = false
+            var judged = 0
             for (attempt in 0 until 6) {
                 val base = tool.inputs.associate { it.key to draw(random) }
-                val before = try {
-                    tool.compute(base).map { it.value }
-                } catch (e: Exception) {
-                    continue
+                val before = computeOrNull(tool, base) ?: continue
+                // Two ways of moving it, because one is not enough: doubling never
+                // crosses a 0/1 switch, and zero never crosses anything else.
+                for (nudged in listOf(base[input.key]!! * 2.0 + 1.0, 0.0)) {
+                    val moved = HashMap(base)
+                    moved[input.key] = nudged
+                    val after = computeOrNull(tool, moved) ?: continue
+                    judged++
+                    if (!sameNumbers(before, after)) {
+                        matters = true
+                        break
+                    }
                 }
-                val moved = HashMap(base)
-                moved[input.key] = base[input.key]!! * 2.0 + 1.0
-                val after = try {
-                    tool.compute(moved).map { it.value }
-                } catch (e: Exception) {
-                    continue
-                }
-                if (!sameNumbers(before, after)) {
-                    matters = true
-                    break
-                }
+                if (matters) break
             }
+            // if nothing could be worked out, that is not the input's fault
+            if (!matters && judged == 0) return "changing ${input.label} could not be judged"
             if (!matters) return "changing ${input.label} never changes the answer"
         }
         return null
+    }
+
+    /** The answers, or null when this set of values is outside the formula's domain. */
+    private fun computeOrNull(tool: Formula, values: Map<String, Double>): List<Double>? = try {
+        val out = tool.compute(values).map { it.value }
+        if (out.any { !it.isFinite() }) null else out
+    } catch (e: Exception) {
+        null
     }
 
     private fun sameNumbers(a: List<Double>, b: List<Double>): Boolean {
