@@ -4,7 +4,7 @@
 
 Nexus Calc is an all-in-one Android calculator: standard and scientific maths, a full unit
 converter, a programmer tool, date maths, statistics, matrices, numerical
-calculus, a graphing plotter, format converters and 151 built-in one-shot
+calculus, a graphing plotter, format converters and 347 built-in one-shot
 calculators across Everyday, Finance, Economics, Health, Geometry, Physics,
 Engineering, Construction and Math.
 
@@ -24,7 +24,7 @@ Engineering, Construction and Math.
 - **Persistent history** — stored on the device and kept until you clear it.
 - **Scientific calculator** — trig (DEG/RAD), inverse trig, logs, powers, roots,
   factorial, nCr/nPr, gcd/lcm, constants (pi, e, tau, phi).
-- **Unit converter** — 44 categories and 530 units (length, mass, temperature,
+- **Unit converter** — 43 categories and 532 units (length, mass, temperature,
   area, volume, speed, time, data, data rate, pressure, energy, power, force,
   torque, frequency, fuel economy, illuminance, radiation, electric, density,
   viscosity, cooking, typography, sound, acceleration, volumetric flow).
@@ -43,7 +43,7 @@ Engineering, Construction and Math.
 - **x variable key** (with an inline value field) and a **⇄ swap** key
 - **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
 - **92 scientific functions** in a grouped drawer
-- **Stress tests** (333 tests total)
+- **Stress tests** (over 1,200 tests in all)
 - **Watch companion** (Wear OS), sharing the engine via `:core`
 - **Encrypted sync** (end-to-end, off by default)
 - **Limits** and **partial fractions** (advanced CAS)
@@ -124,9 +124,9 @@ URL into `ai/AiClient.kt` and rebuild.
 
 ## Tests
 
-Every calculation engine has a JVM unit test suite (114 tests) covering
+Every calculation engine has a JVM unit test suite (over 1,200 tests) covering
 arithmetic, powers, percentages, scientific functions, unit conversions,
-all 343 formulas, matrices, statistics, format converters, dates, the
+all 347 calculators, matrices, statistics, format converters, dates, the
 programmer tool and numerical calculus. It runs in CI:
 
 ```
