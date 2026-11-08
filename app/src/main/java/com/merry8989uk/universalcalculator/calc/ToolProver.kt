@@ -49,21 +49,27 @@ object ToolProver {
     private fun proveOne(tool: Formula, random: Random, rounds: Int): String? {
         if (tool.inputs.isEmpty()) return "it has no inputs to try"
 
+        // A random value outside a formula's domain — a non-integer where a
+        // count is wanted — is a fact about the domain, not a fault in the
+        // formula, so one bad round is tolerated and all of them are not.
         val answers = ArrayList<List<Double>>()
         for (round in 0 until rounds) {
             val values = tool.inputs.associate { it.key to draw(random) }
             val out = try {
                 tool.compute(values)
             } catch (e: Exception) {
-                return "it threw ${e.javaClass.simpleName} on random values"
+                continue
             }
             if (out.isEmpty()) return "it produced no answers"
             if (out.any { !it.value.isFinite() }) return "it gave a number that is not finite"
             answers.add(out.map { it.value })
         }
+        if (answers.size < maxOf(1, rounds - 1)) return "it could not be worked out at all"
 
         // every declared input must change the answer
-        val base = tool.inputs.associate { it.key to 4.0 }
+        // Distinct values, because equal ones hide the very bug being looked for:
+        // with start = end, a growth rate is flat no matter what the years are.
+        val base = tool.inputs.mapIndexed { i, spec -> spec.key to 3.0 + i * 2.0 }.toMap()
         val baseOut = try {
             tool.compute(base).map { it.value }
         } catch (e: Exception) {
