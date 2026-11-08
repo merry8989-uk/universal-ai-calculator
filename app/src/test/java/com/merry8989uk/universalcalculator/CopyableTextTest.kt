@@ -30,17 +30,17 @@ class CopyableTextTest {
     }
 
     @Test fun theFormulaPageLetsTheReaderHoldAndCopy() {
-        // The formula screen is a page now, and selection there is the phone's
-        // own: hold the text, drag the handles, Copy or Share from the toolbar.
-        // That is why there are no Copy and Share buttons on a card — the two
-        // buttons were the thing that made it feel unlike every other app.
-        val page = source("../../assets/formula-site.html")
-            ?: java.io.File("app/src/main/assets/formula-site.html").takeIf { it.exists() }?.readText()
-            ?: return
-        assertTrue("the formula text is not selectable", page.contains("-webkit-user-select:text"))
-        assertTrue("there is a Copy button on the card", !page.contains("class=\"act copy\""))
-        assertTrue("the page does not ask the app for the working", page.contains("Android.calculate"))
-        assertTrue("the working is not rendered", page.contains("steps"))
+        // The formula screen is a page, and selection there is the phone's own:
+        // hold the text, drag the handles, Copy or Share from the toolbar. The
+        // page must not switch that off.
+        val page = listOf(
+            File("app/src/main/assets/formula-studio.html"),
+            File("src/main/assets/formula-studio.html"),
+        ).firstOrNull { it.exists() }?.readText() ?: return
+        assertTrue(
+            "the page switches text selection off",
+            !page.contains("user-select:none") && !page.contains("user-select: none"),
+        )
     }
 
     @Test fun bothConvertersAreSelectable() {

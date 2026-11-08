@@ -107,19 +107,20 @@ object SelfCheck {
     }
 
     private fun referencePage(assets: Assets): CheckResult {
-        val text = assets.read("formula-site.html")
-            ?: return CheckResult("Formula page", false, "formula-site.html is not in the package")
-        val asksTheApp = text.contains("Android.calculate")
-        val drawsSteps = text.contains("steps")
-        return if (asksTheApp && drawsSteps) {
-            CheckResult("Formula page", true, "loads from the package and shows the working")
+        val text = assets.read("formula-studio.html")
+            ?: return CheckResult("Formula page", false, "formula-studio.html is not in the package")
+        val library = assets.read("math.min.js")
+            ?: return CheckResult("Formula page", false, "math.min.js is not in the package")
+        // the page must not reach for the library over the network: the app is
+        // used on trains
+        if (text.contains("cdnjs") || text.contains("https://cdn.")) {
+            return CheckResult("Formula page", false, "the page still loads its maths from the internet")
+        }
+        val count = Regex("\\{\"?serial").findAll(text).count()
+        return if (count > 100 && library.length > 10_000) {
+            CheckResult("Formula page", true, "loads from the package with its own maths, $count entries")
         } else {
-            CheckResult(
-                "Formula page",
-                false,
-                "the page is there but " +
-                    (if (!asksTheApp) "does not ask the app for answers" else "does not show the working"),
-            )
+            CheckResult("Formula page", false, "the page is there but has only $count entries in it")
         }
     }
 

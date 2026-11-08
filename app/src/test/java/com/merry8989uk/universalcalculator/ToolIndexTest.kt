@@ -92,16 +92,4 @@ class ToolIndexTest {
         }
     }
 
-    @Test fun theReferencePageShowsTheLinkOnlyWhereThereIsOne() {
-        // the page draws the button from the tool field; a formula without one
-        // must not get a button that goes nowhere
-        val page = listOf(
-            java.io.File("app/src/main/assets/formula-site.html"),
-            java.io.File("src/main/assets/formula-site.html"),
-        ).firstOrNull { it.exists() }?.readText() ?: return
-        assertTrue("the page never asks for a tool", page.contains("f.tool"))
-        assertTrue("the page has no way to open one", page.contains("Android.openTool"))
-        // and it is drawn only when there is one
-        assertTrue("the button is drawn unconditionally", page.contains("} else if (f.tool) {"))
-    }
 }

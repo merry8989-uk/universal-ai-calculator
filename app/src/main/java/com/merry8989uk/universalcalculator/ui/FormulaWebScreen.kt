@@ -54,7 +54,7 @@ fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}
                     settings.textZoom = 100
                     webViewClient = WebViewClient()
                     addJavascriptInterface(AppBridge(bridge, onBack, onOpenTool), "Android")
-                    loadUrl("file:///android_asset/formula-site.html")
+                    loadUrl("file:///android_asset/formula-studio.html")
                 }
             },
             onRelease = { view ->
