@@ -66,26 +66,33 @@ object ToolProver {
         }
         if (answers.size < maxOf(1, rounds - 1)) return "it could not be worked out at all"
 
-        // every declared input must change the answer
-        // Distinct values, because equal ones hide the very bug being looked for:
-        // with start = end, a growth rate is flat no matter what the years are.
-        val base = tool.inputs.mapIndexed { i, spec -> spec.key to 3.0 + i * 2.0 }.toMap()
-        val baseOut = try {
-            tool.compute(base).map { it.value }
-        } catch (e: Exception) {
-            return null
-        }
+        // Every declared input must change the answer — but not at every set of
+        // values. A single fixed base is unfair: with start = end a growth rate is
+        // flat, and a formula that branches on a 0/1 input sits in one branch
+        // whichever way the number is nudged. Several bases are tried instead, and
+        // an input is only called dead when it makes no difference at any of them.
         for (input in tool.inputs) {
-            val moved = HashMap(base)
-            moved[input.key] = base[input.key]!! * 2.0 + 1.0
-            val movedOut = try {
-                tool.compute(moved).map { it.value }
-            } catch (e: Exception) {
-                continue
+            var matters = false
+            for (attempt in 0 until 6) {
+                val base = tool.inputs.associate { it.key to draw(random) }
+                val before = try {
+                    tool.compute(base).map { it.value }
+                } catch (e: Exception) {
+                    continue
+                }
+                val moved = HashMap(base)
+                moved[input.key] = base[input.key]!! * 2.0 + 1.0
+                val after = try {
+                    tool.compute(moved).map { it.value }
+                } catch (e: Exception) {
+                    continue
+                }
+                if (!sameNumbers(before, after)) {
+                    matters = true
+                    break
+                }
             }
-            if (sameNumbers(baseOut, movedOut)) {
-                return "changing ${input.label} does not change the answer"
-            }
+            if (!matters) return "changing ${input.label} never changes the answer"
         }
         return null
     }
