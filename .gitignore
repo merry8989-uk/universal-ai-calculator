@@ -16,3 +16,6 @@ local.properties
 *.p12
 release.jks
 release.p12
+
+# node_modules for the tools/ checks
+tools/node_modules

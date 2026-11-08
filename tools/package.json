@@ -1,0 +1,13 @@
+{
+  "name": "nexus-calc-tools",
+  "private": true,
+  "type": "module",
+  "description": "Checks that run against the shipped app, outside Gradle.",
+  "scripts": {
+    "check:page": "node check_page.mjs",
+    "check:formulas": "node check_formulas.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}
