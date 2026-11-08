@@ -128,23 +128,23 @@ object SelfCheck {
 
     // ---- the engines ----
 
+    /**
+     * Every calculator, run with random values rather than its own defaults.
+     *
+     * The old version ran each one once with the numbers it ships with and asked
+     * only whether it threw. A calculator that always returns 1 passed that. This
+     * runs each several times on random values, requires a real number each time,
+     * and requires every input to change the answer.
+     */
     private fun formulaLibrary(): CheckResult {
-        val formulas = FormulaLibrary.formulas
-        if (formulas.isEmpty()) return CheckResult("Formula library", false, "no calculators in the library")
-        var broken = 0
-        for (f in formulas) {
-            try {
-                val values = f.inputs.associate { it.key to it.default }
-                val out = f.compute(values)
-                if (out.isEmpty() || out.any { it.value.isNaN() }) broken++
-            } catch (e: Exception) {
-                broken++
-            }
-        }
-        return if (broken == 0) {
-            CheckResult("Formula library", true, "${formulas.size} calculators all run")
+        val tools = FormulaLibrary.formulas
+        if (tools.isEmpty()) return CheckResult("Calculators", false, "no calculators in the library")
+        val proof = com.merry8989uk.universalcalculator.formula.FormulaProver.proveTools(tools)
+        return if (proof.ok) {
+            CheckResult("Calculators", true, "${proof.checked} run at random values, all agree with themselves")
         } else {
-            CheckResult("Formula library", false, "$broken of ${formulas.size} calculators do not run")
+            val named = proof.failures.take(5).joinToString("; ") { "${it.title}: ${it.why}" }
+            CheckResult("Calculators", false, "${proof.failures.size} of ${proof.checked} failed — $named")
         }
     }
 
@@ -230,39 +230,15 @@ object SelfCheck {
             return CheckResult("Reference formulas", false, "the reference is empty")
         }
 
-        var run = 0
-        var failed = 0
-        var readOnly = 0
-        val broken = ArrayList<String>()
-        for (d in definitions) {
-            val workable = (d.type == com.merry8989uk.universalcalculator.formula.FormulaType.DIRECT_CALCULATOR ||
-                d.type == com.merry8989uk.universalcalculator.formula.FormulaType.CHECKER) &&
-                d.expression != null
-            if (!workable) {
-                readOnly++
-                continue
-            }
-            val values = d.inputs.associate { it.id to it.sample }
-            val r = try {
-                com.merry8989uk.universalcalculator.formula.FormulaCalculator.calculate(
-                    d,
-                    com.merry8989uk.universalcalculator.formula.CalculationRequest(d.id, values),
-                )
-            } catch (e: Exception) {
-                null
-            }
-            if (r != null && r.success) run++ else {
-                failed++
-                if (broken.size < 20) broken.add(d.title)
-            }
-        }
-
-        val detail = if (failed == 0) {
-            "$run of ${definitions.size} work, $readOnly are for reading"
+        val proof = com.merry8989uk.universalcalculator.formula.FormulaProver
+            .proveReference(definitions)
+        val detail = if (proof.ok) {
+            "${proof.passed} proved at random values, ${proof.skipped} are for reading"
         } else {
-            "$failed of ${definitions.size} do not work: ${broken.joinToString(", ")}"
+            val named = proof.failures.take(5).joinToString("; ") { "${it.title}: ${it.why}" }
+            "${proof.failures.size} of ${proof.checked} failed — $named"
         }
-        return CheckResult("Reference formulas", failed == 0, detail)
+        return CheckResult("Reference formulas", proof.ok, detail)
     }
 
     /** A one-paragraph Word file, built here so the check needs no file on disk. */
