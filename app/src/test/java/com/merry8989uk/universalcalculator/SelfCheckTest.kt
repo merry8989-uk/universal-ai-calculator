@@ -26,7 +26,7 @@ class SelfCheckTest {
         return file.readText()
     }
 
-    private fun run() = SelfCheck.checks { assets(it) }
+    private fun run() = SelfCheck.checks(assets = { assets(it) })
 
     @Test fun everyCheckPassesOnTheRealPackage() {
         val results = run()
@@ -49,7 +49,7 @@ class SelfCheckTest {
 
     @Test fun aMissingFormulaFileIsReportedNotIgnored() {
         // the whole point of a self-check is that it fails loudly
-        val results = SelfCheck.checks { null }
+        val results = SelfCheck.checks(assets = { null })
         val file = results.first { it.name == "Formula file" }
         assertTrue("a missing file was called fine", !file.ok)
         assertTrue("the message does not say what is wrong: ${file.detail}",
@@ -60,9 +60,9 @@ class SelfCheckTest {
 
     @Test fun aTruncatedFormulaFileIsCaught() {
         // half a file parses as JSON and would look fine to everything else
-        val results = SelfCheck.checks { name ->
+        val results = SelfCheck.checks(assets = { name ->
             if (name == "formulas.json") "{\"formulas\":[{\"t\":\"one\"}]}" else assets(name)
-        }
+        })
         val file = results.first { it.name == "Formula file" }
         assertTrue("a truncated file passed", !file.ok)
     }
@@ -80,7 +80,7 @@ class SelfCheckTest {
     }
 
     @Test fun everyReferenceFormulaIsCheckedNotJustTheCalculators() {
-        val results = SelfCheck.checks { assets(it) }
+        val results = SelfCheck.checks(assets = { assets(it) })
         val check = results.firstOrNull { it.name == "Reference formulas" }
         assertNotNull("the 1396 are not checked at all", check)
         // without an app context it must say so rather than claim success
