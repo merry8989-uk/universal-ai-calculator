@@ -28,8 +28,10 @@ class FormulaPageTest {
 
     @Test fun thePageAsksForBothKinds() {
         val text = page() ?: return
-        assertTrue("the page never asks for the calculators", text.contains("Android.tools()"))
-        assertTrue("the page never asks for the reference", text.contains("Android.library()"))
+        assertTrue("the page never asks for the list", text.contains("Android.index()"))
+        // and one record at a time, not the whole library up front
+        assertTrue("the page never asks for a formula", text.contains("Android.formula("))
+        assertTrue("the page never asks for a calculator", text.contains("Android.tool("))
         assertTrue("the page never runs a calculator", text.contains("Android.calculateTool"))
         assertTrue("the page never runs a reference formula", text.contains("Android.calculate("))
     }
@@ -80,13 +82,14 @@ class FormulaPageTest {
 
     @Test fun theBridgePublishesTheCalculators() {
         val text = bridge() ?: return
-        assertTrue("the calculators are not published", text.contains("fun toolsJson()"))
+        assertTrue("there is no index", text.contains("fun indexJson()"))
+        assertTrue("one formula cannot be fetched", text.contains("fun formulaJson("))
+        assertTrue("one calculator cannot be fetched", text.contains("fun toolJson("))
         assertTrue("a calculator cannot be run", text.contains("fun calculateToolJson("))
-        // every calculator in the library has to reach the page
-        assertTrue(
-            "the bridge does not read the library",
-            text.contains("FormulaLibrary.formulas"),
-        )
+        assertTrue("the bridge does not read the library", text.contains("FormulaLibrary.formulas"))
+        // the old whole-library dump has to be gone, or the page is heavy again
+        assertTrue("the whole library is still sent at start-up",
+            !text.contains("fun libraryJson("))
     }
 
     @Test fun thePageIsReachableFromTheToolsList() {

@@ -2,12 +2,12 @@ package com.merry8989uk.universalcalculator.ui
 
 import android.content.Context
 import android.net.Uri
+import com.merry8989uk.universalcalculator.calc.FormulaLibrary
+import com.merry8989uk.universalcalculator.calc.ToolIndex
 import com.merry8989uk.universalcalculator.data.FormulaReference
 import com.merry8989uk.universalcalculator.formula.CalculationRequest
 import com.merry8989uk.universalcalculator.formula.FormulaCalculator
 import com.merry8989uk.universalcalculator.formula.FormulaDefinition
-import com.merry8989uk.universalcalculator.calc.FormulaLibrary
-import com.merry8989uk.universalcalculator.calc.ToolIndex
 import com.merry8989uk.universalcalculator.formula.FormulaType
 
 /**
@@ -19,6 +19,11 @@ import com.merry8989uk.universalcalculator.formula.FormulaType
  * got there. A second engine in JavaScript would have to be kept in step with
  * this one, and the first time it drifted nobody would notice until a number
  * was wrong.
+ *
+ * The list is sent as an **index** and the rest is fetched one formula at a time.
+ * Sending everything at once was 390 KB of JSON parsed before the first row
+ * appeared; the index is 150 KB of the four fields a row needs, and a formula's
+ * own text arrives when its page is opened.
  */
 class FormulaBridge(private val context: Context) {
 
@@ -42,50 +47,101 @@ class FormulaBridge(private val context: Context) {
         ToolIndex.byTitle(FormulaLibrary.formulas)
     }
 
+    private val toolsById: Map<String, com.merry8989uk.universalcalculator.calc.Formula> by lazy {
+        FormulaLibrary.formulas.associateBy { it.id }
+    }
+
     /**
-     * The whole library, as the page wants it.
+     * The list, and nothing more than a row needs.
      *
-     * Everything the page needs to draw a card and nothing else: what the book
-     * prints, what can be worked out, and the boxes to put numbers in.
+     * One letter keys: this crosses a bridge into JavaScript and is parsed there,
+     * and a thousand rows of long names is a thousand rows of bytes to parse
+     * before anything is on screen.
      */
-    fun libraryJson(): String {
-        val out = StringBuilder(1 shl 20)
-        out.append("{\"formulas\":[")
+    fun indexJson(): String {
+        val out = StringBuilder(1 shl 18)
+        out.append("{\"items\":[")
         var first = true
-        for (d in definitions) {
+
+        fun row(kind: String, id: String, title: String, category: String, workable: Boolean, tool: String?) {
             if (!first) out.append(',')
             first = false
+            out.append('{')
+            out.append("\"k\":").append(q(kind)).append(',')
+            out.append("\"i\":").append(q(id)).append(',')
+            out.append("\"t\":").append(q(title)).append(',')
+            out.append("\"c\":").append(q(category)).append(',')
+            out.append("\"w\":").append(workable).append(',')
+            out.append("\"g\":").append(tool?.let { q(it) } ?: "null")
+            out.append('}')
+        }
+
+        for (tool in FormulaLibrary.formulas) {
+            row("t", tool.id, tool.title, tool.category, true, null)
+        }
+        for (d in definitions) {
             val workable = (d.type == FormulaType.DIRECT_CALCULATOR ||
                 d.type == FormulaType.CHECKER) && d.expression != null
+            row("f", d.id, d.title, d.category, workable, ToolIndex.forTitle(d.title, tools)?.id)
+        }
+
+        out.append("]}")
+        return out.toString()
+    }
+
+    /** Everything one reference formula's page shows. */
+    fun formulaJson(id: String): String {
+        val d = byId[id] ?: return "null"
+        val out = StringBuilder(512)
+        val workable = (d.type == FormulaType.DIRECT_CALCULATOR ||
+            d.type == FormulaType.CHECKER) && d.expression != null
+        out.append('{')
+        out.append("\"id\":").append(q(d.id)).append(',')
+        out.append("\"title\":").append(q(d.title)).append(',')
+        out.append("\"category\":").append(q(d.category)).append(',')
+        out.append("\"printed\":").append(q(d.printed)).append(',')
+        out.append("\"workable\":").append(workable).append(',')
+        out.append("\"out\":").append(q(d.output.label)).append(',')
+        out.append("\"unit\":").append(d.output.unit?.let { q(it) } ?: "null").append(',')
+        out.append("\"tool\":").append(ToolIndex.forTitle(d.title, tools)?.let { q(it.id) } ?: "null")
+        out.append(',')
+        out.append("\"inputs\":[")
+        d.inputs.forEachIndexed { i, spec ->
+            if (i > 0) out.append(',')
             out.append('{')
-            out.append("\"id\":").append(q(d.id)).append(',')
-            out.append("\"title\":").append(q(d.title)).append(',')
-            out.append("\"category\":").append(q(d.category)).append(',')
-            out.append("\"printed\":").append(q(d.printed)).append(',')
-            out.append("\"type\":").append(q(d.type.name)).append(',')
-            out.append("\"workable\":").append(workable).append(',')
-            out.append("\"out\":").append(q(d.output.label)).append(',')
-            out.append("\"unit\":").append(d.output.unit?.let { q(it) } ?: "null").append(',')
-            // the calculator that does this formula, when there is one
-            val tool = ToolIndex.forTitle(d.title, tools)
-            out.append("\"tool\":").append(tool?.let { q(it.id) } ?: "null").append(',')
-            out.append("\"inputs\":[")
-            d.inputs.forEachIndexed { i, spec ->
-                if (i > 0) out.append(',')
-                out.append('{')
-                out.append("\"id\":").append(q(spec.id)).append(',')
-                out.append("\"label\":").append(q(spec.label)).append(',')
-                out.append("\"sample\":").append(num(spec.sample))
-                out.append('}')
-            }
-            out.append("]}")
+            out.append("\"id\":").append(q(spec.id)).append(',')
+            out.append("\"label\":").append(q(spec.label)).append(',')
+            out.append("\"sample\":").append(num(spec.sample))
+            out.append('}')
+        }
+        out.append("]}")
+        return out.toString()
+    }
+
+    /** Everything one calculator's page shows. */
+    fun toolJson(id: String): String {
+        val tool = toolsById[id] ?: return "null"
+        val out = StringBuilder(512)
+        out.append('{')
+        out.append("\"id\":").append(q(tool.id)).append(',')
+        out.append("\"title\":").append(q(tool.title)).append(',')
+        out.append("\"category\":").append(q(tool.category)).append(',')
+        out.append("\"about\":").append(q(tool.description)).append(',')
+        out.append("\"inputs\":[")
+        tool.inputs.forEachIndexed { i, spec ->
+            if (i > 0) out.append(',')
+            out.append('{')
+            out.append("\"k\":").append(q(spec.key)).append(',')
+            out.append("\"label\":").append(q(spec.label)).append(',')
+            out.append("\"v\":").append(num(spec.default))
+            out.append('}')
         }
         out.append("]}")
         return out.toString()
     }
 
     /**
-     * Works one formula out, with the working.
+     * Works one reference formula out, with the working.
      *
      * [inputs] arrives as "a=6&b=9" rather than JSON, because parsing two numbers
      * out of a string should not need a parser.
@@ -94,17 +150,7 @@ class FormulaBridge(private val context: Context) {
         val definition = byId[id]
             ?: return "{\"ok\":false,\"error\":\"That formula is no longer in the library.\"}"
 
-        val values = HashMap<String, Double>()
-        for (pair in inputs.split('&')) {
-            if (pair.isBlank()) continue
-            val at = pair.indexOf('=')
-            if (at <= 0) continue
-            val key = Uri.decode(pair.substring(0, at))
-            val text = Uri.decode(pair.substring(at + 1)).trim()
-            val v = text.toDoubleOrNull()
-            if (v != null) values[key] = v
-        }
-
+        val values = readInputs(inputs)
         val result = FormulaCalculator.calculate(definition, CalculationRequest(definition.id, values))
 
         val out = StringBuilder(512)
@@ -133,40 +179,6 @@ class FormulaBridge(private val context: Context) {
     }
 
     /**
-     * The calculators, as the page wants them.
-     *
-     * These are the ones that are worked out rather than written down: they take
-     * numbers in and give numbers back, and the page draws them beside the
-     * reference entries so there is one place to look instead of two.
-     */
-    fun toolsJson(): String {
-        val out = StringBuilder(1 shl 19)
-        out.append("{\"tools\":[")
-        var first = true
-        for (tool in FormulaLibrary.formulas) {
-            if (!first) out.append(',')
-            first = false
-            out.append('{')
-            out.append("\"id\":").append(q(tool.id)).append(',')
-            out.append("\"title\":").append(q(tool.title)).append(',')
-            out.append("\"category\":").append(q(tool.category)).append(',')
-            out.append("\"about\":").append(q(tool.description)).append(',')
-            out.append("\"inputs\":[")
-            tool.inputs.forEachIndexed { i, spec ->
-                if (i > 0) out.append(',')
-                out.append('{')
-                out.append("\"k\":").append(q(spec.key)).append(',')
-                out.append("\"label\":").append(q(spec.label)).append(',')
-                out.append("\"v\":").append(num(spec.default))
-                out.append('}')
-            }
-            out.append("]}")
-        }
-        out.append("]}")
-        return out.toString()
-    }
-
-    /**
      * Works one calculator out.
      *
      * The outputs are a list rather than a single number because several of
@@ -174,20 +186,10 @@ class FormulaBridge(private val context: Context) {
      * instalment plan gives the instalment and the total.
      */
     fun calculateToolJson(id: String, inputs: String): String {
-        val tool = FormulaLibrary.formulas.firstOrNull { it.id == id }
+        val tool = toolsById[id]
             ?: return "{\"ok\":false,\"error\":\"That calculator is no longer in the library.\"}"
 
-        val values = HashMap<String, Double>()
-        for (pair in inputs.split('&')) {
-            if (pair.isBlank()) continue
-            val at = pair.indexOf('=')
-            if (at <= 0) continue
-            val key = Uri.decode(pair.substring(0, at))
-            val text = Uri.decode(pair.substring(at + 1)).trim()
-            val v = text.toDoubleOrNull()
-            if (v != null) values[key] = v
-        }
-
+        val values = readInputs(inputs)
         val out = StringBuilder(256)
         return try {
             val results = tool.compute(values)
@@ -205,6 +207,21 @@ class FormulaBridge(private val context: Context) {
         } catch (e: Exception) {
             "{\"ok\":false,\"error\":${q(e.message ?: "That combination has no answer.")}}"
         }
+    }
+
+    /** "a=6&b=9" into the map the engines want. */
+    private fun readInputs(inputs: String): Map<String, Double> {
+        val values = HashMap<String, Double>()
+        for (pair in inputs.split('&')) {
+            if (pair.isBlank()) continue
+            val at = pair.indexOf('=')
+            if (at <= 0) continue
+            val key = Uri.decode(pair.substring(0, at))
+            val text = Uri.decode(pair.substring(at + 1)).trim()
+            val v = text.toDoubleOrNull()
+            if (v != null) values[key] = v
+        }
+        return values
     }
 
     private fun q(s: String): String {

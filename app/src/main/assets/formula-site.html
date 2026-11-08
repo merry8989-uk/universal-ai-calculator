@@ -216,8 +216,17 @@
   function showDetail(item) {
     indexView.hidden = true;
     detailView.hidden = false;
-    detailView.innerHTML = item.kind === 'tool' ? toolPage(item) : refPage(item);
-    wireDetail(item);
+    // the full record arrives now, not at start-up
+    var full = item;
+    try {
+      var raw = item.kind === 'tool' ? Android.tool(item.id) : Android.formula(item.id);
+      if (raw && raw !== 'null') {
+        full = parse(raw);
+        full.kind = item.kind;
+      }
+    } catch (e) { /* the index row is enough to say something went wrong */ }
+    detailView.innerHTML = item.kind === 'tool' ? toolPage(full) : refPage(full);
+    wireDetail(full);
     window.scrollTo(0, 0);
   }
 
@@ -379,7 +388,7 @@
     var href = f.kind === 'tool'
       ? '#/t/' + encodeURIComponent(f.id)
       : '#/f/' + encodeURIComponent(f.id);
-    var peek = f.kind === 'tool' ? (f.about || '') : f.printed;
+    var peek = f.kind === 'tool' ? 'Calculator' : (f.workable ? 'Works it out' : 'Read only');
     var badge = f.kind === 'tool'
       ? '<span class="badge tool">calculator</span>'
       : '<span class="badge ' + (f.workable ? 'calc' : 'ref') + '">' +
@@ -490,17 +499,18 @@
   // ---- load ----
 
   try {
-    tools = (parse(Android.tools()).tools || []).map(function (t) {
-      t.kind = 'tool';
-      byId['t:' + t.id] = t;
-      return t;
+    // The list needs a title, a category and two flags. Everything else is
+    // fetched when a formula's own page is opened, which is what keeps a
+    // thousand and a half of them from being parsed before the first row.
+    all = (parse(Android.index()).items || []).map(function (r) {
+      return {
+        kind: r.k === 't' ? 'tool' : 'ref',
+        id: r.i, title: r.t, category: r.c, workable: r.w, tool: r.g
+      };
     });
-    refs = (parse(Android.library()).formulas || []).map(function (r) {
-      r.kind = 'ref';
-      byId['f:' + r.id] = r;
-      return r;
-    });
-    all = tools.concat(refs);
+    all.forEach(function (r) { byId[r.kind.charAt(0) + ':' + r.id] = r; });
+    tools = all.filter(function (r) { return r.kind === 'tool'; });
+    refs = all.filter(function (r) { return r.kind === 'ref'; });
   } catch (e) {
     subEl.textContent = 'Could not load the formulas.';
     return;

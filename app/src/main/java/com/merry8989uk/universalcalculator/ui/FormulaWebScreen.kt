@@ -87,23 +87,25 @@ private class AppBridge(
     private val onOpenTool: (String) -> Unit,
 ) {
 
-    /** Built once by the bridge; the library does not change while the app runs. */
-    private val library: String by lazy { bridge.libraryJson() }
-
-    @JavascriptInterface
-    fun library(): String = library
-
     @JavascriptInterface
     fun calculate(id: String, inputs: String): String = bridge.calculateJson(id, inputs)
 
-    /** The calculators, as opposed to the reference entries. */
+    /** The list: four fields a row needs, and nothing else. */
     @JavascriptInterface
-    fun tools(): String = toolsJson
+    fun index(): String = indexJson
+
+    /** One formula's page, fetched when it is opened rather than up front. */
+    @JavascriptInterface
+    fun formula(id: String): String = bridge.formulaJson(id)
+
+    /** One calculator's page, fetched the same way. */
+    @JavascriptInterface
+    fun tool(id: String): String = bridge.toolJson(id)
 
     @JavascriptInterface
     fun calculateTool(id: String, inputs: String): String = bridge.calculateToolJson(id, inputs)
 
-    private val toolsJson: String by lazy { bridge.toolsJson() }
+    private val indexJson: String by lazy { bridge.indexJson() }
 
     @JavascriptInterface
     fun back() {
