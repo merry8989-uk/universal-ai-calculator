@@ -33,10 +33,11 @@ class IndiaCalculatorsTest {
         assertEquals(1025.0, mid["Energy charge"]!!, 0.001)
         assertEquals(1075.0, mid["Total"]!!, 0.001)
 
-        // 350 units: the last 50 fall into the third slab at 6.0 = 300
+        // 350 units: 100 at 3.5 = 350, 200 at 4.5 = 900, the last 50 at 6.0 = 300
         val high = calc("electricity_bill_in", "units" to 350.0)
-        assertEquals(1325.0, high["Energy charge"]!!, 0.001)
-        assertEquals(1325.0 / 350.0 + 50.0 / 350.0, high["Average rate"]!!, 0.001)
+        assertEquals(1550.0, high["Energy charge"]!!, 0.001)
+        assertEquals(1600.0, high["Total"]!!, 0.001)
+        assertEquals(1600.0 / 350.0, high["Average rate"]!!, 0.001)
     }
 
     @Test fun theHraExemptionIsTheLeastOfThreeLimits() {
