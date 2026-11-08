@@ -1,15 +1,11 @@
 package com.merry8989uk.universalcalculator.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,8 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,12 +32,6 @@ import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.CustomCalculator
 import com.merry8989uk.universalcalculator.data.CustomCalcStore
 import com.merry8989uk.universalcalculator.diagnostics.Analytics
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.Formula
@@ -260,95 +248,123 @@ private fun FormulaList(
         }
     } else emptyList()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(stringResource(R.string.calculators), style = MaterialTheme.typography.titleLarge)
-        Text(
-            stringResource(
-                R.string.calculator_count,
-                FormulaLibrary.formulas.size,
-                custom.size,
-                tools.size,
-            ),
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            label = { Text(stringResource(R.string.search_hint)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        )
-
-        if (!searching) androidx.compose.foundation.layout.Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            FilterChip(
-                selected = category == "Tools",
-                onClick = { category = "Tools" },
-                label = { Text(stringResource(R.string.tools)) },
-            )
-            FilterChip(
-                selected = category == CustomCalculator.CATEGORY,
-                onClick = { category = CustomCalculator.CATEGORY },
-                label = { Text(stringResource(R.string.my_calculators)) },
-            )
-            FormulaLibrary.categories.forEach { c ->
-                FilterChip(
-                    selected = category == c,
-                    onClick = { category = c },
-                    label = { Text(c) },
+    // Drawn in the studio's own colours: this hub and the formula page it opens
+    // are the same feature, and they were in two different themes.
+    StudioTheme {
+        StudioBackdrop {
+            Column(modifier = Modifier.fillMaxSize().padding(14.dp)) {
+                StudioHeader(
+                    subtitle = stringResource(
+                        R.string.calculator_count,
+                        FormulaLibrary.formulas.size,
+                        custom.size,
+                        tools.size,
+                    ),
+                    pill = FormulaLibrary.formulas.size.toString(),
                 )
-            }
-        }
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (searching) {
-                if (results.isEmpty()) {
-                    item {
-                        Text(
-                            "No calculator matches your search.",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                }
-                items(results) { f -> FormulaCard(f, onOpen) }
-            } else {
-                if (category == "Tools") {
-                    itemsIndexed(tools) { i, t ->
-                        ToolCard(
-                            title = t.title,
-                            subtitle = t.subtitle,
-                            accent = TOOL_COLORS[i % TOOL_COLORS.size],
-                        ) { onTool(t.id) }
-                    }
-                }
-                if (category == CustomCalculator.CATEGORY) {
-                    item {
-                        ToolCard(
-                            title = stringResource(R.string.create_calculator),
-                            subtitle = stringResource(R.string.create_calculator_blurb),
-                            accent = TOOL_COLORS.first(),
-                        ) { onCreate() }
-                    }
-                    if (custom.isEmpty()) {
-                        item {
-                            Text(
-                                stringResource(R.string.no_custom_yet),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
+                StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        label = { Text(stringResource(R.string.search_hint)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+
+                    if (!searching) Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                            .padding(vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        StudioPill(
+                            text = stringResource(R.string.tools),
+                            selected = category == "Tools",
+                        ) { category = "Tools" }
+                        StudioPill(
+                            text = stringResource(R.string.my_calculators),
+                            selected = category == CustomCalculator.CATEGORY,
+                        ) { category = CustomCalculator.CATEGORY }
+                        FormulaLibrary.categories.forEach { c ->
+                            StudioPill(text = c, selected = category == c) { category = c }
                         }
                     }
-                }
-                items(list) { f -> FormulaCard(f, onOpen) }
-                if (category == CustomCalculator.CATEGORY) {
-                    items(custom) { c ->
-                        ToolCard(
-                            title = c.name,
-                            subtitle = c.expression,
-                            accent = TOOL_COLORS.last(),
-                        ) { onEdit(c) }
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (searching) {
+                            if (results.isEmpty()) {
+                                item {
+                                    Text(
+                                        "No calculator matches your search.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Studio.Muted,
+                                    )
+                                }
+                            }
+                            items(results) { f ->
+                                StudioItem(
+                                    title = f.title,
+                                    subtitle = f.description,
+                                    accent = CategoryColors.of(f.category),
+                                    meta = f.category,
+                                    onClick = { onOpen(f) },
+                                )
+                            }
+                        } else {
+                            if (category == "Tools") {
+                                itemsIndexed(tools) { i, t ->
+                                    StudioItem(
+                                        title = t.title,
+                                        subtitle = t.subtitle,
+                                        accent = TOOL_COLORS[i % TOOL_COLORS.size],
+                                        onClick = { onTool(t.id) },
+                                    )
+                                }
+                            }
+                            if (category == CustomCalculator.CATEGORY) {
+                                item {
+                                    StudioItem(
+                                        title = stringResource(R.string.create_calculator),
+                                        subtitle = stringResource(R.string.create_calculator_blurb),
+                                        accent = TOOL_COLORS.first(),
+                                        onClick = onCreate,
+                                    )
+                                }
+                                if (custom.isEmpty()) {
+                                    item {
+                                        Text(
+                                            stringResource(R.string.no_custom_yet),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Studio.Muted,
+                                        )
+                                    }
+                                }
+                            }
+                            items(list) { f ->
+                                StudioItem(
+                                    title = f.title,
+                                    subtitle = f.description,
+                                    accent = CategoryColors.of(f.category),
+                                    meta = f.category,
+                                    onClick = { onOpen(f) },
+                                )
+                            }
+                            if (category == CustomCalculator.CATEGORY) {
+                                items(custom) { c ->
+                                    StudioItem(
+                                        title = c.name,
+                                        subtitle = c.expression,
+                                        accent = TOOL_COLORS.last(),
+                                        onClick = { onEdit(c) },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -357,46 +373,6 @@ private fun FormulaList(
 }
 
 private val TOOL_COLORS = listOf(Cyan, Violet, Indigo, Emerald, Orange, Teal, Pink, Cyan)
-
-@Composable
-private fun FormulaCard(f: Formula, onOpen: (Formula) -> Unit) {
-    val accent = CategoryColors.of(f.category)
-    Card(modifier = Modifier.fillMaxWidth().clickable { onOpen(f) }) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.width(6.dp).height(72.dp).background(accent))
-            Column(modifier = Modifier.padding(14.dp)) {
-                Text(f.title, style = MaterialTheme.typography.titleMedium)
-                Text(f.description, style = MaterialTheme.typography.bodySmall)
-                Text(
-                    f.category,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = accent,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ToolCard(title: String, subtitle: String, accent: Color, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .semantics(mergeDescendants = true) {
-                contentDescription = "$title. $subtitle"
-                role = Role.Button
-            },
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.width(6.dp).height(72.dp).background(accent))
-            Column(modifier = Modifier.padding(14.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall)
-            }
-        }
-    }
-}
 
 @Composable
 private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
@@ -413,41 +389,59 @@ private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        TextButton(onClick = onBack) { Text("\u2190 Back") }
-        Text(formula.title, style = MaterialTheme.typography.titleLarge)
-        Text(formula.description, style = MaterialTheme.typography.bodyMedium)
-        Text(formula.category, style = MaterialTheme.typography.bodySmall)
-
-        LazyColumn(
-            modifier = Modifier.weight(1f).padding(top = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            items(formula.inputs) { spec ->
-                OutlinedTextField(
-                    value = values[spec.key] ?: "",
-                    onValueChange = { values = values + (spec.key to it) },
-                    label = { Text(spec.label) },
-                    supportingText = if (spec.hint.isNotEmpty()) {
-                        { Text(spec.hint) }
-                    } else null,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+    // The same surface as the reference page: a panel on the backdrop, the
+    // inputs in the theme's own fields, and each answer on its own result block.
+    StudioTheme {
+        StudioBackdrop {
+            Column(modifier = Modifier.fillMaxSize().padding(14.dp)) {
+                Row(
                     modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    TextButton(onClick = onBack) { Text("\u2190 Back") }
+                    StudioLabel(formula.category)
+                }
+
+                Text(
+                    formula.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Studio.Text,
+                    modifier = Modifier.padding(top = 6.dp),
                 )
-            }
-            item { HorizontalDivider() }
-            items(results) { r ->
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(r.label, style = MaterialTheme.typography.bodySmall)
-                    Text(
-                        Format.number(r.value) + (if (r.unit.isNotEmpty()) " ${r.unit}" else ""),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontFamily = FontFamily.Monospace,
-                    )
-                    if (r.note.isNotEmpty()) {
-                        Text(r.note, style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary)
+                Text(
+                    formula.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Studio.Muted,
+                )
+
+                StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(formula.inputs) { spec ->
+                            OutlinedTextField(
+                                value = values[spec.key] ?: "",
+                                onValueChange = { values = values + (spec.key to it) },
+                                label = { Text(spec.label) },
+                                supportingText = if (spec.hint.isNotEmpty()) {
+                                    { Text(spec.hint) }
+                                } else null,
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                        item { HorizontalDivider() }
+                        items(results) { r ->
+                            StudioResult(
+                                label = r.label,
+                                value = Format.number(r.value) +
+                                    (if (r.unit.isNotEmpty()) " ${r.unit}" else ""),
+                                note = r.note,
+                            )
+                        }
                     }
                 }
             }
