@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -313,6 +315,9 @@ fun StudioResult(
             style = MaterialTheme.typography.titleLarge,
             fontFamily = FontFamily.Monospace,
             color = Studio.Text,
+            // a number that changes without a word is a number a screen-reader
+            // user never hears; the assistant screen already does this
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
         if (note.isNotEmpty()) {
             Text(note, style = MaterialTheme.typography.bodySmall, color = Studio.Blue)

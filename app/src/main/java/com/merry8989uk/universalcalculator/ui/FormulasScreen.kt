@@ -254,6 +254,10 @@ private fun FormulaList(
             // Hindi, so the Hindi words have to match as well
             it.title.contains(query, ignoreCase = true) ||
                 it.description.contains(query, ignoreCase = true) ||
+                // "finance", "interest rate", "radius": the words are on the row
+                // or in its fields, so searching them has to find it
+                it.category.contains(query, ignoreCase = true) ||
+                it.inputs.any { spec -> spec.label.contains(query, ignoreCase = true) } ||
                 (hindi && (
                     FormulaHindi.title(it.id)?.contains(query, ignoreCase = true) == true ||
                         FormulaHindi.description(it.id)?.contains(query, ignoreCase = true) == true

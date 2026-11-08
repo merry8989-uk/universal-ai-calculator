@@ -1,7 +1,9 @@
 package com.merry8989uk.universalcalculator.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -53,7 +55,23 @@ fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}
                     settings.useWideViewPort = false
                     settings.loadWithOverviewMode = false
                     settings.textZoom = 100
-                    webViewClient = WebViewClient()
+                    // The page is an asset and nothing else. The bridge is attached
+                    // to this view, so any page the view navigates to would inherit
+                    // it; anything that is not ours opens in the browser instead,
+                    // where it cannot reach the app.
+                    webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(
+                            view: WebView?,
+                            request: WebResourceRequest?,
+                        ): Boolean {
+                            val url = request?.url?.toString().orEmpty()
+                            if (url.startsWith("file:///android_asset/")) return false
+                            runCatching {
+                                view?.context?.startActivity(Intent(Intent.ACTION_VIEW, request?.url))
+                            }
+                            return true
+                        }
+                    }
                     addJavascriptInterface(AppBridge(bridge, onBack, onOpenTool), "Android")
                     loadUrl("file:///android_asset/formula-studio.html")
                 }
