@@ -36,6 +36,7 @@ class SettingsRepository(private val context: Context) {
         val KEY_VOLUME = floatPreferencesKey("key_volume")
         val CUSTOM_TONE = stringPreferencesKey("custom_tone")
         val DIAGNOSTICS = booleanPreferencesKey("diagnostics_enabled")
+        val SHARE_DIAGNOSTICS = booleanPreferencesKey("share_diagnostics")
         val LIVE_PREVIEW = booleanPreferencesKey("live_preview")
         val DEGREES = booleanPreferencesKey("degrees_mode")
         val ANGLE_UNIT = stringPreferencesKey("angle_unit")
@@ -85,6 +86,8 @@ class SettingsRepository(private val context: Context) {
             keySoundVolume = p[Keys.KEY_VOLUME] ?: 0.7f,
             customTonePath = p[Keys.CUSTOM_TONE] ?: "",
             diagnosticsEnabled = p[Keys.DIAGNOSTICS] ?: true,
+            // off unless the user said otherwise: this one leaves the phone
+            shareDiagnostics = p[Keys.SHARE_DIAGNOSTICS] ?: false,
             livePreview = p[Keys.LIVE_PREVIEW] ?: true,
             degreesMode = p[Keys.DEGREES] ?: true,
             angleUnit = p[Keys.ANGLE_UNIT] ?: "DEGREE",
@@ -280,6 +283,10 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setDiagnosticsEnabled(enabled: Boolean) =
         context.dataStore.edit { it[Keys.DIAGNOSTICS] = enabled }
+
+    /** Whether recorded diagnostics may leave the phone. Off by default. */
+    suspend fun setShareDiagnostics(enabled: Boolean) =
+        context.dataStore.edit { it[Keys.SHARE_DIAGNOSTICS] = enabled }
 
     suspend fun setLivePreview(enabled: Boolean) =
         context.dataStore.edit { it[Keys.LIVE_PREVIEW] = enabled }

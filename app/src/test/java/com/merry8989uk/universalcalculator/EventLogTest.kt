@@ -275,11 +275,20 @@ class EventLogTest {
         val up = source("app/src/main/java/com/merry8989uk/universalcalculator/diagnostics/EventUploader.kt") ?: return
         assertTrue("no queue file", up.contains("pending.jsonl"))
         assertTrue("a failed batch is not kept", up.contains("failed = true"))
-        assertTrue("nothing is sent while storing is off", up.contains("if (!EventLog.enabled)"))
+        assertTrue("nothing is sent while storing is off", up.contains("if (!EventLog.enabled || !sharing)"))
         assertTrue("the queue grows without limit", up.contains("MAX_PENDING_BYTES"))
 
         val log = source("app/src/main/java/com/merry8989uk/universalcalculator/diagnostics/EventLog.kt") ?: return
         assertTrue("events are never queued", log.contains("EventUploader.enqueue"))
+    }
+
+    @Test fun nothingIsQueuedBeforeTheUserAgreesToSending() {
+        // a queue of things to send later is the same promise as sending them, so
+        // the refusal has to come before the file is written, not at flush time
+        val up = source("app/src/main/java/com/merry8989uk/universalcalculator/diagnostics/EventUploader.kt") ?: return
+        val enqueue = up.substringAfter("fun enqueue(").substringBefore("synchronized")
+        assertTrue("events are queued without consent", enqueue.contains("if (!sharing) return"))
+        assertTrue("withdrawing consent leaves the queue behind", up.contains("fun clearQueue("))
     }
 
     @Test fun aDashboardExistsAndNeedsTheToken() {

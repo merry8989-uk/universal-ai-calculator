@@ -46,6 +46,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setShowGtKey(shown: Boolean) = viewModelScope.launch { repo.setShowGtKey(shown) }
     fun setDataSavingEnabled(enabled: Boolean) = viewModelScope.launch { repo.setDataSavingEnabled(enabled) }
     fun setDiagnosticsEnabled(enabled: Boolean) = viewModelScope.launch { repo.setDiagnosticsEnabled(enabled) }
+    fun setShareDiagnostics(enabled: Boolean) = viewModelScope.launch { repo.setShareDiagnostics(enabled) }
     fun setLivePreview(enabled: Boolean) = viewModelScope.launch { repo.setLivePreview(enabled) }
     fun setDegreesMode(enabled: Boolean) = viewModelScope.launch { repo.setDegreesMode(enabled) }
     fun setNumberFormat(value: String) = viewModelScope.launch { repo.setNumberFormat(value) }

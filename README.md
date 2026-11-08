@@ -53,7 +53,7 @@ Engineering, Construction and Math.
 - **Drag-down history tape** over the keypad
 - **Material You** dynamic colour (Android 12+)
 - **ANR capture** alongside crash reports
-- **On-device analytics and crash reports** (exportable, never uploaded)
+- **On-device analytics and crash reports** — kept on the phone, exportable, and sent to the app's own warehouse only if you switch that on (off by default)
 - **PDF solve** (attach a PDF to Ask AI)
 - **Glassmorphism** with an ambient glow and a light sweep on =
 - **Auto-scaling results** that shrink to fit

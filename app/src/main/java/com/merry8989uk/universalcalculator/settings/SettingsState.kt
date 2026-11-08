@@ -29,6 +29,15 @@ data class SettingsState(
     /** Where the user's own key tone lives, or blank when they have not chosen one. */
     val customTonePath: String = "",
     val diagnosticsEnabled: Boolean = true,
+    /**
+     * Whether the diagnostics recorded on this phone may be sent to the
+     * developer's own warehouse.
+     *
+     * Off by default, and separate from [diagnosticsEnabled] on purpose: keeping
+     * a log and sending it somewhere are two different promises, and the privacy
+     * page now makes them separately.
+     */
+    val shareDiagnostics: Boolean = false,
     /** Show the live result preview while typing. */
     val livePreview: Boolean = true,
     /** Use degrees for trigonometry by default. */

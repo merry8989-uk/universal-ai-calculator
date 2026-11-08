@@ -534,6 +534,9 @@ fun DiagnosticsSection(
     enabled: Boolean,
     onEnabledChange: (Boolean) -> Unit,
     onOpen: () -> Unit,
+    /** Whether what is recorded here may also be sent to the developer. */
+    shareEnabled: Boolean = false,
+    onShareChange: (Boolean) -> Unit = {},
 ) {
     var live by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
@@ -561,6 +564,31 @@ fun DiagnosticsSection(
             )
         }
         Switch(checked = enabled, onCheckedChange = onEnabledChange)
+    }
+    // The second promise, next to the first one and off by default. Keeping a
+    // log on this phone and sending it somewhere are different agreements.
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Send diagnostics to the developer")
+            Text(
+                if (shareEnabled) {
+                    "Event names, device model and app version go to this app's own warehouse"
+                } else {
+                    "Off \u2014 nothing leaves this phone"
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(
+            checked = shareEnabled,
+            onCheckedChange = onShareChange,
+            enabled = enabled,
+        )
     }
     OutlinedButton(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
         Text("Open diagnostics \u2014 logs, usage, connection, export")

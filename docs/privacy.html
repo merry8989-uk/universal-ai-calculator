@@ -47,13 +47,16 @@
         next launch and added to the same local file.</li>
     <li>Cached exchange rates, so the currency converter works offline.</li>
   </ul>
-  <p>None of this is uploaded anywhere. The log, the counters and the crash
-  reports are written to this app's private storage and are only shared if you
-  tap Export in Settings and choose where to send them. Uninstalling the app
-  removes all of it.</p>
+  <p>None of this leaves your phone unless you say so. The log, the counters and
+  the crash reports are written to this app's private storage. They are shared
+  in exactly two cases: you tap Export in Settings and choose where to send
+  them, or you switch on <strong>Send diagnostics to the developer</strong>.
+  Uninstalling the app removes all of it.</p>
   <p>You can switch collection off, or wipe everything, in Settings →
   Diagnostics. Collection is on by default so a problem can be diagnosed without
-  you having to reproduce it first.</p>
+  you having to reproduce it first. <strong>Sending is off by default</strong>
+  and stays off until you turn it on; turning it back off deletes anything still
+  waiting to go.</p>
 
   <h2>What is sent off the device</h2>
   <p>Only when you choose to use these features:</p>
@@ -68,6 +71,12 @@
         you open the currency converter with a connection available.</li>
     <li><strong>Update checks.</strong> The app asks GitHub for the latest release
         version number.</li>
+    <li><strong>Diagnostics, only if you switch it on.</strong> With
+        <strong>Send diagnostics to the developer</strong> turned on (it is off by
+        default), the event names and counts, your device model, the Android
+        version and the app version are posted to this app's own Cloudflare Worker
+        at nexus-calc-ai.br19shc39.workers.dev/events. No calculation, no history
+        and nothing you typed is included.</li>
   </ul>
   <p>Nothing is attached to your identity. There is no sign-in, no user ID and no
   profile, so requests cannot be tied back to you.</p>

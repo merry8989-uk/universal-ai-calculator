@@ -30,6 +30,19 @@ object DataPolicy {
     /** True when the permanent archive may be written to. */
     fun mayArchive(savingEnabled: Boolean): Boolean = savingEnabled
 
+    /**
+     * True when recorded diagnostics may be sent off the device.
+     *
+     * A third switch, because keeping a log and sending it are different
+     * promises. The master switch still wins, and the log has to be on for there
+     * to be anything worth sending.
+     */
+    fun mayUpload(
+        savingEnabled: Boolean,
+        diagnosticsEnabled: Boolean,
+        shareEnabled: Boolean,
+    ): Boolean = savingEnabled && diagnosticsEnabled && shareEnabled
+
     /** True when the diagnostics log may be written to. */
     fun mayLog(savingEnabled: Boolean, diagnosticsEnabled: Boolean): Boolean =
         savingEnabled && diagnosticsEnabled
