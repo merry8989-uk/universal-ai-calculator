@@ -270,6 +270,28 @@
       h += '<div class="hint">This one is read, not worked out — it is a rule, a table or a ' +
            'statement rather than a sum.</div>';
     }
+
+    // ---- work it out yourself ----
+    //
+    // A formula page that can only answer the formulas it was built for is half
+    // a formula page: what the reader has is often a variant. This runs whatever
+    // is in the box through the same evaluator the keypad uses.
+    var prefill = f.expr || '';
+    if (!prefill) {
+      var at = f.printed.lastIndexOf('=');
+      prefill = at >= 0 ? f.printed.slice(at + 1).trim() : f.printed;
+    }
+    h += '<div class="card"><div class="card-h"><h2>Work it out yourself</h2></div>' +
+         '<div class="card-b">' +
+         '<div class="field"><label>Expression</label>' +
+         '<input type="text" id="ownExpr" spellcheck="false" value="' + esc(prefill) + '"></div>' +
+         '<div class="field" style="margin-top:10px"><label>Values, like a=6, b=9</label>' +
+         '<input type="text" id="ownVars" spellcheck="false" placeholder="a=6, b=9"></div>' +
+         '<div class="answer" style="margin-top:12px"><div class="value" id="ownResult">\u2014</div></div>' +
+         '<div class="hint">Letters in the expression are filled from the values. ' +
+         'Leave a value out and it is asked for by name.</div>' +
+         '</div></div>';
+
     h += '</div>';
     return h;
   }
@@ -303,6 +325,33 @@
     root.querySelectorAll('[data-opentool]').forEach(function (b) {
       b.addEventListener('click', function () { Android.openTool(b.getAttribute('data-opentool')); });
     });
+    var exprEl = root.querySelector('#ownExpr');
+    if (exprEl) {
+      var varsEl = root.querySelector('#ownVars');
+      var outEl = root.querySelector('#ownResult');
+      var runOwn = function () {
+        var raw = varsEl.value || '';
+        var pairs = raw.split(/[,;\n]/).map(function (part) {
+          var bits = part.split('=');
+          if (bits.length < 2) return null;
+          var k = bits[0].trim(), v = bits[1].trim();
+          if (!k || v === '') return null;
+          return encodeURIComponent(k) + '=' + encodeURIComponent(v);
+        }).filter(Boolean).join('&');
+        var r = parse(Android.evaluate(exprEl.value, pairs));
+        outEl.parentNode.classList.remove('bad');
+        if (r.ok) {
+          outEl.textContent = r.text;
+        } else {
+          outEl.parentNode.classList.add('bad');
+          outEl.textContent = r.error || 'That did not work.';
+        }
+      };
+      exprEl.addEventListener('input', runOwn);
+      varsEl.addEventListener('input', runOwn);
+      runOwn();
+    }
+
     if (!item.workable && item.kind !== 'tool') return;
     var run = function () { item.kind === 'tool' ? workTool(root, item) : workRef(root, item); };
     run();

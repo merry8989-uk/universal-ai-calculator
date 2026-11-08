@@ -105,6 +105,10 @@ class FormulaBridge(private val context: Context) {
         out.append("\"unit\":").append(d.output.unit?.let { q(it) } ?: "null").append(',')
         out.append("\"tool\":").append(ToolIndex.forTitle(d.title, tools)?.let { q(it.id) } ?: "null")
         out.append(',')
+        // the expression the engine would use, so the page can offer it for
+        // editing rather than making the reader retype the formula
+        out.append("\"expr\":").append(d.expression?.let { q(it) } ?: "null")
+        out.append(',')
         out.append("\"inputs\":[")
         d.inputs.forEachIndexed { i, spec ->
             if (i > 0) out.append(',')
@@ -207,6 +211,38 @@ class FormulaBridge(private val context: Context) {
         } catch (e: Exception) {
             "{\"ok\":false,\"error\":${q(e.message ?: "That combination has no answer.")}}"
         }
+    }
+
+    /**
+     * Works out an expression the reader typed.
+     *
+     * A formula screen that can only answer the formulas it was built for is
+     * half a formula screen: the one the reader actually has is often a variant.
+     * This runs whatever is in the box through the same evaluator the keypad
+     * uses, so the answer matches what the calculator would say.
+     */
+    fun evaluateJson(expression: String, assignments: String): String {
+        if (expression.isBlank()) return "{\"ok\":false,\"error\":\"There is nothing to work out.\"}"
+        return try {
+            val value = com.merry8989uk.universalcalculator.calc.Evaluator.evaluate(
+                expression,
+                vars = readInputs(assignments),
+            )
+            if (value.isNaN() || value.isInfinite()) {
+                "{\"ok\":false,\"error\":\"That has no finite answer.\"}"
+            } else {
+                "{\"ok\":true,\"value\":${num(value)},\"text\":${q(plain(value))}}"
+            }
+        } catch (e: Exception) {
+            "{\"ok\":false,\"error\":${q(e.message ?: "That is not something I can work out.")}}"
+        }
+    }
+
+    /** A number without an exponent when it does not need one. */
+    private fun plain(v: Double): String {
+        if (v == v.toLong().toDouble() && kotlin.math.abs(v) < 1e15) return v.toLong().toString()
+        val text = String.format(java.util.Locale.US, "%.10f", v).trimEnd('0').trimEnd('.')
+        return text.ifEmpty { "0" }
     }
 
     /** "a=6&b=9" into the map the engines want. */

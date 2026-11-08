@@ -105,6 +105,11 @@ private class AppBridge(
     @JavascriptInterface
     fun calculateTool(id: String, inputs: String): String = bridge.calculateToolJson(id, inputs)
 
+    /** Whatever the reader typed, through the same evaluator the keypad uses. */
+    @JavascriptInterface
+    fun evaluate(expression: String, assignments: String): String =
+        bridge.evaluateJson(expression, assignments)
+
     private val indexJson: String by lazy { bridge.indexJson() }
 
     @JavascriptInterface

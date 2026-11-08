@@ -66,6 +66,18 @@ class FormulaPageTest {
             screen.contains("0xFFF5F7FB"))
     }
 
+    @Test fun everyFormulaPageCanBeWorkedOutByHand() {
+        val text = page() ?: return
+        // the box the reader types into, on every formula's page
+        assertTrue("there is no expression box", text.contains("id=\"ownExpr\""))
+        assertTrue("there are no values to fill in", text.contains("id=\"ownVars\""))
+        assertTrue("the box is not run", text.contains("Android.evaluate("))
+        // and it must reach the app's own evaluator, not a second one in JavaScript
+        val bridge = bridge() ?: return
+        assertTrue("the bridge has no evaluator", bridge.contains("fun evaluateJson("))
+        assertTrue("the evaluator is not the app's", bridge.contains("Evaluator.evaluate("))
+    }
+
     @Test fun thePageHasAnAToZIndex() {
         val text = page() ?: return
         assertTrue("there is no A-Z strip", text.contains("A–Z"))
