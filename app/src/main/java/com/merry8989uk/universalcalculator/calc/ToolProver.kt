@@ -18,8 +18,19 @@ import kotlin.random.Random
  */
 object ToolProver {
 
-    private const val LOW = 0.2
-    private const val HIGH = 20.0
+    /**
+     * Values are drawn around each input's own default.
+     *
+     * A single global range is wrong for most of the library: an MPC of 7 is not a
+     * rate, a mass of 3 kg is not a planet, and a distance of 2 m puts the force
+     * so far below one that it cannot be told from zero. The default is the one
+     * number that says what the box means, so the range is built from it.
+     */
+    private fun drawAround(spec: com.merry8989uk.universalcalculator.calc.InputSpec, random: Random): Double {
+        val base = spec.default
+        val factor = 0.5 + random.nextDouble() * 1.5
+        return if (abs(base) > 1e-9) base * factor else 0.5 + random.nextDouble() * 2.0
+    }
 
     data class Failure(val title: String, val why: String)
 
@@ -54,7 +65,7 @@ object ToolProver {
         // formula, so one bad round is tolerated and all of them are not.
         val answers = ArrayList<List<Double>>()
         for (round in 0 until rounds) {
-            val values = tool.inputs.associate { it.key to draw(random) }
+            val values = tool.inputs.associate { it.key to drawAround(it, random) }
             val out = try {
                 tool.compute(values)
             } catch (e: Exception) {
@@ -75,7 +86,7 @@ object ToolProver {
             var matters = false
             var judged = 0
             for (attempt in 0 until 6) {
-                val base = tool.inputs.associate { it.key to draw(random) }
+                val base = tool.inputs.associate { it.key to drawAround(it, random) }
                 val before = computeOrNull(tool, base) ?: continue
                 // Two ways of moving it, because one is not enough: doubling never
                 // crosses a 0/1 switch, and zero never crosses anything else.
@@ -109,11 +120,13 @@ object ToolProver {
     private fun sameNumbers(a: List<Double>, b: List<Double>): Boolean {
         if (a.size != b.size) return false
         for (i in a.indices) {
-            val scale = maxOf(1.0, abs(a[i]), abs(b[i]))
+            // relative only: a floor of 1.0 would call a force of 1e-10 and one of
+            // 1e-11 the same number, and they are not
+            val scale = maxOf(abs(a[i]), abs(b[i]))
+            if (scale == 0.0) continue
             if (abs(a[i] - b[i]) > 1e-9 * scale) return false
         }
         return true
     }
 
-    private fun draw(random: Random): Double = LOW + random.nextDouble() * (HIGH - LOW)
 }
