@@ -4,7 +4,7 @@
 
 Nexus Calc is an all-in-one Android calculator: standard and scientific maths, a full unit
 converter, a programmer tool, date maths, statistics, matrices, numerical
-calculus, a graphing plotter, format converters and 347 built-in one-shot
+calculus, a graphing plotter, format converters and 350 built-in one-shot
 calculators across Everyday, Finance, Economics, Health, Geometry, Physics,
 Engineering, Construction and Math.
 
@@ -126,7 +126,7 @@ URL into `ai/AiClient.kt` and rebuild.
 
 Every calculation engine has a JVM unit test suite (over 1,200 tests) covering
 arithmetic, powers, percentages, scientific functions, unit conversions,
-all 347 calculators, matrices, statistics, format converters, dates, the
+all 350 calculators, matrices, statistics, format converters, dates, the
 programmer tool and numerical calculus. It runs in CI:
 
 ```
