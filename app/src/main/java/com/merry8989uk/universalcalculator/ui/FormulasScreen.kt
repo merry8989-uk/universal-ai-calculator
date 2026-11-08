@@ -264,6 +264,12 @@ private fun FormulaList(
                 )
 
                 StudioPanel(modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)) {
+                    Text(
+                        stringResource(R.string.calculators),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Studio.Text,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
                     OutlinedTextField(
                         value = query,
                         onValueChange = { query = it },
