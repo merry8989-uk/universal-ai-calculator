@@ -319,7 +319,7 @@ private fun UsageTab(context: android.content.Context, vm: DiagnosticsViewModel)
         style = MaterialTheme.typography.bodySmall,
     )
     Button(
-        onClick = { checkResults = SelfCheck.run(context) },
+        onClick = { checkResults = SelfCheck.runAndLog(context) },
         modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
     ) { Text("Run the self-check") }
     checkResults?.let { results ->

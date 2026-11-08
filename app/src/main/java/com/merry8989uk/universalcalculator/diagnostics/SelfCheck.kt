@@ -38,12 +38,40 @@ object SelfCheck {
         fun read(name: String): String?
     }
 
-    fun run(context: Context): List<CheckResult> = checks { name ->
-        try {
-            context.assets.open(name).bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
-            null
+    fun run(context: Context): List<CheckResult> = checks(
+        assets = { name ->
+            try {
+                context.assets.open(name).bufferedReader().use { it.readText() }
+            } catch (e: Exception) {
+                null
+            }
+        },
+        context = context,
+    )
+
+    /**
+     * Runs everything and writes the result to the log.
+     *
+     * A self-check nobody can find afterwards is a self-check that did not
+     * happen. Every result goes into the diagnostics log, so the answer is in the
+     * export the user sends on, beside the crash counts and the ping.
+     */
+    fun runAndLog(context: Context): List<CheckResult> {
+        val results = run(context)
+        DiagnosticsLogger.log("selfcheck", "ran ${results.size} checks")
+        for (r in results) {
+            DiagnosticsLogger.log(
+                "selfcheck",
+                (if (r.ok) "ok   " else "FAIL ") + r.name + " — " + r.detail,
+            )
         }
+        val failed = results.count { !it.ok }
+        DiagnosticsLogger.log(
+            "selfcheck",
+            if (failed == 0) "all ${results.size} checks passed"
+            else "$failed of ${results.size} checks failed",
+        )
+        return results
     }
 
     /**
@@ -53,7 +81,7 @@ object SelfCheck {
      * phone, which is the only way to know that a failure here means a real
      * failure and not a broken check.
      */
-    fun checks(assets: Assets): List<CheckResult> = listOf(
+    fun checks(assets: Assets, context: Context? = null): List<CheckResult> = listOf(
         formulaFile(assets),
         referencePage(assets),
         formulaLibrary(),
@@ -62,6 +90,7 @@ object SelfCheck {
         printDocument(),
         officeReading(),
         currencyData(),
+        referenceFormulas(context),
     )
 
     // ---- the bundled files ----
@@ -174,6 +203,63 @@ object SelfCheck {
         } else {
             CheckResult("Currency data", false, "only $countries countries and $coins coins")
         }
+    }
+
+    /**
+     * Every reference formula, run once.
+     *
+     * The library check covers the calculators — the formulas that were built to
+     * be worked out. This one covers the other 1396: each is asked to produce an
+     * answer with its sample values, and the ones that cannot are named. A
+     * formula that silently stopped working is the failure nobody reports,
+     * because there is no button to press that looks broken.
+     */
+    private fun referenceFormulas(context: Context?): CheckResult {
+        if (context == null) {
+            return CheckResult("Reference formulas", false, "no app context to read them from")
+        }
+        val definitions = try {
+            com.merry8989uk.universalcalculator.data.FormulaReference.definitions(context)
+        } catch (e: Exception) {
+            return CheckResult("Reference formulas", false, "the reference would not load: ${e.message}")
+        }
+        if (definitions.isEmpty()) {
+            return CheckResult("Reference formulas", false, "the reference is empty")
+        }
+
+        var run = 0
+        var failed = 0
+        var readOnly = 0
+        val broken = ArrayList<String>()
+        for (d in definitions) {
+            val workable = (d.type == com.merry8989uk.universalcalculator.formula.FormulaType.DIRECT_CALCULATOR ||
+                d.type == com.merry8989uk.universalcalculator.formula.FormulaType.CHECKER) &&
+                d.expression != null
+            if (!workable) {
+                readOnly++
+                continue
+            }
+            val values = d.inputs.associate { it.id to it.sample }
+            val r = try {
+                com.merry8989uk.universalcalculator.formula.FormulaCalculator.calculate(
+                    d,
+                    com.merry8989uk.universalcalculator.formula.CalculationRequest(d.id, values),
+                )
+            } catch (e: Exception) {
+                null
+            }
+            if (r != null && r.success) run++ else {
+                failed++
+                if (broken.size < 20) broken.add(d.title)
+            }
+        }
+
+        val detail = if (failed == 0) {
+            "$run of ${definitions.size} work, $readOnly are for reading"
+        } else {
+            "$failed of ${definitions.size} do not work: ${broken.joinToString(", ")}"
+        }
+        return CheckResult("Reference formulas", failed == 0, detail)
     }
 
     /** A one-paragraph Word file, built here so the check needs no file on disk. */

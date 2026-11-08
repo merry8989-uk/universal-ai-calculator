@@ -2,6 +2,7 @@ package com.merry8989uk.universalcalculator
 
 import com.merry8989uk.universalcalculator.diagnostics.SelfCheck
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -34,7 +35,9 @@ class SelfCheckTest {
             "these checks failed: " + failed.joinToString("; ") { "${it.name} — ${it.detail}" },
             failed.isEmpty(),
         )
-        assertEquals(8, results.size)
+        // eight checks plus the one over every reference formula, which needs an
+        // app context and so reports itself as unrun here
+        assertEquals(9, results.size)
     }
 
     @Test fun theFormulaFileIsInThePackage() {
@@ -74,6 +77,15 @@ class SelfCheckTest {
         assertTrue("the print document is wrong: ${print.detail}", print.ok)
         val office = results.first { it.name == "Office files" }
         assertTrue("office reading is wrong: ${office.detail}", office.ok)
+    }
+
+    @Test fun everyReferenceFormulaIsCheckedNotJustTheCalculators() {
+        val results = SelfCheck.checks { assets(it) }
+        val check = results.firstOrNull { it.name == "Reference formulas" }
+        assertNotNull("the 1396 are not checked at all", check)
+        // without an app context it must say so rather than claim success
+        assertTrue("it claimed a pass it did not run", !check!!.ok)
+        assertTrue("it does not say why: ${check.detail}", check.detail.contains("context"))
     }
 
     @Test fun theReportSaysHowManyFailed() {
