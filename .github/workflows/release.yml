@@ -29,9 +29,6 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Ensure Gradle wrapper exists
-        run: test -f gradlew || gradle wrapper --gradle-version 8.9
-
       - name: Decode release keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
