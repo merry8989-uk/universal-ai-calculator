@@ -145,6 +145,45 @@ class FormulaExportTest {
         reviewTarget.writeText(review.toString())
 
         assertTrue("nothing in the library could be computed", computed > 0)
+
+        // ---- coverage: which of them has a calculator, and which has none ----
+        //
+        // The question this answers is the one a person actually asks: "is there
+        // a calculator for this formula?" A formula can be worked out on its own
+        // page, or have a separate calculator built for it, or neither.
+        val toolIndex = com.merry8989uk.universalcalculator.calc.ToolIndex
+            .byTitle(com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas)
+        val none = ArrayList<String>()
+        var ownPage = 0
+        var viaTool = 0
+        var both = 0
+        var serial = 0
+        val coverage = StringBuilder()
+        coverage.append("# Which formulas have a calculator\n\n")
+        coverage.append("| | Count |\n| --- | --- |\n")
+        for (d in definitions) {
+            serial++
+            val workable = (d.type == FormulaType.DIRECT_CALCULATOR ||
+                d.type == FormulaType.CHECKER) && d.expression != null
+            val tool = toolIndex[com.merry8989uk.universalcalculator.calc.ToolIndex.key(d.title)]
+            if (workable && tool != null) both++
+            else if (workable) ownPage++
+            else if (tool != null) viaTool++
+            else none.add("| $serial | ${d.title} | ${d.category} | ${d.type} |")
+        }
+        val total = definitions.size
+        coverage.append("| Formulas in the reference | $total |\n")
+        coverage.append("| Worked out on its own page | $ownPage |\n")
+        coverage.append("| Have a separate calculator | $viaTool |\n")
+        coverage.append("| Both | $both |\n")
+        coverage.append("| **No calculator at all** | **${none.size}** |\n\n")
+        coverage.append("## No calculator (${none.size})\n\n")
+        coverage.append("| # | Title | Category | Type |\n| --- | --- | --- | --- |\n")
+        coverage.append(none.joinToString("\n"))
+        coverage.append("\n")
+        val coverageFile = File("docs/formula-coverage.md")
+        coverageFile.writeText(coverage.toString())
+        println("COVERAGE total=$total own=$ownPage tool=$viaTool both=$both none=${none.size}")
         assertTrue("the export is suspiciously small", out.length > 100_000)
         assertTrue("the file was not written where the site expects it: ${target.absolutePath}", target.exists())
     }
