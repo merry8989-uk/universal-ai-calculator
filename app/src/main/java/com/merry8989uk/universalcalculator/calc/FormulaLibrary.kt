@@ -3265,6 +3265,99 @@ object FormulaLibrary {
                 out("Tax inside an inclusive total", total - base))
         },
 
+
+        // ---------------- India ----------------
+        // The three things people here work out on paper and get wrong: a
+        // slab bill, an HRA exemption, and land measured in units that are not
+        // square feet.
+
+        Formula(
+            "electricity_bill_in", "Electricity bill (slab)", "Everyday",
+            "Slab rates, the way a state board bills them. Set the two slab ends and the three rates.",
+            listOf(
+                InputSpec("units", "Units consumed", 250.0),
+                InputSpec("s1_end", "First slab ends at (units)", 100.0),
+                InputSpec("s1_rate", "First slab rate", 3.5),
+                InputSpec("s2_end", "Second slab ends at (units)", 300.0),
+                InputSpec("s2_rate", "Second slab rate", 4.5),
+                InputSpec("s3_rate", "Third slab rate", 6.0),
+                InputSpec("fixed", "Fixed charge", 50.0),
+            ),
+        ) { m ->
+            val units = v(m, "units").coerceAtLeast(0.0)
+            val e1 = v(m, "s1_end").coerceAtLeast(0.0)
+            val e2 = v(m, "s2_end").coerceAtLeast(e1)
+            val in1 = minOf(units, e1)
+            val in2 = minOf(units, e2) - in1
+            val in3 = units - minOf(units, e2)
+            val energy = in1 * v(m, "s1_rate") + in2 * v(m, "s2_rate") + in3 * v(m, "s3_rate")
+            listOf(
+                out("Energy charge", energy, "Rs."),
+                out("Fixed charge", v(m, "fixed"), "Rs."),
+                out("Total", energy + v(m, "fixed"), "Rs."),
+                out("Average rate", if (units > 0) (energy + v(m, "fixed")) / units else 0.0, "Rs./unit"),
+            )
+        },
+
+        Formula(
+            "hra_exemption", "HRA exemption", "Finance",
+            "The least of three limits: HRA received, rent less 10% of salary, and 50% (metro) or 40% of salary.",
+            listOf(
+                InputSpec("basic", "Basic salary", 60000.0),
+                InputSpec("da", "Dearness allowance", 0.0),
+                InputSpec("hra", "HRA received", 24000.0),
+                InputSpec("rent", "Rent paid", 20000.0),
+                InputSpec("metro", "Metro city (1 = yes)", 1.0),
+            ),
+        ) { m ->
+            val salary = v(m, "basic") + v(m, "da")
+            val received = v(m, "hra")
+            val rentLess = (v(m, "rent") - 0.10 * salary).coerceAtLeast(0.0)
+            val share = salary * (if (v(m, "metro") >= 1.0) 0.50 else 0.40)
+            val exempt = minOf(received, rentLess, share).coerceAtLeast(0.0)
+            listOf(
+                out("Salary considered", salary, "Rs."),
+                out("Limit: HRA received", received, "Rs."),
+                out("Limit: rent less 10%", rentLess, "Rs."),
+                out("Limit: 50% or 40% of salary", share, "Rs."),
+                out("Exempt", exempt, "Rs."),
+                out("Taxable HRA", (received - exempt).coerceAtLeast(0.0), "Rs."),
+            )
+        },
+
+        Formula(
+            "land_area", "Land area (Indian units)", "Construction",
+            "Convert between sq ft, sq m, guntha, marla, kanal, acre, hectare and bigha. "
+                + "Unit: 1 sq ft, 2 sq m, 3 guntha, 4 marla, 5 kanal, 6 acre, 7 hectare, 8 bigha (UP, 27,225 sq ft).",
+            listOf(
+                InputSpec("value", "Area", 1.0),
+                InputSpec("unit", "Unit (1-8, see description)", 6.0),
+            ),
+        ) { m ->
+            // 1 marla = 272.25 sq ft, 1 kanal = 20 marla, 1 guntha = 4 marla,
+            // 1 acre = 160 marla, 1 hectare = 107,639 sq ft, 1 bigha = 27,225
+            // sq ft in UP. Bigha is not the same everywhere; the description says so.
+            val sqft = when (v(m, "unit").toInt().coerceIn(1, 8)) {
+                1 -> 1.0
+                2 -> 10.7639
+                3 -> 1089.0
+                4 -> 272.25
+                5 -> 5445.0
+                6 -> 43560.0
+                7 -> 107639.0
+                else -> 27225.0
+            }
+            val area = v(m, "value") * sqft
+            listOf(
+                out("Square feet", area, "sq ft"),
+                out("Square metres", area / 10.7639, "sq m"),
+                out("Guntha", area / 1089.0),
+                out("Kanal", area / 5445.0),
+                out("Acre", area / 43560.0),
+                out("Bigha (UP)", area / 27225.0),
+            )
+        },
+
     ) + ExtraFormulas.all
 
     fun byCategory(category: String): List<Formula> = formulas.filter { it.category == category }
