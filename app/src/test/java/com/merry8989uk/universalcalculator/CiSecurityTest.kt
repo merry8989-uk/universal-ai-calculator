@@ -33,9 +33,10 @@ class CiSecurityTest {
         )
         assertTrue("it does not review the dependencies a PR adds", "dependency-review-action" in text)
         assertTrue("it does not submit the dependency graph", "dependency-submission" in text)
-        // the repository has no gradlew, so the job has to make one like the
-        // test workflow does; without it the submission has nothing to run
-        assertTrue("the graph job will not find a wrapper", "gradle wrapper" in text)
+        // the wrapper is committed now, so the graph job has something to run
+        // without generating one first - and a wrapper that goes missing again
+        // is the thing worth failing on
+        assertTrue("the Gradle wrapper is missing from the repository", read("gradlew") != null)
     }
 
     @Test fun theSecurityWorkflowRunsOnPullRequestsAndOnASchedule() {

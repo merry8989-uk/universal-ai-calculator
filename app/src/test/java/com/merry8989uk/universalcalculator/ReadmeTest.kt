@@ -45,7 +45,8 @@ class ReadmeTest {
             File("app/src/main/assets/formulas.json"),
         ).firstOrNull { it.exists() } ?: return
         val count = Regex("\"t\"\\s*:").findAll(asset.readText()).count()
-        assertTrue("the README does not say $count formulas", text.contains("$count formulas"))
+        val written = String.format("%,d", count)
+        assertTrue("the README does not say $written formulas", text.contains("$written formulas"))
     }
 
     @Test fun theTestCountIsNotStatedAsAnExactNumber() {
