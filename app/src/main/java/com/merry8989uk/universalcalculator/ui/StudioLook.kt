@@ -186,8 +186,9 @@ fun StudioLabel(text: String, modifier: Modifier = Modifier) {
 fun StudioPill(
     text: String,
     selected: Boolean,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    // last, so a call site can pass the action as a trailing lambda
+    onClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
