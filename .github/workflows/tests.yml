@@ -30,15 +30,56 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Ensure Gradle wrapper exists
-        run: test -f gradlew || gradle wrapper --gradle-version 8.9
-
       - name: Run unit tests
         run: ./gradlew --no-daemon test
 
       - name: Build the watch app
         # So a break in :wear or :core is caught here, not at release time.
         run: ./gradlew --no-daemon :wear:assembleDebug :core:assemble
+
+      - name: Lint
+        # Lint had never run anywhere, and the first run found 371 errors that
+        # predate it. Fixing them is its own piece of work, so the step reports
+        # and does not block yet; the report is kept as an artifact. The next step
+        # is a lint baseline: the 371 become a recorded debt list and a new error
+        # fails the build.
+        continue-on-error: true
+        run: ./gradlew --no-daemon :app:lintDebug
+
+      - name: Keep the lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+
+      - name: Build the release
+        # R8, shrinking and the signing config exist only in the release variant.
+        # A throwaway keystore is enough to prove they work; nothing is published.
+        env:
+          KEYSTORE_PATH: ci.p12
+          KEYSTORE_TYPE: PKCS12
+          KEYSTORE_PASSWORD: ci-throwaway
+          KEY_ALIAS: ci
+          KEY_PASSWORD: ci-throwaway
+        run: |
+          keytool -genkeypair -keystore ci.p12 -storetype PKCS12 \
+            -alias ci -storepass ci-throwaway -keypass ci-throwaway \
+            -dname "CN=CI" -keyalg RSA -keysize 2048 -validity 1
+          ./gradlew --no-daemon assembleRelease
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check the formula page works
+        # FormulaPageTest reads the page; this runs it. A selector renamed or a
+        # handler dropped loads fine and does nothing, and only this notices.
+        run: |
+          npm --prefix tools install --no-audit --no-fund
+          node tools/check_page.mjs
 
       - name: Summarise results
         if: always()
