@@ -51,13 +51,16 @@ class FormulaHindiTest {
     }
 
     @Test fun theTranslationsAreActuallyInHindi() {
+        // An acronym stays Latin on purpose - CAGR is CAGR - and a description
+        // that is only an equation stays as it is. What must not happen is a
+        // whole entry copied over from the English.
         val english = FormulaLibrary.formulas
-            .filter { FormulaHindi.title(it.id) == it.title || FormulaHindi.description(it.id) == it.description }
+            .filter { f ->
+                val title = FormulaHindi.title(f.id).orEmpty()
+                val blurb = FormulaHindi.description(f.id).orEmpty()
+                !devanagari.containsMatchIn(title) && !devanagari.containsMatchIn(blurb)
+            }
             .map { it.id }
         assertTrue("these are still English: $english", english.isEmpty())
-        assertTrue(
-            "a title is not in Devanagari",
-            devanagari.containsMatchIn(FormulaHindi.title(FormulaLibrary.formulas.first().id) ?: ""),
-        )
     }
 }

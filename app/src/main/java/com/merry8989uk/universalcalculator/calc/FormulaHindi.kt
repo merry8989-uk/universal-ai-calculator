@@ -3,18 +3,18 @@ package com.merry8989uk.universalcalculator.calc
 /**
  * The hub, in Hindi.
  *
- * The screens were translated and the calculators were not: a Hindi user got
- * Hindi buttons over 279 calculator names and one-line explanations in English,
+ * The screens were translated and the calculators were not: a Hindi reader got
+ * Hindi buttons over 347 calculator names and one-line explanations in English,
  * which reads as a half-finished translation rather than an untranslated app.
  *
- * These are the same titles and the same descriptions, in the language the rest
- * of the screen is in. Nothing here is computed: a name is a name. Keys are the
- * calculator ids, so a missing entry falls back to English rather than breaking,
- * and FormulaHindiTest fails when an id is missing or stale.
+ * These are the same titles and the same descriptions, in the language the rest of
+ * the screen is in. Nothing is computed here: a name is a name. The keys are the
+ * calculator ids, so a missing entry falls back to English rather than showing a
+ * blank, and FormulaHindiTest fails when one is missing or stale.
  */
 object FormulaHindi {
 
-    /** id -> title and the one line under it. */
+    /** id -> the title and the one line under it. */
     private val entries: Map<String, Pair<String, String>> = mapOf(
         "percent_of" to ("किसी संख्या का प्रतिशत" to "Y का X प्रतिशत कितना है?"),
         "what_percent" to ("प्रतिशत क्या है" to "A, B का कितना प्रतिशत है?"),
@@ -295,25 +295,94 @@ object FormulaHindi {
         "forward_price" to ("फॉरवर्ड और फ्यूचर्स प्राइस" to "कोई-आर्बिट्रेज फॉरवर्ड कीमत, एक वैकल्पिक डिविडेंड यील्ड के साथ।"),
         "bond_price" to ("बॉन्ड की कीमत" to "कूपन, यील्ड और मैच्योरिटी से कीमत (डिफ़ॉल्ट रूप से छमाही)।"),
         "sales_tax" to ("बिक्री कर / जीएसटी" to "कीमत पर कर, चुकाने वाली कुल राशि, और कर-समावेशी कीमत से रिवर्स।"),
+        "pythagoras_hyp" to ("पाइथागोरस: कर्ण" to "दोनों भुजाओं से कर्ण।"),
+        "tri_area_bh" to ("त्रिभुज का क्षेत्रफल (आधार x ऊँचाई)" to "आधार का आधा गुणा ऊँचाई।"),
+        "heron" to ("हेरोन का सूत्र" to "तीनों भुजाओं से क्षेत्रफल।"),
+        "tri_area_sas" to ("त्रिभुज का क्षेत्रफल (दो भुजाएँ और कोण)" to "आधा a b sin C। कोण डिग्री में है।"),
+        "cosine_rule_side" to ("कोसाइन नियम: भुजा निकालें" to "दिए गए कोण के सामने वाली भुजा। कोण डिग्री में है।"),
+        "tri_median" to ("त्रिभुज की माध्यिका" to "भुजा a की माध्यिका।"),
+        "tri_inradius" to ("त्रिभुज की अंतःत्रिज्या" to "अंतर्लिखित वृत्त की त्रिज्या।"),
+        "tri_circumradius" to ("त्रिभुज की परित्रिज्या" to "तीनों कोनों से गुजरने वाले वृत्त की त्रिज्या।"),
+        "polygon_angle_sum" to ("बहुभुज के कोणों का योग" to "n-भुजाओं वाले बहुभुज के आंतरिक कोण।"),
+        "polygon_regular_angle" to ("नियमित बहुभुज का आंतरिक कोण" to "जब सभी भुजाएँ बराबर हों तो प्रत्येक आंतरिक कोण।"),
+        "circle_area" to ("वृत्त का क्षेत्रफल" to "पाई गुणा त्रिज्या का वर्ग।"),
+        "circle_circumference" to ("वृत्त की परिधि" to "दो पाई r, या पाई गुणा व्यास।"),
+        "arc_length" to ("चाप की लंबाई" to "एक चाप की लंबाई। कोण डिग्री में है।"),
+        "sector_area" to ("सेक्टर का क्षेत्रफल" to "वृत्त के एक टुकड़े का क्षेत्रफल। कोण डिग्री में है।"),
+        "chord_length" to ("जीवा की लंबाई" to "एक चाप के आर-पार जीवा। कोण डिग्री में है।"),
+        "trapezoid_area" to ("समलंब का क्षेत्रफल" to "समानांतर भुजाओं के योग का आधा गुणा ऊँचाई।"),
+        "regular_polygon_area" to ("नियमित बहुभुज का क्षेत्रफल" to "परित्रिज्या और भुजाओं की संख्या से क्षेत्रफल।"),
+        "regular_polygon_perimeter" to ("नियमित बहुभुज की परिमाप" to "परित्रिज्या और भुजाओं की संख्या से परिमाप।"),
+        "ellipse_area" to ("दीर्घवृत्त का क्षेत्रफल" to "पाई गुणा दो अर्ध-अक्ष।"),
+        "ellipse_circumference" to ("दीर्घवृत्त की परिधि (रामानुजन)" to "परिमाप का एक करीबी अनुमान।"),
+        "brahmagupta" to ("ब्रह्मगुप्त: चक्रीय चतुर्भुज का क्षेत्रफल" to "वृत्त पर बने चतुर्भुज का क्षेत्रफल।"),
+        "cone_frustum_volume" to ("शंकु का फ्रस्टम" to "दो समानांतर वृत्ताकार फलकों के बीच का आयतन।"),
+        "spherical_segment_volume" to ("गोलाकार खंड का आयतन" to "एक गोले के ऊपरी हिस्से (कैप) का आयतन।"),
+        "spherical_sector_volume" to ("गोलाकार सेक्टर का आयतन" to "एक गोले के शंकु के आकार के टुकड़े का आयतन।"),
+        "pyramid_volume" to ("पिरामिड का आयतन" to "आधार के क्षेत्रफल का एक तिहाई गुणा ऊँचाई।"),
+        "pyramid_frustum_volume" to ("पिरामिड का फ्रस्टम" to "दो समानांतर आधारों के बीच का आयतन।"),
+        "dist_2d" to ("दो बिंदुओं के बीच की दूरी" to "समतल में सीधी रेखा की दूरी।"),
+        "dist_3d" to ("3-D में दूरी" to "अंतरिक्ष में सीधी रेखा की दूरी।"),
+        "slope_2pts" to ("दो बिंदुओं से ढलान" to "राइज ओवर रन।"),
+        "tri_area_vertices" to ("शीर्षों से त्रिभुज का क्षेत्रफल" to "शूलेस सूत्र।"),
+        "circle_3pts_r" to ("तीन बिंदुओं से परितःवृत्त की त्रिज्या" to "तीन बिंदुओं से गुजरने वाले वृत्त की त्रिज्या।"),
+        "ellipse_eccentricity" to ("दीर्घवृत्त की उत्केंद्रता" to "दीर्घवृत्त वृत्त से कितना दूर है।"),
+        "hyperbola_eccentricity" to ("अतिपरवलय की उत्केंद्रता" to "अतिपरवलय अपने केंद्र से कितना खुलता है।"),
+        "parabola_latus_rectum" to ("परवलय की लैटस रेक्टम" to "फोकस से गुजरने वाली जीवा, डायरेक्ट्रिक्स के समानांतर।"),
+        "vec_magnitude" to ("वेक्टर का परिमाण" to "त्रि-आयामी वेक्टर की लंबाई।"),
+        "vec_dot" to ("डॉट प्रोडक्ट" to "घटकों के गुणनफल का योग।"),
+        "vec_cross_magnitude" to ("क्रॉस प्रोडक्ट परिमाण" to "दोनों वेक्टर्स द्वारा बनाए गए समानांतर चतुर्भुज का क्षेत्रफल।"),
+        "vec_angle" to ("दो वेक्टर्स के बीच का कोण" to "डॉट प्रोडक्ट से।"),
+        "vec_projection" to ("a का b पर प्रक्षेप" to "b पर a की परछाई की लंबाई।"),
+        "vec_triple" to ("स्केलर ट्रिपल प्रोडक्ट" to "तीनों वेक्टर्स द्वारा बनाए गए समानांतर षट्फलक का आयतन।"),
+        "ap_nth" to ("अंकगणितीय श्रेणी: nवाँ पद" to "पदों के बीच एक स्थिर अंतर।"),
+        "ap_sum" to ("अंकगणितीय श्रेणी: योग" to "पहले n पदों का योग।"),
+        "gp_nth" to ("गुणोत्तर श्रेणी: nवाँ पद" to "पदों के बीच एक स्थिर अनुपात।"),
+        "gp_sum" to ("गुणोत्तर श्रेणी: योग" to "पहले n पदों का योग।"),
+        "gp_sum_infinite" to ("गुणोत्तर श्रेणी: अनंत योग" to "केवल तभी अभिसरण करता है जब अनुपात का मान 1 से कम हो।"),
+        "series_harmonic_mean" to ("दो संख्याओं का हरात्मक माध्य" to "दो गुणे गुणनफल भाग योग।"),
+        "sum_first_n" to ("पहले n पूर्णांकों का योग" to "n गुणा n जमा एक भाग दो।"),
+        "sum_first_n_squares" to ("पहले n वर्गों का योग" to "n गुणा n जमा एक गुणा दो n जमा एक, भाग छह।"),
+        "sum_first_n_cubes" to ("पहले n घनों का योग" to "पहले n पूर्णांकों के योग का वर्ग।"),
+        "perm_npr_calc" to ("क्रमचय nPr" to "n में से r वस्तुओं के क्रमित चयन।"),
+        "comb_ncr_calc" to ("संचय nCr" to "n में से r वस्तुओं के अव्यवस्थित चयन।"),
+        "perm_repetition" to ("पुनरावृत्ति के साथ क्रमचय" to "n की घात r व्यवस्थाएँ।"),
+        "circular_permutations" to ("वृत्ताकार क्रमचय" to "एक वृत्त के चारों ओर व्यवस्थाएँ।"),
+        "derangements" to ("डिरांजमेंट" to "ऐसी व्यवस्थाएँ जहाँ कुछ भी अपनी मूल जगह पर नहीं है।"),
+        "binom_prob" to ("द्विपद प्रायिकता" to "n स्वतंत्र परीक्षणों में ठीक k सफलताएँ।"),
+        "binom_mean" to ("द्विपद माध्य" to "सफलताओं की अपेक्षित संख्या।"),
+        "binom_variance" to ("द्विपद प्रसरण" to "द्विपद गणना का फैलाव।"),
+        "bayes_calc" to ("बेयस का प्रमेय" to "B दिए जाने पर A की प्रायिकता।"),
+        "odds_from_prob" to ("प्रायिकता से ऑड्स" to "किसी घटना के पक्ष में ऑड्स।"),
+        "prob_from_odds" to ("ऑड्स से प्रायिकता" to "दिए गए ऑड्स द्वारा निहित संभावना।"),
+        "bs_d1" to ("ब्लैक-शोल्स d1" to "ब्लैक-शोल्स सूत्र का पहला पद।"),
+        "bs_d2" to ("ब्लैक-शोल्स d2" to "ब्लैक-शोल्स सूत्र का दूसरा पद।"),
+        "forward_price_yield" to ("लाभांश उपज के साथ फॉरवर्ड मूल्य" to "निरंतर उपज देने वाली संपत्ति के लिए।"),
+        "option_delta_call" to ("कॉल का डेल्टा" to "स्पॉट के बदलने पर कॉल कितना बदलता है।"),
+        "det2" to ("2x2 मैट्रिक्स का सारणिक" to "det [[a, b], [c, d]] = ad - bc।"),
+        "det3" to ("3x3 मैट्रिक्स का सारणिक" to "पहली पंक्ति के अनुदिश विस्तारित।"),
+        "inv2" to ("2x2 मैट्रिक्स का व्युत्क्रम" to "A व्युत्क्रम = (1 / det A) [[d, -b], [-c, a]]।"),
+        "trace3" to ("3x3 मैट्रिक्स का ट्रेस" to "विकर्ण प्रविष्टियों का योग।"),
     )
 
-    /** The nine hub categories, by their English name. */
+    /** The hub categories, by their English name. */
     val categories: Map<String, String> = mapOf(
         "Everyday" to "रोज़मर्रा",
         "Finance" to "वित्त",
         "Economics" to "अर्थशास्त्र",
         "Health" to "स्वास्थ्य",
         "Geometry" to "ज्यामिति",
-        "Physics" to "भौतिकी",
-        "Engineering" to "इंजीनियरिंग",
-        "Construction" to "निर्माण",
-        "Math" to "गणित",
         "Trigonometry" to "त्रिकोणमिति",
         "Analytic Geometry" to "विश्लेषणात्मक ज्यामिति",
         "Vectors" to "वेक्टर",
+        "Matrices & Determinants" to "मैट्रिक्स और सारणिक",
+        "Physics" to "भौतिकी",
+        "Engineering" to "इंजीनियरिंग",
+        "Construction" to "निर्माण",
         "Probability" to "प्रायिकता",
         "Series" to "श्रेणी",
         "Number Theory" to "संख्या सिद्धांत",
+        "Math" to "गणित",
     )
 
     /** The tools shelf: id -> title, and id -> the line under it. */
