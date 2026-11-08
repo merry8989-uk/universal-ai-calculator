@@ -565,7 +565,10 @@ object FormulaLibrary {
         ) { m ->
             // a count is a count: 5.5 ways of choosing is not a thing, and
             // refusing is worse than rounding the way a calculator does
-            listOf(out("nCr", Evaluator.combinations(Math.round(v(m, "n")).toDouble(), Math.round(v(m, "r")).toDouble())))
+            val n = Math.round(v(m, "n")).toDouble()
+            val r = Math.round(v(m, "r")).toDouble()
+            // choosing more than there is gives no ways at all, which is an answer
+            listOf(out("nCr", if (r > n || r < 0) 0.0 else Evaluator.combinations(n, r)))
         },
 
         Formula(
@@ -573,7 +576,9 @@ object FormulaLibrary {
             "Number of ordered arrangements of r from n.",
             listOf(InputSpec("n", "n", 5.0), InputSpec("r", "r", 2.0)),
         ) { m ->
-            listOf(out("nPr", Evaluator.permutations(Math.round(v(m, "n")).toDouble(), Math.round(v(m, "r")).toDouble())))
+            val n = Math.round(v(m, "n")).toDouble()
+            val r = Math.round(v(m, "r")).toDouble()
+            listOf(out("nPr", if (r > n || r < 0) 0.0 else Evaluator.permutations(n, r)))
         },
 
         Formula(
@@ -2795,8 +2800,10 @@ object FormulaLibrary {
             "The k-th term C(n,k)\u00B7x\u1D4F of the binomial expansion.",
             listOf(InputSpec("n", "n", 5.0), InputSpec("k", "k", 2.0), InputSpec("x", "x", 1.0)),
         ) { m ->
-            val n = v(m, "n"); val k = v(m, "k"); val x = v(m, "x")
-            listOf(out("Term", Evaluator.combinations(n, k) * x.pow(k)),
+            val n = Math.round(v(m, "n")).toDouble()
+            val k = Math.round(v(m, "k")).toDouble()
+            val x = v(m, "x")
+            listOf(out("Term", if (k > n || k < 0) 0.0 else Evaluator.combinations(n, k) * x.pow(k)),
                 out("Coefficient C(n,k)", Evaluator.combinations(n, k)))
         },
 
