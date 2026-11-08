@@ -34,6 +34,19 @@ class DataPolicyTest {
         assertFalse(DataPolicy.mayLog(true, diagnosticsEnabled = false))
     }
 
+    // ---- sending is a third promise, and it is off ----
+
+    @Test fun nothingIsSentUntilTheUserAgrees() {
+        assertFalse(DataPolicy.mayUpload(true, diagnosticsEnabled = true, shareEnabled = false))
+        assertTrue(DataPolicy.mayUpload(true, diagnosticsEnabled = true, shareEnabled = true))
+    }
+
+    @Test fun thereIsNothingToSendWithoutALogOrWithoutTheMasterSwitch() {
+        assertFalse(DataPolicy.mayUpload(true, diagnosticsEnabled = false, shareEnabled = true))
+        assertFalse(DataPolicy.mayUpload(false, diagnosticsEnabled = true, shareEnabled = true))
+        assertFalse(DataPolicy.mayUpload(false, diagnosticsEnabled = false, shareEnabled = false))
+    }
+
     // ---- the history keeps three days ----
 
     private val now = 1_700_000_000_000L

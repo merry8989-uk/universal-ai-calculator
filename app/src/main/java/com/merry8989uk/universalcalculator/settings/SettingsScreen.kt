@@ -744,6 +744,8 @@ fun SettingsScreen(
                 enabled = state.diagnosticsEnabled,
                 onEnabledChange = vm::setDiagnosticsEnabled,
                 onOpen = { showDiagnostics = true },
+                shareEnabled = state.shareDiagnostics,
+                onShareChange = vm::setShareDiagnostics,
             )
 
             Section(stringResource(R.string.section_reset))

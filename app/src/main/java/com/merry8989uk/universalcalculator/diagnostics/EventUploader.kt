@@ -29,6 +29,16 @@ object EventUploader {
     private const val BATCH = 150
     private const val MAX_PENDING_BYTES = 4_000_000L
 
+    /**
+     * Whether the user has agreed to their diagnostics leaving the phone.
+     *
+     * Deliberately separate from [EventLog.enabled]: that one says a log may be
+     * kept here, this one says it may go somewhere. While it is false nothing is
+     * queued and nothing is sent, so a user who never agrees accumulates no
+     * upload queue at all.
+     */
+    @Volatile var sharing: Boolean = false
+
     private val lock = Any()
 
     @Volatile private var lastAttempt = 0L
@@ -40,6 +50,9 @@ object EventUploader {
 
     /** Called for every event, so the queue grows as things happen. */
     fun enqueue(context: Context, line: String) {
+        // no consent, no queue: holding a file of things to send later is the
+        // same promise as sending them
+        if (!sharing) return
         synchronized(lock) {
             try {
                 val file = pendingFile(context)
@@ -62,6 +75,17 @@ object EventUploader {
         0
     }
 
+    /** Drops everything waiting. Used when the user takes consent away. */
+    fun clearQueue(context: Context) {
+        synchronized(lock) {
+            try {
+                pendingFile(context).delete()
+            } catch (e: Exception) {
+                // nothing to do: the next flush is refused anyway
+            }
+        }
+    }
+
     fun lastError(): String = lastError
     fun sentCount(): Int = sent
 
@@ -72,7 +96,7 @@ object EventUploader {
      * queue is left exactly as it was.
      */
     suspend fun flush(context: Context): Int = withContext(Dispatchers.IO) {
-        if (!EventLog.enabled) return@withContext 0
+        if (!EventLog.enabled || !sharing) return@withContext 0
         val file = pendingFile(context)
         if (!file.exists()) return@withContext 0
 

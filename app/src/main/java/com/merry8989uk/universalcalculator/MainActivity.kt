@@ -68,6 +68,17 @@ class MainActivity : ComponentActivity() {
                 }
                 DiagnosticsLogger.setEnabled(allowed)
                 EventLog.enabled = allowed
+
+                // Sending is its own promise and off until the user says yes.
+                // Turning it off drops whatever was waiting, so nothing sits in
+                // a queue to go out later.
+                val share = DataPolicy.mayUpload(
+                    stored.dataSavingEnabled,
+                    stored.diagnosticsEnabled,
+                    stored.shareDiagnostics,
+                )
+                if (EventUploader.sharing && !share) EventUploader.clearQueue(applicationContext)
+                EventUploader.sharing = share
             }
         }
 
@@ -76,7 +87,7 @@ class MainActivity : ComponentActivity() {
         // no signal delivers late rather than losing anything.
         lifecycleScope.launch {
             while (true) {
-                if (EventLog.enabled) {
+                if (EventLog.enabled && EventUploader.sharing) {
                     runCatching { EventUploader.flush(applicationContext) }
                 }
                 delay(5 * 60 * 1000L)
