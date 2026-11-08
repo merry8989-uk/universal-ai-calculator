@@ -25,12 +25,14 @@ class FormulaPageTest {
         assertTrue("it does not carry the formulas", page!!.contains("const formulas="))
     }
 
-    @Test fun theMathsIsBundledRatherThanFetched() {
+    @Test fun thePageCarriesItsOwnMathsAndLoadsNothing() {
         val page = asset("formula-studio.html") ?: return
         assertTrue("the page still points at a CDN", !page.contains("cdnjs"))
-        assertTrue("the page loads its maths from a local file", page.contains("src=\"math.min.js\""))
-        val library = asset("math.min.js")
-        assertTrue("math.min.js is not in the package", library != null && library.length > 100_000)
+        // one self-contained file: a second file is a second thing that can fail
+        // to load inside a WebView, and it fails silently
+        assertTrue("the page loads a separate script", !page.contains("src=\"math.min.js\""))
+        assertTrue("the maths is not in the page", page.contains("math.evaluate"))
+        assertTrue("the page is smaller than the maths it needs", page.length > 700_000)
     }
 
     @Test fun everyFormulaInTheLibraryIsOnThePage() {

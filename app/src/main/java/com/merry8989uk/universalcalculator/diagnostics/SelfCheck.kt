@@ -109,18 +109,20 @@ object SelfCheck {
     private fun referencePage(assets: Assets): CheckResult {
         val text = assets.read("formula-studio.html")
             ?: return CheckResult("Formula page", false, "formula-studio.html is not in the package")
-        val library = assets.read("math.min.js")
-            ?: return CheckResult("Formula page", false, "math.min.js is not in the package")
-        // the page must not reach for the library over the network: the app is
-        // used on trains
-        if (text.contains("cdnjs") || text.contains("https://cdn.")) {
-            return CheckResult("Formula page", false, "the page still loads its maths from the internet")
+        // the page must not reach for anything: the app is used on trains, and a
+        // second file is a second thing that can fail to load
+        if (text.contains("cdnjs") || text.contains("src=\"http")) {
+            return CheckResult("Formula page", false, "the page still loads something from the internet")
+        }
+        if (text.contains("src=\"math.min.js\"")) {
+            return CheckResult("Formula page", false, "the maths is a separate file rather than part of the page")
         }
         val count = Regex("\\{\"?serial").findAll(text).count()
-        return if (count > 100 && library.length > 10_000) {
-            CheckResult("Formula page", true, "loads from the package with its own maths, $count entries")
+        val hasMaths = text.contains("math.evaluate")
+        return if (count > 100 && hasMaths) {
+            CheckResult("Formula page", true, "self-contained, $count formulas, its own maths")
         } else {
-            CheckResult("Formula page", false, "the page is there but has only $count entries in it")
+            CheckResult("Formula page", false, "the page has $count formulas and maths: $hasMaths")
         }
     }
 
