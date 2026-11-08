@@ -139,7 +139,7 @@ object SelfCheck {
     private fun formulaLibrary(): CheckResult {
         val tools = FormulaLibrary.formulas
         if (tools.isEmpty()) return CheckResult("Calculators", false, "no calculators in the library")
-        val proof = com.merry8989uk.universalcalculator.formula.FormulaProver.proveTools(tools)
+        val proof = com.merry8989uk.universalcalculator.calc.ToolProver.proveTools(tools)
         return if (proof.ok) {
             CheckResult("Calculators", true, "${proof.checked} run at random values, all agree with themselves")
         } else {

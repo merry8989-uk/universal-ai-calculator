@@ -1,6 +1,7 @@
 package com.merry8989uk.universalcalculator
 
 import com.merry8989uk.universalcalculator.calc.FormulaLibrary
+import com.merry8989uk.universalcalculator.calc.ToolProver
 import com.merry8989uk.universalcalculator.formula.FormulaProver
 import com.merry8989uk.universalcalculator.formula.FormulaRegistry
 import org.junit.Assert.assertTrue
@@ -60,7 +61,7 @@ class FormulaProofTest {
     }
 
     @Test fun everyCalculatorIsProvedAtRandomValues() {
-        val proof = FormulaProver.proveTools(FormulaLibrary.formulas)
+        val proof = ToolProver.proveTools(FormulaLibrary.formulas)
         println("TOOLS checked=${proof.checked} failed=${proof.failures.size}")
         for (f in proof.failures.take(40)) {
             println("  FAIL ${f.title}: ${f.why}")

@@ -1,6 +1,5 @@
 package com.merry8989uk.universalcalculator.formula
 
-import com.merry8989uk.universalcalculator.calc.Formula
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -104,75 +103,6 @@ object FormulaProver {
             ok++
         }
         return if (ok == rounds) null else "${rounds - ok} of $rounds rounds failed: ${firstError ?: "no answer"}"
-    }
-
-    /** Every calculator, proved at random values, including that it listens to its inputs. */
-    fun proveTools(
-        tools: List<Formula>,
-        rounds: Int = 3,
-        seed: Long = 20_261_108L,
-    ): Proof {
-        val random = Random(seed + 1)
-        val failures = ArrayList<Failure>()
-        var checked = 0
-
-        for (tool in tools) {
-            checked++
-            val problem = proveTool(tool, random, rounds)
-            if (problem != null) failures.add(Failure(tool.title, problem))
-        }
-        return Proof("Calculators", checked, rounds, failures, 0)
-    }
-
-    private fun proveTool(tool: Formula, random: Random, rounds: Int): String? {
-        if (tool.inputs.isEmpty()) return "it has no inputs to try"
-
-        val answers = ArrayList<List<Double>>()
-        for (round in 0 until rounds) {
-            val values = tool.inputs.associate { it.key to draw(random) }
-            val out = try {
-                tool.compute(values)
-            } catch (e: Exception) {
-                return "it threw ${e.javaClass.simpleName} on random values"
-            }
-            if (out.isEmpty()) return "it produced no answers"
-            if (out.any { !it.value.isFinite() }) return "it gave a number that is not finite"
-            answers.add(out.map { it.value })
-        }
-
-        // the same inputs must give the same answer
-        if (answers.distinct().size != answers.size) return "it gave different answers for different values"
-
-        // every declared input must change the answer: a box that does nothing is
-        // worse than a box that is not there
-        val base = tool.inputs.associate { it.key to 4.0 }
-        val baseOut = try {
-            tool.compute(base).map { it.value }
-        } catch (e: Exception) {
-            return null // this one needs values outside the plain range; the rounds above covered it
-        }
-        for (input in tool.inputs) {
-            val moved = HashMap(base)
-            moved[input.key] = base[input.key]!! * 2.0 + 1.0
-            val movedOut = try {
-                tool.compute(moved).map { it.value }
-            } catch (e: Exception) {
-                continue
-            }
-            if (sameNumbers(baseOut, movedOut)) {
-                return "changing ${input.label} does not change the answer"
-            }
-        }
-        return null
-    }
-
-    private fun sameNumbers(a: List<Double>, b: List<Double>): Boolean {
-        if (a.size != b.size) return false
-        for (i in a.indices) {
-            val scale = maxOf(1.0, abs(a[i]), abs(b[i]))
-            if (abs(a[i] - b[i]) > 1e-9 * scale) return false
-        }
-        return true
     }
 
     private fun draw(random: Random): Double =
