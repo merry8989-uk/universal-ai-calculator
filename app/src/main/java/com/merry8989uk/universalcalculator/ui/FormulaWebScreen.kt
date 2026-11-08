@@ -42,9 +42,10 @@ fun FormulaReferenceScreen(onBack: () -> Unit, onOpenTool: (String) -> Unit = {}
                 val bridge = FormulaBridge(ctx.applicationContext)
                 WebView(ctx).apply {
                     web.value = this
-                    // the page is light, so the flash before it paints is light
-                    // too; a dark one reads as a fault on a fast phone
-                    setBackgroundColor(0xFFF5F7FB.toInt())
+                    // the studio page is dark, so the flash before it paints is
+                    // its own background colour; a light one reads as a fault on
+                    // a fast phone
+                    setBackgroundColor(0xFF0A1020.toInt())
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = false
                     settings.allowFileAccess = false
