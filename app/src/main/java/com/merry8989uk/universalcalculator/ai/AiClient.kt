@@ -288,7 +288,18 @@ object AiClient {
                 val ans = json?.optString("answer")?.takeIf { it.isNotBlank() }
                 DiagnosticsLogger.log("AI", "Answer received (${ans?.length ?: 0} chars)")
                 val model = json?.optString("model").orEmpty()
-                val searched = json?.optJSONArray("searched")?.length() ?: 0
+                // The queries the worker ran, kept as queries rather than
+                // counted and dropped: an answer that used the web has to be
+                // able to say what it used.
+                val searched = json?.optJSONArray("searched").let { arr ->
+                    if (arr == null) {
+                        emptyList()
+                    } else {
+                        (0 until arr.length())
+                            .map { arr.optString(it) }
+                            .filter { it.isNotBlank() }
+                    }
+                }
                 val verdict = Verification.check(question, ans.orEmpty())
                 EventLog.ai(
                     "request.completed",
@@ -302,7 +313,7 @@ object AiClient {
                         "answer_chars" to (ans?.length ?: 0).toString(),
                         "has_context" to context.isNotBlank().toString(),
                         "history_turns" to history.size.toString(),
-                        "search_count" to searched.toString(),
+                        "search_count" to searched.size.toString(),
                         "verification" to verdict.state,
                         "verification_detail" to verdict.detail,
                     ),
@@ -312,7 +323,7 @@ object AiClient {
                 if (ans == null) {
                     AiResult.Failed(NO_ANSWER, requestId, code)
                 } else {
-                    AiResult.Ok(ans, requestId)
+                    AiResult.Ok(ans, requestId, searched)
                 }
             } else {
                 DiagnosticsLogger.log("AI", "Error $code (request $requestId)")
