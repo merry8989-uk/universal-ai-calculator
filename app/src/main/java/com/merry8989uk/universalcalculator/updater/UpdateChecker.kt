@@ -23,6 +23,9 @@ object UpdateChecker {
     private const val REPO = "merry8989-uk/universal-ai-calculator"
     private const val LATEST_API = "https://api.github.com/repos/$REPO/releases/latest"
 
+    /** What the phone build is called in a release. */
+    private const val PHONE_PREFIX = "nexus-calc-phone"
+
     /** Returns update details if a newer release exists, otherwise null. */
     suspend fun check(currentVersion: String): UpdateInfo? = withContext(Dispatchers.IO) {
         val conn = (URL(LATEST_API).openConnection() as HttpURLConnection).apply {
@@ -39,12 +42,15 @@ object UpdateChecker {
             val latest = json.optString("tag_name").trim().removePrefix("v")
             if (latest.isEmpty() || !isNewer(latest, currentVersion)) return@withContext null
 
-            val apkUrl = json.optJSONArray("assets")?.let { assets ->
-                (0 until assets.length())
-                    .map { assets.getJSONObject(it) }
-                    .firstOrNull { it.optString("name").endsWith(".apk", ignoreCase = true) }
-                    ?.optString("browser_download_url")
-            } ?: return@withContext null
+            val assets = json.optJSONArray("assets")
+            val names = if (assets == null) emptyList() else
+                (0 until assets.length()).map { assets.getJSONObject(it).optString("name") }
+            val chosen = pickApk(names) ?: return@withContext null
+            val apkUrl = (0 until (assets?.length() ?: 0))
+                .map { assets!!.getJSONObject(it) }
+                .firstOrNull { it.optString("name") == chosen }
+                ?.optString("browser_download_url")
+                ?: return@withContext null
 
             UpdateInfo(
                 latestVersion = latest,
@@ -57,6 +63,21 @@ object UpdateChecker {
         } finally {
             conn.disconnect()
         }
+    }
+
+    /**
+     * The phone build among a release's assets.
+     *
+     * A release carries the phone APK and the watch APK, and taking the first
+     * `.apk` meant a phone could be offered the watch app to install over itself.
+     * The phone build is named for the phone; anything that says "wear" is never
+     * it. Older releases used `app-release.apk`, so a name with no device in it
+     * is still accepted when nothing better is on offer.
+     */
+    fun pickApk(names: List<String>): String? {
+        val apks = names.filter { it.endsWith(".apk", ignoreCase = true) }
+        apks.firstOrNull { it.startsWith(PHONE_PREFIX, ignoreCase = true) }?.let { return it }
+        return apks.firstOrNull { !it.contains("wear", ignoreCase = true) }
     }
 
     /** True when [candidate] is a strictly higher dotted-numeric version. */
