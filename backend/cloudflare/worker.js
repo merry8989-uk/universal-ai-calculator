@@ -1489,8 +1489,21 @@ export default {
         }
 
         if (sync === "delete") {
-          // deleting is the one action that cannot be undone, so it has to be
-          // asked for twice: once with the code, once with the confirmation
+          // Deleting is the one action that cannot be undone, so it has to be
+          // asked for twice: once with the code, once with the confirmation.
+          //
+          // It is also idempotent. Asking for the data to be gone when it is
+          // already gone is not a failure — the caller wanted nothing there and
+          // nothing is there — so a repeat answers 200 and says so with
+          // `removed: false`, rather than a 404 the app would have to explain
+          // away. That matters because a delete whose reply is lost on the way
+          // back is retried by the user, and the second attempt must not look
+          // like the first one failed.
+          //
+          // Only the blob and its version go. The account record (`acct:<id>`)
+          // stays, so the same id can be backed up to again and the id cannot be
+          // taken by somebody else in the meantime; deleting the account itself
+          // would be a different request with a different confirmation.
           if (body?.confirm !== true) {
             return json(
               { error: "Deleting a backup has to be confirmed.", needsConfirm: true },
@@ -1501,7 +1514,7 @@ export default {
           const version = current === null ? 0 : Number(await env.NEXUS_SYNC.get(`ver:${slot}`)) || 1;
           await env.NEXUS_SYNC.delete(`slot:${slot}`);
           await env.NEXUS_SYNC.delete(`ver:${slot}`);
-          return json({ deleted: true, previousVersion: version });
+          return json({ deleted: true, removed: current !== null, previousVersion: version });
         }
 
         return json({ error: "Unknown sync action." }, 400);

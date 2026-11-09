@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -48,10 +49,16 @@ import java.util.Locale
  * The shape of the screen follows the order a person actually does things:
  *
  *   signed out — pick an id, pick a password, press the button
- *   signed in  — see who you are, back up, restore, sign out
+ *   signed in  — see who you are, back up, restore, delete, sign out
  *
  * Nothing here happens by itself. There is no background upload; a backup is a
  * button the user presses.
+ *
+ * Signing out and deleting are two different promises, so they are two different
+ * buttons. Signing out forgets the account on this phone and leaves the
+ * encrypted copy where it is; deleting removes the copy itself. Until now only
+ * the first existed, which meant a user who wanted their data off the server had
+ * nothing to press and no way to find that out.
  */
 @Composable
 fun AccountScreen(onBack: () -> Unit) {
@@ -74,7 +81,10 @@ fun AccountScreen(onBack: () -> Unit) {
     var askingFor by remember { mutableStateOf("") }
     var askPassword by remember { mutableStateOf("") }
     var askShow by remember { mutableStateOf(false) }
-    var includeHistory by remember { mutableStateOf(true) }
+    // one switch for everything that is the user's own working; see BackupContents
+    var includeCalculations by remember { mutableStateOf(true) }
+    // the delete is never one tap: this holds the dialog open until it is answered
+    var confirmingDelete by remember { mutableStateOf(false) }
 
     fun say(text: String, bad: Boolean) {
         message = text
@@ -282,16 +292,16 @@ fun AccountScreen(onBack: () -> Unit) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Include the history", style = MaterialTheme.typography.bodyLarge)
+                    Text(BackupContents.SWITCH_TITLE, style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Your calculation archive is always kept on this phone either way.",
+                        BackupContents.SWITCH_DETAIL,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 androidx.compose.material3.Switch(
-                    checked = includeHistory,
-                    onCheckedChange = { includeHistory = it },
+                    checked = includeCalculations,
+                    onCheckedChange = { includeCalculations = it },
                 )
             }
 
@@ -307,6 +317,24 @@ fun AccountScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             ) { Text("Restore from this account") }
 
+            // The way out that was missing. It sits above sign out and is coloured
+            // as a warning, because it is the only button here that destroys
+            // something — and what it destroys is not on this phone.
+            OutlinedButton(
+                onClick = { confirmingDelete = true },
+                enabled = !busy,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error,
+                ),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            ) { Text("Delete the backup on the server") }
+            Text(
+                "Removes the encrypted copy from the server. Your archive on this phone is not touched, and you stay signed in.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+
             TextButton(
                 onClick = {
                     AccountService.signOut(context)
@@ -314,11 +342,65 @@ fun AccountScreen(onBack: () -> Unit) {
                     id = ""
                     password = ""
                     confirm = ""
-                    say("Signed out on this phone. Your backup is still on the server.", false)
+                    say(
+                        "Signed out on this phone. Your backup is still on the server — " +
+                            "\"Delete the backup on the server\" removes it.",
+                        false,
+                    )
                 },
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             ) { Text("Sign out on this phone") }
         }
+    }
+
+    // The confirmation names what goes, part by part, because "delete" on its own
+    // is a word a user can agree to without knowing what they agreed to. There is
+    // no password field: the password is the key to the data, not to the account,
+    // and the device already holds what the server checks.
+    if (confirmingDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmingDelete = false },
+            title = { Text("Delete the backup on the server?") },
+            text = {
+                Column {
+                    Text(
+                        "This removes the encrypted copy from the server for good. What goes:",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text("\u2022 the archive: every calculation you have ever worked out", modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall)
+                    Text("\u2022 the recent history", style = MaterialTheme.typography.bodySmall)
+                    Text("\u2022 your saved calculators", style = MaterialTheme.typography.bodySmall)
+                    Text("\u2022 your settings", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        // the list above is what a backup holds with the switch on;
+                        // saying so keeps the list from promising more than the
+                        // blob on the server actually contains
+                        "With the switch above off, only the last two were ever sent.",
+                        modifier = Modifier.padding(top = 6.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        "It cannot be undone. Nobody can get it back — the server holds it encrypted and cannot read it, and no other copy exists. " +
+                            "Your archive on this phone stays where it is, and you stay signed in, so you can back up again later.",
+                        modifier = Modifier.padding(top = 8.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmingDelete = false
+                        run { AccountService.deleteBackup(context) }
+                    },
+                    enabled = !busy,
+                ) { Text("Delete it", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmingDelete = false }) { Text("Keep it") }
+            },
+        )
     }
 
     if (askingFor.isNotBlank()) {
@@ -353,9 +435,9 @@ fun AccountScreen(onBack: () -> Unit) {
                         val typed = askPassword
                         askingFor = ""
                         if (which == "backup") {
-                            run { AccountService.backUp(context, typed, includeHistory) }
+                            run { AccountService.backUp(context, typed, includeCalculations) }
                         } else {
-                            run { AccountService.restore(context, typed, includeHistory) }
+                            run { AccountService.restore(context, typed, includeCalculations) }
                         }
                     },
                     enabled = askPassword.isNotEmpty() && !busy,
