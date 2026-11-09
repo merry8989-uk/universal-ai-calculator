@@ -133,7 +133,10 @@ fun ScientificDrawer(
                         ) {
                             chunk.forEach { key ->
                                 KeyButton(
-                                    label = label(key),
+                                    // the face is the word for the key, not the
+                                    // evaluator's name for it: the drawer used to
+                                    // read lambertw, harmmean, log1p, isqrt
+                                    label = KeyFaces.face(key),
                                     colors = listOf(Color(0xFFFFD54F), Amber),
                                     contentColor = Color(0xFF3A2600),
                                     modifier = Modifier.weight(1f).height(50.dp),
