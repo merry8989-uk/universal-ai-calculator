@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.merry8989uk.universalcalculator.calc.CacheAge
@@ -238,7 +240,11 @@ fun CurrencyScreen(onBack: () -> Unit, savingEnabled: Boolean) {
             OutlinedTextField(
                 value = amountText, onValueChange = { amountText = it },
                 label = { Text("Amount in ${fromCode.uppercase()}") },
-                singleLine = true, modifier = Modifier.weight(1f),
+                singleLine = true,
+                // Decimal, not the default text keyboard: an amount has paise,
+                // and the keyboard it was getting had no decimal point at all.
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.weight(1f),
             )
             TextButton(
                 onClick = { val t = fromCode; fromCode = toCode; toCode = t },
