@@ -1,8 +1,10 @@
 package com.merry8989uk.universalcalculator.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -235,14 +237,25 @@ fun StudioItem(
     onClick: () -> Unit,
     meta: String = "",
     modifier: Modifier = Modifier,
+    /**
+     * What holding the row does, for rows that carry a second action. Left null
+     * the row behaves exactly as it always did: a hold does nothing, and no
+     * long-press is offered to a screen reader that would announce one.
+     */
+    onLongClick: (() -> Unit)? = null,
 ) {
+    val press = if (onLongClick == null) {
+        Modifier.clickable(onClick = onClick)
+    } else {
+        Modifier.holdingRow(onClick, onLongClick)
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(Studio.ItemShape)
             .background(Studio.ItemBg)
             .border(1.dp, Studio.ItemBorder, Studio.ItemShape)
-            .clickable(onClick = onClick)
+            .then(press)
             .semantics(mergeDescendants = true) {
                 contentDescription = if (meta.isEmpty()) "$title. $subtitle" else "$title. $subtitle. $meta"
                 role = Role.Button
@@ -272,6 +285,17 @@ fun StudioItem(
         }
     }
 }
+
+/**
+ * A row that answers to a tap and to a hold.
+ *
+ * It is a separate function only because [combinedClickable] is still an
+ * experimental API: the opt-in sits here rather than on every screen that draws
+ * a row, so the day it is promoted there is one line to delete.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+private fun Modifier.holdingRow(onClick: () -> Unit, onLongClick: () -> Unit): Modifier =
+    combinedClickable(onClick = onClick, onLongClick = onLongClick)
 
 /** The formula, set the way the page sets it: monospace, on its own surface. */
 @Composable

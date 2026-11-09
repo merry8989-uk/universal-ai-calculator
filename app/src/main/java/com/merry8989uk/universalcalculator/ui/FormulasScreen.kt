@@ -1,6 +1,7 @@
 package com.merry8989uk.universalcalculator.ui
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -212,6 +214,7 @@ fun FormulasScreen(
                     onEdit = { editing = it },
                     onOpen = { selected = it },
                     onTool = { tool = it },
+                    onImport = { persist(custom + it) },
                     tools = shownTools,
                 )
             }
@@ -248,6 +251,7 @@ fun FormulasScreen(
                 onPrefs = { keepPrefs(it) },
                 onCreate = { creating = true },
                 onEdit = { editing = it },
+                onImport = { persist(custom + it) },
                 tools = shownTools,
                 onOpen = {
                     selected = it
@@ -289,19 +293,27 @@ private fun FormulaList(
     onEdit: (CustomCalculator) -> Unit,
     onOpen: (Formula) -> Unit,
     onTool: (String) -> Unit,
+    /** Calculators that arrived from another phone, to be added to the saved ones. */
+    onImport: (List<CustomCalculator>) -> Unit = {},
     /** The tools on offer, after CAS mode has had its say. */
     tools: List<Tool> = TOOLS,
 ) {
     var category by remember { mutableStateOf("Tools") }
     var query by remember { mutableStateOf("") }
+    var sharing by remember { mutableStateOf(false) }
+    var importing by remember { mutableStateOf(false) }
     val searching = query.isNotBlank()
     val hindi = readingHindi()
     // The user's own calculators behave exactly like the built-in ones.
-    val customFormulas = remember(custom) { custom.map { it.toFormula() } }
+    val myRows = remember(custom) { customRows(custom) }
+    val customFormulas = remember(myRows) { myRows.map { it.formula } }
     val everything = FormulaLibrary.formulas + customFormulas
     val byId = remember { FormulaLibrary.formulas.associateBy { it.id } }
     val list = when (category) {
-        CustomCalculator.CATEGORY -> customFormulas
+        // Their own calculators are drawn from the rows below, once each, since
+        // a row here has to run on a tap and edit on a hold and the shared row
+        // rendering further down knows only about the tap.
+        CustomCalculator.CATEGORY -> emptyList()
         FAVOURITES -> prefs.favourites.mapNotNull { byId[it] }
         RECENT -> prefs.recents.mapNotNull { byId[it] }
         else -> FormulaLibrary.byCategory(category)
@@ -443,6 +455,47 @@ private fun FormulaList(
                                 )
                             }
                         }
+                        // One row per saved calculator, and the row does both
+                        // things the calculator has: a tap works it out on the
+                        // same page the built-ins open, a hold changes it. The
+                        // row says "Hold to edit" because a long press is the
+                        // one gesture nothing else on screen advertises.
+                        items(myRows) { row ->
+                            StudioItem(
+                                title = calcTitle(hindi, row.formula.id, row.title),
+                                subtitle = calcBlurb(hindi, row.formula.id, row.subtitle),
+                                accent = TOOL_COLORS.last(),
+                                meta = if (hindi) "देर तक दबाएँ: बदलें" else "Hold to edit",
+                                onClick = { open(row.formula) },
+                                onLongClick = { onEdit(row.calculator) },
+                            )
+                        }
+                        if (custom.isNotEmpty()) {
+                            item {
+                                StudioItem(
+                                    title = if (hindi) "कैलकुलेटर भेजें" else "Send a calculator",
+                                    subtitle = if (hindi) {
+                                        "इस डिवाइस से एक कैलकुलेटर दूसरे फ़ोन पर भेजें।"
+                                    } else {
+                                        "Share one of these with another phone, as text."
+                                    },
+                                    accent = TOOL_COLORS[1],
+                                    onClick = { sharing = true },
+                                )
+                            }
+                        }
+                        item {
+                            StudioItem(
+                                title = if (hindi) "कैलकुलेटर लें" else "Take a calculator",
+                                subtitle = if (hindi) {
+                                    "किसी के भेजे हुए कैलकुलेटर का टेक्स्ट चिपकाएँ।"
+                                } else {
+                                    "Paste one that somebody sent you, and it joins this list."
+                                },
+                                accent = TOOL_COLORS[2],
+                                onClick = { importing = true },
+                            )
+                        }
                     }
                     if ((category == FAVOURITES || category == RECENT) && list.isEmpty()) {
                         item {
@@ -463,19 +516,28 @@ private fun FormulaList(
                             onClick = { open(f) },
                         )
                     }
-                    if (category == CustomCalculator.CATEGORY) {
-                        items(custom) { c ->
-                            StudioItem(
-                                title = c.name,
-                                subtitle = c.expression,
-                                accent = TOOL_COLORS.last(),
-                                onClick = { onEdit(c) },
-                            )
-                        }
-                    }
                 }
             }
         }
+    }
+
+    if (sharing) {
+        SendCalculatorDialog(
+            calculators = custom,
+            hindi = hindi,
+            onDismiss = { sharing = false },
+        )
+    }
+    if (importing) {
+        TakeCalculatorDialog(
+            hindi = hindi,
+            existing = custom,
+            onTake = {
+                onImport(it)
+                importing = false
+            },
+            onDismiss = { importing = false },
+        )
     }
 }
 
@@ -598,3 +660,120 @@ private fun FormulaDetailScreen(
         }
     }
 }
+
+/**
+ * Picks which calculator to send, and hands its text to the share sheet.
+ *
+ * A dialog rather than an action on every row: a row's hold is already the
+ * editor, and a second control per row is a second thing the reader has to be
+ * taught. The text is the store's own format, so whoever receives it can paste
+ * it back on the other side without this app inventing a second format.
+ */
+@Composable
+private fun SendCalculatorDialog(
+    calculators: List<CustomCalculator>,
+    hindi: Boolean,
+    onDismiss: () -> Unit,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (hindi) "कैलकुलेटर भेजें" else "Send a calculator") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                calculators.forEach { c ->
+                    TextButton(
+                        onClick = {
+                            val text = shareText(c)
+                            // No share sheet on the device is not a dead end:
+                            // the text can still be copied by hand.
+                            if (!shareText(context, c.name.ifBlank { "Calculator" }, text)) {
+                                copyToClipboard(context, c.name.ifBlank { "Calculator" }, text)
+                            }
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(c.name.ifBlank { c.expression })
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        },
+    )
+}
+
+/**
+ * Takes a calculator somebody sent, from the clipboard or typed in.
+ *
+ * The field arrives filled in because the text on the clipboard is almost
+ * always the text that was just sent, and asking the reader to paste it by hand
+ * would be a step with no decision in it. Nothing is added until the text
+ * actually reads back as a calculator, so a wrong paste cannot add a blank row.
+ */
+@Composable
+private fun TakeCalculatorDialog(
+    hindi: Boolean,
+    existing: List<CustomCalculator>,
+    onTake: (List<CustomCalculator>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var text by remember { mutableStateOf(clipboardText(context)) }
+    val found = remember(text, existing) { importedCalculators(text, existing) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (hindi) "कैलकुलेटर लें" else "Take a calculator") },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = {
+                        Text(if (hindi) "भेजा गया टेक्स्ट" else "The text you were sent")
+                    },
+                    minLines = 3,
+                    maxLines = 6,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    when {
+                        found.isEmpty() -> if (hindi) "अभी पढ़ने के लिए कुछ नहीं है।"
+                        else "Nothing to read yet."
+                        found.size == 1 -> if (hindi) "1 कैलकुलेटर मिला।" else "One calculator found."
+                        else -> if (hindi) "${found.size} कैलकुलेटर मिले।"
+                        else "${found.size} calculators found."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Studio.Muted,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onTake(found) },
+                enabled = found.isNotEmpty(),
+            ) {
+                Text(if (hindi) "जोड़ें" else "Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        },
+    )
+}
+
+/** Whatever is on the clipboard, if it is text at all. */
+private fun clipboardText(context: android.content.Context): String = runCatching {
+    val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+        as android.content.ClipboardManager
+    clipboard.primaryClip?.takeIf { it.itemCount > 0 }
+        ?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
+}.getOrDefault("")
