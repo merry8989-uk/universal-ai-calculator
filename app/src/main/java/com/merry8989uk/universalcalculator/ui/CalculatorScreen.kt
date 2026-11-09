@@ -96,6 +96,7 @@ import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.BoxExpression
+import com.merry8989uk.universalcalculator.calc.CalcFailure
 import com.merry8989uk.universalcalculator.calc.CalcInfo
 import com.merry8989uk.universalcalculator.calc.ExpressionGuard
 import com.merry8989uk.universalcalculator.calc.Evaluator
@@ -362,6 +363,10 @@ fun CalculatorScreen(
     // The exact value behind the rounded number on screen, so continuing a
     // calculation after "=" does not silently lose precision.
     var exactResult by remember { mutableStateOf<Double?>(null) }
+    // The last failed sum, if the expression on screen is the one that failed.
+    // It holds a sentence to show under the expression and nothing else: a
+    // failure has no answer and leaves no entry behind it.
+    var calcFailure by remember { mutableStateOf<CalcFailure?>(null) }
 
     val historyVm: HistoryViewModel = viewModel()
     val history by historyVm.entries.collectAsState()
@@ -389,6 +394,11 @@ fun CalculatorScreen(
     var aiLoading by remember { mutableStateOf(false) }
 
     val text = expr.text
+    // A failure notice belongs to the expression that failed. The moment that
+    // text changes, by typing or by a key, the notice goes with it.
+    LaunchedEffect(text) {
+        if (calcFailure?.expression != text) calcFailure = null
+    }
     // The flat square key style is a separate thing from the pad itself.
     val classic = settings.layoutStyle == "Classic"
     // One rule, shared with the tab bar, so the two can never disagree.
@@ -610,6 +620,7 @@ when (key) {
                                         exactResult = null
                                         val calcStart = System.currentTimeMillis()
                                         var calcError: String? = null
+                                        var failure: CalcFailure? = null
                                         val shown = try {
                                             if (ready.isBlank()) {
                                                 "0"
@@ -653,9 +664,20 @@ when (key) {
                                             // not counted as a failed sum.
                                             e.message ?: Evaluator.UndefinedValue.MESSAGE
                                         } catch (e: Exception) {
-                                            calcError = e.javaClass.simpleName
-                                            // Say why rather than just "error".
-                                            e.message?.takeIf { it.isNotBlank() } ?: "error"
+                                            // A failed sum says why in one sentence and
+                                            // changes nothing else: the expression stays
+                                            // as typed, no answer is invented, and
+                                            // nothing is recorded. What the exception
+                                            // actually said goes to the log, because a
+                                            // stack message is not something a person
+                                            // can act on.
+                                            val decided = CalcFailure.of(text.ifBlank { "0" }, e)
+                                            failure = decided
+                                            calcError = decided.logCode
+                                            decided.logDetail?.let { said ->
+                                                DiagnosticsLogger.log("Calc", "failed ${decided.logCode}: $said")
+                                            }
+                                            decided.notice
                                         }
                                         // A. Calculator engine — what was worked out,
                                         // whether it worked, and how long it took. The
@@ -675,32 +697,44 @@ when (key) {
                                                 "had_slots" to slots.isNotEmpty().toString(),
                                             ),
                                         )
-                                        // The archive keeps the record. It is
-                                        // written even when the history is off,
-                                        // and clearing the history never touches
-                                        // it — but the master switch stops it too.
-                                        if (DataPolicy.mayArchive(settings.dataSavingEnabled)) {
-                                            runCatching {
-                                                ArchiveStore.append(
-                                                    ctx,
-                                                    ArchiveEntry(
-                                                        at = ArchiveStore.now(),
-                                                        kind = title,
-                                                        expression = text.ifBlank { "0" },
-                                                        result = shown,
-                                                        value = exactResult,
-                                                    ),
-                                                )
+                                        // A sum that came out is written down and
+                                        // carried onto the screen. A sum that failed
+                                        // is not: it has no answer to keep, no entry
+                                        // to make, and the expression it was typed as
+                                        // stays where the user can see and fix it.
+                                        if (failure == null) {
+                                            // The archive keeps the record. It is
+                                            // written even when the history is off,
+                                            // and clearing the history never touches
+                                            // it — but the master switch stops it too.
+                                            if (DataPolicy.mayArchive(settings.dataSavingEnabled)) {
+                                                runCatching {
+                                                    ArchiveStore.append(
+                                                        ctx,
+                                                        ArchiveEntry(
+                                                            at = ArchiveStore.now(),
+                                                            kind = title,
+                                                            expression = text.ifBlank { "0" },
+                                                            result = shown,
+                                                            value = exactResult,
+                                                        ),
+                                                    )
+                                                }
                                             }
+                                            // the answer joins the grand total
+                                            grandTotal = GrandTotal.add(grandTotal, exactResult)
+                                            gtJustPressed = false
+                                            DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
+                                            if (DataPolicy.mayKeepHistory(settings.dataSavingEnabled, settings.historyEnabled)) {
+                                                historyVm.append("${text.ifBlank { "0" }} = $shown")
+                                            }
+                                            expr = TextFieldValue(shown, TextRange(shown.length))
+                                            calcFailure = null
+                                        } else {
+                                            // The sentence goes under the expression
+                                            // and nothing else moves.
+                                            calcFailure = failure
                                         }
-                                        // the answer joins the grand total
-                                        grandTotal = GrandTotal.add(grandTotal, exactResult)
-                                        gtJustPressed = false
-                                        DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
-                                        if (DataPolicy.mayKeepHistory(settings.dataSavingEnabled, settings.historyEnabled)) {
-                                            historyVm.append("${text.ifBlank { "0" }} = $shown")
-                                        }
-                                        expr = TextFieldValue(shown, TextRange(shown.length))
                                         rippleTick++
                                         }
                                     }
@@ -1201,6 +1235,27 @@ when (key) {
                     },
                 )
 
+                // A failed sum gets its own row under the expression, the place
+                // the answer would have been, and the answer itself is left empty
+                // rather than filled with the previous one. The notice belongs to
+                // the expression it describes, so it goes as soon as that is edited.
+                val failureNotice = calcFailure?.takeIf { it.expression == text }?.notice.orEmpty()
+                if (failureNotice.isNotEmpty()) {
+                    Text(
+                        failureNotice,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp)
+                            .semantics {
+                                liveRegion = LiveRegionMode.Polite
+                                contentDescription = failureNotice
+                            },
+                    )
+                }
+
                 val resultSpoken = if (preview.isNotEmpty())
                     stringResource(
                         R.string.result_a11y,
@@ -1208,7 +1263,7 @@ when (key) {
                     )
                 else ""
 
-                if (settings.livePreview) {
+                if (settings.livePreview && failureNotice.isEmpty()) {
                     val asFraction = if (settings.fractionsEnabled && preview.isNotEmpty()) {
                         preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
                     } else null
