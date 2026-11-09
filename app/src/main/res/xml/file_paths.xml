@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  The only thing this app shares as a file is a picture of a calculation, drawn
+  into the cache. Nothing else in the app's storage is reachable through the
+  provider.
+-->
 <paths>
-    <!-- Where the updater writes the downloaded APK (Rule 6). -->
-    <cache-path name="updates" path="." />
-    <!-- Where diagnostics exports are written before sharing (Rule 7). -->
-    <files-path name="logs" path="logs/" />
-    <!-- The export itself is written to cacheDir/exports; naming it here means the
-         share sheet can read it even if the cache path above is ever narrowed. -->
-    <cache-path name="exports" path="exports/" />
+    <cache-path name="cards" path="cards/" />
 </paths>
