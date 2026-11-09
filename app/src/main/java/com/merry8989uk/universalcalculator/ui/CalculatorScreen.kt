@@ -421,6 +421,8 @@ fun CalculatorScreen(
     // One rule, shared with the tab bar, so the two can never disagree.
     val aiVisible = aiIsVisible(settings.aiEnabled, settings.minimalMode)
     // How results are written out: Normal, Fixed, Scientific, Engineering, SI.
+    // The writing itself lives in displayNumber; this is only the light on the
+    // display that says which one is in force.
     val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(settings.decimalFormat)
     // What + and - do with a percent sign.
     val percentageMode =
@@ -651,11 +653,7 @@ when (key) {
                                                 if (r.isReal(1e-10)) {
                                                     ans = r.re
                                                     exactResult = r.re
-                                                    pretty(
-                                                        Format.number(r.re), settings.numberFormat,
-                                                        settings.decimals,
-                                                        decimalMode, settings.decimalDigits,
-                                                    )
+                                                    settings.displayNumber(Format.number(r.re))
                                                 } else {
                                                     Complex.text(r)
                                                 }
@@ -670,11 +668,7 @@ when (key) {
                                                 ans = value
                                                 exactResult = value
                                                 // Shown at the number of decimals the user chose.
-                                                pretty(
-                                                    Format.number(value), settings.numberFormat,
-                                                    settings.decimals,
-                                                    decimalMode, settings.decimalDigits,
-                                                )
+                                                settings.displayNumber(Format.number(value))
                                             }
                                         } catch (e: Evaluator.UndefinedValue) {
                                             // A pole is a fact about the function,
@@ -980,7 +974,7 @@ when (key) {
                             modifier = Modifier.padding(top = 12.dp))
                         if (preview.isNotEmpty()) {
                             Text(
-                                "= ${pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)}",
+                                "= ${settings.displayNumber(preview)}",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium)
                         }
@@ -1339,7 +1333,7 @@ when (key) {
                 val resultSpoken = if (preview.isNotEmpty())
                     stringResource(
                         R.string.result_a11y,
-                        pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits),
+                        settings.displayNumber(preview),
                     )
                 else ""
 
@@ -1348,7 +1342,7 @@ when (key) {
                         preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
                     } else null
                     val written = if (preview.isNotEmpty())
-                        pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)
+                        settings.displayNumber(preview)
                     else ""
                     val shownPreview = if (preview.isNotEmpty())
                         "= $written" + (asFraction?.let { "   ($it)" } ?: "")
@@ -1718,16 +1712,6 @@ internal val CLASSIC_KEY_HEIGHT = 40.dp
 internal const val DISPLAY_WEIGHT_CLASSIC = 1f
 internal const val PAD_WEIGHT_CLASSIC = 1f
 
-/** Adds thousands separators to the integer part when the user wants them. */
-/**
- * Formats a result for display: rounds to the chosen number of decimals, then
- * groups the digits the way the chosen locale does.
- *
- *   Indian        30,00,000.5
- *   International  3,000,000.5
- *   European       3.000.000,5
- *   None           3000000.5
- */
 /** One of the little state lights on the display line. */
 @Composable
 private fun StateLight(label: String, on: Boolean, colour: Color) {
@@ -1738,21 +1722,3 @@ private fun StateLight(label: String, on: Boolean, colour: Color) {
         fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
     )
 }
-
-private fun pretty(
-    text: String,
-    format: String,
-    decimals: Int,
-    mode: com.merry8989uk.universalcalculator.calc.DecimalFormat =
-        com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL,
-    digits: Int = 10,
-): String {
-    // Normal keeps the existing behaviour; the other four rewrite the number
-    // first and then only group it.
-    if (mode == com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL) {
-        return Format.grouped(text, format, decimals)
-    }
-    val value = text.toDoubleOrNull() ?: return text
-    return Format.grouped(Format.number(value, mode, digits), format, -1)
-}
-

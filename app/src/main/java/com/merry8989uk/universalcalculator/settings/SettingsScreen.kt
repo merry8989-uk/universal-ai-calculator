@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.ui.ArchiveScreen
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -444,6 +445,11 @@ fun SettingsScreen(
             ChoiceRow(
                 label = stringResource(R.string.number_format),
                 options = listOf(
+                    Choice(
+                        Format.FOLLOW_LOCALE,
+                        "Follow language",
+                        "The way this phone writes numbers.",
+                    ),
                     Choice("Indian", "Indian", "30,00,000.5 — lakh and crore grouping."),
                     Choice("International", "International", "3,000,000.5 — thousands grouping."),
                     Choice("European", "European", "3.000.000,5 — dot groups, comma decimal."),
@@ -452,13 +458,10 @@ fun SettingsScreen(
                 selected = state.numberFormat,
                 onSelect = { vm.setNumberFormat(it) },
             )
+            // The example is worked out rather than written down, so it says what
+            // this phone will actually do instead of what the option is called.
             Text(
-                when (state.numberFormat) {
-                    "Indian" -> "30,00,000.5 \u2014 lakh and crore grouping."
-                    "European" -> "3.000.000,5 \u2014 dot groups, comma decimal."
-                    "None" -> "3000000.5 \u2014 no separators."
-                    else -> "3,000,000.5 \u2014 thousands grouping."
-                },
+                "3000000.5 reads as ${Format.grouped("3000000.5", state.numberFormat)}",
                 style = MaterialTheme.typography.bodySmall,
             )
 

@@ -2,6 +2,8 @@ package com.merry8989uk.universalcalculator.calc
 
 import java.math.BigDecimal
 import java.math.MathContext
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 import kotlin.math.abs
 
 /** Number formatting used across every screen. */
@@ -105,20 +107,42 @@ object Format {
     }
 
     /**
+     * The stored value that means "no choice was made".
+     *
+     * It is the default because a number should already look right before anyone
+     * goes looking for a setting: an Indian phone writes 30,00,000.5 and a German
+     * one writes 3.000.000,5 without being told to. The four names below it are
+     * the cases where someone has said otherwise, and they win.
+     */
+    const val FOLLOW_LOCALE = "Locale"
+
+    /**
      * Formats a result for display: rounds to [decimals] places (or -1 for
-     * automatic) and groups the digits the way [format] asks.
+     * automatic) and groups the digits the way [format] asks, with the separators
+     * of [locale] when [format] is not a name the user picked.
      *
      *   "Indian"        30,00,000.5
      *   "International"  3,000,000.5
      *   "European"       3.000.000,5
      *   "None"           3000000.5
+     *   "Locale"        whichever of the above [locale] would write
+     *
+     * [format] is the string the settings hold, so an empty or unknown one is
+     * read as "nothing was chosen" rather than as a failure: a value written by
+     * another version must not leave the display unformatted.
      */
-    fun grouped(text: String, format: String = "Indian", decimals: Int = -1): String {
+    fun grouped(
+        text: String,
+        format: String = FOLLOW_LOCALE,
+        decimals: Int = -1,
+        locale: Locale = Locale.getDefault(),
+    ): String {
         var t = text
         if (decimals >= 0 && !t.contains('e') && !t.contains('E')) {
-            t.toDoubleOrNull()?.let { t = String.format(java.util.Locale.US, "%.${decimals}f", it) }
+            t.toDoubleOrNull()?.let { t = String.format(Locale.US, "%.${decimals}f", it) }
         }
-        if (format == "None") return t
+        // "None" asks for the digits and nothing else, so there is no style to apply.
+        val marks = separators(format, locale) ?: return t
         // Scientific and SI forms are not plain digits; grouping them would break them.
         if (t.contains('\u00D7') || t.contains('e') || t.contains('E')) return t
 
@@ -129,25 +153,65 @@ object Format {
         val frac = if (dot >= 0) body.substring(dot + 1) else ""
         if (intPart.isEmpty() || intPart.any { !it.isDigit() }) return t
 
-        val groupSep: Char
-        val decSep: Char
-        val indian: Boolean
-        when (format) {
-            "European" -> { groupSep = '.'; decSep = ','; indian = false }
-            "Indian" -> { groupSep = ','; decSep = '.'; indian = true }
-            else -> { groupSep = ','; decSep = '.'; indian = false }
-        }
-
-        val grouped = if (indian) {
+        val grouped = if (marks.lakh) {
             if (intPart.length <= 3) intPart
-            else intPart.dropLast(3).reversed().chunked(2).joinToString(groupSep.toString()).reversed() +
-                groupSep + intPart.takeLast(3)
+            else intPart.dropLast(3).reversed().chunked(2).joinToString(marks.group.toString()).reversed() +
+                marks.group + intPart.takeLast(3)
         } else {
-            intPart.reversed().chunked(3).joinToString(groupSep.toString()).reversed()
+            intPart.reversed().chunked(3).joinToString(marks.group.toString()).reversed()
         }
 
-        return (if (neg) "-" else "") + grouped + (if (frac.isNotEmpty()) "$decSep$frac" else "")
+        return (if (neg) "-" else "") + grouped +
+            (if (frac.isNotEmpty()) "${marks.decimal}$frac" else "")
     }
+
+    /** The separators one way of writing a number uses, and how it groups. */
+    private class Marks(val group: Char, val decimal: Char, val lakh: Boolean)
+
+    /**
+     * The separators [format] asks for, or null when it asks for none.
+     *
+     * The four stored names are the user's own choice and outrank the phone.
+     * Everything else means nobody chose, and then the phone decides.
+     */
+    private fun separators(format: String, locale: Locale): Marks? = when (format) {
+        "Indian" -> Marks(',', '.', lakh = true)
+        "International" -> Marks(',', '.', lakh = false)
+        "European" -> Marks('.', ',', lakh = false)
+        "None" -> null
+        else -> fromLocale(locale)
+    }
+
+    /**
+     * The separators a locale writes numbers with.
+     *
+     * They are asked of the platform rather than hard-coded, so French gets its
+     * narrow space and German its comma without a table here to go stale.
+     */
+    private fun fromLocale(locale: Locale): Marks {
+        val symbols = DecimalFormatSymbols.getInstance(locale)
+        return Marks(
+            group = symbols.groupingSeparator,
+            decimal = symbols.decimalSeparator,
+            lakh = countsInLakhs(locale),
+        )
+    }
+
+    /**
+     * Whether a locale groups 30,00,000 rather than 3,000,000.
+     *
+     * The region decides, because lakh and crore are how India writes numbers and
+     * nowhere else does. A language on its own — `hi` rather than `hi-IN`, which
+     * is what some phones report — is read the same way.
+     */
+    private fun countsInLakhs(locale: Locale): Boolean =
+        if (locale.country.isNotEmpty()) locale.country.equals("IN", ignoreCase = true)
+        else locale.language.lowercase() in INDIAN_LANGUAGES
+
+    /** Languages that count in lakhs, for a locale that names no region. */
+    private val INDIAN_LANGUAGES = setOf(
+        "hi", "bn", "mr", "ta", "te", "kn", "ml", "gu", "pa", "or", "as", "ur", "ne", "sa",
+    )
 
     /** Fixed-decimal formatting for inputs/table cells. */
     fun decimal(v: Double, places: Int = 4): String =
