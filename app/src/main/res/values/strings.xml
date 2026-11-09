@@ -50,28 +50,6 @@
     <string name="handwriting_sent_notice">What you write here is sent to the assistant as a picture so it can read it.</string>
 <string name="attach_help">Photo takes a picture now. File opens your gallery, music or documents — images, audio clips, PDFs (the first three pages) and .txt/.md/.csv files are supported.</string>
     <string name="attach_read">Reading the attachment…</string>
-    <!-- The picture is on screen and nothing has left the phone. -->
-    <string name="attach_preview_not_sent">This is what will be sent. Nothing has left your phone yet.</string>
-    <string name="attach_preview_a11y">the picture you picked, not sent yet</string>
-    <string name="attach_send">Send it</string>
-    <string name="attach_cancel">Cancel</string>
-    <string name="attach_read_result">What the assistant read from %1$s — check it before you use it.</string>
-    <string name="attach_use_text">Use this text</string>
-    <string name="attach_use_file">Attach this</string>
-    <string name="attach_discard">Discard</string>
-    <string name="attach_try_again">Try again</string>
-    <string name="attach_failed_kept">Your picture is still here, so you can try again or discard it.</string>
-    <!-- The handwriting pad: the rendered page is shown before it is sent. -->
-    <string name="handwriting_preview_not_sent">This is what will be sent. Nothing has left your phone yet.</string>
-    <string name="handwriting_preview_a11y">the page you wrote, not sent yet</string>
-    <string name="handwriting_send">Send it</string>
-    <string name="handwriting_cancel">Cancel</string>
-    <string name="handwriting_read_as">Read as:</string>
-    <string name="handwriting_edit_hint">Correct it if the reading is wrong</string>
-    <string name="handwriting_use">Use this</string>
-    <string name="handwriting_copied">Copied. Paste it where you want it.</string>
-    <string name="handwriting_try_again">Try again</string>
-    <string name="handwriting_failed_kept">Your drawing is still here, so you can try again or write over it.</string>
     <string name="remove">Remove</string>
     <string name="attached">Attached: %1$s</string>
     <string name="answer">Answer</string>
@@ -435,4 +413,143 @@
     <string name="archive_year_total">This financial year: %1$d calculations</string>
     <string name="archive_export">Share the archive</string>
     <string name="archive_refresh">Rebuild summaries</string>
+
+    <!--
+        Everything the Settings screen says.
+
+        These were literal English in SettingsScreen.kt, which meant a phone set
+        to Hindi showed a Hindi calculator and an English Settings screen — the
+        one place a user goes to change the language was the one place that
+        ignored it. A format argument is numbered so a translation may put it
+        anywhere in the sentence.
+    -->
+    <string name="settings_section_data">Your data</string>
+    <string name="settings_keep_calculations">Keep my calculations</string>
+    <string name="settings_data_on">Answers are kept in a folder on this phone, the history keeps three days, and a log is kept for troubleshooting.</string>
+    <string name="settings_data_off">Nothing is kept. No archive, no history, no log — on this phone or anywhere else.</string>
+    <string name="settings_data_off_note">The switches below still show what they were set to, but nothing is written while this is off.</string>
+    <string name="folder_appearance_sub">Theme, text size, density</string>
+    <string name="folder_general_sub">Language, numbers, sounds</string>
+    <string name="folder_calculator">The calculator</string>
+    <string name="folder_calculator_sub">Tools, keypad, display, Ask AI</string>
+
+    <!-- Appearance -->
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="settings_your_themes">Your themes</string>
+    <string name="settings_create">Create</string>
+    <string name="settings_themes_empty">Make a theme from four colours, or from a photo.</string>
+    <string name="settings_edit">Edit</string>
+    <string name="settings_delete">Delete</string>
+    <string name="settings_text_size">Text size (%1$sx)</string>
+    <string name="settings_density">Density (%1$sx)</string>
+
+    <!-- The language picker -->
+    <string name="lang_english">English</string>
+    <string name="lang_default_note">Default</string>
+    <string name="more_languages">More languages</string>
+    <string name="lang_partial_label">%1$s (partly translated)</string>
+    <string name="lang_partial_note">This language translates only part of the app. Whatever is missing is shown in English.</string>
+
+    <!-- Number format and decimals -->
+    <string name="format_follow">Follow language</string>
+    <string name="format_follow_note">The way this phone writes numbers.</string>
+    <string name="format_indian">Indian</string>
+    <string name="format_indian_note">30,00,000.5 — lakh and crore grouping.</string>
+    <string name="format_international">International</string>
+    <string name="format_international_note">3,000,000.5 — thousands grouping.</string>
+    <string name="format_european">European</string>
+    <string name="format_european_note">3.000.000,5 — dot groups, comma decimal.</string>
+    <string name="format_none">None</string>
+    <string name="format_none_note">3000000.5 — no separators.</string>
+    <string name="format_example">3000000.5 reads as %1$s</string>
+    <string name="decimals_auto">Auto</string>
+    <string name="decimals_auto_note">Results keep as many decimals as they need.</string>
+    <string name="decimals_two">2 decimals</string>
+    <string name="decimals_two_note">Rounded to two places.</string>
+    <string name="decimals_zero">0 decimals</string>
+    <string name="decimals_zero_note">Whole numbers only.</string>
+    <string name="decimals_three">3 decimals</string>
+    <string name="decimals_three_note">Rounded to three places.</string>
+    <string name="decimals_four">4 decimals</string>
+    <string name="decimals_four_note">Rounded to four places.</string>
+    <string name="decimals_six">6 decimals</string>
+    <string name="decimals_six_note">Rounded to six places.</string>
+    <string name="decimals_now">Results are rounded to %1$d decimal places.</string>
+
+    <!-- Key sounds -->
+    <string name="more_tones">More tones</string>
+    <string name="tone_yours">Your own tone</string>
+    <string name="tone_upload">Upload a file</string>
+    <string name="tone_listening">Listening…</string>
+    <string name="tone_record">Record 1 second</string>
+    <string name="tone_upload_help">Upload a short sound, or record one. Either becomes a key tone.</string>
+    <string name="tone_set_help">You have your own tone set. Pick it from the list, or record another.</string>
+    <string name="tone_volume">Volume  ·  %1$d%%</string>
+    <string name="tone_choose">Choose my own tone</string>
+    <string name="tone_remove">Remove it</string>
+    <string name="tone_formats_help">A key tone is a fraction of a second. Pick a short sound — wav, mp3, ogg, m4a, aac, opus or flac.</string>
+    <string name="tone_saved_help">Your own tone is saved in the app. Choosing it plays it on every key.</string>
+    <string name="tone_mic_refused">Microphone permission was refused, so nothing can be recorded.</string>
+
+    <!-- Keypad layout -->
+    <string name="layout_modern">Modern</string>
+    <string name="layout_classic">Classic</string>
+    <string name="layout_modern_help">Modern: rounded keys with a colour gradient.</string>
+    <string name="layout_classic_help">Classic: flat, square keys with no colour gradient.</string>
+    <string name="layout_sci_classic_help">Sci Classic: the full scientific pad, six keys across with a SHIFT key for the second functions. It replaces the Scientific tab while this is on. Standard is not affected.</string>
+
+    <!-- Display and the assistant -->
+    <string name="settings_show_gt">Show the GT key</string>
+    <string name="settings_gt_on_help">The grand total key sits on the keypad. Turning it off gives the space to the = key.</string>
+    <string name="settings_gt_off_help">The GT key is off and = is twice as wide. The grand total is still worked out and still shown in the display.</string>
+    <string name="widget_help">Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. While adding it you can pick a solid, dimmed or fully transparent background.</string>
+    <string name="ai_built_in">Ask AI is built in and ready to use. The API key is fixed on the server, so there is nothing to set up or paste here.</string>
+
+    <!-- The account -->
+    <string name="settings_account">Your account</string>
+    <string name="account_not_signed_in">Not signed in</string>
+    <string name="account_signed_out_help">Your calculations stay on this phone. Sign in to keep a copy you can get back.</string>
+    <string name="account_signed_in_help">Back up, restore, or sign out on this phone.</string>
+
+    <!-- Updates, reset, feedback -->
+    <string name="settings_current_version">Current version %1$s</string>
+    <string name="updates_checking">Checking for updates…</string>
+    <string name="settings_update_put_aside">You put this one aside earlier.</string>
+    <string name="updates_now">Update now</string>
+    <string name="updates_downloading">Downloading update…</string>
+    <string name="updates_failed">Update failed: %1$s</string>
+    <string name="settings_reset_defaults">Reset to defaults</string>
+    <string name="settings_rate_app">Rate app</string>
+    <string name="settings_report_issue">Report issue</string>
+    <string name="settings_email_support">Email support</string>
+    <string name="settings_footer_version">Nexus Calc  ·  version %1$s</string>
+    <string name="settings_footer_ask">Suggestions, feedback or a new feature request? Tap the handle above.</string>
+
+    <!-- Shared by every choice row -->
+    <string name="more">More</string>
+    <string name="now_selected">Now: %1$s</string>
+    <string name="more_with_count">%1$s (%2$d)</string>
+
+    <string name="attach_cancel">Cancel</string>
+    <string name="attach_discard">Discard</string>
+    <string name="attach_failed_kept">Your picture is still here, so you can try again or discard it.</string>
+    <string name="attach_preview_a11y">the picture you picked, not sent yet</string>
+    <string name="attach_preview_not_sent">This is what will be sent. Nothing has left your phone yet.</string>
+    <string name="attach_read_result">What the assistant read from %1$s — check it before you use it.</string>
+    <string name="attach_send">Send it</string>
+    <string name="attach_try_again">Try again</string>
+    <string name="attach_use_file">Attach this</string>
+    <string name="attach_use_text">Use this text</string>
+    <string name="handwriting_cancel">Cancel</string>
+    <string name="handwriting_copied">Copied. Paste it where you want it.</string>
+    <string name="handwriting_edit_hint">Correct it if the reading is wrong</string>
+    <string name="handwriting_failed_kept">Your drawing is still here, so you can try again or write over it.</string>
+    <string name="handwriting_preview_a11y">the page you wrote, not sent yet</string>
+    <string name="handwriting_preview_not_sent">This is what will be sent. Nothing has left your phone yet.</string>
+    <string name="handwriting_read_as">Read as:</string>
+    <string name="handwriting_send">Send it</string>
+    <string name="handwriting_try_again">Try again</string>
+    <string name="handwriting_use">Use this</string>
 </resources>

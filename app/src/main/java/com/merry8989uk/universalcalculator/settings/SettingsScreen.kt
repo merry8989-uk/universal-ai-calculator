@@ -89,10 +89,6 @@ private fun toneName(choice: String): String = when (choice) {
     else -> choice
 }
 
-/** Every language offered, with "follow the phone" and English at the front. */
-private val LANGUAGES: List<String> =
-    listOf("system", "en") + com.merry8989uk.universalcalculator.locale.Languages.ALL.map { it.tag }
-
 /**
  * The name of a language.
  *
@@ -102,10 +98,48 @@ private val LANGUAGES: List<String> =
 @Composable
 private fun languageName(code: String): String = when (code) {
     "system" -> stringResource(R.string.lang_system)
-    "en" -> "English"
+    "en" -> stringResource(R.string.lang_english)
     else -> com.merry8989uk.universalcalculator.locale.Languages.byTag(code)
-        ?.let { it.native + "  \u00B7  " + it.english }
+        ?.let { named(it) }
         ?: code
+}
+
+/** A language's name, in its own script with the English beside it. */
+private fun named(entry: com.merry8989uk.universalcalculator.locale.Languages.Entry): String =
+    entry.native + "  \u00B7  " + entry.english
+
+/**
+ * A language whose translation is still thin, labelled as such.
+ *
+ * It is still offered, because a translated tab bar is better than none, but the
+ * label says what the user is getting: most of the app will stay in English. A
+ * picker that promises Nepali and delivers an English Settings screen is the lie
+ * this label exists to stop.
+ */
+@Composable
+private fun partialLanguageName(
+    entry: com.merry8989uk.universalcalculator.locale.Languages.Entry,
+): String = stringResource(R.string.lang_partial_label, named(entry))
+
+/** What a theme mode is called on its chip. The stored value stays the enum's name. */
+@Composable
+private fun themeModeName(mode: ThemeMode): String = when (mode) {
+    ThemeMode.SYSTEM -> stringResource(R.string.theme_mode_system)
+    ThemeMode.LIGHT -> stringResource(R.string.theme_mode_light)
+    ThemeMode.DARK -> stringResource(R.string.theme_mode_dark)
+}
+
+/**
+ * What a keypad layout is called on its chip.
+ *
+ * The stored value is the English name and has to stay that way — it is already
+ * in DataStore on every phone that has run this app — so only the label changes.
+ */
+@Composable
+private fun layoutName(style: String): String = when (style) {
+    "Classic" -> stringResource(R.string.layout_classic)
+    "Classic Scientific" -> stringResource(R.string.tab_sci_classic)
+    else -> stringResource(R.string.layout_modern)
 }
 
 /**
@@ -180,7 +214,7 @@ fun SettingsScreen(
     var recording by remember { mutableStateOf(false) }
     val askForMic = rememberLauncherForActivityResult(RequestPermission()) { granted ->
         if (!granted) {
-            toneProblem = "Microphone permission was refused, so nothing can be recorded."
+            toneProblem = context.getString(R.string.tone_mic_refused)
         }
     }
     var signedInId by remember { mutableStateOf("") }
@@ -255,15 +289,18 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // ---- the master switch ----
-            Section("Your data")
+            Section(stringResource(R.string.settings_section_data))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Keep my calculations", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.settings_keep_calculations),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                     Text(
                         if (state.dataSavingEnabled) {
-                            "Answers are kept in a folder on this phone, the history keeps three days, and a log is kept for troubleshooting."
+                            stringResource(R.string.settings_data_on)
                         } else {
-                            "Nothing is kept. No archive, no history, no log — on this phone or anywhere else."
+                            stringResource(R.string.settings_data_off)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -276,7 +313,7 @@ fun SettingsScreen(
             }
             if (!state.dataSavingEnabled) {
                 Text(
-                    "The switches below still show what they were set to, but nothing is written while this is off.",
+                    stringResource(R.string.settings_data_off_note),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -284,11 +321,11 @@ fun SettingsScreen(
 
             Folder(
                 stringResource(R.string.section_appearance),
-                "Theme, text size, density",
+                stringResource(R.string.folder_appearance_sub),
                 initiallyOpen = false,
             ) {
 
-            Text("Theme")
+            Text(stringResource(R.string.theme_label))
             SingleChoiceSegmentedButtonRow {
                 ThemeMode.entries.forEachIndexed { i, mode ->
                     SegmentedButton(
@@ -296,7 +333,7 @@ fun SettingsScreen(
                         onClick = { vm.setThemeMode(mode) },
                         shape = SegmentedButtonDefaults.itemShape(i, ThemeMode.entries.size),
                     ) {
-                        Text(mode.name.lowercase().replaceFirstChar { it.uppercase() })
+                        Text(themeModeName(mode))
                     }
                 }
             }
@@ -322,17 +359,17 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Your themes",
+                    stringResource(R.string.settings_your_themes),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(1f),
                 )
                 OutlinedButton(onClick = { editingTheme = CustomTheme.START; showThemeBuilder = true }) {
-                    Text("Create")
+                    Text(stringResource(R.string.settings_create))
                 }
             }
             if (customThemes.isEmpty()) {
                 Text(
-                    "Make a theme from four colours, or from a photo.",
+                    stringResource(R.string.settings_themes_empty),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -350,13 +387,19 @@ fun SettingsScreen(
                                 modifier = Modifier.weight(1f),
                             )
                             TextButton(onClick = { editingTheme = made; showThemeBuilder = true }) {
-                                Text("Edit", style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    stringResource(R.string.settings_edit),
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
                             }
                             TextButton(onClick = {
                                 customThemes = ThemeStore.remove(context, made.id)
                                 if (state.customThemeId == made.id) vm.setCustomThemeId("")
                             }) {
-                                Text("Delete", style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    stringResource(R.string.settings_delete),
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
                             }
                         }
                     }
@@ -373,14 +416,24 @@ fun SettingsScreen(
                 )
             }
 
-            Text("Text size (${"%.2f".format(state.textScale)}x)")
+            Text(
+                stringResource(
+                    R.string.settings_text_size,
+                    "%.2f".format(state.textScale),
+                ),
+            )
             Slider(
                 value = state.textScale,
                 onValueChange = vm::setTextScale,
                 valueRange = 0.85f..1.5f,
             )
 
-            Text("Density (${"%.2f".format(state.density)}x)")
+            Text(
+                stringResource(
+                    R.string.settings_density,
+                    "%.2f".format(state.density),
+                ),
+            )
             Slider(
                 value = state.density,
                 onValueChange = vm::setDensity,
@@ -414,24 +467,37 @@ fun SettingsScreen(
             // General: language, number format, sounds
             Folder(
                 stringResource(R.string.section_general),
-                "Language, numbers, sounds",
+                stringResource(R.string.folder_general_sub),
                 initiallyOpen = false,
             ) {
 
-            // English and Hindi on the surface, the other twenty-three behind More.
-            // A row of twenty-five chips is not a choice; it is a wall.
+            // English and Hindi on the surface, the rest behind More — a row of
+            // twenty-five chips is a wall, not a choice.
+            //
+            // The order carries the honesty: the languages that translate the
+            // whole of this screen come first, and the thin ones are still
+            // offered but say so on the label. Hiding them would take a tab bar
+            // in Assamese away from a user who wants it; listing them plainly
+            // would promise an Assamese app that does not exist.
             val langOptions = ArrayList<Choice>()
-            langOptions.add(Choice("en", languageName("en"), "Default"))
-            if ("hi" in LANGUAGES) langOptions.add(Choice("hi", languageName("hi")))
-            for (tag in LANGUAGES) {
-                if (tag == "en" || tag == "hi") continue
-                langOptions.add(Choice(tag, languageName(tag)))
+            langOptions.add(Choice("en", languageName("en"), stringResource(R.string.lang_default_note)))
+            for (entry in com.merry8989uk.universalcalculator.locale.Languages.COMPLETE) {
+                langOptions.add(Choice(entry.tag, languageName(entry.tag)))
+            }
+            langOptions.add(Choice(
+                com.merry8989uk.universalcalculator.locale.LocaleHelper.SYSTEM,
+                languageName(com.merry8989uk.universalcalculator.locale.LocaleHelper.SYSTEM),
+            ))
+            for (entry in com.merry8989uk.universalcalculator.locale.Languages.INCOMPLETE) {
+                langOptions.add(
+                    Choice(entry.tag, partialLanguageName(entry), stringResource(R.string.lang_partial_note)),
+                )
             }
             ChoiceRow(
                 label = stringResource(R.string.language),
                 options = langOptions,
                 selected = state.language,
-                moreLabel = "More languages",
+                moreLabel = stringResource(R.string.more_languages),
                 onSelect = { lang ->
                     vm.setLanguage(lang)
                     // Reload so the new language takes effect at once.
@@ -447,13 +513,29 @@ fun SettingsScreen(
                 options = listOf(
                     Choice(
                         Format.FOLLOW_LOCALE,
-                        "Follow language",
-                        "The way this phone writes numbers.",
+                        stringResource(R.string.format_follow),
+                        stringResource(R.string.format_follow_note),
                     ),
-                    Choice("Indian", "Indian", "30,00,000.5 — lakh and crore grouping."),
-                    Choice("International", "International", "3,000,000.5 — thousands grouping."),
-                    Choice("European", "European", "3.000.000,5 — dot groups, comma decimal."),
-                    Choice("None", "None", "3000000.5 — no separators."),
+                    Choice(
+                        "Indian",
+                        stringResource(R.string.format_indian),
+                        stringResource(R.string.format_indian_note),
+                    ),
+                    Choice(
+                        "International",
+                        stringResource(R.string.format_international),
+                        stringResource(R.string.format_international_note),
+                    ),
+                    Choice(
+                        "European",
+                        stringResource(R.string.format_european),
+                        stringResource(R.string.format_european_note),
+                    ),
+                    Choice(
+                        "None",
+                        stringResource(R.string.format_none),
+                        stringResource(R.string.format_none_note),
+                    ),
                 ),
                 selected = state.numberFormat,
                 onSelect = { vm.setNumberFormat(it) },
@@ -461,26 +543,53 @@ fun SettingsScreen(
             // The example is worked out rather than written down, so it says what
             // this phone will actually do instead of what the option is called.
             Text(
-                "3000000.5 reads as ${Format.grouped("3000000.5", state.numberFormat)}",
+                stringResource(
+                    R.string.format_example,
+                    Format.grouped("3000000.5", state.numberFormat),
+                ),
                 style = MaterialTheme.typography.bodySmall,
             )
 
             ChoiceRow(
                 label = stringResource(R.string.decimal_places),
                 options = listOf(
-                    Choice("-1", "Auto", "Results keep as many decimals as they need."),
-                    Choice("2", "2 decimals", "Rounded to two places."),
-                    Choice("0", "0 decimals", "Whole numbers only."),
-                    Choice("3", "3 decimals", "Rounded to three places."),
-                    Choice("4", "4 decimals", "Rounded to four places."),
-                    Choice("6", "6 decimals", "Rounded to six places."),
+                    Choice(
+                        "-1",
+                        stringResource(R.string.decimals_auto),
+                        stringResource(R.string.decimals_auto_note),
+                    ),
+                    Choice(
+                        "2",
+                        stringResource(R.string.decimals_two),
+                        stringResource(R.string.decimals_two_note),
+                    ),
+                    Choice(
+                        "0",
+                        stringResource(R.string.decimals_zero),
+                        stringResource(R.string.decimals_zero_note),
+                    ),
+                    Choice(
+                        "3",
+                        stringResource(R.string.decimals_three),
+                        stringResource(R.string.decimals_three_note),
+                    ),
+                    Choice(
+                        "4",
+                        stringResource(R.string.decimals_four),
+                        stringResource(R.string.decimals_four_note),
+                    ),
+                    Choice(
+                        "6",
+                        stringResource(R.string.decimals_six),
+                        stringResource(R.string.decimals_six_note),
+                    ),
                 ),
                 selected = state.decimals.toString(),
                 onSelect = { vm.setDecimals(it.toIntOrNull() ?: -1) },
             )
             Text(
-                if (state.decimals < 0) "Results keep as many decimals as they need."
-                else "Results are rounded to ${state.decimals} decimal places.",
+                if (state.decimals < 0) stringResource(R.string.decimals_auto_note)
+                else stringResource(R.string.decimals_now, state.decimals),
                 style = MaterialTheme.typography.bodySmall,
             )
 
@@ -495,7 +604,7 @@ fun SettingsScreen(
                 label = stringResource(R.string.key_sounds),
                 options = toneOptions,
                 selected = state.keySound,
-                moreLabel = "More tones",
+                moreLabel = stringResource(R.string.more_tones),
                 onSelect = { choice ->
                     vm.setKeySound(choice)
                     // play it straight away so the choice is audible
@@ -506,12 +615,12 @@ fun SettingsScreen(
                     // Both ways of getting your own tone live in here, because
                     // they are the same idea: a sound that is yours.
                     Text(
-                        "Your own tone",
+                        stringResource(R.string.tone_yours),
                         style = MaterialTheme.typography.titleSmall,
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = { dismiss(); pickTone = true }) {
-                            Text("Upload a file")
+                            Text(stringResource(R.string.tone_upload))
                         }
                         OutlinedButton(
                             onClick = {
@@ -539,14 +648,17 @@ fun SettingsScreen(
                             },
                             enabled = !recording,
                         ) {
-                            Text(if (recording) "Listening…" else "Record 1 second")
+                            Text(
+                                if (recording) stringResource(R.string.tone_listening)
+                                else stringResource(R.string.tone_record),
+                            )
                         }
                     }
                     Text(
                         if (state.customTonePath.isBlank()) {
-                            "Upload a short sound, or record one. Either becomes a key tone."
+                            stringResource(R.string.tone_upload_help)
                         } else {
-                            "You have your own tone set. Pick it from the list, or record another."
+                            stringResource(R.string.tone_set_help)
                         },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -556,7 +668,7 @@ fun SettingsScreen(
 
             // How loud, and the user's own recording.
             Text(
-                "Volume  \u00B7  ${(state.keySoundVolume * 100).toInt()}%",
+                stringResource(R.string.tone_volume, (state.keySoundVolume * 100).toInt()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -574,7 +686,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlinedButton(onClick = { pickTone = true }) { Text("Choose my own tone") }
+                OutlinedButton(onClick = { pickTone = true }) {
+                    Text(stringResource(R.string.tone_choose))
+                }
                 if (state.customTonePath.isNotBlank()) {
                     TextButton(onClick = {
                         ToneStore.clear(context)
@@ -582,15 +696,15 @@ fun SettingsScreen(
                         if (state.keySound == ToneLibrary.CUSTOM) vm.setKeySound(ToneLibrary.OFF)
                         SoundPlayer.setCustomPath("")
                         toneProblem = ""
-                    }) { Text("Remove it") }
+                    }) { Text(stringResource(R.string.tone_remove)) }
                 }
             }
             Text(
                 toneProblem.ifBlank {
                     if (state.customTonePath.isBlank()) {
-                        "A key tone is a fraction of a second. Pick a short sound — wav, mp3, ogg, m4a, aac, opus or flac."
+                        stringResource(R.string.tone_formats_help)
                     } else {
-                        "Your own tone is saved in the app. Choosing it plays it on every key."
+                        stringResource(R.string.tone_saved_help)
                     }
                 },
                 style = MaterialTheme.typography.bodySmall,
@@ -620,25 +734,15 @@ fun SettingsScreen(
                     FilterChip(
                         selected = state.layoutStyle == style,
                         onClick = { vm.setLayoutStyle(style) },
-                        label = {
-                            Text(
-                                when (style) {
-                                    "Classic Scientific" -> "Sci Classic"
-                                    else -> style
-                                },
-                            )
-                        },
+                        label = { Text(layoutName(style)) },
                     )
                 }
             }
             Text(
                 when (state.layoutStyle) {
-                    "Classic" -> "Classic: flat, square keys with no colour gradient."
-                    "Classic Scientific" ->
-                        "Sci Classic: the full scientific pad, six keys across with a SHIFT " +
-                            "key for the second functions. It replaces the Scientific tab " +
-                            "while this is on. Standard is not affected."
-                    else -> "Modern: rounded keys with a colour gradient."
+                    "Classic" -> stringResource(R.string.layout_classic_help)
+                    "Classic Scientific" -> stringResource(R.string.layout_sci_classic_help)
+                    else -> stringResource(R.string.layout_modern_help)
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -647,8 +751,8 @@ fun SettingsScreen(
 
             // The calculator itself: tools, display, the assistant
             Folder(
-                "The calculator",
-                "Tools, keypad, display, Ask AI",
+                stringResource(R.string.folder_calculator),
+                stringResource(R.string.folder_calculator_sub),
                 initiallyOpen = false,
             ) {
             // ---- the tools ----
@@ -664,12 +768,12 @@ fun SettingsScreen(
             // ---- the display ----
             Section(stringResource(R.string.section_display))
 
-            ToggleRow("Show the GT key", state.showGtKey, vm::setShowGtKey)
+            ToggleRow(stringResource(R.string.settings_show_gt), state.showGtKey, vm::setShowGtKey)
             Text(
                 if (state.showGtKey) {
-                    "The grand total key sits on the keypad. Turning it off gives the space to the = key."
+                    stringResource(R.string.settings_gt_on_help)
                 } else {
-                    "The GT key is off and = is twice as wide. The grand total is still worked out and still shown in the display."
+                    stringResource(R.string.settings_gt_off_help)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -689,16 +793,14 @@ fun SettingsScreen(
 
             Text(stringResource(R.string.home_screen_widget), style = MaterialTheme.typography.bodyMedium)
             Text(
-                "Long-press an empty spot on your home screen, choose Widgets, then Nexus Calc. " +
-                    "While adding it you can pick a solid, dimmed or fully transparent background.",
+                stringResource(R.string.widget_help),
                 style = MaterialTheme.typography.bodySmall,
             )
 
             Section(stringResource(R.string.section_ai))
 
             Text(
-                "Ask AI is built in and ready to use. The API key is fixed on the " +
-                    "server, so there is nothing to set up or paste here.",
+                stringResource(R.string.ai_built_in),
                 style = MaterialTheme.typography.bodySmall,
             )
             ToggleRow(stringResource(R.string.enable_ask_ai), state.aiEnabled, vm::setAiEnabled)
@@ -710,7 +812,7 @@ fun SettingsScreen(
             }
 
             // ---- the account ----
-            Section("Your account")
+            Section(stringResource(R.string.settings_account))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -721,14 +823,15 @@ fun SettingsScreen(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        if (signedInId.isBlank()) "Not signed in" else "@" + signedInId,
+                        if (signedInId.isBlank()) stringResource(R.string.account_not_signed_in)
+                        else "@" + signedInId,
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(
                         if (signedInId.isBlank()) {
-                            "Your calculations stay on this phone. Sign in to keep a copy you can get back."
+                            stringResource(R.string.account_signed_out_help)
                         } else {
-                            "Back up, restore, or sign out on this phone."
+                            stringResource(R.string.account_signed_in_help)
                         },
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -738,23 +841,28 @@ fun SettingsScreen(
 
             Section(stringResource(R.string.section_updates))
 
-            Text("Current version ${BuildConfig.VERSION_NAME}")
+            Text(stringResource(R.string.settings_current_version, BuildConfig.VERSION_NAME))
 
             when (updateState) {
-                UpdateUiState.Checking -> Text("Checking for updates…")
-                UpdateUiState.UpToDate -> Text("You're on the latest version.")
+                UpdateUiState.Checking -> Text(stringResource(R.string.updates_checking))
+                UpdateUiState.UpToDate -> Text(stringResource(R.string.up_to_date))
                 is UpdateUiState.Available -> {
-                    Text("Version ${updateState.info.latestVersion} is available.")
+                    Text(
+                        stringResource(
+                            R.string.update_available,
+                            updateState.info.latestVersion,
+                        ),
+                    )
                     // the one they put aside still shows here, because this is
                     // where they came to look; it just no longer interrupts them
                     if (updateState.info.latestVersion == state.dismissedUpdateVersion) {
                         Text(
-                            "You put this one aside earlier.",
+                            stringResource(R.string.settings_update_put_aside),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
                     Button(onClick = { updater.install(updateState.info) }) {
-                        Text("Update now")
+                        Text(stringResource(R.string.updates_now))
                     }
                 }
                 is UpdateUiState.Downloading -> Row(
@@ -762,9 +870,10 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                    Text("Downloading update…")
+                    Text(stringResource(R.string.updates_downloading))
                 }
-                is UpdateUiState.Failed -> Text("Update failed: ${updateState.message}")
+                is UpdateUiState.Failed ->
+                    Text(stringResource(R.string.updates_failed, updateState.message))
                 UpdateUiState.Idle -> Unit
             }
 
@@ -774,7 +883,7 @@ fun SettingsScreen(
                     updateState !is UpdateUiState.Downloading,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Check for updates")
+                Text(stringResource(R.string.check_for_updates))
             }
 
             DiagnosticsSection(
@@ -787,7 +896,7 @@ fun SettingsScreen(
 
             Section(stringResource(R.string.section_reset))
             OutlinedButton(onClick = vm::reset, modifier = Modifier.fillMaxWidth()) {
-                Text("Reset to defaults")
+                Text(stringResource(R.string.settings_reset_defaults))
             }
 
             Section(stringResource(R.string.section_feedback))
@@ -799,22 +908,24 @@ fun SettingsScreen(
                 OutlinedButton(
                     onClick = { Contact.rateApp(context) },
                     modifier = Modifier.weight(1f),
-                ) { Text("Rate app") }
+                ) { Text(stringResource(R.string.settings_rate_app)) }
                 OutlinedButton(
                     onClick = { Contact.reportIssue(context) },
                     modifier = Modifier.weight(1f),
-                ) { Text("Report issue") }
+                ) { Text(stringResource(R.string.settings_report_issue)) }
             }
             OutlinedButton(
                 onClick = { Contact.emailSupport(context) },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Email support") }
+            ) { Text(stringResource(R.string.settings_email_support)) }
 
             HorizontalDivider()
 
             // --- Footer: version + contact (Rule 4) ---
-            Text("Nexus Calc  ·  version ${BuildConfig.VERSION_NAME}",
-                style = MaterialTheme.typography.bodySmall)
+            Text(
+                stringResource(R.string.settings_footer_version, BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.bodySmall,
+            )
             Text(
                 text = "@${Contact.INSTAGRAM_HANDLE}",
                 style = MaterialTheme.typography.bodyMedium,
@@ -823,7 +934,7 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { Contact.openInstagram(context) },
             )
             Text(
-                "Suggestions, feedback or a new feature request? Tap the handle above.",
+                stringResource(R.string.settings_footer_ask),
                 style = MaterialTheme.typography.bodySmall,
             )
         }

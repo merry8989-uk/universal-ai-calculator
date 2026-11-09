@@ -36,11 +36,36 @@ class LanguagesTest {
     }
 
     @Test fun everyLanguageInThePickerHasAFolderOfTranslations() {
+        // every tag the picker can show — complete or labelled thin — must have a
+        // folder behind it, or choosing it changes nothing at all
         val base = res ?: return
         val missing = Languages.ALL
             .filter { !File(base, "values-${it.tag}/strings.xml").exists() }
             .map { it.tag }
         assertTrue("these are offered but translate nothing: $missing", missing.isEmpty())
+    }
+
+    @Test fun thePickerIsSplitIntoCompleteAndThin() {
+        // The picker draws two groups: the languages that translate the whole
+        // app, and the ones that only translate part of it. Every language has
+        // to be in exactly one of them, so a thin folder can never be shown as
+        // finished and a finished one can never be hidden behind a warning.
+        assertEquals(
+            Languages.ALL.map { it.tag }.toSet(),
+            (Languages.COMPLETE + Languages.INCOMPLETE).map { it.tag }.toSet(),
+        )
+        assertTrue(
+            "a language is in both groups",
+            Languages.COMPLETE.map { it.tag }.none { it in Languages.INCOMPLETE.map { e -> e.tag } },
+        )
+        assertTrue(
+            "the complete group is empty, so the picker offers nothing finished",
+            Languages.COMPLETE.isNotEmpty(),
+        )
+        assertTrue(
+            "every language is marked thin, which cannot be true of Hindi",
+            Languages.INCOMPLETE.size < Languages.ALL.size,
+        )
     }
 
     @Test fun everyTranslationFolderBelongsToALanguageInThePicker() {
