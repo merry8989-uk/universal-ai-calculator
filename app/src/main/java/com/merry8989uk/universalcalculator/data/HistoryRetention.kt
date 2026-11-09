@@ -1,11 +1,18 @@
 package com.merry8989uk.universalcalculator.data
 
 /**
- * How long a line of history lives, and how an old one is recognised.
+ * How long a line of history lives, how an old one is recognised, and which
+ * ones the user has asked to keep.
  *
- * A stored line is `epochMillis|text`. A line written before this format existed
- * has no stamp; it is given one the first time it is read, so an upgrade costs a
- * user nothing and the three-day rule starts from that moment.
+ * A stored line is `epochMillis|text`. A line the user has pinned is
+ * `epochMillis*|text`. The pin is written into the stamp rather than in front
+ * of the text so that the text stays exactly what was worked out, and so that a
+ * file written before pins existed still reads: no `*` means not pinned, which
+ * is what every line meant when it was written. Nothing has to be migrated.
+ *
+ * A line written before stamps existed has no stamp; it is given one the first
+ * time it is read, so an upgrade costs a user nothing and the three-day rule
+ * starts from that moment.
  *
  * Kept as plain functions so the rule can be tested without a device.
  */
@@ -19,38 +26,98 @@ object HistoryRetention {
 
     private const val DAY_MS = 24L * 60L * 60L * 1000L
 
-    /** An entry's moment and its text. An unstamped line is given [now]. */
-    fun stamp(line: String, now: Long): Pair<Long, String> {
+    /** The mark on a line the user asked to keep. */
+    private const val PIN = '*'
+
+    /** A stored line, taken apart. */
+    data class Line(val at: Long, val pinned: Boolean, val text: String)
+
+    /**
+     * What one pass of the rule did.
+     *
+     * [removed] is the part the tape has to own up to. A line that leaves
+     * without being named is a line the user finds missing and cannot explain,
+     * so the count and the lines both come back out of here rather than being
+     * thrown away inside a filter.
+     */
+    data class Pass(val kept: List<String>, val removed: List<String>)
+
+    /** A stored line's moment, whether it is pinned, and its text. */
+    fun parse(line: String, now: Long): Line {
         val bar = line.indexOf('|')
         if (bar > 0) {
-            val at = line.substring(0, bar).toLongOrNull()
-            if (at != null) return at to line.substring(bar + 1)
+            var head = line.substring(0, bar)
+            val pinned = head.endsWith(PIN)
+            if (pinned) head = head.dropLast(1)
+            val at = head.toLongOrNull()
+            if (at != null) return Line(at, pinned, line.substring(bar + 1))
         }
-        return now to line
+        return Line(now, false, line)
     }
 
     /** The text of a stored line, without its stamp. */
-    fun text(line: String, now: Long): String = stamp(line, now).second
+    fun text(line: String, now: Long): String = parse(line, now).text
+
+    /** Whether the user asked for this line to be kept whatever its age. */
+    fun isPinned(line: String, now: Long): Boolean = parse(line, now).pinned
 
     /** What a text becomes when it is stored. */
     fun stored(text: String, now: Long): String = now.toString() + "|" + text.replace("\n", " ")
 
+    /** The same line, marked as kept for good — or released to age again. */
+    fun withPin(line: String, now: Long, pinned: Boolean = true): String {
+        val l = parse(line, now)
+        return stampOf(Line(l.at, pinned, l.text))
+    }
+
     /**
-     * The lines worth keeping: nothing older than [days], nothing beyond [max],
-     * and everything stamped.
+     * One pass of the rule: the lines worth keeping, and the ones it took away.
+     *
+     * A pinned line is never removed for its age and never removed to make room.
+     * The cap exists to stop a runaway file, not to punish an old line, so when
+     * it has to drop something it drops the oldest line that is free to go.
+     */
+    fun pass(
+        lines: List<String>,
+        now: Long,
+        days: Long = KEEP_DAYS,
+        max: Int = MAX_ENTRIES,
+    ): Pass {
+        val cutoff = now - days * DAY_MS
+        val parsed = lines.filter { it.isNotBlank() }.map { parse(it, now) }
+        val keep = parsed.map { it.pinned || it.at >= cutoff }.toBooleanArray()
+
+        var over = keep.count { it } - max
+        if (over > 0) {
+            // oldest first: the list is stored oldest first
+            for (i in parsed.indices) {
+                if (over == 0) break
+                if (keep[i] && !parsed[i].pinned) {
+                    keep[i] = false
+                    over--
+                }
+            }
+        }
+
+        val kept = ArrayList<String>(parsed.size)
+        val removed = ArrayList<String>()
+        parsed.forEachIndexed { i, line ->
+            if (keep[i]) kept.add(stampOf(line)) else removed.add(stampOf(line))
+        }
+        return Pass(kept, removed)
+    }
+
+    /**
+     * The lines worth keeping: nothing older than [days] unless it is pinned,
+     * nothing beyond [max], and everything stamped.
      */
     fun keep(
         lines: List<String>,
         now: Long,
         days: Long = KEEP_DAYS,
         max: Int = MAX_ENTRIES,
-    ): List<String> {
-        val cutoff = now - days * DAY_MS
-        return lines
-            .filter { it.isNotBlank() }
-            .map { stamp(it, now) }
-            .filter { it.first >= cutoff }
-            .takeLast(max)
-            .map { it.first.toString() + "|" + it.second }
-    }
+    ): List<String> = pass(lines, now, days, max).kept
+
+    private fun stampOf(line: Line): String =
+        line.at.toString() + (if (line.pinned) PIN.toString() else "") + "|" + line.text
 }

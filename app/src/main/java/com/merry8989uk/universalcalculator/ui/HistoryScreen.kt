@@ -9,24 +9,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.merry8989uk.universalcalculator.R
 
-/** Full calculation history, newest first. */
+/**
+ * Full calculation history, newest first.
+ *
+ * Clearing asks first here too: this screen is where a user sees the whole tape
+ * at once, and the Clear beside it is the one most likely to be reached for by
+ * somebody who has just realised they are about to lose it.
+ */
 @Composable
 fun HistoryScreen(
     history: String,
     onBack: () -> Unit,
     onClear: () -> Unit,
     onPick: (String) -> Unit = {},
+    purged: Int = 0,
+    onUndoPurge: () -> Unit = {},
+    onDismissPurge: () -> Unit = {},
 ) {
     val entries = history.split("\n").filter { it.isNotBlank() }.reversed()
+    var confirming by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(
@@ -34,7 +51,7 @@ fun HistoryScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             TextButton(onClick = onBack) { Text("\u2190 Back") }
-            if (entries.isNotEmpty()) TextButton(onClick = onClear) { Text("Clear") }
+            if (entries.isNotEmpty()) TextButton(onClick = { confirming = true }) { Text("Clear") }
         }
         Text("History", style = MaterialTheme.typography.titleLarge)
         Text(
@@ -42,6 +59,8 @@ fun HistoryScreen(
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 2.dp),
         )
+
+        if (purged > 0) PurgeStrip(purged, onUndoPurge, onDismissPurge)
 
         if (entries.isEmpty()) {
             Text(
@@ -66,5 +85,24 @@ fun HistoryScreen(
                 }
             }
         }
+    }
+
+    if (confirming) {
+        AlertDialog(
+            onDismissRequest = { confirming = false },
+            title = { Text(stringResource(R.string.history_clear_confirm_title)) },
+            text = { Text(stringResource(R.string.history_clear_confirm_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirming = false
+                        onClear()
+                    },
+                ) { Text(stringResource(R.string.history_clear_confirm_yes)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirming = false }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
     }
 }

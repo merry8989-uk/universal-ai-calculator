@@ -373,6 +373,15 @@
     <string name="history_share">Share</string>
     <string name="history_ask_ai">Ask the assistant</string>
     <string name="history_delete">Delete this line</string>
+    <string name="history_keep">Keep this line</string>
+    <string name="history_unkeep">Stop keeping this line</string>
+    <string name="history_clear_confirm_title">Clear the tape?</string>
+    <string name="history_clear_confirm_body">Every line of your history goes. The archive keeps its own record, and a line you have kept will go too.</string>
+    <string name="history_clear_confirm_yes">Clear the tape</string>
+    <string name="history_purged_one">1 line older than three days was removed.</string>
+    <string name="history_purged_many">%1$d lines older than three days were removed.</string>
+    <string name="undo">Undo</string>
+    <string name="archive_write_failed">Not added to the archive, so the record is incomplete.</string>
     <string name="steps_title">Step by step</string>
     <string name="steps_none">This calculation cannot be shown step by step. The answer above is still correct.</string>
     <string name="steps_result">Result:</string>

@@ -111,6 +111,7 @@ import com.merry8989uk.universalcalculator.calc.Fractions
 import com.merry8989uk.universalcalculator.calc.SpeechMath
 import com.merry8989uk.universalcalculator.calc.ArchiveEntry
 import com.merry8989uk.universalcalculator.data.ArchiveStore
+import com.merry8989uk.universalcalculator.data.ArchiveWrite
 import com.merry8989uk.universalcalculator.data.DataPolicy
 import com.merry8989uk.universalcalculator.data.HistoryViewModel
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
@@ -371,6 +372,14 @@ fun CalculatorScreen(
 
     val historyVm: HistoryViewModel = viewModel()
     val history by historyVm.entries.collectAsState()
+    // Which lines the user asked to keep, and what the three-day rule took on
+    // its own since the screen was opened. Both are needed by the tape: one to
+    // label the sheet, one to say what went missing.
+    val pinnedLines by historyVm.pinned.collectAsState()
+    val purged by historyVm.purged.collectAsState()
+    // A line the archive refused to keep. Shown until it is dismissed, because
+    // the record is the one thing in this app a user is entitled to trust.
+    var archiveProblem by remember { mutableStateOf<String?>(null) }
     val settingsVm: SettingsViewModel = viewModel()
     val savedExpression by settingsVm.savedExpression.collectAsState()
     var restored by remember { mutableStateOf(false) }
@@ -580,13 +589,15 @@ when (key) {
                                         expr = TextFieldValue(kept, TextRange(kept.length))
                                         slots = slots.filter { it < startOfEntry }
                                     }
-                                    // AC clears everything: the expression, and the tape
-                                    // of what has been worked out above it
+                                    // AC clears what is being typed and nothing else.
+                                    // It used to wipe the tape as well, one key away
+                                    // from C and CE, where a mis-tap cost the user
+                                    // every line they had worked out. The tape is
+                                    // cleared from the tape, and only after a question.
                                     "AC" -> {
                                         exactResult = null
                                         expr = TextFieldValue("")
                                         slots = emptyList()
-                                        historyVm.clear()
                                     }
                                     "del" -> backspace()
                                     "=" -> {
@@ -709,16 +720,26 @@ when (key) {
                                             // and clearing the history never touches
                                             // it — but the master switch stops it too.
                                             if (DataPolicy.mayArchive(settings.dataSavingEnabled)) {
-                                                runCatching {
-                                                    ArchiveStore.append(
-                                                        ctx,
-                                                        ArchiveEntry(
-                                                            at = ArchiveStore.now(),
-                                                            kind = title,
-                                                            expression = text.ifBlank { "0" },
-                                                            result = shown,
-                                                            value = exactResult,
-                                                        ),
+                                                val written = ArchiveStore.record(
+                                                    ctx,
+                                                    ArchiveEntry(
+                                                        at = ArchiveStore.now(),
+                                                        kind = title,
+                                                        expression = text.ifBlank { "0" },
+                                                        result = shown,
+                                                        value = exactResult,
+                                                    ),
+                                                )
+                                                if (written is ArchiveWrite.Failed) {
+                                                    // The sum still stands; the record
+                                                    // of it does not. Said out loud
+                                                    // rather than swallowed, so the
+                                                    // archive cannot quietly develop
+                                                    // a hole the user never hears of.
+                                                    archiveProblem = ctx.getString(R.string.archive_write_failed)
+                                                    DiagnosticsLogger.log(
+                                                        "Archive",
+                                                        "write failed: ${written.reason}",
                                                     )
                                                 }
                                             }
@@ -895,6 +916,9 @@ when (key) {
             history = history,
             onBack = { showHistory = false },
             onClear = { historyVm.clear(); showHistory = false },
+            purged = purged?.count ?: 0,
+            onUndoPurge = { historyVm.undoPurge() },
+            onDismissPurge = { historyVm.dismissPurge() },
             onPick = { entry ->
                 // Load the expression (everything before " = ") back onto the board.
                 val e = entry.substringBeforeLast(" = ").trim()
@@ -1264,6 +1288,29 @@ when (key) {
                     )
                 }
 
+                // A line the archive could not keep is said here, under the
+                // answer, until it is dismissed. The alternative is a user
+                // trusting a record that has a hole in it.
+                val problem = archiveProblem
+                if (problem != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            problem,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        TextButton(onClick = { archiveProblem = null }) {
+                            Text(stringResource(R.string.close))
+                        }
+                    }
+                }
+
                 val resultSpoken = if (preview.isNotEmpty())
                     stringResource(
                         R.string.result_a11y,
@@ -1562,6 +1609,9 @@ when (key) {
             },
             onClear = { historyVm.clear() },
             onSeeAll = { historyOpen = false; showHistory = true },
+            purged = purged?.count ?: 0,
+            onUndoPurge = { historyVm.undoPurge() },
+            onDismissPurge = { historyVm.dismissPurge() },
         )
         }
     }
@@ -1600,6 +1650,11 @@ when (key) {
             onDelete = { historyVm.remove(held); historyMenu = null },
             onCopy = { historyMenu = null },
             onShare = { historyMenu = null },
+            pinned = held in pinnedLines,
+            onPin = {
+                historyVm.setPinned(held, held !in pinnedLines)
+                historyMenu = null
+            },
             onAskAi = {
                 historyMenu = null
                 onAskAiNow("Explain how this was worked out: $heldSum = ${held.substringAfterLast(" = ")}")
