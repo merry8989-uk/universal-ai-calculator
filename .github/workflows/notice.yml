@@ -1,0 +1,88 @@
+name: Send a notice
+
+# The developer's way of saying something to every installed app.
+#
+# The message is kept by the worker and read by the app when it opens, so this
+# workflow does not need to know anything about the phones — it only has to get
+# one message to the worker. The token never leaves the repository's secrets.
+#
+# Actions -> "Send a notice" -> Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Title, up to 120 characters"
+        required: true
+        type: string
+      body:
+        description: "The message, up to 1000 characters"
+        required: true
+        type: string
+      level:
+        description: "info is a quiet strip; important is the same strip in a stronger colour"
+        required: true
+        default: info
+        type: choice
+        options:
+          - info
+          - important
+      clear:
+        description: "Clear the board instead of setting a notice"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: notice
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send it
+        env:
+          TOKEN: ${{ secrets.STATS_TOKEN }}
+          URL: ${{ secrets.WORKER_URL }}
+          TITLE: ${{ inputs.title }}
+          BODY: ${{ inputs.body }}
+          LEVEL: ${{ inputs.level }}
+          CLEAR: ${{ inputs.clear }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TOKEN:-}" ]; then
+            echo "::error::STATS_TOKEN is not set in this repository's secrets."
+            exit 1
+          fi
+
+          # The worker lives at a fixed address; the secret is only used if it is
+          # set, so this works either way.
+          BASE="${URL:-https://nexus-calc-ai.br19shc39.workers.dev}"
+          ENDPOINT="$BASE/notice?token=$TOKEN"
+
+          if [ "${CLEAR:-false}" = "true" ]; then
+            echo "Clearing the board"
+            curl -sS --fail-with-body -X DELETE "$ENDPOINT" | head -c 500
+            echo
+            exit 0
+          fi
+
+          # jq builds the JSON, so a quote or a newline in the message cannot
+          # break the request or smuggle in another field.
+          PAYLOAD=$(jq -n \
+            --arg title "$TITLE" \
+            --arg body "$BODY" \
+            --arg level "$LEVEL" \
+            --arg id "notice-$(date +%s)" \
+            '{title: $title, body: $body, level: $level, id: $id}')
+
+          echo "Sending:"
+          echo "$PAYLOAD" | jq -r '"  " + .title + " — " + .body'
+
+          curl -sS --fail-with-body -X POST "$ENDPOINT" \
+            -H "content-type: application/json" \
+            -d "$PAYLOAD" | head -c 800
+          echo
+          echo "Done. Installed apps will show this the next time they open."
