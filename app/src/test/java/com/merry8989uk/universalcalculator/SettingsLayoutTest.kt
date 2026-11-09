@@ -54,12 +54,18 @@ class SettingsLayoutTest {
 
     @Test fun textSizeAppearsOnlyOnce() {
         if (settings.isBlank()) return
-        val top = settings.indexOf("Text size (")
+        // the label moved into strings.xml when Settings was translated, so the
+        // control is found by its string resource now, not by its English text
+        val top = settings.indexOf("R.string.settings_text_size")
         val duplicate = settings.indexOf("R.string.display_text_size")
         assertTrue("the one text size control is missing", top > 0)
         assertEquals(
             "text size is offered twice",
             -1, duplicate,
+        )
+        assertEquals(
+            "text size is drawn more than once",
+            1, Regex("R\\.string\\.settings_text_size\\b").findAll(settings).count(),
         )
     }
 
@@ -69,8 +75,10 @@ class SettingsLayoutTest {
 
     @Test fun theTextAndDensityControlsAreStillThere() {
         if (settings.isBlank()) return
-        assertTrue("the text size control is missing", "Text size (" in settings)
-        assertTrue("the density control is missing", "Density (" in settings)
+        assertTrue("the text size control is missing", "R.string.settings_text_size" in settings)
+        assertTrue("the density control is missing", "R.string.settings_density" in settings)
+        assertTrue("the text size slider is missing", "vm::setTextScale" in settings)
+        assertTrue("the density slider is missing", "vm::setDensity" in settings)
     }
 
     // ---- the archive belongs with the settings ----
@@ -99,5 +107,32 @@ class SettingsLayoutTest {
         )) {
             assertTrue("$kept was removed by mistake", kept in settings)
         }
+    }
+
+    // ---- the screen is translated, not just labelled ----
+
+    @Test fun noEnglishIsLeftInTheScreenItself() {
+        // A literal in a Text() is a string no translation can reach: the app in
+        // Hindi showed an English Settings screen, which is the one place a user
+        // goes to change the language. Everything a user reads now comes from
+        // strings.xml. What may stay literal is a stored value — "Modern",
+        // "system", "en" — which is a key in DataStore, not prose.
+        if (settings.isBlank()) return
+        val storedValues = setOf(
+            "system", "en", "hi", "Classic", "Classic Scientific", "Modern",
+            "Indian", "International", "European", "None", "-1", "0", "2", "3", "4", "6",
+            "Click", "Bubble", "Pop",
+        )
+        val prose = Regex("\"((?:[^\"\\\\]|\\\\.)*)\"")
+            .findAll(settings)
+            .map { it.groupValues[1] }
+            .filter { it.any { c -> c.isLetter() } }
+            .filter { it !in storedValues }
+            .filterNot { it.startsWith("com.merry8989uk") || it.startsWith("java/") || it.startsWith("audio/") }
+            // a format pattern, an escaped glyph (a chevron is not a word) and an
+            // interpolated identifier are not English either
+            .filterNot { it.startsWith("%.2f") || it.contains("\\u") || it.contains("$") }
+            .toList()
+        assertTrue("these English strings are written into the screen instead of strings.xml: $prose", prose.isEmpty())
     }
 }

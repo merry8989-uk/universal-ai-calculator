@@ -22,7 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.merry8989uk.universalcalculator.R
 import androidx.compose.ui.window.Dialog
 
 /**
@@ -72,7 +74,7 @@ fun ChoiceRow(
     options: List<Choice>,
     selected: String,
     onSelect: (String) -> Unit,
-    moreLabel: String = "More",
+    moreLabel: String = stringResource(R.string.more),
     /** Extra rows at the top of the More sheet — a recording, an upload, a delete. */
     extra: (@Composable (dismiss: () -> Unit) -> Unit)? = null,
 ) {
@@ -104,14 +106,14 @@ fun ChoiceRow(
         FilterChip(
             selected = false,
             onClick = { open = true },
-            label = { Text("$moreLabel (${options.size})") },
+            label = { Text(stringResource(R.string.more_with_count, moreLabel, options.size)) },
         )
     }
     // when the current choice is one of the hidden ones, say so — otherwise the
     // three chips above can all look unselected and the setting looks broken
     if (current != null && current.value != first.value && current.value != second?.value) {
         Text(
-            "Now: ${current.label}",
+            stringResource(R.string.now_selected, current.label),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -168,7 +170,7 @@ fun ChoiceRow(
                     TextButton(
                         onClick = { open = false },
                         modifier = Modifier.padding(top = 8.dp),
-                    ) { Text("Close") }
+                    ) { Text(stringResource(R.string.close)) }
                 }
             }
         }
