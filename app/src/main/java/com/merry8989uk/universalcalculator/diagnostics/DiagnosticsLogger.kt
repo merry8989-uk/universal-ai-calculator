@@ -38,13 +38,35 @@ object DiagnosticsLogger {
     var enabled: Boolean = true
         private set
 
-    /** Call once, from Application.onCreate. */
-    fun init(context: Context) {
+    /**
+     * Wire the logger to this process. Memory only — no directory is created and
+     * nothing is read — so this is safe on the main thread while the first frame
+     * is being drawn.
+     */
+    fun attach(context: Context) {
         synchronized(lock) {
             appContext = context.applicationContext
-            val dir = File(context.filesDir, DIR).apply { mkdirs() }
-            logFile = File(dir, NAME)
+            logFile = File(File(context.filesDir, DIR), NAME)
         }
+    }
+
+    /**
+     * Create the log directory.
+     *
+     * Called from the startup worker rather than from `onCreate`: a `mkdirs` is a
+     * file-system round trip, and a cold start is measured from `onCreate` to the
+     * first frame. A line logged before this has run is still kept for the live
+     * box; only the file misses it.
+     */
+    fun prepareStorage() {
+        val dir = synchronized(lock) { logFile?.parentFile } ?: return
+        runCatching { dir.mkdirs() }
+    }
+
+    /** Both halves at once, for a caller with no frame to protect. */
+    fun init(context: Context) {
+        attach(context)
+        prepareStorage()
     }
 
     fun setEnabled(value: Boolean) {
@@ -56,17 +78,19 @@ object DiagnosticsLogger {
 
     fun log(tag: String, message: String) {
         if (!enabled) return
-        val file = logFile ?: return
         // One place, so no caller has to remember: anything that looks like a
         // token, a key, an email or a phone number is taken out here.
         val line = "${timeFmt.format(Date())} [$tag] ${Mask.apply(message)}"
         synchronized(lock) {
+            // The ring first: it is what the live box reads, and it must hold the
+            // first lines of a cold start even though the file cannot yet.
+            ring.addLast(line)
+            while (ring.size > MAX_RING) ring.removeFirst()
+            val file = logFile ?: return
             runCatching {
                 if (file.length() > MAX_BYTES) rotate(file)
                 file.appendText(line + "\n")
             }
-            ring.addLast(line)
-            while (ring.size > MAX_RING) ring.removeFirst()
         }
     }
 

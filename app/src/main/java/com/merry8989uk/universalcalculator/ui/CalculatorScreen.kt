@@ -57,6 +57,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -104,6 +105,7 @@ import com.merry8989uk.universalcalculator.calc.CalcInfo
 import com.merry8989uk.universalcalculator.calc.ExpressionGuard
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.ExpressionFix
+import com.merry8989uk.universalcalculator.calc.SignToggle
 import com.merry8989uk.universalcalculator.calc.ExpressionEdit
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.GrandTotal
@@ -121,29 +123,10 @@ import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import com.merry8989uk.universalcalculator.settings.SettingsState
 import com.merry8989uk.universalcalculator.settings.SettingsViewModel
 import com.merry8989uk.universalcalculator.ui.theme.Amber
-import com.merry8989uk.universalcalculator.ui.theme.Coral
-import com.merry8989uk.universalcalculator.ui.theme.Cyan
-import com.merry8989uk.universalcalculator.ui.theme.Emerald
-import com.merry8989uk.universalcalculator.ui.theme.Indigo
-import com.merry8989uk.universalcalculator.ui.theme.Orange
-import com.merry8989uk.universalcalculator.ui.theme.Violet
 import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-
-internal val PAD = listOf(
-    // The clearing row, at the top where it belongs.
-    listOf("C", "AC", "CE", "del", "%"),
-    // The memory keys, directly above the digits.
-    listOf("MC", "M+", "M-", "MR", "/"),
-    listOf("7", "8", "9", "MU", "*"),
-    listOf("4", "5", "6", ")", "-"),
-    listOf("1", "2", "3", "(", "+"),
-    // GT sits beside the digits so the right-hand column can be the four
-    // operators, the way a desk calculator arranges them.
-    listOf("0", "00", ".", "GT", "="),
-)
 
 private val LABELS = mapOf(
     "del" to "\u232B", "/" to "\u00F7", "*" to "\u00D7", "-" to "\u2212",
@@ -168,8 +151,6 @@ internal fun label(
     "*" -> multiplicationSign
     else -> LABELS[k] ?: k
 }
-private fun isOperator(k: String) = k in listOf("/", "*", "-", "+", "%")
-private fun isClear(k: String) = k == "C" || k == "del" || k == "AC" || k == "CE"
 
 /**
  * What a key puts on the board.
@@ -431,35 +412,57 @@ fun CalculatorScreen(
     val impliedMode = com.merry8989uk.universalcalculator.calc.ImpliedMultiplication
         .of(settings.impliedMultiplication)
 
-    // Half-typed input is completed rather than refused, so the preview shows a
-    // number while you are still typing instead of going blank.
-    val balanced = ExpressionFix.balance(text, settings.autoCloseBrackets, settings.ignoreTrailingOperator)
-    // A double sign reads as a sign: 5--8 becomes 5-(-8), so the screen and the
-    // answer agree about what was typed.
-    val worked = ExpressionGuard.bracketNegativeNumbers(balanced)
     // What is wrong with what was typed, said in words rather than a parser error.
     val guardWarning = ExpressionGuard.check(text)
 
-    val preview: String = if (worked.isBlank() || guardWarning != null) "" else try {
-        if (ComplexEvaluator.hasImaginary(worked)) {
-            val r = ComplexEvaluator.evaluate(
-                                                worked, angle == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
-                                                mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xValue, 0.0)),
-                                            )
-            if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
-        } else {
-            Format.number(
-                Evaluator.evaluate(
-                    worked,
-                    vars = mapOf("ans" to ans, "x" to xValue),
-                    unit = angle,
-                    percentage = percentageMode,
-                    implied = impliedMode,
-                ),
+    // The answer under the expression, worked out once per change.
+    //
+    // This was a plain val in the composable body, so it ran on every
+    // recomposition — and one keystroke causes at least two of them: the text
+    // changes, and the save-state effect echoes the new text back through the
+    // settings flow a moment later. The parser therefore ran twice for one key.
+    // Held in a derivedStateOf it is worked out once and then handed back
+    // unchanged until something it actually reads has moved, however many
+    // frames are drawn in between.
+    val preview: String by remember(settings) {
+        derivedStateOf {
+            val typed = expr.text
+            if (typed.isBlank() || ExpressionGuard.check(typed) != null) return@derivedStateOf ""
+            // Half-typed input is completed rather than refused, so the preview
+            // shows a number while you are still typing instead of going blank.
+            val balanced = ExpressionFix.balance(
+                typed, settings.autoCloseBrackets, settings.ignoreTrailingOperator,
             )
+            // A double sign reads as a sign: 5--8 becomes 5-(-8), so the screen
+            // and the answer agree about what was typed.
+            val worked = ExpressionGuard.bracketNegativeNumbers(balanced)
+            if (worked.isBlank()) return@derivedStateOf ""
+            val unit = com.merry8989uk.universalcalculator.calc.AngleUnit.of(angleName)
+            val xNow = xText.toDoubleOrNull() ?: 0.0
+            try {
+                if (ComplexEvaluator.hasImaginary(worked)) {
+                    val r = ComplexEvaluator.evaluate(
+                        worked, unit == com.merry8989uk.universalcalculator.calc.AngleUnit.DEGREE,
+                        mapOf("ans" to Complex(ans, 0.0), "x" to Complex(xNow, 0.0)),
+                    )
+                    if (r.isReal(1e-10)) Format.number(r.re) else Complex.text(r)
+                } else {
+                    Format.number(
+                        Evaluator.evaluate(
+                            worked,
+                            vars = mapOf("ans" to ans, "x" to xNow),
+                            unit = unit,
+                            percentage = com.merry8989uk.universalcalculator.calc.PercentageMode
+                                .of(settings.percentageMode),
+                            implied = com.merry8989uk.universalcalculator.calc.ImpliedMultiplication
+                                .of(settings.impliedMultiplication),
+                        ),
+                    )
+                }
+            } catch (e: Exception) {
+                ""
+            }
         }
-    } catch (e: Exception) {
-        ""
     }
 
     // "Clear the screen before exiting": the root bumps clearSignal on the way
@@ -791,10 +794,13 @@ when (key) {
                                         }
                                     }
                                     "MU" -> markupOpen = true
+                                    // ± flips the sign of the entry the caret
+                                    // is in, and pressing it again puts that
+                                    // entry back exactly as it was.
                                     "neg" -> {
                                         exactResult = null
-                                        val next = ExpressionFix.negate(expr.text)
-                                        expr = TextFieldValue(next, TextRange(next.length))
+                                        val toggled = SignToggle.apply(expr.text, expr.selection.max)
+                                        expr = TextFieldValue(toggled.text, TextRange(toggled.caret))
                                     }
                                     else -> insert(key)
                                 }
@@ -1569,19 +1575,22 @@ when (key) {
                     // itself keeps working and keeps showing in the display.
                     val shown = PadRows.keysFor(row, settings.showGtKey)
                     shown.forEach { key ->
-                        val colors: List<Color> = when {
-                            key == "=" -> listOf(Cyan, Emerald)
-                            isClear(key) -> listOf(Orange, Coral)
-                            isOperator(key) -> listOf(Violet, Indigo)
-                            else -> listOf(
+                        // The pad's colours come from KeyPalette, so the contrast
+                        // of every label on every face is measured by a test
+                        // rather than by eye. A plain key is the theme's own.
+                        val paint = KeyPalette.paintFor(key)
+                        val colors: List<Color> = if (paint == null) {
+                            listOf(
                                 MaterialTheme.colorScheme.surfaceVariant,
                                 MaterialTheme.colorScheme.surfaceVariant,
                             )
-                        }
-                        val content = if (key == "=" || isClear(key) || isOperator(key)) {
-                            Color.White
                         } else {
+                            paint.face.map { Color(it) }
+                        }
+                        val content = if (paint == null) {
                             MaterialTheme.colorScheme.onSurface
+                        } else {
+                            Color(paint.label)
                         }
                         KeyButton(
                             label = label(key, settings.divisionSign, settings.multiplicationSign),

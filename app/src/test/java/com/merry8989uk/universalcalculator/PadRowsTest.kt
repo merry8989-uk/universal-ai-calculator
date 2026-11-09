@@ -14,14 +14,14 @@ import org.junit.Test
  */
 class PadRowsTest {
 
-    private val bottomRow = listOf("0", "00", ".", "GT", "=")
+    private val bottomRow = listOf("0", "ans", ".", "GT", "=")
 
     @Test fun withGtOnTheRowIsUnchanged() {
         assertEquals(bottomRow, PadRows.keysFor(bottomRow, showGt = true))
     }
 
     @Test fun withGtOffOnlyThatKeyGoes() {
-        assertEquals(listOf("0", "00", ".", "="), PadRows.keysFor(bottomRow, showGt = false))
+        assertEquals(listOf("0", "ans", ".", "="), PadRows.keysFor(bottomRow, showGt = false))
     }
 
     @Test fun noOtherRowChangesWhenGtIsOff() {
@@ -59,16 +59,19 @@ class PadRowsTest {
      *
      * Column four is the four operators, top to bottom, the way a desk
      * calculator arranges them; everything else sits to its left.
+     *
+     * Two labels changed under issue #41: `±` sits where AC did, and `ans` where
+     * `00` did. Every other key is exactly where it was, in the same column.
      */
     @Test fun thePadMatchesTheLayoutThatWasDrawn() {
         assertEquals(
             listOf(
-                listOf("C", "AC", "CE", "del", "%"),
+                listOf("C", "CE", "del", "neg", "%"),
                 listOf("MC", "M+", "M-", "MR", "/"),
                 listOf("7", "8", "9", "MU", "*"),
                 listOf("4", "5", "6", ")", "-"),
                 listOf("1", "2", "3", "(", "+"),
-                listOf("0", "00", ".", "GT", "="),
+                listOf("0", "ans", ".", "GT", "="),
             ),
             PAD,
         )
