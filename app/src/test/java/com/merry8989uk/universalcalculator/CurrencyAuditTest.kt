@@ -255,11 +255,17 @@ class CurrencyAuditTest {
 
     @Test fun theConverterIsReachableFromTheToolsList() {
         // the screen existing is not the same as the user being able to open it
+        // The tools live beside the search rule now, so both files are read: the
+        // question is whether the converter is reachable, not which file names it.
         val source = listOf(
             java.io.File("app/src/main/java/com/merry8989uk/universalcalculator/ui/FormulasScreen.kt"),
             java.io.File("src/main/java/com/merry8989uk/universalcalculator/ui/FormulasScreen.kt"),
         ).firstOrNull { it.exists() } ?: return
-        val text = source.readText()
+        val hub = listOf(
+            java.io.File("app/src/main/java/com/merry8989uk/universalcalculator/calc/HubSearch.kt"),
+            java.io.File("src/main/java/com/merry8989uk/universalcalculator/calc/HubSearch.kt"),
+        ).firstOrNull { it.exists() }
+        val text = source.readText() + (hub?.readText() ?: "")
         assertTrue("there is no currency entry in the tools list",
             text.contains("Tool(\"currency\""))
         assertTrue("the currency tool is not routed to its screen",

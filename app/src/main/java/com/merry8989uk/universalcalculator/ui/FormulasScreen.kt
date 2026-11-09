@@ -41,6 +41,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.calc.Formula
 import com.merry8989uk.universalcalculator.calc.FormulaHindi
+import com.merry8989uk.universalcalculator.calc.HubHit
+import com.merry8989uk.universalcalculator.calc.HubSearch
+import com.merry8989uk.universalcalculator.calc.HubTool
 import com.merry8989uk.universalcalculator.calc.FormulaLibrary
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.OutputSpec
@@ -53,37 +56,12 @@ import com.merry8989uk.universalcalculator.ui.theme.Pink
 import com.merry8989uk.universalcalculator.ui.theme.Teal
 import com.merry8989uk.universalcalculator.ui.theme.Violet
 
-private data class Tool(val id: String, val title: String, val subtitle: String)
-
 /** The tools that need computer-algebra mode. */
 private val CAS_TOOLS = setOf("symbolic", "limits", "partial", "solver")
 
 /** The two lists that are not categories: what the reader starred, and used last. */
 private const val FAVOURITES = "Favourites"
 private const val RECENT = "Recent"
-
-private val TOOLS = listOf(
-    Tool("reference", "Formula reference", "Every formula the app knows \u2014 maths, physics and chemistry."),
-    Tool("statistics", "Statistics", "Mean, median, SD, quartiles, skewness and regression."),
-    Tool("distributions", "Distributions & tests", "Normal/t/binomial/Poisson, t-tests and confidence intervals."),
-    Tool("complex", "Complex numbers", "Add, subtract, multiply, divide, magnitude, angle and roots of i."),
-    Tool("rpn", "RPN (stack) calculator", "Reverse-Polish entry: push numbers, then apply operations."),
-    Tool("matrix", "Matrix calculator", "Add, subtract, multiply, transpose, determinant and inverse."),
-    Tool("handwriting", "Handwriting", "Write a calculation with a finger and let the app read it."),
-    Tool("solver", "Equation solver", "Linear to quintic, several equations in several unknowns, and inequalities."),
-    Tool("table", "Table of values", "What f(x) and g(x) do across a range, row by row."),
-    Tool("symbolic", "Symbolic algebra", "Simplify, differentiate, integrate, factor and solve polynomials in x."),
-    Tool("limits", "Limits", "The limit of an expression as x approaches a point, one side at a time, or at infinity."),
-    Tool("partial", "Partial fractions", "Split a rational function into simple fractions."),
-    Tool("calculus", "Calculus", "Numerical derivative, second derivative, integral and summation."),
-    Tool("graph", "Graphing", "Plot y = f(x) on a live canvas."),
-    Tool("converter", "Converters", "Roman numerals, words, binary/hex/ASCII text, colour codes, timestamps."),
-    Tool("date", "Date calculator", "Difference, age, working days, week number, add/subtract, timestamps."),
-    Tool("programmer", "Programmer (base & bitwise)", "Base conversion and bitwise operations."),
-    Tool("allformulas", "Every formula", "Every calculator and every reference formula, in one page."),
-    Tool("currency", "Currency converter", "Live exchange rates between world currencies."),
-    Tool("interest", "Interest calculator", "Any rate period and any duration \u2014 daily, weekly, monthly, or two dates."),
-)
 
 @Composable
 fun FormulasScreen(
@@ -123,7 +101,7 @@ fun FormulasScreen(
 
     // Computer-algebra mode puts the symbolic tools away when it is switched off.
     val shownTools = remember(settings.casMode) {
-        if (settings.casMode) TOOLS else TOOLS.filterNot { it.id in CAS_TOOLS }
+        if (settings.casMode) HubSearch.tools else HubSearch.tools.filterNot { it.id in CAS_TOOLS }
     }
 
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -301,7 +279,7 @@ private fun FormulaList(
     /** Calculators that arrived from another phone, to be added to the saved ones. */
     onImport: (List<CustomCalculator>) -> Unit = {},
     /** The tools on offer, after CAS mode has had its say. */
-    tools: List<Tool> = TOOLS,
+    tools: List<HubTool> = HubSearch.tools,
 ) {
     var category by remember { mutableStateOf("Tools") }
     var query by remember { mutableStateOf("") }
@@ -312,7 +290,7 @@ private fun FormulaList(
     // The user's own calculators behave exactly like the built-in ones.
     val myRows = remember(custom) { customRows(custom) }
     val customFormulas = remember(myRows) { myRows.map { it.formula } }
-    val everything = FormulaLibrary.formulas + customFormulas
+    val everything = remember(customFormulas) { FormulaLibrary.formulas + customFormulas }
     val byId = remember { FormulaLibrary.formulas.associateBy { it.id } }
     val list = when (category) {
         // Their own calculators are drawn from the rows below, once each, since
@@ -330,22 +308,13 @@ private fun FormulaList(
         onPrefs(CalcPrefsStore.recordRecent(prefs, f.id))
         onOpen(f)
     }
-    val results = if (searching) {
-        everything.filter {
-            // a Hindi reader types in Hindi, and the row in front of them is in
-            // Hindi, so the Hindi words have to match as well
-            it.title.contains(query, ignoreCase = true) ||
-                it.description.contains(query, ignoreCase = true) ||
-                // "finance", "interest rate", "radius": the words are on the row
-                // or in its fields, so searching them has to find it
-                it.category.contains(query, ignoreCase = true) ||
-                it.inputs.any { spec -> spec.label.contains(query, ignoreCase = true) } ||
-                (hindi && (
-                    FormulaHindi.title(it.id)?.contains(query, ignoreCase = true) == true ||
-                        FormulaHindi.description(it.id)?.contains(query, ignoreCase = true) == true
-                    ))
-        }
-    } else emptyList()
+    // One field over both shelves: the tools that open screens and the
+    // calculators that open inputs. It used to be handed only the formulas, so a
+    // reader who typed the name of a tool they could see above the field was told
+    // that nothing matched - on a page where the name was already on screen.
+    val found = remember(query, hindi, everything, tools) {
+        HubSearch.find(query, everything, hindi, tools)
+    }
 
     // The frame and the colours come from the tab that opened this screen, so
     // the hub and the tools behind it are drawn as one app.
@@ -411,16 +380,24 @@ private fun FormulaList(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (searching) {
-                    if (results.isEmpty()) {
-                        item {
-                            Text(
-                                "No calculator matches your search.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Studio.Muted,
-                            )
-                        }
+                    // The tools come first because there are twenty of them
+                    // against several hundred calculators, and a name that is a
+                    // screen is usually the one being looked for. The row runs
+                    // the same onTool a tap in the Tools category runs, so a
+                    // tool found by searching opens the very screen the shelf
+                    // opens rather than a second copy of it.
+                    itemsIndexed(found.tools) { i, t ->
+                        StudioItem(
+                            title = if (hindi) FormulaHindi.tool(t.id) ?: t.title else t.title,
+                            subtitle = if (hindi) {
+                                FormulaHindi.toolSubtitle(t.id) ?: t.subtitle
+                            } else t.subtitle,
+                            accent = TOOL_COLORS[i % TOOL_COLORS.size],
+                            meta = if (hindi) "टूल" else "Tool",
+                            onClick = { onTool(t.id) },
+                        )
                     }
-                    items(results) { f ->
+                    items(found.formulas) { f ->
                         StudioItem(
                             title = calcTitle(hindi, f.id, f.title),
                             subtitle = calcBlurb(hindi, f.id, f.description),
@@ -428,6 +405,56 @@ private fun FormulaList(
                             meta = if (hindi) FormulaHindi.category(f.category) ?: f.category else f.category,
                             onClick = { open(f) },
                         )
+                    }
+                    if (found.isEmpty) {
+                        item {
+                            Text(
+                                if (hindi) "इस खोज से कुछ नहीं मिला।"
+                                else "Nothing matches your search.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Studio.Muted,
+                            )
+                        }
+                        // A search that found nothing is not the end of the
+                        // search: the app knows every name it holds, so it says
+                        // which ones are nearest instead of stopping there.
+                        if (found.suggestions.isNotEmpty()) {
+                            item {
+                                Text(
+                                    if (hindi) "क्या आप इनमें से कोई खोज रहे थे?"
+                                    else "Did you mean one of these?",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Studio.Text,
+                                )
+                            }
+                            itemsIndexed(found.suggestions) { i, hit ->
+                                val isTool = hit is HubHit.ToolHit
+                                StudioItem(
+                                    title = if (isTool) {
+                                        if (hindi) FormulaHindi.tool(hit.id) ?: hit.title else hit.title
+                                    } else calcTitle(hindi, hit.id, hit.title),
+                                    subtitle = if (isTool) {
+                                        if (hindi) {
+                                            FormulaHindi.toolSubtitle(hit.id) ?: hit.subtitle
+                                        } else hit.subtitle
+                                    } else calcBlurb(hindi, hit.id, hit.subtitle),
+                                    accent = if (isTool) {
+                                        TOOL_COLORS[i % TOOL_COLORS.size]
+                                    } else CategoryColors.of(hit.category),
+                                    meta = if (isTool) {
+                                        if (hindi) "टूल" else "Tool"
+                                    } else if (hindi) {
+                                        FormulaHindi.category(hit.category) ?: hit.category
+                                    } else hit.category,
+                                    // A suggestion is a row like any other, so
+                                    // tapping it does what tapping the match
+                                    // would have done.
+                                    onClick = {
+                                        if (isTool) onTool(hit.id) else hit.formula?.let { open(it) }
+                                    },
+                                )
+                            }
+                        }
                     }
                 } else {
                     if (category == "Tools") {
