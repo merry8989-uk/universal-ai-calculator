@@ -43,6 +43,17 @@ object AccountStore {
         prefs(context).edit().putLong(KEY_LAST_BACKUP, System.currentTimeMillis()).apply()
     }
 
+    /**
+     * Forgets the date of the last backup, because there is no longer one to date.
+     *
+     * Kept apart from [signOut]: deleting the blob and forgetting the account are
+     * two different decisions, and a phone that did the first should still be
+     * able to say "no backup has been made yet" without losing the id.
+     */
+    fun forgetBackup(context: Context) {
+        prefs(context).edit().remove(KEY_LAST_BACKUP).apply()
+    }
+
     fun noteRestore(context: Context) {
         prefs(context).edit().putLong(KEY_LAST_RESTORE, System.currentTimeMillis()).apply()
     }

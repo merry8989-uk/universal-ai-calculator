@@ -21,8 +21,12 @@ class SecurityAuditTest {
     private val aiClient: String by lazy {
         file("app/src/main/java/com/merry8989uk/universalcalculator/ai/AiClient.kt").orEmpty()
     }
+    // The delete body is built in SyncRequest.kt, so the guard reads both: the
+    // point of the test is that the app confirms a delete, not which file the
+    // line happens to live in.
     private val syncClient: String by lazy {
-        file("app/src/main/java/com/merry8989uk/universalcalculator/sync/SyncClient.kt").orEmpty()
+        file("app/src/main/java/com/merry8989uk/universalcalculator/sync/SyncClient.kt").orEmpty() +
+            file("app/src/main/java/com/merry8989uk/universalcalculator/sync/SyncRequest.kt").orEmpty()
     }
     private val syncService: String by lazy {
         file("app/src/main/java/com/merry8989uk/universalcalculator/sync/AccountService.kt").orEmpty()

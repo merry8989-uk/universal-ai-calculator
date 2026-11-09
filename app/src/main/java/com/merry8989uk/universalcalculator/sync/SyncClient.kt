@@ -21,8 +21,20 @@ object SyncClient {
     private const val ENDPOINT = "https://nexus-calc-ai.br19shc39.workers.dev"
 
     sealed interface Result {
-        /** [version] is what the server holds now; it must be sent back on the next write. */
-        data class Ok(val blob: String? = null, val version: Int = 0) : Result
+        /**
+         * [version] is what the server holds now; it must be sent back on the next write.
+         *
+         * [removed] is only meaningful for a delete, and it says whether there was
+         * anything there to remove. A delete of something already gone is still an
+         * [Ok] — it answers the question the caller asked — but the screen can use
+         * this to say "there was nothing there" rather than claiming to have
+         * destroyed something.
+         */
+        data class Ok(
+            val blob: String? = null,
+            val version: Int = 0,
+            val removed: Boolean = false,
+        ) : Result
         data class Failed(val message: String, val code: Int = 0) : Result
     }
 
@@ -54,12 +66,15 @@ object SyncClient {
                 .put("blob", blob).put("version", version),
         )
 
-    /** Deleting is confirmed explicitly, because it is the one action with no undo. */
+    /**
+     * Removes the stored blob.
+     *
+     * The body is built by [SyncRequest.delete] so the confirmation travels with
+     * the request itself and cannot be forgotten by a caller. Asking twice is
+     * allowed: the server answers the second one as done, with nothing removed.
+     */
     suspend fun delete(id: String, verifier: String): Result =
-        call(
-            JSONObject().put("sync", "delete").put("id", id).put("verifier", verifier)
-                .put("confirm", true),
-        )
+        call(SyncRequest.delete(id, verifier))
 
     private suspend fun call(payload: JSONObject): Result =
         withContext(Dispatchers.IO) {
@@ -92,6 +107,7 @@ object SyncClient {
                     else -> Result.Ok(
                         json?.optString("blob")?.takeIf { it.isNotBlank() },
                         json?.optInt("version") ?: 0,
+                        json?.optBoolean("removed") ?: false,
                     )
                 }
             } catch (e: Exception) {
