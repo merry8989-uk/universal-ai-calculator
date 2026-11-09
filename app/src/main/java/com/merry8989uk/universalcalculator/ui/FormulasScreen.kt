@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.calc.CustomCalculator
+import com.merry8989uk.universalcalculator.data.CalcPrefs
+import com.merry8989uk.universalcalculator.data.CalcPrefsStore
 import com.merry8989uk.universalcalculator.data.CustomCalcStore
 import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,6 +55,10 @@ private data class Tool(val id: String, val title: String, val subtitle: String)
 
 /** The tools that need computer-algebra mode. */
 private val CAS_TOOLS = setOf("symbolic", "limits", "partial", "solver")
+
+/** The two lists that are not categories: what the reader starred, and used last. */
+private const val FAVOURITES = "Favourites"
+private const val RECENT = "Recent"
 
 private val TOOLS = listOf(
     Tool("reference", "Formula reference", "Every formula the app knows \u2014 maths, physics and chemistry."),
@@ -118,6 +124,12 @@ fun FormulasScreen(
 
     val context = androidx.compose.ui.platform.LocalContext.current
     var custom by remember { mutableStateOf(CustomCalcStore.load(context)) }
+    var prefs by remember { mutableStateOf(CalcPrefsStore.load(context)) }
+
+    fun keepPrefs(next: CalcPrefs) {
+        prefs = next
+        CalcPrefsStore.save(context, next)
+    }
     var editing by remember { mutableStateOf<CustomCalculator?>(null) }
     var creating by remember { mutableStateOf(false) }
 
@@ -144,7 +156,12 @@ fun FormulasScreen(
                 },
                 onBack = { creating = false; editing = null },
             )
-            selected != null -> FormulaDetailScreen(selected!!) { selected = null }
+            selected != null -> FormulaDetailScreen(
+                formula = selected!!,
+                favourite = selected!!.id in prefs.favourites,
+                onToggleFavourite = { keepPrefs(CalcPrefsStore.toggleFavourite(prefs, selected!!.id)) },
+                onBack = { selected = null },
+            )
             // A formula the app can work out opens its calculator rather than
             // leaving the reader to find it in the tools by hand.
             tool == "reference" -> FormulaReferenceScreen(
@@ -182,6 +199,8 @@ fun FormulasScreen(
                 tool = ""
                 FormulaList(
                     custom = custom,
+                    prefs = prefs,
+                    onPrefs = { keepPrefs(it) },
                     onCreate = { creating = true },
                     onEdit = { editing = it },
                     onOpen = { selected = it },
@@ -213,6 +232,8 @@ fun FormulasScreen(
             )
             else -> FormulaList(
                 custom = custom,
+                prefs = prefs,
+                onPrefs = { keepPrefs(it) },
                 onCreate = { creating = true },
                 onEdit = { editing = it },
                 tools = shownTools,
@@ -232,6 +253,8 @@ fun FormulasScreen(
 @Composable
 private fun FormulaList(
     custom: List<CustomCalculator>,
+    prefs: CalcPrefs = CalcPrefs(),
+    onPrefs: (CalcPrefs) -> Unit = {},
     onCreate: () -> Unit,
     onEdit: (CustomCalculator) -> Unit,
     onOpen: (Formula) -> Unit,
@@ -246,8 +269,20 @@ private fun FormulaList(
     // The user's own calculators behave exactly like the built-in ones.
     val customFormulas = remember(custom) { custom.map { it.toFormula() } }
     val everything = FormulaLibrary.formulas + customFormulas
-    val list = if (category == CustomCalculator.CATEGORY) customFormulas
-    else FormulaLibrary.byCategory(category)
+    val byId = remember { FormulaLibrary.formulas.associateBy { it.id } }
+    val list = when (category) {
+        CustomCalculator.CATEGORY -> customFormulas
+        FAVOURITES -> prefs.favourites.mapNotNull { byId[it] }
+        RECENT -> prefs.recents.mapNotNull { byId[it] }
+        else -> FormulaLibrary.byCategory(category)
+    }
+
+    // Opening a calculator is what puts it in the recents, so every way of
+    // opening one goes through here.
+    fun open(f: Formula) {
+        onPrefs(CalcPrefsStore.recordRecent(prefs, f.id))
+        onOpen(f)
+    }
     val results = if (searching) {
         everything.filter {
             // a Hindi reader types in Hindi, and the row in front of them is in
@@ -308,6 +343,14 @@ private fun FormulaList(
                     text = stringResource(R.string.my_calculators),
                     selected = category == CustomCalculator.CATEGORY,
                 ) { category = CustomCalculator.CATEGORY }
+                StudioPill(
+                    text = if (hindi) "पसंदीदा" else "Favourites",
+                    selected = category == FAVOURITES,
+                ) { category = FAVOURITES }
+                StudioPill(
+                    text = if (hindi) "हाल के" else "Recent",
+                    selected = category == RECENT,
+                ) { category = RECENT }
                 FormulaLibrary.categories.forEach { c ->
                     StudioPill(
                         text = if (hindi) FormulaHindi.category(c) ?: c else c,
@@ -336,7 +379,7 @@ private fun FormulaList(
                             subtitle = calcBlurb(hindi, f.id, f.description),
                             accent = CategoryColors.of(f.category),
                             meta = if (hindi) FormulaHindi.category(f.category) ?: f.category else f.category,
-                            onClick = { onOpen(f) },
+                            onClick = { open(f) },
                         )
                     }
                 } else {
@@ -371,13 +414,23 @@ private fun FormulaList(
                             }
                         }
                     }
+                    if ((category == FAVOURITES || category == RECENT) && list.isEmpty()) {
+                        item {
+                            Text(
+                                if (hindi) "अभी यहाँ कुछ नहीं है - कोई कैलकुलेटर खोलें या उसे स्टार करें।"
+                                else "Nothing here yet - open a calculator, or star one.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Studio.Muted,
+                            )
+                        }
+                    }
                     items(list) { f ->
                         StudioItem(
                             title = calcTitle(hindi, f.id, f.title),
                             subtitle = calcBlurb(hindi, f.id, f.description),
                             accent = CategoryColors.of(f.category),
                             meta = if (hindi) FormulaHindi.category(f.category) ?: f.category else f.category,
-                            onClick = { onOpen(f) },
+                            onClick = { open(f) },
                         )
                     }
                     if (category == CustomCalculator.CATEGORY) {
@@ -417,7 +470,12 @@ private fun calcBlurb(hindi: Boolean, id: String, english: String): String =
     if (hindi) FormulaHindi.description(id) ?: english else english
 
 @Composable
-private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
+private fun FormulaDetailScreen(
+    formula: Formula,
+    favourite: Boolean = false,
+    onToggleFavourite: () -> Unit = {},
+    onBack: () -> Unit,
+) {
     val hindi = readingHindi()
     var values by remember(formula.id) {
         mutableStateOf(formula.inputs.associate { it.key to it.default.toString() })
@@ -441,6 +499,9 @@ private fun FormulaDetailScreen(formula: Formula, onBack: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             TextButton(onClick = onBack) { Text("\u2190 Back") }
+            TextButton(onClick = onToggleFavourite) {
+                Text(if (favourite) "\u2605" else "\u2606")
+            }
             StudioLabel(
                 if (hindi) FormulaHindi.category(formula.category) ?: formula.category
                 else formula.category,
