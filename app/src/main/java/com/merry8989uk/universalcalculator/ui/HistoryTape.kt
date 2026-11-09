@@ -21,12 +21,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +59,14 @@ fun tapeEntries(history: String): List<String> =
  *
  * Drag the grabber to move it, let go to settle open or closed, tap an entry to
  * load it back onto the board.
+ *
+ * Clearing asks first. The tape is a working record the user built by calculating,
+ * and a button that throws all of it away without a second look is one mis-tap
+ * from a loss nobody can undo — so the button opens a question instead of acting.
+ *
+ * [purged] is what the three-day rule removed on its own. It is said here, above
+ * the entries, because this is where the missing line used to be, and it can be
+ * undone from here.
  */
 @Composable
 fun HistoryTape(
@@ -67,8 +77,12 @@ fun HistoryTape(
     onClear: () -> Unit,
     onSeeAll: () -> Unit,
     modifier: Modifier = Modifier,
+    purged: Int = 0,
+    onUndoPurge: () -> Unit = {},
+    onDismissPurge: () -> Unit = {},
 ) {
     val entries = remember(history) { tapeEntries(history) }
+    var confirming by remember { mutableStateOf(false) }
 
     val density = LocalDensity.current
     val tapeHeight = 330.dp
@@ -147,11 +161,15 @@ fun HistoryTape(
                 )
                 Row {
                     if (entries.isNotEmpty()) {
-                        TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) }
+                        TextButton(onClick = { confirming = true }) {
+                            Text(stringResource(R.string.clear))
+                        }
                     }
                     TextButton(onClick = onSeeAll) { Text(stringResource(R.string.history_see_all)) }
                 }
             }
+
+            if (purged > 0) PurgeStrip(purged, onUndoPurge, onDismissPurge)
 
             if (entries.isEmpty()) {
                 Text(
@@ -182,5 +200,55 @@ fun HistoryTape(
                 }
             }
         }
+    }
+
+    if (confirming) {
+        AlertDialog(
+            onDismissRequest = { confirming = false },
+            title = { Text(stringResource(R.string.history_clear_confirm_title)) },
+            text = { Text(stringResource(R.string.history_clear_confirm_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirming = false
+                        onClear()
+                    },
+                ) { Text(stringResource(R.string.history_clear_confirm_yes)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirming = false }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
+    }
+}
+
+/**
+ * What the three-day rule took, said out loud.
+ *
+ * The count is the point: "something is gone" is alarming and useless, "three
+ * lines older than three days are gone, and here is a button" is a fact the user
+ * can act on. Shared with the full history screen so the two surfaces cannot say
+ * different things about the same loss.
+ */
+@Composable
+internal fun PurgeStrip(count: Int, onUndo: () -> Unit, onDismiss: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = if (count == 1) {
+                stringResource(R.string.history_purged_one)
+            } else {
+                stringResource(R.string.history_purged_many, count)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = onUndo) { Text(stringResource(R.string.undo)) }
+        TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
     }
 }

@@ -73,6 +73,17 @@ object ArchiveStore {
         true
     }.getOrDefault(false)
 
+    /**
+     * [append], with the reason kept instead of dropped.
+     *
+     * The boolean above is enough for a restore, which only wants a count. It is
+     * not enough for the calculator: a line that failed to write and was never
+     * mentioned is a record the user thinks they have. This is the same write,
+     * saying what happened.
+     */
+    fun record(context: Context, entry: ArchiveEntry): ArchiveWrite =
+        attemptArchiveWrite { append(context, entry) }
+
     /** Everything recorded on one day, oldest first. */
     fun entries(context: Context, date: LocalDate): List<ArchiveEntry> = runCatching {
         val file = dayFile(context, date)

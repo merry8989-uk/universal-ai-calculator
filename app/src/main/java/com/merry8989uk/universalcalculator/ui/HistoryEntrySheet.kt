@@ -33,6 +33,10 @@ import com.merry8989uk.universalcalculator.calc.StepSolver
  * The clear button wipes everything, which is right for a fresh start and
  * useless for one wrong line. Holding an entry opens this instead: the working,
  * the entry itself, and the things a person actually wants to do with it.
+ *
+ * Keeping is here because this is where the user is already holding one line in
+ * their hand. Before it, a line worth remembering had to be copied out by hand
+ * before its third day, which nobody does.
  */
 @Composable
 internal fun HistoryEntrySheet(
@@ -44,6 +48,8 @@ internal fun HistoryEntrySheet(
     onAskAi: () -> Unit,
     onUse: () -> Unit,
     onDismiss: () -> Unit,
+    pinned: Boolean = false,
+    onPin: () -> Unit = {},
 ) {
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
@@ -72,6 +78,10 @@ internal fun HistoryEntrySheet(
                     context.startActivity(Intent.createChooser(send, null))
                     onShare()
                 })
+                Option(
+                    stringResource(if (pinned) R.string.history_unkeep else R.string.history_keep),
+                    onPress = onPin,
+                )
                 Option(stringResource(R.string.history_ask_ai), onPress = onAskAi)
                 Option(stringResource(R.string.history_delete), danger = true, onPress = onDelete)
             }
