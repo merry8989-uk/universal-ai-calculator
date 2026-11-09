@@ -646,6 +646,12 @@ when (key) {
                                                     decimalMode, settings.decimalDigits,
                                                 )
                                             }
+                                        } catch (e: Evaluator.UndefinedValue) {
+                                            // A pole is a fact about the function,
+                                            // not a fault in the app. The message is
+                                            // the answer, so it is shown as one and
+                                            // not counted as a failed sum.
+                                            e.message ?: Evaluator.UndefinedValue.MESSAGE
                                         } catch (e: Exception) {
                                             calcError = e.javaClass.simpleName
                                             // Say why rather than just "error".

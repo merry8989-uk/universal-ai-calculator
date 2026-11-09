@@ -56,7 +56,30 @@ internal fun roundHalfAway(x: Double): Double =
 
 object Evaluator {
 
-    class EvalException(message: String) : Exception(message)
+    /**
+     * Something the calculator will not work out, said in words a person can
+     * read. The message is shown on screen as the answer, so it has to read like
+     * a fact and not like the app falling over.
+     */
+    open class EvalException(message: String) : Exception(message)
+
+    /**
+     * A function that has no value at this angle: tan and sec at 90°, cot and csc
+     * at 0°.
+     *
+     * This is a result, not a fault. Those four functions have a real hole at
+     * those angles, and the honest answer is the word "undefined"; the 1.6e16 the
+     * division leaves behind is an artefact of pi/2 not being exactly
+     * representable as a double, not a value the function ever takes. It rides on
+     * [EvalException] so every caller that already catches that keeps working,
+     * and it is its own type so a screen can show the message as an answer.
+     */
+    class UndefinedValue : EvalException(MESSAGE) {
+        companion object {
+            /** The whole of what the user sees, and the same for all four. */
+            const val MESSAGE = "undefined"
+        }
+    }
 
     /**
      * Evaluates [expression].
@@ -352,14 +375,59 @@ object Evaluator {
         companion object {
 
             /** The functions, by name, each reading its arguments the way it wants. */
+            /**
+             * How many quarter turns [value] is, in the unit in force, or null
+             * when it is not a whole number of them.
+             *
+             * Quarter turns are what the poles are counted in: cosine is zero on
+             * the odd ones and sine on the even ones, and that is true in
+             * degrees, gradians and radians alike, so one count serves all three.
+             * Past a billion quarter turns a double no longer has the precision
+             * to say whether the angle landed on one, so nothing is claimed.
+             */
+            private fun quarterTurns(value: Double, unit: AngleUnit): Long? {
+                val turns = value / (unit.perTurn / 4.0)
+                if (!turns.isFinite() || abs(turns) > 1e9) return null
+                if (turns != floor(turns)) return null
+                return turns.toLong()
+            }
+
+            /** True on a zero of cosine: 90°, 270°, -90°, 450°, pi/2 ... */
+            private fun onCosineZero(value: Double, unit: AngleUnit): Boolean =
+                quarterTurns(value, unit)?.let { it % 2L != 0L } == true
+
+            /** True on a zero of sine: 0°, 180°, 360°, -180°, pi ... */
+            private fun onSineZero(value: Double, unit: AngleUnit): Boolean =
+                quarterTurns(value, unit)?.let { it % 2L == 0L } == true
+
             private val FUNCTIONS: Map<String, (AngleUnit, List<Double>) -> Double> = mapOf(
                 // ---- trigonometric ----
                 "sin" to { angle, a -> sin(angle.toRadians(one(a, "sin"))) },
                 "cos" to { angle, a -> cos(angle.toRadians(one(a, "cos"))) },
-                "tan" to { angle, a -> tan(angle.toRadians(one(a, "tan"))) },
-                "csc" to { angle, a -> 1.0 / sin(angle.toRadians(one(a, "csc"))) },
-                "sec" to { angle, a -> 1.0 / cos(angle.toRadians(one(a, "sec"))) },
-                "cot" to { angle, a -> 1.0 / tan(angle.toRadians(one(a, "cot"))) },
+                // The pole is checked on the angle as it was written, not on the
+                // result: by the time 90° is a double its cosine is 6e-17 rather
+                // than 0, and the division then answers 1.6e16 instead of
+                // admitting there is no answer.
+                "tan" to { angle, a ->
+                    val x = one(a, "tan")
+                    if (onCosineZero(x, angle)) throw UndefinedValue()
+                    tan(angle.toRadians(x))
+                },
+                "csc" to { angle, a ->
+                    val x = one(a, "csc")
+                    if (onSineZero(x, angle)) throw UndefinedValue()
+                    1.0 / sin(angle.toRadians(x))
+                },
+                "sec" to { angle, a ->
+                    val x = one(a, "sec")
+                    if (onCosineZero(x, angle)) throw UndefinedValue()
+                    1.0 / cos(angle.toRadians(x))
+                },
+                "cot" to { angle, a ->
+                    val x = one(a, "cot")
+                    if (onSineZero(x, angle)) throw UndefinedValue()
+                    1.0 / tan(angle.toRadians(x))
+                },
                 "sinc" to { _, a ->
                     val x = one(a, "sinc")
                     if (x == 0.0) 1.0 else sin(x) / x

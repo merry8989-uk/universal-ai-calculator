@@ -153,6 +153,10 @@ class CalculatorWidgetProvider : AppWidgetProvider() {
                 val ready = ExpressionFix.balance(current)
                 if (ready.isBlank()) "0"
                 else Format.number(Evaluator.evaluate(ready, degrees = true))
+            } catch (e: Evaluator.UndefinedValue) {
+                // tan(90) has no value rather than an error, so the widget says
+                // the same word the app does.
+                e.message ?: Evaluator.UndefinedValue.MESSAGE
             } catch (e: Exception) {
                 "error"
             }
