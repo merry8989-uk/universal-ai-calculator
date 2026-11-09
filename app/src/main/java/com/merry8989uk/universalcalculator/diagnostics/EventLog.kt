@@ -53,13 +53,40 @@ object EventLog {
     /** Mirrors the one switch that governs all storing. */
     @Volatile var enabled: Boolean = true
 
-    fun init(context: Context) {
+    /** False until the directories exist, so nothing is queued onto the disk before then. */
+    @Volatile private var storageReady: Boolean = false
+
+    /**
+     * Wire the event log to this process. Memory only — the directory is not
+     * created and the install id is not read — so the thread drawing the first
+     * frame does not wait for the disk.
+     */
+    fun attach(context: Context) {
         synchronized(lock) {
             appContext = context.applicationContext
-            val dir = File(context.filesDir, DIR).apply { mkdirs() }
-            file = File(dir, NAME)
-            if (installId.isEmpty()) installId = readOrMakeInstallId(context)
+            file = File(File(context.filesDir, DIR), NAME)
         }
+    }
+
+    /**
+     * Create the directory and read the install id back out of SharedPreferences.
+     *
+     * Called from the startup worker. An event recorded before this has run is
+     * still counted and still kept for the diagnostics screen, and carries the
+     * install id "unknown" if it ever reaches the file.
+     */
+    fun prepareStorage() {
+        val dir = synchronized(lock) { file?.parentFile } ?: return
+        runCatching { dir.mkdirs() }
+        val context = appContext ?: return
+        if (installId.isEmpty()) installId = readOrMakeInstallId(context)
+        storageReady = true
+    }
+
+    /** Both halves at once, for a caller with no frame to protect. */
+    fun init(context: Context) {
+        attach(context)
+        prepareStorage()
     }
 
     /**
@@ -152,8 +179,10 @@ object EventLog {
             } catch (e: Exception) {
                 // never let logging break the app
             }
-            // and into the queue for the warehouse, which sends it when it can
-            appContext?.let { EventUploader.enqueue(it, line) }
+            // and into the queue for the warehouse, which sends it when it can.
+            // That queue is a file too, so it waits for the directories: an
+            // event logged before they exist may be the main thread's.
+            if (storageReady) appContext?.let { EventUploader.enqueue(it, line) }
         }
         return line
     }

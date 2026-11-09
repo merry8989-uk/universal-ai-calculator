@@ -4,6 +4,7 @@ import com.merry8989uk.universalcalculator.ui.PAD
 import com.merry8989uk.universalcalculator.ui.SCIENTIFIC_KEYS
 import com.merry8989uk.universalcalculator.ui.label
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -28,9 +29,30 @@ class KeypadLayoutTest {
     @Test fun theClearingRowIsFirst() {
         val first = PAD.first()
         assertTrue("C is not in the top row", "C" in first)
-        assertTrue("AC is not in the top row", "AC" in first)
         assertTrue("CE is not in the top row", "CE" in first)
         assertTrue("delete is not in the top row", "del" in first)
+    }
+
+    @Test fun theSignKeyAndTheAnswerKeyAreOnTheStandardPad() {
+        // issue #41: both used to be reachable only from the scientific drawer
+        val keys = PAD.flatten()
+        assertTrue("the sign key is missing from the number pad", "neg" in keys)
+        assertTrue("the answer key is missing from the number pad", "ans" in keys)
+    }
+
+    @Test fun theSignKeySitsWithTheClearingKeysAndTheAnswerKeyWithTheNumbers() {
+        // ± changes an entry, so it belongs beside the keys that change entries;
+        // ans puts a number on the board, so it belongs beside the digits
+        assertTrue("± is not in the top row", "neg" in PAD.first())
+        assertTrue("ans is not in the bottom row", "ans" in PAD.last())
+    }
+
+    @Test fun theDuplicateClearLabelIsWhatPaidForTheSignKey() {
+        // AC and C are the same key in code, so AC gave its place to ±. If AC
+        // ever comes back, something else has to give way, and this says so.
+        val keys = PAD.flatten()
+        assertFalse("AC is back on the pad, so the sign key lost its place", "AC" in keys)
+        assertTrue("C must still clear", "C" in keys)
     }
 
     @Test fun theMemoryKeysSitAboveTheDigits() {
@@ -73,11 +95,11 @@ class KeypadLayoutTest {
         }
     }
 
-    @Test fun clearAndClearAllAreDifferentKeys() {
+    @Test fun clearingAndClearingTheEntryAreDifferentKeys() {
         val keys = everyKey()
         assertTrue("C is missing", "C" in keys)
-        assertTrue("AC is missing", "AC" in keys)
-        assertTrue("they must not be the same key", "C" != "AC")
+        assertTrue("CE is missing", "CE" in keys)
+        assertTrue("they must not be the same key", "C" != "CE")
     }
 
     @Test fun theKeysThatMovedOffThePadAreStillReachable() {
