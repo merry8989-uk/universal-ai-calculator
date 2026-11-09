@@ -14,6 +14,36 @@ import org.json.JSONObject
 
 private val Context.currencyStore: DataStore<Preferences> by preferencesDataStore(name = "currency_cache")
 
+/**
+ * Whether a fetched rate table may be written to the device, and the write itself.
+ *
+ * The rate cache is the one thing the app stores that the user never typed: a
+ * table of prices fetched from someone else's server. That makes it the one
+ * place a user who asked for nothing to be kept would not think to look, and it
+ * was exactly the place that went on writing after the master switch was turned
+ * off. The rule lives here rather than in the screen so that the decision is one
+ * function, and so it can be checked without a phone: what is being tested is
+ * whether the writer ran, not whether a DataStore happened to accept a write.
+ */
+object RateCacheRule {
+
+    /** True when a fetched table may be written. The master switch decides, alone. */
+    fun mayWrite(savingEnabled: Boolean): Boolean = DataPolicy.mayStore(savingEnabled)
+
+    /**
+     * Runs [write] only if storing is allowed, and says whether it ran.
+     *
+     * The return value is not decoration: the screen shows the user a different
+     * sentence depending on it, and a silent false would leave it claiming a
+     * table was saved that is not on the disk.
+     */
+    suspend fun write(savingEnabled: Boolean, write: suspend () -> Unit): Boolean {
+        if (!mayWrite(savingEnabled)) return false
+        write()
+        return true
+    }
+}
+
 /** The last rate table we saw, kept on the device so the converter works offline. */
 data class CachedRates(
     val base: String,
@@ -44,12 +74,27 @@ class CurrencyCache(private val context: Context) {
 
     suspend fun snapshot(): CachedRates? = flow.first()
 
-    suspend fun save(base: String, rates: Map<String, Double>, timestampMillis: Long) {
-        if (rates.isEmpty()) return
-        context.currencyStore.edit {
-            it[Keys.BASE] = base
-            it[Keys.RATES] = encode(rates)
-            it[Keys.TIME] = timestampMillis
+    /**
+     * Saves the table if the master switch allows storing, and says whether it did.
+     *
+     * The fetch itself is never refused — a converter with no rates is useless —
+     * so what the switch governs here is only whether the answer outlives the
+     * screen. With saving off the table is still shown, and forgotten when the
+     * user leaves.
+     */
+    suspend fun save(
+        base: String,
+        rates: Map<String, Double>,
+        timestampMillis: Long,
+        savingEnabled: Boolean,
+    ): Boolean {
+        if (rates.isEmpty()) return false
+        return RateCacheRule.write(savingEnabled) {
+            context.currencyStore.edit {
+                it[Keys.BASE] = base
+                it[Keys.RATES] = encode(rates)
+                it[Keys.TIME] = timestampMillis
+            }
         }
     }
 
@@ -64,11 +109,24 @@ class CurrencyCache(private val context: Context) {
         )
     }
 
-    suspend fun saveCrypto(prices: Map<String, Double>, timestampMillis: Long) {
-        if (prices.isEmpty()) return
-        context.currencyStore.edit {
-            it[Keys.CRYPTO] = encode(prices)
-            it[Keys.CRYPTO_TIME] = timestampMillis
+    /**
+     * The same rule for the coin prices.
+     *
+     * They live under their own keys but they are still a fetched table written
+     * to the same file, so a guard on one and not the other would leave half the
+     * leak in place.
+     */
+    suspend fun saveCrypto(
+        prices: Map<String, Double>,
+        timestampMillis: Long,
+        savingEnabled: Boolean,
+    ): Boolean {
+        if (prices.isEmpty()) return false
+        return RateCacheRule.write(savingEnabled) {
+            context.currencyStore.edit {
+                it[Keys.CRYPTO] = encode(prices)
+                it[Keys.CRYPTO_TIME] = timestampMillis
+            }
         }
     }
 

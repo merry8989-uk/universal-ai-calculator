@@ -31,12 +31,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.merry8989uk.universalcalculator.calc.CacheAge
+import com.merry8989uk.universalcalculator.calc.CachedCrypto
 import com.merry8989uk.universalcalculator.calc.Countries
 import com.merry8989uk.universalcalculator.calc.Crypto
 import com.merry8989uk.universalcalculator.calc.CryptoRates
 import com.merry8989uk.universalcalculator.calc.CurrencyRates
 import com.merry8989uk.universalcalculator.calc.ExchangeMath
 import com.merry8989uk.universalcalculator.calc.Format
+import com.merry8989uk.universalcalculator.data.CachedRates
 import com.merry8989uk.universalcalculator.data.CurrencyCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -90,6 +92,53 @@ private fun subtitleOf(code: String): String =
         else "${code.uppercase()} \u00B7 $name \u00B7 ${where.joinToString(", ") { it.name }}"
     }
 
+/** What the screen can start from, and what to call it, before the network answers. */
+internal data class SavedStart(
+    val fiat: Map<String, Double>,
+    val coins: Map<String, Double>,
+    val status: String?,
+)
+
+/**
+ * Reads whatever is on the device into the screen's starting state.
+ *
+ * Reading is not writing, so this runs whatever the master switch says: a table
+ * saved before the user turned saving off is still the best answer available
+ * without a connection, and throwing it away would make the switch look like it
+ * had broken the converter. When there is nothing saved — a fresh install, or a
+ * phone that has never been online — both maps are empty and [SavedStart.status]
+ * is null, so the screen waits for the fetch rather than inventing a rate.
+ */
+internal fun savedStart(
+    savedFiat: CachedRates?,
+    savedCoins: CachedCrypto?,
+    nowMillis: Long,
+): SavedStart {
+    if (savedFiat == null && savedCoins == null) {
+        return SavedStart(emptyMap(), emptyMap(), null)
+    }
+    val age = CacheAge.describe(savedFiat?.timestampMillis ?: 0L, nowMillis)
+    return SavedStart(
+        fiat = savedFiat?.rates ?: emptyMap(),
+        coins = savedCoins?.prices ?: emptyMap(),
+        status = "Saved rates \u00B7 $age (tap Refresh for today's)",
+    )
+}
+
+/**
+ * The sentence to show when nothing may be kept, or null when rates are saved as usual.
+ *
+ * It is a sentence and not an error because nothing has failed: the user asked
+ * for this, and the only thing they cannot see from here is why the saved rates
+ * they may have seen before are not there. It is about the writing and not about
+ * the fetching, because the fetch still happens and the converter still works
+ * for as long as the screen is open.
+ */
+internal fun liveOnlyNotice(savingEnabled: Boolean): String? =
+    if (savingEnabled) null
+    else "Data saving is off, so these rates are live only \u2014 nothing is written to " +
+        "this device, and today's rates are fetched again next time."
+
 /**
  * The converter.
  *
@@ -100,7 +149,7 @@ private fun subtitleOf(code: String): String =
  * the one rate between them, large. The whole table stays below.
  */
 @Composable
-fun CurrencyScreen(onBack: () -> Unit) {
+fun CurrencyScreen(onBack: () -> Unit, savingEnabled: Boolean) {
     var fromCode by remember { mutableStateOf("INR") }
     var toCode by remember { mutableStateOf("NPR") }
     var amountText by remember { mutableStateOf("100") }
@@ -116,15 +165,10 @@ fun CurrencyScreen(onBack: () -> Unit) {
 
     // Whatever was saved is shown at once, so the converter is usable offline.
     LaunchedEffect(Unit) {
-        val savedFiat = cache.snapshot()
-        val savedCoins = cache.cryptoSnapshot()
-        if (savedFiat != null && fiat.isEmpty()) fiat = savedFiat.rates
-        if (savedCoins != null && coins.isEmpty()) coins = savedCoins.prices
-        if (savedFiat != null || savedCoins != null) {
-            val when1 = savedFiat?.timestampMillis ?: 0L
-            val age = CacheAge.describe(when1, System.currentTimeMillis())
-            status = "Saved rates \u00B7 $age (tap Refresh for today's)"
-        }
+        val start = savedStart(cache.snapshot(), cache.cryptoSnapshot(), System.currentTimeMillis())
+        if (start.fiat.isNotEmpty() && fiat.isEmpty()) fiat = start.fiat
+        if (start.coins.isNotEmpty() && coins.isEmpty()) coins = start.coins
+        start.status?.let { status = it }
     }
 
     // The currency table is always fetched against the dollar, because every
@@ -136,13 +180,14 @@ fun CurrencyScreen(onBack: () -> Unit) {
         val freshFiat = withContext(Dispatchers.IO) { CurrencyRates.fetch("USD") }
         val freshCoins = withContext(Dispatchers.IO) { CryptoRates.fetch() }
         val now = System.currentTimeMillis()
+        // Shown either way; written only when the master switch allows it.
         if (freshFiat != null) {
             fiat = freshFiat
-            cache.save("USD", freshFiat, now)
+            cache.save("USD", freshFiat, now, savingEnabled)
         }
         if (freshCoins != null) {
             coins = freshCoins
-            cache.saveCrypto(freshCoins, now)
+            cache.saveCrypto(freshCoins, now, savingEnabled)
         }
         status = when {
             freshFiat != null && freshCoins != null ->
@@ -164,9 +209,21 @@ fun CurrencyScreen(onBack: () -> Unit) {
         TextButton(onClick = onBack) { Text("\u2190 Back") }
         Text("Currency and crypto", style = MaterialTheme.typography.titleLarge)
         Text(
-            "Live rates from open.er-api.com and CoinGecko, saved on your device so the converter still works offline.",
+            if (savingEnabled) {
+                "Live rates from open.er-api.com and CoinGecko, saved on your device so the converter still works offline."
+            } else {
+                "Live rates from open.er-api.com and CoinGecko, fetched fresh each time you open this screen."
+            },
             style = MaterialTheme.typography.bodySmall,
         )
+        liveOnlyNotice(savingEnabled)?.let { notice ->
+            Text(
+                notice,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
 
         Text("From", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 12.dp))
         AssetButton(fromCode, onClick = { picking = "from" })
@@ -239,11 +296,11 @@ fun CurrencyScreen(onBack: () -> Unit) {
                     val now = System.currentTimeMillis()
                     if (freshFiat != null) {
                         fiat = freshFiat
-                        cache.save("USD", freshFiat, now)
+                        cache.save("USD", freshFiat, now, savingEnabled)
                     }
                     if (freshCoins != null) {
                         coins = freshCoins
-                        cache.saveCrypto(freshCoins, now)
+                        cache.saveCrypto(freshCoins, now, savingEnabled)
                     }
                     status = when {
                         freshFiat != null && freshCoins != null ->
