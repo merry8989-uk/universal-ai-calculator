@@ -1,5 +1,7 @@
 package com.merry8989uk.universalcalculator.settings
 
+import com.merry8989uk.universalcalculator.calc.Format
+
 /** Everything the Settings screen can control. */
 data class SettingsState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
@@ -80,9 +82,16 @@ data class SettingsState(
     val autoCloseBrackets: Boolean = true,
     /** Ignore a plus or minus left dangling at the end of the input. */
     val ignoreTrailingOperator: Boolean = true,
-    /** Thousands separators in results. */
-    /** Digit grouping: "Indian", "International", "European" or "None". */
-    val numberFormat: String = "Indian",
+    /**
+     * Digit grouping: "Locale", "Indian", "International", "European" or "None".
+     *
+     * "Locale" is the default because the right answer is a property of the phone,
+     * not of the app: an Indian phone writes 30,00,000.5 and a German one writes
+     * 3.000.000,5 before anyone visits Settings. The other four are overrides and
+     * always win, so a stored "Indian" or "European" means exactly what it always
+     * meant and is never re-read as something else.
+     */
+    val numberFormat: String = Format.FOLLOW_LOCALE,
     /** Fixed decimal places for results, or -1 for automatic. */
     val decimals: Int = -1,
     /** Key tone: Off, Click, Bubble or Pop. */

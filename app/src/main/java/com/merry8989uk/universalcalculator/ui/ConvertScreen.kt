@@ -34,14 +34,25 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.calc.Unit
 import com.merry8989uk.universalcalculator.calc.UnitHit
 import com.merry8989uk.universalcalculator.calc.UnitSearch
 import com.merry8989uk.universalcalculator.calc.Units
+import com.merry8989uk.universalcalculator.settings.SettingsState
 
+/**
+ * The unit converter.
+ *
+ * The answer is written by [displayValue], the same formatter the calculator
+ * uses, so 3000000.5 becomes 3.000.000,5 here exactly when it does there. The
+ * converter used to print its own way, which meant the same value looked like
+ * two different numbers depending on which screen you were standing on.
+ */
 @Composable
-fun ConvertScreen(onExplain: (String) -> kotlin.Unit = {}) {
+fun ConvertScreen(
+    settings: SettingsState = SettingsState(),
+    onExplain: (String) -> kotlin.Unit = {},
+) {
     var catIndex by remember { mutableIntStateOf(0) }
     val category = Units.categories[catIndex]
     var fromIndex by remember { mutableIntStateOf(0) }
@@ -195,14 +206,14 @@ fun ConvertScreen(onExplain: (String) -> kotlin.Unit = {}) {
 
             // the answer is the thing people came for; it has to be takeable
             Copyable(
-                text = result?.let { Format.number(it) } ?: "\u2014",
+                text = result?.let { settings.displayValue(it) } ?: "\u2014",
                 style = MaterialTheme.typography.headlineMedium,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.fillMaxWidth(),
             )
             if (result != null) {
-                val line = "${Format.number(value ?: 0.0)} ${from.symbol} = " +
-                    "${Format.number(result)} ${to.symbol}"
+                val line = "${settings.displayValue(value ?: 0.0)} ${from.symbol} = " +
+                    "${settings.displayValue(result)} ${to.symbol}"
                 Copyable(
                     text = line,
                     style = MaterialTheme.typography.bodyMedium,
@@ -215,7 +226,8 @@ fun ConvertScreen(onExplain: (String) -> kotlin.Unit = {}) {
 
     // The assistant, draggable so it can be moved off whatever is being read.
     val shown = result?.let {
-        "${Format.number(value ?: 0.0)} ${from.symbol} = ${Format.number(it)} ${to.symbol}"
+        "${settings.displayValue(value ?: 0.0)} ${from.symbol} = " +
+            "${settings.displayValue(it)} ${to.symbol}"
     }.orEmpty()
     ExplainBubble(
         onExplain = { onExplain(explainQuestion("unit conversion", shown)) },

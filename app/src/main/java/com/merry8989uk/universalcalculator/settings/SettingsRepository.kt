@@ -3,6 +3,7 @@ package com.merry8989uk.universalcalculator.settings
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.locale.LocaleHelper
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -108,7 +109,9 @@ class SettingsRepository(private val context: Context) {
             decimalDigits = p[Keys.DECIMAL_DIGITS] ?: 10,
             autoCloseBrackets = p[Keys.AUTO_CLOSE] ?: true,
             ignoreTrailingOperator = p[Keys.IGNORE_TRAILING] ?: true,
-            numberFormat = p[Keys.NUMBER_FORMAT] ?: "Indian",
+            // Nothing stored means nothing was chosen, which is not the same as
+            // choosing Indian: the display then follows the phone.
+            numberFormat = p[Keys.NUMBER_FORMAT] ?: Format.FOLLOW_LOCALE,
             decimals = p[Keys.DECIMALS] ?: -1,
             keySound = p[Keys.KEY_SOUND] ?: "Off",
             historyEnabled = p[Keys.HISTORY] ?: true,

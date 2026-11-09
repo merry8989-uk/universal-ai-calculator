@@ -5,6 +5,7 @@ import android.util.Base64
 import com.merry8989uk.universalcalculator.diagnostics.Analytics
 import com.merry8989uk.universalcalculator.diag.Verification
 import com.merry8989uk.universalcalculator.diagnostics.DiagnosticsLogger
+import com.merry8989uk.universalcalculator.diagnostics.NetLog
 import com.merry8989uk.universalcalculator.diagnostics.EventLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -56,6 +57,7 @@ object AiClient {
             val payload = JSONObject()
                 .put("image", Base64.encodeToString(jpeg, Base64.NO_WRAP))
                 .toString()
+            val started = System.currentTimeMillis()
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
@@ -67,6 +69,7 @@ object AiClient {
             DiagnosticsLogger.log("AI", "Photo solve: ${jpeg.size} bytes")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
             val code = conn.responseCode
+            NetLog.request("AI", "POST", ENDPOINT, code, System.currentTimeMillis() - started)
             val stream = if (code in 200..299) conn.inputStream else conn.errorStream
             val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
             val json = runCatching { JSONObject(text) }.getOrNull()
@@ -117,6 +120,7 @@ object AiClient {
                     .put("mode", "answer")
                     .put("question", question)
                     .toString()
+                val started = System.currentTimeMillis()
                 conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     doOutput = true
@@ -126,6 +130,7 @@ object AiClient {
                 }
                 conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
                 val code = conn.responseCode
+                NetLog.request("AI", "POST", ENDPOINT, code, System.currentTimeMillis() - started)
                 val stream = if (code in 200..299) conn.inputStream else conn.errorStream
                 val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
                 val json = runCatching { JSONObject(body) }.getOrNull()
@@ -155,6 +160,7 @@ object AiClient {
                     .put("image", Base64.encodeToString(jpeg, Base64.NO_WRAP))
                     .put("mode", mode)
                     .toString()
+                val started = System.currentTimeMillis()
                 conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     doOutput = true
@@ -164,6 +170,7 @@ object AiClient {
                 }
                 conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
                 val code = conn.responseCode
+                NetLog.request("AI", "POST", ENDPOINT, code, System.currentTimeMillis() - started)
                 val stream = if (code in 200..299) conn.inputStream else conn.errorStream
                 val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
                 val json = runCatching { JSONObject(body) }.getOrNull()
@@ -186,6 +193,7 @@ object AiClient {
                 .put("audio", Base64.encodeToString(audio, Base64.NO_WRAP))
                 .put("mime", "audio/wav")
                 .toString()
+            val started = System.currentTimeMillis()
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
@@ -197,6 +205,7 @@ object AiClient {
             DiagnosticsLogger.log("AI", "Transcribe: ${audio.size} bytes")
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
             val code = conn.responseCode
+            NetLog.request("AI", "POST", ENDPOINT, code, System.currentTimeMillis() - started)
             val stream = if (code in 200..299) conn.inputStream else conn.errorStream
             val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
             val json = runCatching { JSONObject(text) }.getOrNull()
@@ -245,6 +254,7 @@ object AiClient {
                 }
             }.toString()
 
+            val started = System.currentTimeMillis()
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
@@ -254,7 +264,6 @@ object AiClient {
                 setRequestProperty("X-Request-Id", requestId)
             }
             count("ask")
-            val started = System.currentTimeMillis()
             EventLog.beginRequest()
             // The question itself is not logged. A calculation can be a salary, a
             // dose or a debt, and a diagnostics export is a file the user may
@@ -269,6 +278,7 @@ object AiClient {
             conn.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
 
             val code = conn.responseCode
+            NetLog.request("AI", "POST", ENDPOINT, code, System.currentTimeMillis() - started)
             val stream = if (code in 200..299) conn.inputStream else conn.errorStream
             val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
             val json = runCatching { JSONObject(text) }.getOrNull()

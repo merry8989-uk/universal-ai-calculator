@@ -41,7 +41,7 @@ Engineering, Construction and Math.
 - **Least squares** and eigenvalues for any matrix size
 - **Voice input** and a **photo solver** — both send the text to the assistant to answer and explain
 - **x variable key** (with an inline value field) and a **⇄ swap** key
-- **Number format** (Indian / International / European), **decimal places** and **measuring units** (metric / imperial)
+- **Number format** — follows the language by default, with Indian / International / European as an override — and **decimal places**
 - **92 scientific functions** in a grouped drawer
 - **Stress tests** (over 1,200 tests in all)
 - **Watch companion** (Wear OS), sharing the engine via `:core`

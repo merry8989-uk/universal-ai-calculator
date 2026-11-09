@@ -57,7 +57,9 @@ object DiagnosticsLogger {
     fun log(tag: String, message: String) {
         if (!enabled) return
         val file = logFile ?: return
-        val line = "${timeFmt.format(Date())} [$tag] $message"
+        // One place, so no caller has to remember: anything that looks like a
+        // token, a key, an email or a phone number is taken out here.
+        val line = "${timeFmt.format(Date())} [$tag] ${Mask.apply(message)}"
         synchronized(lock) {
             runCatching {
                 if (file.length() > MAX_BYTES) rotate(file)
@@ -131,6 +133,10 @@ object DiagnosticsLogger {
             appendLine(error.stackTraceToString())
             appendLine("--- last ${CRUMBS} log lines ---")
             appendLine(recent().takeLast(CRUMBS).joinToString("\n"))
+            // The framework and the libraries explain themselves in logcat and
+            // nowhere else, and the moments before a crash are the only part of it
+            // worth having. Read once, here, rather than running all day.
+            appendLine(LogcatTail.read())
             appendLine()
         }
 
@@ -142,7 +148,9 @@ object DiagnosticsLogger {
                     file.appendText(entry)
                 }
                 // keep the marker in the ordinary log too
-                val line = "${timeFmt.format(Date())} [CRASH] ${error.javaClass.name}: ${error.message}"
+                val line = "${timeFmt.format(Date())} [CRASH] ${Mask.apply(
+                    "${error.javaClass.name}: ${error.message}",
+                )}"
                 logFile?.let { if (it.length() > MAX_BYTES) rotate(it); it.appendText(line + "\n") }
                 ring.addLast(line)
                 while (ring.size > MAX_RING) ring.removeFirst()

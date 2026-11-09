@@ -44,6 +44,7 @@ object NoticeClient {
      * this is meant to be called off the main thread — [refresh] does that.
      */
     fun fetch(timeoutMs: Int = 6000): Notice? {
+        val started = System.currentTimeMillis()
         val connection = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
             requestMethod = "GET"
             connectTimeout = timeoutMs
@@ -51,7 +52,11 @@ object NoticeClient {
             setRequestProperty("accept", "application/json")
         }
         return try {
-            if (connection.responseCode != 200) return null
+            val code = connection.responseCode
+            com.merry8989uk.universalcalculator.diagnostics.NetLog.request(
+                "NOTICE", "GET", ENDPOINT, code, System.currentTimeMillis() - started,
+            )
+            if (code != 200) return null
             val text = connection.inputStream.bufferedReader().use { it.readText() }
             parse(text)
         } catch (e: Exception) {

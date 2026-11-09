@@ -196,7 +196,12 @@ fun FormulasScreen(
             )
             tool == "rpn" -> RpnScreen { tool = "" }
             tool == "matrix" -> MatrixScreen { tool = "" }
-            tool == "handwriting" -> HandwritingScreen { tool = "" }
+            // The pad posts what is drawn on it, so it is told which way the
+            // master switch is set, the same as the converter above.
+            tool == "handwriting" -> HandwritingScreen(
+                onBack = { tool = "" },
+                savingEnabled = settings.dataSavingEnabled,
+            )
             tool == "solver" -> EquationSolverScreen(
                 onClose = { tool = "" },
                 notation = com.merry8989uk.universalcalculator.calc.IntervalNotation

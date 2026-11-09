@@ -34,10 +34,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.merry8989uk.universalcalculator.R
 import com.merry8989uk.universalcalculator.ai.AiClient
+import com.merry8989uk.universalcalculator.ai.UploadDecision
+import com.merry8989uk.universalcalculator.ai.uploadDecision
 import com.merry8989uk.universalcalculator.calc.ComplexEvaluator
 import com.merry8989uk.universalcalculator.calc.Evaluator
 import com.merry8989uk.universalcalculator.calc.Format
@@ -52,7 +56,17 @@ import java.io.ByteArrayOutputStream
  * needs no handwriting library.
  */
 @Composable
-fun HandwritingScreen(onBack: () -> Unit) {
+fun HandwritingScreen(
+    onBack: () -> Unit,
+    /**
+     * The master data-saving switch, handed in rather than read here.
+     *
+     * The pad is the one place a drawing becomes a picture on the wire, so it
+     * asks this before it renders anything. Required, not defaulted: a caller
+     * that forgets to pass it is a caller that has not answered the question.
+     */
+    savingEnabled: Boolean,
+) {
     var strokes by remember { mutableStateOf(emptyList<List<Offset>>()) }
     var current by remember { mutableStateOf(emptyList<Offset>()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -92,6 +106,15 @@ fun HandwritingScreen(onBack: () -> Unit) {
     fun readIt() {
         if (strokes.isEmpty() && current.isEmpty()) {
             message = "Write something first."
+            return
+        }
+        // A page of handwriting is the user's own work, and posting it is a
+        // picture leaving the phone. The switch is asked before the strokes are
+        // rendered, so a refusal costs no work, opens no connection, and says
+        // which setting stopped it instead of blaming the network.
+        val decision = uploadDecision(savingEnabled)
+        if (decision is UploadDecision.Refused) {
+            message = decision.message
             return
         }
         busy = true
@@ -165,6 +188,15 @@ fun HandwritingScreen(onBack: () -> Unit) {
             strokes.forEach { drawStroke(it) }
             if (current.isNotEmpty()) drawStroke(current)
         }
+
+        // Said under the pad, where the drawing is made: Read it sends this page
+        // to the assistant as a picture, and the user is told so before they tap
+        // it rather than after.
+        Text(
+            stringResource(R.string.handwriting_sent_notice),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp),
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),

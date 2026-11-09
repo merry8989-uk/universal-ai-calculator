@@ -50,6 +50,24 @@ class HistoryRepository(private val context: Context) {
         storedLines(prefs).joinToString("\n") { HistoryRetention.text(it, now) }
     }
 
+    /**
+     * The number behind each line, by the text of the line.
+     *
+     * "Use this again" puts a past answer back on the board, and the board needs
+     * the number, not the text the answer was shown as: "19,000" is a number to
+     * read, not one to calculate with. The number travels beside the text, so it
+     * is handed back here keyed by the line the user is holding. Where the same
+     * line was worked out more than once the newest wins, which is the one at the
+     * top of the tape.
+     */
+    val values: Flow<Map<String, Double>> = context.historyStore.data.map { prefs ->
+        val now = System.currentTimeMillis()
+        storedLines(prefs)
+            .map { HistoryRetention.parse(it, now) }
+            .mapNotNull { line -> line.value?.let { line.text to it } }
+            .toMap()
+    }
+
     /** The texts the user asked to keep for good. */
     val pinnedTexts: Flow<Set<String>> = context.historyStore.data.map { prefs ->
         val now = System.currentTimeMillis()
@@ -63,11 +81,15 @@ class HistoryRepository(private val context: Context) {
     /**
      * Adds one entry, stamped with now, and applies the rule.
      *
+     * [value] is the exact answer when the answer was a number, kept beside the
+     * text so the line can be used again without reading the number back out of
+     * a display string.
+     *
      * Returns what the rule took away on the way, so an append cannot quietly
      * be the moment a month-old line disappeared.
      */
-    suspend fun append(entry: String): List<String> {
-        val line = HistoryRetention.stored(entry, System.currentTimeMillis())
+    suspend fun append(entry: String, value: Double? = null): List<String> {
+        val line = HistoryRetention.stored(entry, System.currentTimeMillis(), value)
         var removed = emptyList<String>()
         context.historyStore.edit { prefs ->
             val now = System.currentTimeMillis()

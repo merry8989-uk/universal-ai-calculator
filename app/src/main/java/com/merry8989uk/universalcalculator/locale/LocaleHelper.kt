@@ -34,8 +34,11 @@ object LocaleHelper {
     fun wrap(context: Context): Context {
         val language = current(context)
         if (language == SYSTEM || language.isBlank()) return context
-        val locale = Locale.forLanguageTag(language)
-        if (locale.language.isEmpty()) return context
+        val chosen = Locale.forLanguageTag(language)
+        if (chosen.language.isEmpty()) return context
+        // A language is not a country. Choosing English on an Indian phone keeps
+        // the Indian region, so the numbers stay in lakhs; see [localeFor].
+        val locale = localeFor(language, Locale.getDefault())
         Locale.setDefault(locale)
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)

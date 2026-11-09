@@ -47,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AskFailure
 import com.merry8989uk.universalcalculator.ai.Attachments
+import com.merry8989uk.universalcalculator.ai.UploadDecision
 import com.merry8989uk.universalcalculator.ai.askOutcome
+import com.merry8989uk.universalcalculator.ai.uploadDecision
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
@@ -190,6 +192,17 @@ fun AskAiScreen(
         ActivityResultContracts.OpenDocument(),
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
+        // A picked file is the user's own picture, recording or page, and the
+        // reading below posts it, so the switch is asked before the file is
+        // opened. A refusal is shown where the attachment would have been
+        // listed: nothing is read, and nothing is sent.
+        val decision = uploadDecision(savingEnabled)
+        if (decision is UploadDecision.Refused) {
+            attachError = decision.message
+            attachText = ""
+            attachLabel = ""
+            return@rememberLauncherForActivityResult
+        }
         attachBusy = true
         attachError = ""
         // An attachment in the assistant is something to talk about, so a
@@ -198,9 +211,14 @@ fun AskAiScreen(
         // its header.
         scope.launch {
             handleRead(
-                Attachments.read(context, uri, question.ifBlank {
-                    "Read the questions in this picture and solve them one by one, starting at question 1."
-                }),
+                Attachments.read(
+                    context,
+                    uri,
+                    savingEnabled = savingEnabled,
+                    question = question.ifBlank {
+                        "Read the questions in this picture and solve them one by one, starting at question 1."
+                    },
+                ),
             )
         }
     }
@@ -209,6 +227,16 @@ fun AskAiScreen(
         ActivityResultContracts.TakePicturePreview(),
     ) { bmp: Bitmap? ->
         if (bmp == null) return@rememberLauncherForActivityResult
+        // The camera button used to post its picture without asking anything.
+        // The switch is asked before the bitmap is compressed, so a refusal
+        // costs no work and opens no connection.
+        val decision = uploadDecision(savingEnabled)
+        if (decision is UploadDecision.Refused) {
+            attachError = decision.message
+            attachText = ""
+            attachLabel = ""
+            return@rememberLauncherForActivityResult
+        }
         attachBusy = true
         attachError = ""
         scope.launch {
@@ -321,6 +349,14 @@ fun AskAiScreen(
                 enabled = !attachBusy && !loading,
             ) { Text("\uD83D\uDCCE " + stringResource(R.string.file)) }
         }
+        // Said here, under the camera, and not only on a policy page nobody
+        // opens: the picture leaves the phone, so the user is told where they
+        // attach it rather than afterwards.
+        Text(
+            stringResource(R.string.attach_sent_notice),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp),
+        )
         Text(
             stringResource(R.string.attach_help),
             style = MaterialTheme.typography.bodySmall,

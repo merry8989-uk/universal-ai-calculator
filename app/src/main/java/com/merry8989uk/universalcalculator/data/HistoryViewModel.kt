@@ -28,6 +28,17 @@ class HistoryViewModel(app: Application) : AndroidViewModel(app) {
     val entries: StateFlow<String> = repo.entries
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
+    /**
+     * The exact number behind each line, by the line's text.
+     *
+     * Handed to the screen as a map rather than as part of each line, because the
+     * tape draws text and nothing else: the number is only needed at the moment a
+     * past result is put back on the board, and reading "19,000" back into a
+     * number is a guess the app should not be making.
+     */
+    val values: StateFlow<Map<String, Double>> = repo.values
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     /** The lines the user asked to keep for good. */
     val pinned: StateFlow<Set<String>> = repo.pinnedTexts
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
@@ -45,7 +56,9 @@ class HistoryViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch { announce(repo.prune()) }
     }
 
-    fun append(entry: String) = viewModelScope.launch { announce(repo.append(entry)) }
+    /** Adds a line, with the exact number behind it when its answer was one. */
+    fun append(entry: String, value: Double? = null) =
+        viewModelScope.launch { announce(repo.append(entry, value)) }
 
     /** Wipes the tape. The caller asks first; this is what happens if they say yes. */
     fun clear() = viewModelScope.launch {

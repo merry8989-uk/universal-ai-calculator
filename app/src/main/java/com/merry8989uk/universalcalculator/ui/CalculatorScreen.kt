@@ -93,6 +93,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AiResult
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
+import com.merry8989uk.universalcalculator.ai.UploadDecision
+import com.merry8989uk.universalcalculator.ai.uploadDecision
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
@@ -377,6 +379,11 @@ fun CalculatorScreen(
     // label the sheet, one to say what went missing.
     val pinnedLines by historyVm.pinned.collectAsState()
     val purged by historyVm.purged.collectAsState()
+    // The exact number behind each line. A line of history is the answer as it
+    // was shown, and "19,000" is a number to read rather than one to calculate
+    // with, so the number is carried beside it and looked up here by the line
+    // the user is holding.
+    val exactValues by historyVm.values.collectAsState()
     // A line the archive refused to keep. Shown until it is dismissed, because
     // the record is the one thing in this app a user is entitled to trust.
     var archiveProblem by remember { mutableStateOf<String?>(null) }
@@ -414,6 +421,8 @@ fun CalculatorScreen(
     // One rule, shared with the tab bar, so the two can never disagree.
     val aiVisible = aiIsVisible(settings.aiEnabled, settings.minimalMode)
     // How results are written out: Normal, Fixed, Scientific, Engineering, SI.
+    // The writing itself lives in displayNumber; this is only the light on the
+    // display that says which one is in force.
     val decimalMode = com.merry8989uk.universalcalculator.calc.DecimalFormat.of(settings.decimalFormat)
     // What + and - do with a percent sign.
     val percentageMode =
@@ -644,11 +653,7 @@ when (key) {
                                                 if (r.isReal(1e-10)) {
                                                     ans = r.re
                                                     exactResult = r.re
-                                                    pretty(
-                                                        Format.number(r.re), settings.numberFormat,
-                                                        settings.decimals,
-                                                        decimalMode, settings.decimalDigits,
-                                                    )
+                                                    settings.displayNumber(Format.number(r.re))
                                                 } else {
                                                     Complex.text(r)
                                                 }
@@ -663,11 +668,7 @@ when (key) {
                                                 ans = value
                                                 exactResult = value
                                                 // Shown at the number of decimals the user chose.
-                                                pretty(
-                                                    Format.number(value), settings.numberFormat,
-                                                    settings.decimals,
-                                                    decimalMode, settings.decimalDigits,
-                                                )
+                                                settings.displayNumber(Format.number(value))
                                             }
                                         } catch (e: Evaluator.UndefinedValue) {
                                             // A pole is a fact about the function,
@@ -748,7 +749,10 @@ when (key) {
                                             gtJustPressed = false
                                             DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
                                             if (DataPolicy.mayKeepHistory(settings.dataSavingEnabled, settings.historyEnabled)) {
-                                                historyVm.append("${text.ifBlank { "0" }} = $shown")
+                                                historyVm.append(
+                                                    "${text.ifBlank { "0" }} = $shown",
+                                                    exactResult,
+                                                )
                                             }
                                             expr = TextFieldValue(shown, TextRange(shown.length))
                                             calcFailure = null
@@ -844,6 +848,16 @@ when (key) {
         ActivityResultContracts.TakePicturePreview(),
     ) { bitmap: Bitmap? ->
         if (bitmap == null) return@rememberLauncherForActivityResult
+        // The photo key on the pad posts its picture too, and it used to ask
+        // nobody: the same master switch governs it, and the refusal is said in
+        // the drawer the answer would have opened in. No Retry is offered,
+        // because nothing was sent and nothing failed.
+        val decision = uploadDecision(settings.dataSavingEnabled)
+        if (decision is UploadDecision.Refused) {
+            aiText = decision.message
+            scope.launch { drawerState.open() }
+            return@rememberLauncherForActivityResult
+        }
         photoBusy = true
         scope.launch {
             val bytes = ByteArrayOutputStream().use { out ->
@@ -921,8 +935,13 @@ when (key) {
             onDismissPurge = { historyVm.dismissPurge() },
             onPick = { entry ->
                 // Load the expression (everything before " = ") back onto the board.
+                // The answer that line came to is dropped: what is on the board is
+                // a sum to work out, and keeping the old answer beside it would let
+                // the next operator continue from a number that is no longer the
+                // one on screen.
                 val e = entry.substringBeforeLast(" = ").trim()
                 expr = TextFieldValue(e, TextRange(e.length))
+                exactResult = null
                 showHistory = false
             },
         )
@@ -955,7 +974,7 @@ when (key) {
                             modifier = Modifier.padding(top = 12.dp))
                         if (preview.isNotEmpty()) {
                             Text(
-                                "= ${pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)}",
+                                "= ${settings.displayNumber(preview)}",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium)
                         }
@@ -1314,7 +1333,7 @@ when (key) {
                 val resultSpoken = if (preview.isNotEmpty())
                     stringResource(
                         R.string.result_a11y,
-                        pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits),
+                        settings.displayNumber(preview),
                     )
                 else ""
 
@@ -1323,7 +1342,7 @@ when (key) {
                         preview.toDoubleOrNull()?.let { Fractions.mixedText(it) }
                     } else null
                     val written = if (preview.isNotEmpty())
-                        pretty(preview, settings.numberFormat, settings.decimals, decimalMode, settings.decimalDigits)
+                        settings.displayNumber(preview)
                     else ""
                     val shownPreview = if (preview.isNotEmpty())
                         "= $written" + (asFraction?.let { "   ($it)" } ?: "")
@@ -1605,6 +1624,7 @@ when (key) {
             onPick = { entry ->
                 val e = entry.substringBeforeLast(" = ").trim()
                 expr = TextFieldValue(e, TextRange(e.length))
+                exactResult = null
                 historyOpen = false
             },
             onClear = { historyVm.clear() },
@@ -1643,7 +1663,8 @@ when (key) {
     val held = historyMenu
     if (held != null) {
         val heldSum = held.substringBeforeLast(" = ").trim()
-        val heldAnswer = held.substringAfterLast(" = ").trim().toDoubleOrNull()
+        // The number carried beside the line, not the text it was shown as.
+        val heldAnswer = exactValues[held]
         HistoryEntrySheet(
             entry = held,
             onSteps = { workingFor = held; historyMenu = null },
@@ -1672,7 +1693,7 @@ when (key) {
     val working = workingFor
     if (working != null) {
         val sum = working.substringBeforeLast(" = ").trim()
-        val answer = working.substringAfterLast(" = ").trim().toDoubleOrNull()
+        val answer = exactValues[working]
         StepsDialog(
             expression = sum,
             answer = answer,
@@ -1691,16 +1712,6 @@ internal val CLASSIC_KEY_HEIGHT = 40.dp
 internal const val DISPLAY_WEIGHT_CLASSIC = 1f
 internal const val PAD_WEIGHT_CLASSIC = 1f
 
-/** Adds thousands separators to the integer part when the user wants them. */
-/**
- * Formats a result for display: rounds to the chosen number of decimals, then
- * groups the digits the way the chosen locale does.
- *
- *   Indian        30,00,000.5
- *   International  3,000,000.5
- *   European       3.000.000,5
- *   None           3000000.5
- */
 /** One of the little state lights on the display line. */
 @Composable
 private fun StateLight(label: String, on: Boolean, colour: Color) {
@@ -1711,21 +1722,3 @@ private fun StateLight(label: String, on: Boolean, colour: Color) {
         fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
     )
 }
-
-private fun pretty(
-    text: String,
-    format: String,
-    decimals: Int,
-    mode: com.merry8989uk.universalcalculator.calc.DecimalFormat =
-        com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL,
-    digits: Int = 10,
-): String {
-    // Normal keeps the existing behaviour; the other four rewrite the number
-    // first and then only group it.
-    if (mode == com.merry8989uk.universalcalculator.calc.DecimalFormat.NORMAL) {
-        return Format.grouped(text, format, decimals)
-    }
-    val value = text.toDoubleOrNull() ?: return text
-    return Format.grouped(Format.number(value, mode, digits), format, -1)
-}
-

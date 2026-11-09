@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.R
+import com.merry8989uk.universalcalculator.data.HistorySearch
 
 /**
  * Full calculation history, newest first.
@@ -31,6 +33,12 @@ import com.merry8989uk.universalcalculator.R
  * Clearing asks first here too: this screen is where a user sees the whole tape
  * at once, and the Clear beside it is the one most likely to be reached for by
  * somebody who has just realised they are about to lose it.
+ *
+ * The search box is what makes this a history rather than a receipt. Three days
+ * of work is more lines than can be read by eye, so the line worth going back to
+ * is found by typing part of it — the sum, or the answer it came to — instead of
+ * by scrolling and hoping. Clear still acts on the whole tape, not on what the
+ * search happens to be showing: it says "Clear" and it means all of it.
  */
 @Composable
 fun HistoryScreen(
@@ -44,6 +52,8 @@ fun HistoryScreen(
 ) {
     val entries = history.split("\n").filter { it.isNotBlank() }.reversed()
     var confirming by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+    val shown = HistorySearch.lines(entries, query)
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(
@@ -62,10 +72,27 @@ fun HistoryScreen(
 
         if (purged > 0) PurgeStrip(purged, onUndoPurge, onDismissPurge)
 
+        if (entries.isNotEmpty()) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text(stringResource(R.string.history_search)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+        }
+
         if (entries.isEmpty()) {
             Text(
                 "No items yet. Your calculations will appear here.",
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 24.dp),
+            )
+        } else if (shown.isEmpty()) {
+            Text(
+                stringResource(R.string.search_no_match),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 24.dp),
             )
         } else {
@@ -73,7 +100,7 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                entries.forEach { e ->
+                shown.forEach { e ->
                     Card(modifier = Modifier.fillMaxWidth().clickable { onPick(e) }) {
                         Text(
                             e,
