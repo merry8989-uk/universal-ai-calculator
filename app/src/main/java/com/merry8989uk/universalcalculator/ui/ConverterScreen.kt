@@ -32,7 +32,7 @@ private val MODES = listOf(
 )
 
 @Composable
-fun ConverterScreen(onBack: () -> Unit, onExplain: (String) -> Unit = {}) {
+fun ConverterScreen(onBack: () -> Unit, onExplain: (String) -> kotlin.Unit = {}) {
     var mode by remember { mutableStateOf(MODES.first()) }
     var input by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("") }

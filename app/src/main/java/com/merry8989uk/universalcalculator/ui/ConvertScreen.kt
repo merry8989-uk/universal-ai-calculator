@@ -35,7 +35,7 @@ import com.merry8989uk.universalcalculator.calc.Unit
 import com.merry8989uk.universalcalculator.calc.Units
 
 @Composable
-fun ConvertScreen(onExplain: (String) -> Unit = {}) {
+fun ConvertScreen(onExplain: (String) -> kotlin.Unit = {}) {
     var catIndex by remember { mutableIntStateOf(0) }
     val category = Units.categories[catIndex]
     var fromIndex by remember { mutableIntStateOf(0) }
