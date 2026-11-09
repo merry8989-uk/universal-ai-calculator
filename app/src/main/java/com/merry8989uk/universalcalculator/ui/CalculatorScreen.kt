@@ -379,6 +379,11 @@ fun CalculatorScreen(
     // label the sheet, one to say what went missing.
     val pinnedLines by historyVm.pinned.collectAsState()
     val purged by historyVm.purged.collectAsState()
+    // The exact number behind each line. A line of history is the answer as it
+    // was shown, and "19,000" is a number to read rather than one to calculate
+    // with, so the number is carried beside it and looked up here by the line
+    // the user is holding.
+    val exactValues by historyVm.values.collectAsState()
     // A line the archive refused to keep. Shown until it is dismissed, because
     // the record is the one thing in this app a user is entitled to trust.
     var archiveProblem by remember { mutableStateOf<String?>(null) }
@@ -750,7 +755,10 @@ when (key) {
                                             gtJustPressed = false
                                             DiagnosticsLogger.log("Calc", "${text.ifBlank { "0" }} = $shown")
                                             if (DataPolicy.mayKeepHistory(settings.dataSavingEnabled, settings.historyEnabled)) {
-                                                historyVm.append("${text.ifBlank { "0" }} = $shown")
+                                                historyVm.append(
+                                                    "${text.ifBlank { "0" }} = $shown",
+                                                    exactResult,
+                                                )
                                             }
                                             expr = TextFieldValue(shown, TextRange(shown.length))
                                             calcFailure = null
@@ -933,8 +941,13 @@ when (key) {
             onDismissPurge = { historyVm.dismissPurge() },
             onPick = { entry ->
                 // Load the expression (everything before " = ") back onto the board.
+                // The answer that line came to is dropped: what is on the board is
+                // a sum to work out, and keeping the old answer beside it would let
+                // the next operator continue from a number that is no longer the
+                // one on screen.
                 val e = entry.substringBeforeLast(" = ").trim()
                 expr = TextFieldValue(e, TextRange(e.length))
+                exactResult = null
                 showHistory = false
             },
         )
@@ -1617,6 +1630,7 @@ when (key) {
             onPick = { entry ->
                 val e = entry.substringBeforeLast(" = ").trim()
                 expr = TextFieldValue(e, TextRange(e.length))
+                exactResult = null
                 historyOpen = false
             },
             onClear = { historyVm.clear() },
@@ -1655,7 +1669,8 @@ when (key) {
     val held = historyMenu
     if (held != null) {
         val heldSum = held.substringBeforeLast(" = ").trim()
-        val heldAnswer = held.substringAfterLast(" = ").trim().toDoubleOrNull()
+        // The number carried beside the line, not the text it was shown as.
+        val heldAnswer = exactValues[held]
         HistoryEntrySheet(
             entry = held,
             onSteps = { workingFor = held; historyMenu = null },
@@ -1684,7 +1699,7 @@ when (key) {
     val working = workingFor
     if (working != null) {
         val sum = working.substringBeforeLast(" = ").trim()
-        val answer = working.substringAfterLast(" = ").trim().toDoubleOrNull()
+        val answer = exactValues[working]
         StepsDialog(
             expression = sum,
             answer = answer,

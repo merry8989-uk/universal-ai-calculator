@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import com.merry8989uk.universalcalculator.calc.ArchiveFormat
 import com.merry8989uk.universalcalculator.calc.ArchiveSummary
 import com.merry8989uk.universalcalculator.calc.Format
 import com.merry8989uk.universalcalculator.data.ArchiveStore
+import com.merry8989uk.universalcalculator.data.HistorySearch
 import java.time.LocalDate
 
 /**
@@ -45,6 +47,12 @@ import java.time.LocalDate
  * This is the one screen that reads the archive. Nothing here can delete it —
  * there is no clear button on purpose, because the whole point of the archive is
  * that it survives a clear.
+ *
+ * The search box narrows the month on screen rather than reaching past it: the
+ * year and month chips are how the archive is scoped, and a search that silently
+ * changed the scope would make the totals underneath it mean something other
+ * than what they say. So the totals keep describing the whole month, and the box
+ * only decides which of its lines are drawn.
  */
 @Composable
 fun ArchiveScreen(onBack: () -> Unit) {
@@ -60,7 +68,9 @@ fun ArchiveScreen(onBack: () -> Unit) {
     var month by remember(year) { mutableStateOf(months.firstOrNull() ?: today.monthValue) }
 
     val entries = remember(year, month) { ArchiveStore.entries(context, year, month) }
-    val byDay = remember(entries) { entries.groupBy { it.at.toLocalDate() }.toSortedMap() }
+    var query by remember(year, month) { mutableStateOf("") }
+    val shown = HistorySearch.entries(entries, query)
+    val byDay = shown.groupBy { it.at.toLocalDate() }.toSortedMap()
     val withNumbers = ArchiveSummary.howManyHaveANumber(entries)
 
     Column(
@@ -100,6 +110,16 @@ fun ArchiveScreen(onBack: () -> Unit) {
             }
         }
 
+        if (entries.isNotEmpty()) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text(stringResource(R.string.archive_search)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            )
+        }
+
         if (entries.isEmpty()) {
             Text(
                 stringResource(R.string.archive_empty),
@@ -113,6 +133,14 @@ fun ArchiveScreen(onBack: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
             )
+            if (shown.isEmpty()) {
+                Text(
+                    stringResource(R.string.search_no_match),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 12.dp),
+                )
+            }
             for ((date, list) in byDay) {
                 // the day's entries, with the date on the right of the last one
                 Text(
