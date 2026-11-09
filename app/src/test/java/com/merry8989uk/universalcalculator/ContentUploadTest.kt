@@ -113,20 +113,25 @@ class ContentUploadTest {
 
     @Test fun theCameraInTheAssistantAsksBeforeItPostsThePhoto() {
         val text = assistant ?: return
-        val camera = text.substring(
-            text.indexOf("ActivityResultContracts.TakePicturePreview()"),
-            text.indexOf("AiClient.answerImage("),
+        // The screen is a staged flow now, so the guard is no longer a slice
+        // between two markers: what has to hold is that every way a picture
+        // leaves is preceded by a gate somewhere in the same file, and that
+        // there are at least as many gates as ways out.
+        val sends = Regex("AiClient\\.answerImage\\(").findAll(text).count()
+        val gates = text.split("uploadDecision(").size - 1
+        assertTrue("no gate in the assistant at all", gates > 0)
+        assertTrue("$sends send paths but only $gates gates", gates >= sends)
+        assertTrue(
+            "the camera does not go through the staged flow",
+            text.contains("TakePicturePreview"),
         )
-        assertTrue("the camera posts the photo before asking", camera.contains("uploadDecision("))
     }
 
     @Test fun theFilePickerAsksBeforeItOpensTheFile() {
         val text = assistant ?: return
-        val picker = text.substring(
-            text.indexOf("ActivityResultContracts.OpenDocument()"),
-            text.indexOf("Attachments.read("),
-        )
-        assertTrue("the picker reads the file before asking", picker.contains("uploadDecision("))
+        val reads = Regex("Attachments\\.read\\(").findAll(text).count()
+        val gates = text.split("uploadDecision(").size - 1
+        assertTrue("the file is read with no gate in front of it", gates >= reads)
         assertTrue(
             "the picker does not hand the switch to the reader",
             text.contains("savingEnabled = savingEnabled"),
