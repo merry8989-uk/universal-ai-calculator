@@ -29,9 +29,24 @@ object Attachments {
     // reading the pages, not the model's.
     private const val MAX_TEXT_CHARS = 60_000
 
-    suspend fun read(context: Context, uri: Uri, question: String = ""): Read = withContext(Dispatchers.IO) {
+    suspend fun read(
+        context: Context,
+        uri: Uri,
+        savingEnabled: Boolean,
+        question: String = "",
+    ): Read = withContext(Dispatchers.IO) {
         val name = displayName(context, uri) ?: "file"
         val type = context.contentResolver.getType(uri).orEmpty()
+
+        // Every picked file arrives here and three of the branches below put its
+        // bytes on the network, so the switch is asked again before the file is
+        // even opened. This is the one place a picked picture has to pass
+        // through, and it is the place the gate was missing: the screens could
+        // only be trusted to ask if they remembered to.
+        val decision = uploadDecision(savingEnabled)
+        if (decision is UploadDecision.Refused) {
+            return@withContext Read("file", name, "", decision.message)
+        }
 
         val bytes = try {
             context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
