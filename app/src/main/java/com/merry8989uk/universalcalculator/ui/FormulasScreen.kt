@@ -227,7 +227,12 @@ fun FormulasScreen(
                 width = com.merry8989uk.universalcalculator.calc.BitWidth
                     .valueOf(settings.bitWidth),
             )
-            tool == "currency" -> CurrencyScreen { tool = "" }
+            // The converter is the one tool that writes something the user never
+            // typed, so it is told which way the master switch is set.
+            tool == "currency" -> CurrencyScreen(
+                onBack = { tool = "" },
+                savingEnabled = settings.dataSavingEnabled,
+            )
             tool == "interest" -> InterestScreen { tool = "" }
             tool == "allformulas" -> FormulaReferenceScreen(
                 onBack = { tool = "" },
