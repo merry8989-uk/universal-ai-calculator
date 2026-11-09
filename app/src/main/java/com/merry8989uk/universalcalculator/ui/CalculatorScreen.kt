@@ -93,6 +93,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
 import com.merry8989uk.universalcalculator.ai.AiResult
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
+import com.merry8989uk.universalcalculator.ai.UploadDecision
+import com.merry8989uk.universalcalculator.ai.uploadDecision
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
 import com.merry8989uk.universalcalculator.R
@@ -844,6 +846,16 @@ when (key) {
         ActivityResultContracts.TakePicturePreview(),
     ) { bitmap: Bitmap? ->
         if (bitmap == null) return@rememberLauncherForActivityResult
+        // The photo key on the pad posts its picture too, and it used to ask
+        // nobody: the same master switch governs it, and the refusal is said in
+        // the drawer the answer would have opened in. No Retry is offered,
+        // because nothing was sent and nothing failed.
+        val decision = uploadDecision(settings.dataSavingEnabled)
+        if (decision is UploadDecision.Refused) {
+            aiText = decision.message
+            scope.launch { drawerState.open() }
+            return@rememberLauncherForActivityResult
+        }
         photoBusy = true
         scope.launch {
             val bytes = ByteArrayOutputStream().use { out ->

@@ -43,6 +43,24 @@ object DataPolicy {
         shareEnabled: Boolean,
     ): Boolean = savingEnabled && diagnosticsEnabled && shareEnabled
 
+    /**
+     * True when a picture, a sketch or an attachment may leave the device for
+     * the assistant.
+     *
+     * [mayUpload] is a different question, and answering it either way says
+     * nothing about this one: it is about the diagnostics log going to the
+     * developer's warehouse, which a user may refuse while still happily
+     * photographing a page of homework. A photo, a sketch or a picked file is
+     * the user's own work rather than a log about the app, so it travels only
+     * while the master switch is on — "keep nothing" is the one setting that
+     * also means "send nothing of mine off this device".
+     *
+     * It is named for what it decides rather than folded into [mayStore], so the
+     * screens that hold a picture have something to ask that reads as the
+     * question they are actually asking.
+     */
+    fun maySendContent(savingEnabled: Boolean): Boolean = savingEnabled
+
     /** True when the diagnostics log may be written to. */
     fun mayLog(savingEnabled: Boolean, diagnosticsEnabled: Boolean): Boolean =
         savingEnabled && diagnosticsEnabled

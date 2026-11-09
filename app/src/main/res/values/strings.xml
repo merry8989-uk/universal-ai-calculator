@@ -45,6 +45,9 @@
     <string name="clear_the_question_a11y">clear the question</string>
     <string name="attach_something">Attach something</string>
     <string name="file">File</string>
+    <string name="attach_sent_notice">A photo or a file you attach is sent to the assistant so it can answer.</string>
+    <!-- The handwriting pad's own line: the sketch leaves the phone as a picture. -->
+    <string name="handwriting_sent_notice">What you write here is sent to the assistant as a picture so it can read it.</string>
 <string name="attach_help">Photo takes a picture now. File opens your gallery, music or documents — images, audio clips, PDFs (the first three pages) and .txt/.md/.csv files are supported.</string>
     <string name="attach_read">Reading the attachment…</string>
     <string name="remove">Remove</string>
