@@ -208,17 +208,56 @@ private fun NumberFacts(n: Long) {
 
 // ---------------- simultaneous ----------------
 
+/**
+ * Where the box for column [c] of row [r] lives when there are [size] unknowns.
+ *
+ * The stride is the width of a row, which is one coefficient per unknown plus
+ * the box saying what the row is equal to. A fixed stride cannot be right for
+ * every size: at three unknowns it puts the answer on top of the last
+ * coefficient, and at four it walks off the end of the boxes entirely.
+ */
+internal fun boxIndex(size: Int, r: Int, c: Int): Int = r * (size + 1) + c
+
+/**
+ * A fresh set of boxes for [size] unknowns, with something solvable in them.
+ *
+ * Two unknowns keep the sum-and-difference example the screen has always
+ * opened with. Larger systems open as an identity, which is the one system
+ * that is certain to have an answer however many unknowns there are.
+ */
+private fun boxesFor(size: Int): Array<String> {
+    if (size == 2) return arrayOf("1", "1", "10", "1", "-1", "2")
+    return Array(size * (size + 1)) { i ->
+        val row = i / (size + 1)
+        val col = i % (size + 1)
+        when {
+            col == size -> "${row + 1}"
+            col == row -> "1"
+            else -> "0"
+        }
+    }
+}
+
+/**
+ * The system sitting in [grid], read the way the screen laid it out. Null when
+ * a box does not hold a number, or when the boxes are not the ones this size
+ * needs — the screen turns that into its "every box needs a number" message
+ * rather than handing a half-read system to the solver.
+ */
+internal fun readSystem(grid: List<String>, size: Int): Pair<Array<DoubleArray>, DoubleArray>? {
+    if (size < 1 || grid.size < size * (size + 1)) return null
+    val a = Array(size) { r -> DoubleArray(size) { c -> grid[boxIndex(size, r, c)].toDoubleOrNull() ?: Double.NaN } }
+    val b = DoubleArray(size) { r -> grid[boxIndex(size, r, size)].toDoubleOrNull() ?: Double.NaN }
+    if (a.any { row -> row.any { it.isNaN() } } || b.any { it.isNaN() }) return null
+    return a to b
+}
+
 @Composable
 private fun SimultaneousSolver() {
     var size by remember { mutableStateOf(2) }
-    val grid = remember {
-        mutableStateListOf(
-            "1", "1", "10",
-            "1", "-1", "2",
-            "0", "0", "0",
-            "0", "0", "0",
-        )
-    }
+    // the boxes belong to one size at a time, because their layout depends on
+    // how many unknowns there are
+    val grid = remember(size) { mutableStateListOf(*boxesFor(size)) }
     var solution by remember { mutableStateOf<LinearSolution?>(null) }
     var error by remember { mutableStateOf("") }
 
@@ -241,7 +280,7 @@ private fun SimultaneousSolver() {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             (0..size).forEach { c ->
-                val index = r * 3 + c
+                val index = boxIndex(size, r, c)
                 OutlinedTextField(
                     value = grid[index],
                     onValueChange = { grid[index] = it },
@@ -257,13 +296,12 @@ private fun SimultaneousSolver() {
     Button(
         onClick = {
             error = ""
-            val a = Array(size) { r -> DoubleArray(size) { c -> grid[r * 3 + c].toDoubleOrNull() ?: Double.NaN } }
-            val b = DoubleArray(size) { r -> grid[r * 3 + size].toDoubleOrNull() ?: Double.NaN }
-            if (a.any { row -> row.any { it.isNaN() } } || b.any { it.isNaN() }) {
+            val system = readSystem(grid, size)
+            if (system == null) {
                 error = "Every box needs a number. Use 0 where a variable is missing."
                 solution = null
             } else {
-                solution = EquationSolver.simultaneous(a, b)
+                solution = EquationSolver.simultaneous(system.first, system.second)
             }
         },
         modifier = Modifier.fillMaxWidth(),
