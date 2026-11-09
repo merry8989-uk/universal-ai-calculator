@@ -32,7 +32,7 @@ private val MODES = listOf(
 )
 
 @Composable
-fun ConverterScreen(onBack: () -> Unit, onExplain: (String) -> kotlin.Unit = {}) {
+fun ConverterScreen(onBack: () -> Unit) {
     var mode by remember { mutableStateOf(MODES.first()) }
     var input by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("") }
@@ -105,17 +105,6 @@ fun ConverterScreen(onBack: () -> Unit, onExplain: (String) -> kotlin.Unit = {})
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
 
-    ExplainBubble(
-        onExplain = {
-            onExplain(
-                explainQuestion(
-                    "conversion",
-                    if (output.isBlank()) "$mode of $input" else "$mode of $input = $output",
-                ),
-            )
-        },
-        modifier = Modifier.fillMaxSize(),
-    )
     }
 }
 

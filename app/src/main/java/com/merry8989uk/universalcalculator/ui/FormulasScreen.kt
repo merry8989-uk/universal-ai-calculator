@@ -143,6 +143,11 @@ fun FormulasScreen(
     // Every tool this tab opens is drawn in the studio's colours: they all
     // draw with MaterialTheme, and this hands them the studio's scheme.
     StudioHost {
+      // The assistant wraps the whole tab rather than one screen inside it. It
+      // was on the formula page only, so a formula opened from the list — or a
+      // tool — had no way to reach it, which read as the disc appearing on some
+      // formulas and not others.
+      androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
         when {
             creating || editing != null -> CustomCalcEditor(
                 existing = editing,
@@ -168,7 +173,6 @@ fun FormulasScreen(
             // leaving the reader to find it in the tools by hand.
             tool == "reference" -> FormulaReferenceScreen(
                 onBack = { tool = "" },
-                onExplain = onExplain,
                 onOpenTool = { id ->
                     val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
                         .firstOrNull { it.id == id }
@@ -216,7 +220,7 @@ fun FormulasScreen(
             tool == "partial" -> PartialFractionsScreen { tool = "" }
             tool == "calculus" -> CalculusScreen { tool = "" }
             tool == "graph" -> GraphScreen { tool = "" }
-            tool == "converter" -> ConverterScreen(onBack = { tool = "" }, onExplain = onExplain)
+            tool == "converter" -> ConverterScreen { tool = "" }
             tool == "date" -> DateScreen { tool = "" }
             tool == "programmer" -> ProgrammerScreen(
                 onBack = { tool = "" },
@@ -227,7 +231,6 @@ fun FormulasScreen(
             tool == "interest" -> InterestScreen { tool = "" }
             tool == "allformulas" -> FormulaReferenceScreen(
                 onBack = { tool = "" },
-                onExplain = onExplain,
                 onOpenTool = { id ->
                     val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
                         .firstOrNull { it.id == id }
@@ -251,6 +254,24 @@ fun FormulasScreen(
                 },
             )
         }
+
+        ExplainBubble(
+            onExplain = {
+                // Whatever is open is what gets explained: the formula on screen,
+                // the tool that is open, or the list itself.
+                val what = when {
+                    selected != null -> explainQuestion(
+                        "formula",
+                        "${selected!!.title} — ${selected!!.description}",
+                    )
+                    tool.isNotEmpty() -> explainQuestion("tool", tool)
+                    else -> explainQuestion("formula library", "")
+                }
+                onExplain(what)
+            },
+            modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+        )
+      }
     }
 }
 

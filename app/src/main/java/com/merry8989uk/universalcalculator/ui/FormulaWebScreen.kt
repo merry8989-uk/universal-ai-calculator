@@ -34,7 +34,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun FormulaReferenceScreen(
     onBack: () -> Unit,
     onOpenTool: (String) -> Unit = {},
-    onExplain: (String) -> Unit = {},
 ) {
     // Declared before the view that fills it: Kotlin reads a val from where it is
     // written downwards, and the factory below is written above the handler.
@@ -86,38 +85,6 @@ fun FormulaReferenceScreen(
             },
         )
 
-        // What the reader is looking at, read back out of the page. The page is
-        // theirs and has no hook for this, so the heading is the honest guess: if
-        // there is one it names the formula, and if there is not the question
-        // falls back to the screen rather than to nothing.
-        ExplainBubble(
-            onExplain = {
-                val view = web.value
-                if (view == null) {
-                    onExplain(explainQuestion("formula library", ""))
-                } else {
-                    view.evaluateJavascript(
-                        "(function(){var h=document.querySelector('h1,h2');" +
-                            "var e=document.getElementById('calcExpr');" +
-                            "var t=h?h.textContent:'';" +
-                            "if(e&&e.value)t=t+' : '+e.value;" +
-                            "return t;})()",
-                    ) { raw ->
-                        val text = raw?.trim('"')?.takeIf { it.isNotBlank() && it != "null" }
-                        onExplain(explainQuestion("formula", text.orEmpty()))
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-
-    // The phone's back button walks back through the pages before it leaves the
-    // screen: every formula is its own page now, and a back that jumps straight
-    // out of a formula the reader just opened is a back that loses their place.
-    BackHandler {
-        val view = web.value
-        if (view != null && view.canGoBack()) view.goBack() else onBack()
     }
 }
 

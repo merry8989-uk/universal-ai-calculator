@@ -49,13 +49,22 @@ class ExplainBubbleTest {
             !text.contains("contentDescription"))
     }
 
-    @Test fun itIsOnBothScreensThatNeededIt() {
+    @Test fun itIsOnBothTabsThatNeededIt() {
         val convert = source("ui/ConvertScreen.kt") ?: return
         assertTrue("the unit converter has no assistant", convert.contains("ExplainBubble("))
-        val converter = source("ui/ConverterScreen.kt") ?: return
-        assertTrue("the text converter has no assistant", converter.contains("ExplainBubble("))
-        val formulas = source("ui/FormulaWebScreen.kt") ?: return
-        assertTrue("the formula page has no assistant", formulas.contains("ExplainBubble("))
+
+        // On the formulas tab it wraps the whole tab rather than one screen inside
+        // it: it was on the formula page only, so a formula opened from the list —
+        // or a tool — had no way to reach it, which read as the disc appearing on
+        // some formulas and not others.
+        val formulas = source("ui/FormulasScreen.kt") ?: return
+        assertTrue("the formulas tab has no assistant", formulas.contains("ExplainBubble("))
+
+        // and only once: a second disc inside a screen would sit on top of this one
+        for (inner in listOf("ui/FormulaWebScreen.kt", "ui/ConverterScreen.kt")) {
+            val text = source(inner) ?: continue
+            assertTrue("$inner draws a second disc", !text.contains("ExplainBubble("))
+        }
     }
 
     @Test fun theAssistantIsReachableAndActuallyAsked() {
@@ -63,7 +72,8 @@ class ExplainBubbleTest {
         // the disc hands the question to the assistant and goes to it
         assertTrue("the disc does not reach the assistant",
             root.contains("CONVERT_TAB -> ConvertScreen("))
-        assertTrue("the tools tab does not reach it", root.contains("onExplain = { q -> aiAsk = q"))
+        assertTrue("the tools tab does not reach it",
+            root.contains("onExplain = { q -> aiAsk = q"))
         // and the tab button is not drawn on those two screens
         assertTrue("the assistant button is still in the bar on those tabs",
             root.contains("!aiVisible || tab == CONVERT_TAB || tab == FORMULAS_TAB"))
