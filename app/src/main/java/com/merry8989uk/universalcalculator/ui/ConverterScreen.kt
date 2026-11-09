@@ -2,6 +2,7 @@ package com.merry8989uk.universalcalculator.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,7 @@ private val MODES = listOf(
 )
 
 @Composable
-fun ConverterScreen(onBack: () -> Unit) {
+fun ConverterScreen(onBack: () -> Unit, onExplain: (String) -> Unit = {}) {
     var mode by remember { mutableStateOf(MODES.first()) }
     var input by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("") }
@@ -68,6 +69,7 @@ fun ConverterScreen(onBack: () -> Unit) {
         }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         TextButton(onClick = onBack) { Text("\u2190 Back") }
         Text("Converters", style = MaterialTheme.typography.titleLarge)
@@ -101,6 +103,19 @@ fun ConverterScreen(onBack: () -> Unit) {
             CopyShareRow(text = output, subject = "Converted text")
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    }
+
+    ExplainBubble(
+        onExplain = {
+            onExplain(
+                explainQuestion(
+                    "conversion",
+                    if (output.isBlank()) "$mode of $input" else "$mode of $input = $output",
+                ),
+            )
+        },
+        modifier = Modifier.fillMaxSize(),
+    )
     }
 }
 

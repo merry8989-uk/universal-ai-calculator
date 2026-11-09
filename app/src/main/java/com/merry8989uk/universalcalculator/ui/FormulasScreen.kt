@@ -93,6 +93,8 @@ fun FormulasScreen(
     /** The settings the tools inside read: bit width, complex form, and so on. */
     settings: com.merry8989uk.universalcalculator.settings.SettingsState =
         com.merry8989uk.universalcalculator.settings.SettingsState(),
+    /** The assistant, reached from the disc on the formula page. */
+    onExplain: (String) -> Unit = {},
 ) {
     val analyticsContext = androidx.compose.ui.platform.LocalContext.current
     fun analytics(key: String) = Analytics.event(analyticsContext, key)
@@ -166,6 +168,7 @@ fun FormulasScreen(
             // leaving the reader to find it in the tools by hand.
             tool == "reference" -> FormulaReferenceScreen(
                 onBack = { tool = "" },
+                onExplain = onExplain,
                 onOpenTool = { id ->
                     val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
                         .firstOrNull { it.id == id }
@@ -213,7 +216,7 @@ fun FormulasScreen(
             tool == "partial" -> PartialFractionsScreen { tool = "" }
             tool == "calculus" -> CalculusScreen { tool = "" }
             tool == "graph" -> GraphScreen { tool = "" }
-            tool == "converter" -> ConverterScreen { tool = "" }
+            tool == "converter" -> ConverterScreen(onBack = { tool = "" }, onExplain = onExplain)
             tool == "date" -> DateScreen { tool = "" }
             tool == "programmer" -> ProgrammerScreen(
                 onBack = { tool = "" },
@@ -224,6 +227,7 @@ fun FormulasScreen(
             tool == "interest" -> InterestScreen { tool = "" }
             tool == "allformulas" -> FormulaReferenceScreen(
                 onBack = { tool = "" },
+                onExplain = onExplain,
                 onOpenTool = { id ->
                     val found = com.merry8989uk.universalcalculator.calc.FormulaLibrary.formulas
                         .firstOrNull { it.id == id }

@@ -350,7 +350,7 @@ fun AppRoot(settings: SettingsState) {
                     MINIMAL_TABS.forEach { i ->
                         NavItem(i, tab, TAB_GLYPHS[i], labels[i], a11y[i], TAB_WEIGHT) { selectTab(i) }
                     }
-                } else if (!aiVisible) {
+                } else if (!aiVisible || tab == CONVERT_TAB || tab == FORMULAS_TAB) {
                     // Ask AI is off, so its button goes and the four remaining
                     // tabs share the whole bar evenly.
                     (LEFT_TABS + RIGHT_TABS).forEach { i ->
@@ -446,13 +446,18 @@ fun AppRoot(settings: SettingsState) {
                     onOpenMode = { id -> openMode(id) },
                     clearSignal = clearTick,
                 )
-                CONVERT_TAB -> ConvertScreen()
+                // The disc is the assistant on these two screens; the tab button
+                // for it is not drawn in the bar, so the two do not both appear.
+                CONVERT_TAB -> ConvertScreen(
+                    onExplain = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
+                )
                 FORMULAS_TAB -> FormulasScreen(
                     settings = settings,
                     resetSignal = resetTick,
                     requestedTool = requestedTool,
                     onToolRequestUsed = { requestedTool = "" },
                     onInnerChange = { innerOpen = it },
+                    onExplain = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                 )
                 AI_TAB -> if (!aiVisible) CalculatorScreen(
                     title = "Standard",

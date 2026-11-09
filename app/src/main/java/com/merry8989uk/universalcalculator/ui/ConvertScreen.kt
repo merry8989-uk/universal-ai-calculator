@@ -35,7 +35,7 @@ import com.merry8989uk.universalcalculator.calc.Unit
 import com.merry8989uk.universalcalculator.calc.Units
 
 @Composable
-fun ConvertScreen() {
+fun ConvertScreen(onExplain: (String) -> Unit = {}) {
     var catIndex by remember { mutableIntStateOf(0) }
     val category = Units.categories[catIndex]
     var fromIndex by remember { mutableIntStateOf(0) }
@@ -49,6 +49,7 @@ fun ConvertScreen() {
     val value = input.toDoubleOrNull()
     val result = if (value == null) null else Units.convert(value, from, to)
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Unit converter", style = MaterialTheme.typography.titleLarge)
         Text(
@@ -111,6 +112,16 @@ fun ConvertScreen() {
             )
             CopyShareRow(text = line, subject = "Unit conversion")
         }
+    }
+
+    // The assistant, draggable so it can be moved off whatever is being read.
+    val shown = result?.let {
+        "${Format.number(value ?: 0.0)} ${from.symbol} = ${Format.number(it)} ${to.symbol}"
+    }.orEmpty()
+    ExplainBubble(
+        onExplain = { onExplain(explainQuestion("unit conversion", shown)) },
+        modifier = Modifier.fillMaxSize(),
+    )
     }
 }
 
