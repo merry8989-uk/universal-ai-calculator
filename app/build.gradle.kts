@@ -76,6 +76,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
+    // org.json on the JVM is a stub: every call returns null, so a parser tested
+    // against it would look broken when it is not. The real one is used in tests.
+    testImplementation("org.json:json:20240303")
 
     debugImplementation(libs.androidx.ui.tooling)
 }
