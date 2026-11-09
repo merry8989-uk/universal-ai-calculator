@@ -62,8 +62,10 @@ import com.merry8989uk.universalcalculator.ui.theme.CustomTheme
 import com.merry8989uk.universalcalculator.ui.theme.ThemeBuilderScreen
 import com.merry8989uk.universalcalculator.ui.theme.ThemeStore
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
+import com.merry8989uk.universalcalculator.ui.UpdatePrompt
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 import com.merry8989uk.universalcalculator.updater.UpdateViewModel
+import com.merry8989uk.universalcalculator.updater.updatePromptVisible
 
 /** Display names, localised. The stored value stays the enum's own label. */
 @Composable
@@ -208,6 +210,31 @@ fun SettingsScreen(
     // Pressing the Settings tab again returns to the top of this screen.
     LaunchedEffect(resetSignal) {
         if (resetSignal > 0) scroll.animateScrollTo(0)
+    }
+
+    // The update prompt lives here, and only here: the user came to Settings to
+    // look, so this is the one place a version may be put in front of them.
+    // Nothing asks on the way in — the app opening is not a moment to interrupt.
+    // A download that is already running keeps its progress on screen, since
+    // the user started it from this very screen.
+    val updateState = updater.state
+    val offered = (updateState as? UpdateUiState.Available)?.info
+    val promptState: UpdateUiState? = when {
+        updateState is UpdateUiState.Downloading -> updateState
+        offered != null && updatePromptVisible(
+            dismissedVersion = state.dismissedUpdateVersion,
+            latestVersion = offered.latestVersion,
+            checking = false,
+        ) -> updateState
+        else -> null
+    }
+    if (promptState != null) {
+        UpdatePrompt(
+            state = promptState,
+            onInstall = { offered?.let(updater::install) },
+            onLater = { offered?.let(updater::later) },
+            onDismissFailure = updater::dismissFailure,
+        )
     }
 
     Scaffold(
@@ -708,7 +735,6 @@ fun SettingsScreen(
 
             Section(stringResource(R.string.section_updates))
 
-            val updateState = updater.state
             Text("Current version ${BuildConfig.VERSION_NAME}")
 
             when (updateState) {
@@ -716,6 +742,14 @@ fun SettingsScreen(
                 UpdateUiState.UpToDate -> Text("You're on the latest version.")
                 is UpdateUiState.Available -> {
                     Text("Version ${updateState.info.latestVersion} is available.")
+                    // the one they put aside still shows here, because this is
+                    // where they came to look; it just no longer interrupts them
+                    if (updateState.info.latestVersion == state.dismissedUpdateVersion) {
+                        Text(
+                            "You put this one aside earlier.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     Button(onClick = { updater.install(updateState.info) }) {
                         Text("Update now")
                     }

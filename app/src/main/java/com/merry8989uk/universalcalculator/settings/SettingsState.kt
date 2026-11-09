@@ -111,6 +111,14 @@ data class SettingsState(
     val keepScreenOn: Boolean = false,
     /** Remember the expression and bring it back on the next launch. */
     val saveState: Boolean = true,
+    /**
+     * The version the user put aside with "Later", or blank when they have not
+     * put anything aside.
+     *
+     * The version rather than a plain flag: the release they said later to has
+     * to stay quiet, and the one after it still has to be able to ask.
+     */
+    val dismissedUpdateVersion: String = "",
 )
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

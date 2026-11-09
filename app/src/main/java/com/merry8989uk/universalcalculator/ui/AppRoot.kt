@@ -210,13 +210,9 @@ fun AppRoot(settings: SettingsState) {
     // A tool the classic pad asked for, handed to the Formulas tab.
     var requestedTool by remember { mutableStateOf("") }
 
-    // The app asks the release page for itself as soon as it opens, so a new
-    // version is never something the user has to go looking for.
-    val updater: com.merry8989uk.universalcalculator.updater.UpdateViewModel =
-        androidx.lifecycle.viewmodel.compose.viewModel()
-    LaunchedEffect(Unit) {
-        updater.checkQuietly(com.merry8989uk.universalcalculator.BuildConfig.VERSION_NAME)
-    }
+    // Nothing here asks the release page anything. An update is not news that
+    // has earned the right to stop somebody mid-sum: the check lives in
+    // Settings, where the user goes to look for it.
     val minimal = settings.minimalMode
     // One switch, one meaning: the classic pad replaces the modern one on the
     // Scientific tab. It never reaches the Standard tab.
@@ -343,22 +339,6 @@ fun AppRoot(settings: SettingsState) {
                 notice = null
             },
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
-        )
-    }
-
-    // An update in front of the user, whichever calculator they are on.
-    if (updater.promptVisible) {
-        com.merry8989uk.universalcalculator.ui.UpdatePrompt(
-            state = updater.state,
-            onInstall = {
-                (updater.state as? com.merry8989uk.universalcalculator.updater.UpdateUiState.Available)
-                    ?.let { updater.install(it.info) }
-            },
-            onLater = {
-                (updater.state as? com.merry8989uk.universalcalculator.updater.UpdateUiState.Available)
-                    ?.let { updater.later(it.info) }
-            },
-            onDismissFailure = { updater.dismissFailure() },
         )
     }
 
