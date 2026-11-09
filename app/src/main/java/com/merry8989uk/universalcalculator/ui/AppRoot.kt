@@ -459,6 +459,9 @@ fun AppRoot(settings: SettingsState) {
                 // The disc is the assistant on these two screens; the tab button
                 // for it is not drawn in the bar, so the two do not both appear.
                 CONVERT_TAB -> ConvertScreen(
+                    // The converter writes its answer with the same settings the
+                    // pad does, so the two screens cannot disagree about a number.
+                    settings = settings,
                     onExplain = { q -> aiAsk = q; aiContext = ""; tab = AI_TAB },
                 )
                 FORMULAS_TAB -> FormulasScreen(
