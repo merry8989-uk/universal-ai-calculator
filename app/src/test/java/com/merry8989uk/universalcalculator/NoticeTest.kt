@@ -50,6 +50,23 @@ class NoticeTest {
         assertTrue("a notice is not length-checked", worker.contains("slice(0, 1000)"))
     }
 
+    @Test fun theNoticeCanBeSwipedAway() {
+        val strip = listOf(
+            File("app/src/main/java/com/merry8989uk/universalcalculator/ui/NoticeStrip.kt"),
+            File("src/main/java/com/merry8989uk/universalcalculator/ui/NoticeStrip.kt"),
+        ).firstOrNull { it.exists() }?.readText() ?: return
+
+        assertTrue("the notice cannot be swiped", strip.contains("detectHorizontalDragGestures"))
+        // both ways: there is no list here to imply a direction
+        assertTrue("it only swipes one way", strip.contains("abs(offsetX.value)"))
+        // let go early and it comes back rather than vanishing
+        assertTrue("a short drag loses the message", strip.contains("offsetX.animateTo(0f"))
+        // and it must actually report the dismissal, or it reappears next launch
+        assertTrue("swiping does not dismiss it", strip.contains("onDismiss()"))
+        // a gesture with no visible alternative is one some people never find
+        assertTrue("there is no tap alternative", strip.contains(".clickable { onDismiss() }"))
+    }
+
     @Test fun theAppShowsItOnceAndNotOnEveryLaunch() {
         val client = listOf(
             File("app/src/main/java/com/merry8989uk/universalcalculator/ai/NoticeClient.kt"),
