@@ -481,6 +481,7 @@ private fun FormulaDetailScreen(
     onBack: () -> Unit,
 ) {
     val hindi = readingHindi()
+    val context = androidx.compose.ui.platform.LocalContext.current
     var values by remember(formula.id) {
         mutableStateOf(formula.inputs.associate { it.key to it.default.toString() })
     }
@@ -506,6 +507,22 @@ private fun FormulaDetailScreen(
             TextButton(onClick = onToggleFavourite) {
                 Text(if (favourite) "\u2605" else "\u2606")
             }
+            // A picture of the answer, without the phone around it.
+            TextButton(onClick = {
+                ResultCard.share(
+                    context,
+                    ResultCard.content(
+                        title = calcTitle(hindi, formula.id, formula.title),
+                        category = if (hindi) {
+                            FormulaHindi.category(formula.category) ?: formula.category
+                        } else formula.category,
+                        results = results.map { r ->
+                            r.label to (Format.number(r.value) +
+                                (if (r.unit.isNotEmpty()) " ${r.unit}" else ""))
+                        },
+                    ),
+                )
+            }) { Text(if (hindi) "\u0936\u0947\u092f\u0930" else "Share") }
             StudioLabel(
                 if (hindi) FormulaHindi.category(formula.category) ?: formula.category
                 else formula.category,

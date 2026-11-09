@@ -7,4 +7,6 @@
     <!-- The export itself is written to cacheDir/exports; naming it here means the
          share sheet can read it even if the cache path above is ever narrowed. -->
     <cache-path name="exports" path="exports/" />
+    <!-- Where a shared calculation card is drawn before it is sent. -->
+    <cache-path name="cards" path="cards/" />
 </paths>
