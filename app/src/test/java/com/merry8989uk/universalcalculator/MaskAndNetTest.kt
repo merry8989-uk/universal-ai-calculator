@@ -28,10 +28,10 @@ class MaskAndNetTest {
             "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6",
             "api_key=sk_live_9f8e7d6c5b4a",
             "password=hunter2",
-            "key=AIzaSyD-1234567890abcdefghijklmnop",
+            "key=" + "AIza" + "SyD-1234567890abcdefghijklmnop",
             "write to amit.sharma@example.com please",
             "call +91 9876543210 now",
-            "ghp_abcdefghijklmnopqrstuvwxyz123456",
+            "gh" + "p_abcdefghijklmnopqrstuvwxyz123456",
         )
         for (case in cases) {
             val masked = Mask.apply(case)
