@@ -209,19 +209,29 @@ object AiClient {
         }
     }
 
-    /** Sends a question (with optional app context) and returns the answer text. */
     /**
      * One question, with the conversation so far.
      *
      * [history] is the earlier turns, oldest first, as role to text. Sending it
      * is what makes a follow-up work: without it every question starts from
      * nothing, and "and the second one?" has no idea what the first one was.
+     *
+     * The answer comes back as an [AiResult], not as a string. A string had to
+     * carry both the reply and the failure, and the caller could not tell which
+     * it had — so a failure was shown, and kept, as if the assistant had said
+     * it.
      */
     suspend fun ask(
         question: String,
         context: String = "",
         history: List<Pair<String, String>> = emptyList(),
-    ): String = withContext(Dispatchers.IO) {
+    ): AiResult = withContext(Dispatchers.IO) {
+        // One id for this attempt, sent to the worker and written into both
+        // events. Without it a failed answer is a timestamp in one log and a
+        // line in another, and matching them is guesswork. It is made before the
+        // try so the failure paths — the ones somebody actually has to look up —
+        // can carry it as well.
+        val requestId = java.util.UUID.randomUUID().toString().take(8)
         var conn: HttpURLConnection? = null
         try {
             val payload = JSONObject().put("question", question).apply {
@@ -234,11 +244,6 @@ object AiClient {
                     put("history", turns)
                 }
             }.toString()
-
-            // One id for this attempt, sent to the worker and written into both
-            // events. Without it a failed answer is a timestamp in one log and a
-            // line in another, and matching them is guesswork.
-            val requestId = java.util.UUID.randomUUID().toString().take(8)
 
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
@@ -292,9 +297,15 @@ object AiClient {
                         "verification_detail" to verdict.detail,
                     ),
                 )
-                ans ?: "The assistant returned no answer."
+                // A 200 with nothing in it is a failed ask, not an empty reply:
+                // there is no answer to show and nothing to keep.
+                if (ans == null) {
+                    AiResult.Failed(NO_ANSWER, requestId, code)
+                } else {
+                    AiResult.Ok(ans, requestId)
+                }
             } else {
-                DiagnosticsLogger.log("AI", "Error $code")
+                DiagnosticsLogger.log("AI", "Error $code (request $requestId)")
                 EventLog.ai(
                     "request.failed",
                     provider = "sarvam",
@@ -308,22 +319,43 @@ object AiClient {
                         "server_error" to (code >= 500).toString(),
                     ),
                 )
-                "Could not reach the assistant: " +
-                    (json?.optString("error")?.takeIf { it.isNotBlank() } ?: "request failed ($code)")
+                AiResult.Failed(
+                    "Could not reach the assistant: " +
+                        (json?.optString("error")?.takeIf { it.isNotBlank() } ?: "request failed ($code)"),
+                    requestId,
+                    code,
+                )
             }
         } catch (e: Exception) {
-            DiagnosticsLogger.log("AI", "Network error")
+            // Anything that came off the wire is a connection problem, and is
+            // reported as one; anything else (a body that will not parse) is a
+            // failure of the request itself. The two lead to different advice,
+            // so they are different outcomes.
+            val offline = e is java.io.IOException
+            DiagnosticsLogger.log(
+                "AI",
+                (if (offline) "Network error" else "Ask failed") +
+                    " (request $requestId): " + e.javaClass.simpleName,
+            )
             EventLog.ai(
                 "request.failed",
                 provider = "sarvam",
                 model = "",
                 fields = mapOf(
-                    "status" to "network_error",
+                    "status" to if (offline) "network_error" else "client_error",
+                    "request_id" to requestId,
                     "error_type" to (e.javaClass.simpleName),
                     "timeout" to (e is java.net.SocketTimeoutException).toString(),
                 ),
             )
-            "Could not reach the assistant. Check your internet connection and try again."
+            if (offline) {
+                AiResult.Offline(
+                    "Could not reach the assistant. Check your internet connection and try again.",
+                    requestId,
+                )
+            } else {
+                AiResult.Failed("Something went wrong asking the assistant. Try again.", requestId)
+            }
         } finally {
             EventLog.endRequest()
             conn?.disconnect()

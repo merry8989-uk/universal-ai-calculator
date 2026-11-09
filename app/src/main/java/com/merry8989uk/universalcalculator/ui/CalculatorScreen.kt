@@ -91,6 +91,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.merry8989uk.universalcalculator.ai.AiClient
+import com.merry8989uk.universalcalculator.ai.AiResult
 import com.merry8989uk.universalcalculator.ai.AnswerFormat
 import androidx.compose.ui.res.stringResource
 import com.merry8989uk.universalcalculator.sound.SoundPlayer
@@ -866,7 +867,14 @@ when (key) {
         aiText = ""
         aiLoading = true
         scope.launch {
-            aiText = AnswerFormat.clean(AiClient.ask(question))
+            // The drawer is a place to read an answer, not a transcript, so a
+            // failure is shown here as its own message and goes no further. The
+            // Ask AI screen is where a failure gets a card and a Retry.
+            aiText = when (val result = AiClient.ask(question)) {
+                is AiResult.Ok -> AnswerFormat.clean(result.text)
+                is AiResult.Failed -> result.message
+                is AiResult.Offline -> result.message
+            }
             aiLoading = false
         }
         scope.launch { drawerState.open() }

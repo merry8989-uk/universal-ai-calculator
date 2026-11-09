@@ -17,6 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,8 +45,9 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.AiClient
-import com.merry8989uk.universalcalculator.ai.AnswerFormat
+import com.merry8989uk.universalcalculator.ai.AskFailure
 import com.merry8989uk.universalcalculator.ai.Attachments
+import com.merry8989uk.universalcalculator.ai.askOutcome
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
@@ -84,6 +87,18 @@ fun AskAiScreen(
     var loading by remember { mutableStateOf(false) }
     var used by remember { mutableStateOf(false) }
 
+    /**
+     * The card to show when the last question was not answered.
+     *
+     * Held apart from [turns] on purpose. A failure is not something the
+     * assistant said, so it is not a turn: it cannot be drawn as the latest
+     * answer, sent back as history, or written to the archive.
+     */
+    var failure by remember { mutableStateOf<AskFailure?>(null) }
+
+    /** The question of the last attempt, so Retry can ask exactly that again. */
+    var lastAsked by remember { mutableStateOf("") }
+
     var attachBusy by remember { mutableStateOf(false) }
     var attachLabel by remember { mutableStateOf("") }
     var attachText by remember { mutableStateOf("") }
@@ -92,7 +107,15 @@ fun AskAiScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    fun send(q: String) {
+    /**
+     * Asks the assistant and puts the result where it belongs.
+     *
+     * A Retry comes back through here with [newTurn] false: the question is
+     * already on screen, and asking it again must not say it twice. What is done
+     * with the result is decided by [askOutcome] rather than here, so the rule
+     * that only an answer is kept can be tested without a network.
+     */
+    fun send(q: String, newTurn: Boolean = true) {
         if (loading) return
         val asked = q.ifBlank { "Read the questions in this picture and solve them one by one, starting at question 1." }
         val full = Attachments.contextFor(attachLabel, attachText, asked)
@@ -100,29 +123,52 @@ fun AskAiScreen(
         loading = true
         answer = ""
         used = true
-        val so_far = turns
-        turns = so_far + ("user" to asked)
+        failure = null
+        lastAsked = asked
+        // A retry leaves the question where it is: the history sent with it is
+        // the conversation before that question, not one that already contains
+        // it twice.
+        val so_far = if (newTurn) turns else turns.dropLastWhile { it.first == "user" }
+        if (newTurn) turns = so_far + ("user" to asked)
         scope.launch {
-            val reply = AnswerFormat.clean(AiClient.ask(full, contextText, so_far))
-            answer = reply
-            turns = turns + ("assistant" to reply)
+            val outcome = askOutcome(AiClient.ask(full, contextText, so_far), asked)
             loading = false
-            // Kept in the chat archive — never in the calculation archive.
-            if (savingEnabled) {
-                val started = chatStarted ?: java.time.LocalDateTime.now().also { chatStarted = it }
-                val saved = com.merry8989uk.universalcalculator.calc.SavedChat(
-                    title = com.merry8989uk.universalcalculator.calc.ChatFormat.titleOf(
-                        com.merry8989uk.universalcalculator.data.ChatStore.turns(turns),
-                    ),
-                    started = started.format(
-                        java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm"),
-                    ),
-                    model = chatModel,
-                    turns = com.merry8989uk.universalcalculator.data.ChatStore.turns(turns),
-                )
-                com.merry8989uk.universalcalculator.data.ChatStore.save(context, started, saved)
+            val turn = outcome.turn
+            if (turn == null) {
+                // Nothing was said, so nothing is added and nothing is saved.
+                // The card says what happened and offers the question again.
+                failure = outcome.failure
+            } else {
+                answer = turn.second
+                turns = turns + turn
+                // Kept in the chat archive — never in the calculation archive.
+                // Only an answer reaches this line; a failure has no turn, so
+                // there is nothing here for it to archive.
+                if (savingEnabled) {
+                    if (outcome.saveToArchive) {
+                        val started = chatStarted ?: java.time.LocalDateTime.now().also { chatStarted = it }
+                        val saved = com.merry8989uk.universalcalculator.calc.SavedChat(
+                            title = com.merry8989uk.universalcalculator.calc.ChatFormat.titleOf(
+                                com.merry8989uk.universalcalculator.data.ChatStore.turns(turns),
+                            ),
+                            started = started.format(
+                                java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm"),
+                            ),
+                            model = chatModel,
+                            turns = com.merry8989uk.universalcalculator.data.ChatStore.turns(turns),
+                        )
+                        com.merry8989uk.universalcalculator.data.ChatStore.save(context, started, saved)
+                    }
+                }
             }
         }
+    }
+
+    /** Asks the question that failed once more, without adding a second copy of it. */
+    fun retry() {
+        val asked = lastAsked
+        if (asked.isBlank()) return
+        send(asked, newTurn = false)
     }
 
     fun handleRead(r: Attachments.Read) {
@@ -187,7 +233,7 @@ fun AskAiScreen(
         if (resetSignal > 0) {
             question = ""; answer = ""; attachText = ""; attachLabel = ""
             attachError = ""; attachBusy = false; used = false
-            turns = emptyList(); chatStarted = null
+            turns = emptyList(); chatStarted = null; failure = null; lastAsked = ""
         }
     }
 
@@ -339,7 +385,7 @@ fun AskAiScreen(
         }
 
         // ---- the conversation ----
-        if (turns.isNotEmpty()) {
+        if (turns.isNotEmpty() || failure != null) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -355,12 +401,17 @@ fun AskAiScreen(
                     answer = ""
                     question = ""
                     chatStarted = null
+                    failure = null
                 }) { Text("New chat") }
             }
 
+            // A failure is not a turn, so it is never drawn as the answer and
+            // never becomes part of what the next question is asked against.
+            val answered = failure == null
+
             // Earlier turns stay on screen, dimmer, so a follow-up reads in
             // context rather than out of nowhere.
-            val earlier = turns.dropLast(1)
+            val earlier = if (answered) turns.dropLast(1) else turns
             earlier.forEach { (role, text) ->
                 Text(
                     text,
@@ -371,26 +422,77 @@ fun AskAiScreen(
                 )
             }
 
-            val latest = turns.last()
-            val latestSpoken = stringResource(R.string.assistant_answer_a11y, latest.second)
-            Spacer(Modifier.height(10.dp))
-            SelectionContainer {
-                Text(
-                    latest.second,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics {
-                            liveRegion = LiveRegionMode.Polite
-                            contentDescription = latestSpoken
-                        },
-                )
+            val latest = if (answered) turns.lastOrNull() else null
+            if (latest != null) {
+                val latestSpoken = stringResource(R.string.assistant_answer_a11y, latest.second)
+                Spacer(Modifier.height(10.dp))
+                SelectionContainer {
+                    Text(
+                        latest.second,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics {
+                                liveRegion = LiveRegionMode.Polite
+                                contentDescription = latestSpoken
+                            },
+                    )
+                }
+                AnswerActions(latest.second, onClear = {
+                    turns = emptyList()
+                    answer = ""
+                    chatStarted = null
+                    failure = null
+                })
+            } else {
+                // The question stays where the user typed it and the card sits
+                // where the answer would have been.
+                failure?.let { notAnswered ->
+                    Spacer(Modifier.height(10.dp))
+                    AiFailureCard(notAnswered, onRetry = { retry() })
+                }
             }
-            AnswerActions(latest.second, onClear = {
-                turns = emptyList()
-                answer = ""
-                chatStarted = null
-            })
+        }
+    }
+}
+
+/**
+ * The card shown when a question was not answered.
+ *
+ * It sits in the conversation but is not part of it: there is no turn behind it,
+ * so it is never saved, never read back as history, and disappears the moment
+ * the question is answered. Retry re-asks the same question, because the
+ * question is not what went wrong.
+ */
+@Composable
+private fun AiFailureCard(failure: AskFailure, onRetry: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp)
+            .semantics { liveRegion = LiveRegionMode.Polite },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+        ),
+    ) {
+        Column(Modifier.padding(14.dp)) {
+            Text(
+                failure.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+            )
+            // The id is the one the failed attempt sent as X-Request-Id, so a
+            // report can be matched to the line in the log rather than guessed
+            // at from a timestamp.
+            Text(
+                "Request " + failure.requestId,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+            OutlinedButton(onClick = onRetry, modifier = Modifier.padding(top = 10.dp)) {
+                Text("Retry")
+            }
         }
     }
 }
