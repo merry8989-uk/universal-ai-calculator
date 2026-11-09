@@ -41,18 +41,6 @@
         </activity>
 
         <!-- Home-screen standard calculator (solid / dimmed / transparent). -->
-        <!-- A calculation can be shared as a picture. The provider exposes one
-             cache folder and nothing else. -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
-
         <receiver
             android:name=".widget.CalculatorWidgetProvider"
             android:exported="true"

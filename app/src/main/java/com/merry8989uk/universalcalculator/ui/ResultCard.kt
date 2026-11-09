@@ -132,7 +132,13 @@ object ResultCard {
         return file
     }
 
-    /** Hands the card to whatever the user picks. */
+    /**
+     * Hands the card to whatever the user picks.
+     *
+     * The provider is the one the updater already declared: it exposes the cache
+     * directory, which is where the card is drawn, so nothing new had to be
+     * opened up for this.
+     */
     fun share(context: Context, content: CardContent) {
         val file = render(context, content)
         val uri = FileProvider.getUriForFile(
