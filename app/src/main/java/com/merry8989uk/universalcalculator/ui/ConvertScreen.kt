@@ -65,7 +65,7 @@ fun ConvertScreen(onExplain: (String) -> kotlin.Unit = {}) {
     // Taking a result sets the "from" unit and leaves the other end where it
     // was, unless that would leave both ends on the same unit — a conversion of
     // a unit into itself is not a conversion.
-    val pick: (UnitHit) -> Unit = { hit ->
+    val pick: (UnitHit) -> kotlin.Unit = { hit ->
         val units = hit.category.units
         catIndex = hit.categoryIndex
         fromIndex = hit.unitIndex
@@ -233,7 +233,7 @@ private const val SEARCH_LIMIT = 60
  * tells the two apart.
  */
 @Composable
-private fun SearchResultRow(hit: UnitHit, onPick: (UnitHit) -> Unit) {
+private fun SearchResultRow(hit: UnitHit, onPick: (UnitHit) -> kotlin.Unit) {
     // clickable, so the row takes focus: the list can be walked with the
     // keyboard alone and taken with Enter, the same as with a tap.
     Row(
