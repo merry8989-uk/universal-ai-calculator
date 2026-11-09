@@ -21,8 +21,20 @@ sealed interface AiResult {
     /** The id of the attempt this came from, on every outcome. */
     val requestId: String
 
-    /** The model answered. [text] is what it said, before any formatting. */
-    data class Ok(val text: String, override val requestId: String) : AiResult
+    /**
+     * The model answered. [text] is what it said, before any formatting.
+     *
+     * [sources] is what it looked up on the way, in the order it looked: the
+     * worker returns the search queries in `searched`, and the client used to
+     * keep only how many there were. An answer that came off the web then
+     * arrived with nothing to say where from, which is the half of a citation
+     * that makes the other half worth having.
+     */
+    data class Ok(
+        val text: String,
+        override val requestId: String,
+        val sources: List<String> = emptyList(),
+    ) : AiResult
 
     /**
      * The server was reached and would not answer: an error status, or a 200
@@ -64,10 +76,19 @@ data class AskOutcome(
     val failure: AskFailure?,
     /** Whether this result may be written to the chat archive. */
     val saveToArchive: Boolean,
+    /**
+     * The answer read apart, for the screen that draws it: the answers block,
+     * the reasoning, and where the reasoning came from. Null on a failure,
+     * because a failure has no answer to lay out.
+     */
+    val blocks: AnswerBlocks? = null,
 ) {
     init {
         require((turn == null) != (failure == null)) {
             "a result is an answer or a failure, never both and never neither"
+        }
+        require(blocks == null || turn != null) {
+            "only an answer has blocks to draw"
         }
     }
 
@@ -100,11 +121,14 @@ data class AskFailure(
  */
 fun askOutcome(result: AiResult, asked: String): AskOutcome = when (result) {
     is AiResult.Ok -> {
-        val text = AnswerFormat.clean(result.text)
+        // Cleaned first, then read apart: the headings arrive wrapped in the
+        // model's Markdown (**ANSWERS**), and a split before cleaning would
+        // miss every one of them.
+        val blocks = answerBlocks(AnswerFormat.clean(result.text), result.sources)
         // A 200 with an empty answer is not an answer either. Writing "the
         // assistant returned no answer" into the transcript is the same bug in
         // a different coat.
-        if (text.isBlank()) {
+        if (blocks.text.isBlank()) {
             AskOutcome(
                 turn = null,
                 failure = AskFailure(NO_ANSWER, result.requestId, asked),
@@ -112,9 +136,10 @@ fun askOutcome(result: AiResult, asked: String): AskOutcome = when (result) {
             )
         } else {
             AskOutcome(
-                turn = "assistant" to text,
+                turn = "assistant" to blocks.text,
                 failure = null,
                 saveToArchive = true,
+                blocks = blocks,
             )
         }
     }

@@ -53,9 +53,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.AiClient
+import com.merry8989uk.universalcalculator.ai.AnswerBlocks
 import com.merry8989uk.universalcalculator.ai.AskFailure
 import com.merry8989uk.universalcalculator.ai.Attachments
 import com.merry8989uk.universalcalculator.ai.UploadDecision
+import com.merry8989uk.universalcalculator.ai.answerBlocks
 import com.merry8989uk.universalcalculator.ai.askOutcome
 import com.merry8989uk.universalcalculator.ai.uploadDecision
 import kotlinx.coroutines.launch
@@ -76,9 +78,26 @@ fun AskAiScreen(
     resetSignal: Int = 0,
     savingEnabled: Boolean = true,
     onOpenArchive: () -> Unit = {},
+    /**
+     * Puts an answer onto the calculator's expression line.
+     *
+     * The expression lives in the calculator, not here, so the way back is a
+     * callback the host supplies. It defaults to doing nothing: a screen with no
+     * calculator behind it must still compile and still draw the same row.
+     */
+    onInsert: (String) -> Unit = {},
 ) {
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("") }
+    /**
+     * The latest answer, read apart into the two blocks the worker asks for.
+     *
+     * Held beside the turns rather than inside them because it is about how the
+     * last answer is drawn, not about what was said: the turn keeps the whole
+     * reply, for the history and the archive, and this is the shape of it for
+     * this screen.
+     */
+    var blocks by remember { mutableStateOf<AnswerBlocks?>(null) }
     /**
      * The conversation so far, oldest first: "user" or "assistant" to the text.
      *
@@ -175,6 +194,10 @@ fun AskAiScreen(
                 failure = outcome.failure
             } else {
                 answer = turn.second
+                // The blocks come from askOutcome, which is also where the reply
+                // was cleaned and split, so the screen draws what was decided
+                // rather than deciding it a second time.
+                blocks = outcome.blocks
                 turns = turns + turn
                 // Kept in the chat archive — never in the calculation archive.
                 // Only an answer reaches this line; a failure has no turn, so
@@ -377,6 +400,7 @@ fun AskAiScreen(
             question = ""; answer = ""; attachText = ""; attachLabel = ""
             heldBitmap = null; heldUri = null; stage = AttachStage.Idle
             used = false
+            blocks = null
             turns = emptyList(); chatStarted = null; failure = null; lastAsked = ""
         }
     }
@@ -651,6 +675,7 @@ fun AskAiScreen(
                 TextButton(onClick = {
                     turns = emptyList()
                     answer = ""
+                    blocks = null
                     question = ""
                     chatStarted = null
                     failure = null
@@ -676,11 +701,15 @@ fun AskAiScreen(
 
             val latest = if (answered) turns.lastOrNull() else null
             if (latest != null) {
-                val latestSpoken = stringResource(R.string.assistant_answer_a11y, latest.second)
+                // A turn read back from before this screen drew blocks — an
+                // earlier answer, or a chat restored from the archive — is read
+                // apart here instead of being shown flat.
+                val shown = blocks ?: answerBlocks(latest.second)
+                val latestSpoken = stringResource(R.string.assistant_answer_a11y, shown.text)
                 Spacer(Modifier.height(10.dp))
                 SelectionContainer {
                     Text(
-                        latest.second,
+                        shown.answer,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -690,12 +719,44 @@ fun AskAiScreen(
                             },
                     )
                 }
-                AnswerActions(latest.second, onClear = {
-                    turns = emptyList()
-                    answer = ""
-                    chatStarted = null
-                    failure = null
-                })
+                // The reasoning is its own paragraph. Folding it into the answer
+                // is what made a two-line reply read as a wall: the answer a
+                // user came for and the working they may skip are read at
+                // different speeds.
+                if (shown.hasExplanation) {
+                    SelectionContainer {
+                        Text(
+                            shown.explanation,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        )
+                    }
+                }
+                // Where the answer came from. The worker returns the queries it
+                // ran and the client used to keep only their number, so this
+                // line had nothing to print; now it has.
+                shown.sourcesLine?.let { line ->
+                    Text(
+                        stringResource(R.string.looked_up, line),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                }
+                AnswerActions(
+                    shown.text,
+                    // Only the answers block goes onto the expression line: a
+                    // paragraph of reasoning is not arithmetic.
+                    onInsert = { onInsert(shown.answer) },
+                    onClear = {
+                        turns = emptyList()
+                        answer = ""
+                        blocks = null
+                        chatStarted = null
+                        failure = null
+                    },
+                )
             } else {
                 // The question stays where the user typed it and the card sits
                 // where the answer would have been.
