@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.merry8989uk.universalcalculator.calc.AngleUnit
 
 /**
  * The classic scientific pad.
@@ -163,6 +164,37 @@ internal const val CLASSIC_DEG = "@deg"
 internal const val CLASSIC_LEFT = "@left"
 internal const val CLASSIC_RIGHT = "@right"
 
+/**
+ * The word the angle key prints for each unit.
+ *
+ * The key used to print the same angle sign whichever unit was in force, so the
+ * only way to know whether `sin(30)` meant a sixth of a turn or thirty radians
+ * was to remember how many times the key had been tapped. The unit belongs on
+ * the key, in the three words the display and the settings already use.
+ */
+internal fun angleWord(unit: AngleUnit): String = when (unit) {
+    AngleUnit.DEGREE -> "DEG"
+    AngleUnit.RADIAN -> "RAD"
+    AngleUnit.GRADIAN -> "GRAD"
+}
+
+/** What a screen reader says for the angle key: which unit, not merely that it is one. */
+internal fun angleSpoken(unit: AngleUnit): String = when (unit) {
+    AngleUnit.DEGREE -> "angle unit, degrees"
+    AngleUnit.RADIAN -> "angle unit, radians"
+    AngleUnit.GRADIAN -> "angle unit, gradians"
+}
+
+/**
+ * The face the angle key prints: the unit it is in, and nothing else.
+ *
+ * Every other key keeps its own label, which is why this takes the label rather
+ * than reading the key itself — the angle key is the one key whose face is a
+ * state.
+ */
+internal fun angleFace(action: String, label: String, unit: AngleUnit): String =
+    if (action == CLASSIC_DEG) angleWord(unit) else label
+
 private fun modifierBar(pageLabel: String) = listOf(
     ClassicKey("SHIFT", CLASSIC_SHIFT, tone = ClassicTone.Accent),
     ClassicKey("ALPHA", CLASSIC_ALPHA, tone = ClassicTone.Shift),
@@ -197,7 +229,9 @@ internal val CLASSIC_PAGE_ONE: List<List<ClassicKey>> = listOf(
             alpha = "isqrt", alphaAction = "isqrt", tone = ClassicTone.Function),
         ClassicKey("x\u02B8", "x^y", shift = "y\u221Ax", shiftAction = "nthroot",
             alpha = "nextprime", alphaAction = "nextprime", tone = ClassicTone.Function),
-        ClassicKey("Log", "log", shift = "10\u02E3", shiftAction = "exp2",
+        // the shift label prints the base the key actually raises: exp2 is 2^x,
+        // and there is no 10^x function to print it for
+        ClassicKey("Log", "log", shift = "2\u02E3", shiftAction = "exp2",
             alpha = "log\u2082", alphaAction = "log2", tone = ClassicTone.Function),
         ClassicKey("Ln", "ln", shift = "e\u02E3", shiftAction = "exp",
             alpha = "log\u2081\u2080", alphaAction = "log10", tone = ClassicTone.Function),
@@ -279,7 +313,8 @@ internal val CLASSIC_PAGE_ONE: List<List<ClassicKey>> = listOf(
             alpha = "var", alphaAction = "var", tone = ClassicTone.Digit),
         ClassicKey("x", "x", shift = "\u0393", shiftAction = "gamma",
             alpha = "erfc", alphaAction = "erfc", tone = ClassicTone.Function),
-        ClassicKey("Ans", "ans", shift = "M\u2212", shiftAction = "MS",
+        // the shift stores, so it prints STO, the same word the bracket keys use
+        ClassicKey("Ans", "ans", shift = "STO", shiftAction = "MS",
             alpha = "M+", alphaAction = "M+", tone = ClassicTone.Function),
         // the two clearing keys sit here, as they do in the reference; the
         // equals sign is the CALC key on the first row
@@ -336,8 +371,10 @@ internal val CLASSIC_PAGE_TWO: List<List<ClassicKey>> = listOf(
             alpha = "\u03B2", alphaAction = "beta", tone = ClassicTone.Function),
         ClassicKey("erf", "erf", shift = "erfc", shiftAction = "erfc",
             alpha = "\u03B6", alphaAction = "zeta", tone = ClassicTone.Function),
+        // the alpha runs the gamma function, so it prints gamma's own sign
+        // rather than a gamma-prime the calculator cannot work out
         ClassicKey("W", "lambertw", shift = "\u03C8", shiftAction = "digamma",
-            alpha = "\u0393'", alphaAction = "gamma", tone = ClassicTone.Function),
+            alpha = "\u0393", alphaAction = "gamma", tone = ClassicTone.Function),
         ClassicKey("fib", "fib", shift = "catalan", shiftAction = "catalan",
             alpha = "golden", alphaAction = "golden", tone = ClassicTone.Function),
         ClassicKey("totient", "totient", shift = "isqrt", shiftAction = "isqrt",
@@ -355,7 +392,7 @@ internal val CLASSIC_PAGE_TWO: List<List<ClassicKey>> = listOf(
             alpha = "range", alphaAction = "range", tone = ClassicTone.Function),
         ClassicKey("min", "min", shift = "max", shiftAction = "max",
             alpha = "geomean", alphaAction = "geomean", tone = ClassicTone.Function),
-        ClassicKey("harmean", "harmean", shift = "atan2", shiftAction = "atan2",
+        ClassicKey("harmmean", "harmmean", shift = "atan2", shiftAction = "atan2",
             alpha = "log2", alphaAction = "log2", tone = ClassicTone.Function),
         ClassicKey("log10", "log10", shift = "log1p", shiftAction = "log1p",
             alpha = "expm1", alphaAction = "expm1", tone = ClassicTone.Function),
@@ -379,6 +416,14 @@ internal fun ClassicScientificPad(
     /** Up and down on the direction pad: through the history, newest first. */
     onVertical: (Int) -> Unit = {},
     onToggleDegrees: () -> Unit,
+    /**
+     * Which unit the trigonometry is working in.
+     *
+     * The pad prints it on the angle key and lights it above the keys, so the
+     * state is readable rather than remembered. It is passed in because the pad
+     * does not own the setting — the screen does.
+     */
+    angle: AngleUnit = AngleUnit.DEGREE,
     modifier: Modifier = Modifier,
     /** How tall one row of keys is. Kept compact on purpose. */
     rowHeight: Dp = 40.dp,
@@ -392,6 +437,19 @@ internal fun ClassicScientificPad(
         modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 2.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
+        // The state lights the reference prints above its keys. The angle unit
+        // was the one state with no light of its own: it changed on a tap and
+        // printed nothing, which is why Indicator() was written and never
+        // drawn. All three units are shown, so the light says where the key will
+        // go as well as where it is.
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 1.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            AngleUnit.entries.forEach { unit ->
+                Indicator(angleWord(unit), unit == angle, ANGLE_LIT)
+            }
+        }
         rows.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth().height(rowHeight),
@@ -411,15 +469,20 @@ internal fun ClassicScientificPad(
                         CLASSIC_ALPHA -> layer == ClassicLayer.ALPHA
                         else -> false
                     }
-                    val spoken = if (active.action.isEmpty() || active.action.startsWith("@")) {
-                        spokenKey(active.label)
-                    } else {
-                        spokenKey(active.action)
+                    // the angle key says which unit it is in, both on its face
+                    // and out loud; every other key is named by what it runs
+                    val spoken = when {
+                        active.action == CLASSIC_DEG -> angleSpoken(angle)
+                        active.action.isEmpty() || active.action.startsWith("@") ->
+                            spokenKey(active.label)
+                        else -> spokenKey(active.action)
                     }
-                    // the two operator keys follow the keyboard setting
-                    val shownLabel = when (key.action) {
-                        "/" -> divisionSign
-                        "*" -> multiplicationSign
+                    // the angle key prints its state; the two operator keys
+                    // follow the keyboard setting
+                    val shownLabel = when {
+                        active.action == CLASSIC_DEG -> angleFace(active.action, active.label, angle)
+                        key.action == "/" -> divisionSign
+                        key.action == "*" -> multiplicationSign
                         else -> key.label
                     }
                     // the direction pad is one key that carries four
@@ -549,6 +612,9 @@ private fun ClassicMicroLabel(text: String?, color: Color, emphasise: Boolean) {
 
 private val YELLOW = Color(0xFFE8B84B)
 private val BLUE = Color(0xFF7FB2E8)
+
+/** The colour of a lit state light: the same grey-blue the display uses for DEG. */
+private val ANGLE_LIT = Color(0xFF9AA0AE)
 
 /** One entry in the MODE list: a kind of calculation the app can do. */
 internal data class CalcMode(val id: String, val name: String, val blurb: String)

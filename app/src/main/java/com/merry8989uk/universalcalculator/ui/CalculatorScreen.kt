@@ -1483,6 +1483,8 @@ when (key) {
                 ClassicScientificPad(
                     layer = classicLayer,
                     page = classicPage,
+                    // without this the pad says DEG while the display is in RAD
+                    angle = angle,
                     divisionSign = settings.divisionSign,
                     multiplicationSign = settings.multiplicationSign,
                     // one tap locks the layer on, another tap lets it go
