@@ -86,6 +86,19 @@ object Evaluator {
         return v
     }
 
+    /**
+     * Every function name the evaluator resolves.
+     *
+     * The guard reads its allow-list from here rather than keeping one of its
+     * own, so a function cannot be added to the parser and be missing from what
+     * the calculator will accept. Reading it costs nothing: it is the table's
+     * own set of keys.
+     */
+    val FUNCTION_NAMES: Set<String> get() = Parser.functionNames
+
+    /** Every name that stands for a value rather than doing something to one. */
+    val CONSTANT_NAMES: Set<String> get() = Parser.constantNames
+
     private class Parser(
         private val s: String,
         private val angle: AngleUnit,
@@ -300,348 +313,375 @@ object Evaluator {
                 i++
                 return applyFunction(name, args)
             }
-            return when (name) {
-                "pi" -> PI
-                "e" -> E
-                "tau" -> 2 * PI
-                "phi" -> (1 + sqrt(5.0)) / 2
-                "ans" -> vars["ans"] ?: 0.0
-                else -> vars[name]
-                    // Identifiers are folded to lower case above, so a caller
-                    // that stored its variables as "R" would otherwise be told
-                    // there is no such name. Match without regard to case.
-                    ?: vars.entries.firstOrNull { it.key.lowercase() == name }?.value
-                    ?: throw EvalException("Unknown name '$name'")
-            }
+            // The constants are read from the table, so the guard can ask the
+            // same table what a bare word means instead of listing it again.
+            CONSTANTS[name]?.let { return it }
+            // `ans` is whatever the caller last worked out, so it is not a
+            // constant of the calculator: it lives in the variables.
+            if (name == "ans") return vars["ans"] ?: 0.0
+            return vars[name]
+                // Identifiers are folded to lower case above, so a caller
+                // that stored its variables as "R" would otherwise be told
+                // there is no such name. Match without regard to case.
+                ?: vars.entries.firstOrNull { it.key.lowercase() == name }?.value
+                ?: throw EvalException("Unknown name '$name'")
         }
 
-        /** nCr, refusing anything that is not a whole number in range. */
-    private fun combinations(n: Double, r: Double): Double {
-        if (n < 0 || r < 0 || r > n) throw EvalException("nCr needs 0 <= r <= n")
-        val nn = kotlin.math.round(n).toInt()
-        val rr = kotlin.math.round(r).toInt()
-        if (kotlin.math.abs(n - nn) > 1e-9 || kotlin.math.abs(r - rr) > 1e-9) {
-            throw EvalException("nCr needs whole numbers")
-        }
-        var result = 1.0
-        for (i in 1..rr) result = result * (nn - rr + i) / i
-        return kotlin.math.round(result)
-    }
+        /**
+         * Applies [name] to [a], or says there is no such function.
+         *
+         * The lookup is the whole of the dispatch: a name is a function because it
+         * is a row of [FUNCTIONS], and there is nowhere else for one to be listed.
+         */
+        private fun applyFunction(name: String, a: List<Double>): Double =
+            FUNCTIONS[name]?.invoke(angle, a) ?: throw EvalException("Unknown function '$name'")
 
-    /** nPr. */
-    private fun permutations(n: Double, r: Double): Double {
-        if (n < 0 || r < 0 || r > n) throw EvalException("nPr needs 0 <= r <= n")
-        val nn = kotlin.math.round(n).toInt()
-        val rr = kotlin.math.round(r).toInt()
-        var result = 1.0
-        for (i in 0 until rr) result *= (nn - i)
-        return kotlin.math.round(result)
-    }
+        /**
+         * The two tables the parser reads by name: what a name does, and what it
+         * stands for.
+         *
+         * They are the single source of truth for those names. The guard that
+         * reads an expression before it is evaluated asks these tables what the
+         * calculator knows rather than keeping a list of its own, because a
+         * second list is a list that drifts: it once refused thirty-four
+         * functions the evaluator could work out, and a refused sum is a sum the
+         * user cannot get.
+         *
+         * Adding a function is one row here and nothing else.
+         */
+        companion object {
 
-    private fun applyFunction(name: String, a: List<Double>): Double {
-            fun one(): Double = a.firstOrNull() ?: throw EvalException("$name() needs an argument")
-            fun two(): Pair<Double, Double> = if (a.size >= 2) {
-                a[0] to a[1]
-            } else {
-                throw EvalException("$name() needs two arguments")
-            }
-            fun toRad(x: Double) = angle.toRadians(x)
-            fun fromRad(x: Double) = angle.fromRadians(x)
-
-            return when (name) {
+            /** The functions, by name, each reading its arguments the way it wants. */
+            private val FUNCTIONS: Map<String, (AngleUnit, List<Double>) -> Double> = mapOf(
                 // ---- trigonometric ----
-                "sin" -> sin(toRad(one()))
-                "cos" -> cos(toRad(one()))
-                "tan" -> tan(toRad(one()))
-                "csc" -> 1.0 / sin(toRad(one()))
-                "sec" -> 1.0 / cos(toRad(one()))
-                "cot" -> 1.0 / tan(toRad(one()))
-                "sinc" -> {
-                    val x = one()
+                "sin" to { angle, a -> sin(angle.toRadians(one(a, "sin"))) },
+                "cos" to { angle, a -> cos(angle.toRadians(one(a, "cos"))) },
+                "tan" to { angle, a -> tan(angle.toRadians(one(a, "tan"))) },
+                "csc" to { angle, a -> 1.0 / sin(angle.toRadians(one(a, "csc"))) },
+                "sec" to { angle, a -> 1.0 / cos(angle.toRadians(one(a, "sec"))) },
+                "cot" to { angle, a -> 1.0 / tan(angle.toRadians(one(a, "cot"))) },
+                "sinc" to { _, a ->
+                    val x = one(a, "sinc")
                     if (x == 0.0) 1.0 else sin(x) / x
-                }
+                },
 
                 // ---- inverse trigonometric ----
-                "asin" -> fromRad(asin(one()))
-                "acos" -> fromRad(acos(one()))
-                "atan" -> fromRad(atan(one()))
-                "acot" -> {
-                    val x = one()
+                "asin" to { angle, a -> angle.fromRadians(asin(one(a, "asin"))) },
+                "acos" to { angle, a -> angle.fromRadians(acos(one(a, "acos"))) },
+                "atan" to { angle, a -> angle.fromRadians(atan(one(a, "atan"))) },
+                "acot" to { angle, a ->
+                    val x = one(a, "acot")
                     val r = atan(1.0 / x)
-                    fromRad(if (x < 0) r + PI else r)
-                }
-                "asec" -> fromRad(acos(1.0 / one()))
-                "acsc" -> fromRad(asin(1.0 / one()))
-                "atan2" -> {
-                    val (y, x) = two()
-                    fromRad(atan2(y, x))
-                }
+                    angle.fromRadians(if (x < 0) r + PI else r)
+                },
+                "asec" to { angle, a -> angle.fromRadians(acos(1.0 / one(a, "asec"))) },
+                "acsc" to { angle, a -> angle.fromRadians(asin(1.0 / one(a, "acsc"))) },
+                "atan2" to { angle, a ->
+                    val (y, x) = two(a, "atan2")
+                    angle.fromRadians(atan2(y, x))
+                },
 
                 // ---- hyperbolic ----
-                "sinh" -> sinh(one())
-                "cosh" -> cosh(one())
-                "tanh" -> tanh(one())
-                "coth" -> 1.0 / tanh(one())
-                "sech" -> 1.0 / cosh(one())
-                "csch" -> 1.0 / sinh(one())
+                "sinh" to { _, a -> sinh(one(a, "sinh")) },
+                "cosh" to { _, a -> cosh(one(a, "cosh")) },
+                "tanh" to { _, a -> tanh(one(a, "tanh")) },
+                "coth" to { _, a -> 1.0 / tanh(one(a, "coth")) },
+                "sech" to { _, a -> 1.0 / cosh(one(a, "sech")) },
+                "csch" to { _, a -> 1.0 / sinh(one(a, "csch")) },
 
                 // ---- inverse hyperbolic ----
-                "asinh" -> asinh(one())
-                "acosh" -> acosh(one())
-                "atanh" -> atanh(one())
-                "acoth" -> 0.5 * ln((one() + 1.0) / (one() - 1.0))
-                "asech" -> acosh(1.0 / one())
-                "acsch" -> asinh(1.0 / one())
+                "asinh" to { _, a -> asinh(one(a, "asinh")) },
+                "acosh" to { _, a -> acosh(one(a, "acosh")) },
+                "atanh" to { _, a -> atanh(one(a, "atanh")) },
+                "acoth" to { _, a -> 0.5 * ln((one(a, "acoth") + 1.0) / (one(a, "acoth") - 1.0)) },
+                "asech" to { _, a -> acosh(1.0 / one(a, "asech")) },
+                "acsch" to { _, a -> asinh(1.0 / one(a, "acsch")) },
 
                 // ---- exponential and logarithmic ----
-                "ln" -> ln(one())
-                "log" -> if (a.size == 2) log(a[0], a[1]) else log10(one())
-                "log10" -> log10(one())
-                "log2" -> log2(one())
-                "log1p" -> ln(1.0 + one())
-                "exp" -> exp(one())
-                "exp2" -> 2.0.pow(one())
-                "expm1" -> exp(one()) - 1.0
+                "ln" to { _, a -> ln(one(a, "ln")) },
+                "log" to { _, a -> if (a.size == 2) log(a[0], a[1]) else log10(one(a, "log")) },
+                "log10" to { _, a -> log10(one(a, "log10")) },
+                "log2" to { _, a -> log2(one(a, "log2")) },
+                "log1p" to { _, a -> ln(1.0 + one(a, "log1p")) },
+                "exp" to { _, a -> exp(one(a, "exp")) },
+                "exp2" to { _, a -> 2.0.pow(one(a, "exp2")) },
+                "expm1" to { _, a -> exp(one(a, "expm1")) - 1.0 },
 
                 // ---- powers and roots ----
-                "sqrt" -> sqrt(one())
-                "cbrt" -> cbrt(one())
-                "square" -> one().pow(2.0)
-                "cube" -> one().pow(3.0)
-                "nthroot" -> {
-                    val (x, n) = two()
+                "sqrt" to { _, a -> sqrt(one(a, "sqrt")) },
+                "cbrt" to { _, a -> cbrt(one(a, "cbrt")) },
+                "square" to { _, a -> one(a, "square").pow(2.0) },
+                "cube" to { _, a -> one(a, "cube").pow(3.0) },
+                "nthroot" to { _, a ->
+                    val (x, n) = two(a, "nthroot")
                     if (n == 0.0) throw EvalException("nthroot() needs a non-zero root")
                     if (x < 0 && abs(n % 2.0) == 1.0) -(-x).pow(1.0 / n)
                     else if (x < 0) throw EvalException("Even root of a negative number")
                     else x.pow(1.0 / n)
-                }
-                "hypot" -> {
-                    val (x, y) = two()
+                },
+                "hypot" to { _, a ->
+                    val (x, y) = two(a, "hypot")
                     hypot(x, y)
-                }
-                "pow" -> {
-                    val (x, y) = two()
+                },
+                "pow" to { _, a ->
+                    val (x, y) = two(a, "pow")
                     x.pow(y)
-                }
+                },
 
                 // ---- rounding and number handling ----
-                "abs" -> abs(one())
-                "floor" -> floor(one())
-                "ceil" -> ceil(one())
-                "round" -> roundHalfAway(one())
-                "trunc" -> {
-                    val x = one()
+                "abs" to { _, a -> abs(one(a, "abs")) },
+                "floor" to { _, a -> floor(one(a, "floor")) },
+                "ceil" to { _, a -> ceil(one(a, "ceil")) },
+                "round" to { _, a -> roundHalfAway(one(a, "round")) },
+                "trunc" to { _, a ->
+                    val x = one(a, "trunc")
                     if (x >= 0) floor(x) else ceil(x)
-                }
-                "frac" -> {
-                    val x = one()
+                },
+                "frac" to { _, a ->
+                    val x = one(a, "frac")
                     x - (if (x >= 0) floor(x) else ceil(x))
-                }
-                "sign" -> when {
-                    one() > 0 -> 1.0
-                    one() < 0 -> -1.0
+                },
+                "sign" to { _, a -> when {
+                    one(a, "sign") > 0 -> 1.0
+                    one(a, "sign") < 0 -> -1.0
                     else -> 0.0
-                }
-                "rint" -> Math.rint(one())
-                "clamp" -> {
+                } },
+                "rint" to { _, a -> Math.rint(one(a, "rint")) },
+                "clamp" to { _, a ->
                     if (a.size < 3) throw EvalException("clamp() needs three arguments")
                     a[0].coerceIn(a[1], a[2])
-                }
-                "mround" -> {
-                    val (x, m) = two()
+                },
+                "mround" to { _, a ->
+                    val (x, m) = two(a, "mround")
                     if (m == 0.0) throw EvalException("mround() needs a non-zero multiple")
                     roundHalfAway(x / m) * m
-                }
-                // EVEN and ODD round away from zero to the next even or odd
-                // number, which is what every desk calculator does: even(1) is 2,
-                // odd(2) is 3, odd(0) is 1.
-                "even" -> if (one() == 0.0) 0.0 else
-                    (if (one() > 0) 1.0 else -1.0) * 2.0 * ceil(abs(one()) / 2.0)
-                "odd" -> (if (one() < 0) -1.0 else 1.0) *
-                    (2.0 * ceil((abs(one()) + 1.0) / 2.0) - 1.0)
+                },
+                "even" to { _, a -> if (one(a, "even") == 0.0) 0.0 else
+                    (if (one(a, "even") > 0) 1.0 else -1.0) * 2.0 * ceil(abs(one(a, "even")) / 2.0)
+                },
+                "odd" to { _, a -> (if (one(a, "odd") < 0) -1.0 else 1.0) *
+                    (2.0 * ceil((abs(one(a, "odd")) + 1.0) / 2.0) - 1.0)
+                },
 
                 // ---- number theory ----
-                "fact" -> factorial(one())
-                // nCr and nPr, written the way a book writes them
-                "ncr" -> {
-                    val (n, r) = two()
+                "fact" to { _, a -> factorial(one(a, "fact")) },
+                "ncr" to { _, a ->
+                    val (n, r) = two(a, "ncr")
                     combinations(n, r)
-                }
-                "npr" -> {
-                    val (n, r) = two()
+                },
+                "npr" to { _, a ->
+                    val (n, r) = two(a, "npr")
                     permutations(n, r)
-                }
-                "gcd" -> {
-                    val (x, y) = two()
+                },
+                "gcd" to { _, a ->
+                    val (x, y) = two(a, "gcd")
                     gcd(x.toLong(), y.toLong()).toDouble()
-                }
-                "lcm" -> {
-                    val (x, y) = two()
+                },
+                "lcm" to { _, a ->
+                    val (x, y) = two(a, "lcm")
                     lcm(x.toLong(), y.toLong()).toDouble()
-                }
-                "mod" -> {
-                    val (x, y) = two()
+                },
+                "mod" to { _, a ->
+                    val (x, y) = two(a, "mod")
                     if (y == 0.0) throw EvalException("Modulo by zero")
                     x % y
-                }
-                "isprime" -> if (isPrime(one().toLong())) 1.0 else 0.0
-                "nextprime" -> nextPrime(one().toLong()).toDouble()
-                "totient" -> totient(one().toLong()).toDouble()
-                "isqrt" -> floor(sqrt(one()))
-                "fib" -> fibonacci(one().toInt()).toDouble()
-                "catalan" -> catalan(one().toInt()).toDouble()
-
-                // ---- combinatorics ----
-                "ncr" -> {
-                    val (n, r) = two()
-                    combinations(n, r)
-                }
-                "npr" -> {
-                    val (n, r) = two()
-                    permutations(n, r)
-                }
+                },
+                "isprime" to { _, a -> if (isPrime(one(a, "isprime").toLong())) 1.0 else 0.0 },
+                "nextprime" to { _, a -> nextPrime(one(a, "nextprime").toLong()).toDouble() },
+                "totient" to { _, a -> totient(one(a, "totient").toLong()).toDouble() },
+                "isqrt" to { _, a -> floor(sqrt(one(a, "isqrt"))) },
+                "fib" to { _, a -> fibonacci(one(a, "fib").toInt()).toDouble() },
+                "catalan" to { _, a -> catalan(one(a, "catalan").toInt()).toDouble() },
 
                 // ---- statistics over the arguments ----
-                "sum" -> a.sum()
-                "prod" -> a.fold(1.0) { acc, v -> acc * v }
-                "count" -> a.size.toDouble()
-                "mean" -> if (a.isEmpty()) 0.0 else a.sum() / a.size
-                "min" -> a.minOrNull() ?: 0.0
-                "max" -> a.maxOrNull() ?: 0.0
-                "range" -> if (a.isEmpty()) 0.0 else (a.maxOrNull() ?: 0.0) - (a.minOrNull() ?: 0.0)
-                "median" -> medianOf(a)
-                "mode" -> modeOf(a)
-                "var" -> varianceOf(a)
-                "sd" -> sqrt(varianceOf(a))
-                "geomean" -> {
+                "sum" to { _, a -> a.sum() },
+                "prod" to { _, a -> a.fold(1.0) { acc, v -> acc * v } },
+                "count" to { _, a -> a.size.toDouble() },
+                "mean" to { _, a -> if (a.isEmpty()) 0.0 else a.sum() / a.size },
+                "min" to { _, a -> a.minOrNull() ?: 0.0 },
+                "max" to { _, a -> a.maxOrNull() ?: 0.0 },
+                "range" to { _, a -> if (a.isEmpty()) 0.0 else (a.maxOrNull() ?: 0.0) - (a.minOrNull() ?: 0.0) },
+                "median" to { _, a -> medianOf(a) },
+                "mode" to { _, a -> modeOf(a) },
+                "var" to { _, a -> varianceOf(a) },
+                "sd" to { _, a -> sqrt(varianceOf(a)) },
+                "geomean" to { _, a ->
                     if (a.isEmpty() || a.any { it <= 0 }) {
                         throw EvalException("geomean() needs positive values")
                     }
                     exp(a.sumOf { ln(it) } / a.size)
-                }
-                "harmmean" -> {
+                },
+                "harmmean" to { _, a ->
                     if (a.isEmpty() || a.any { it == 0.0 }) {
                         throw EvalException("harmmean() needs non-zero values")
                     }
                     a.size / a.sumOf { 1.0 / it }
-                }
+                },
 
                 // ---- special functions ----
-                "gamma" -> SpecialFunctions.gamma(one())
-                "lgamma" -> SpecialFunctions.logGamma(one())
-                "beta" -> {
-                    val (x, y) = two()
+                "gamma" to { _, a -> SpecialFunctions.gamma(one(a, "gamma")) },
+                "lgamma" to { _, a -> SpecialFunctions.logGamma(one(a, "lgamma")) },
+                "beta" to { _, a ->
+                    val (x, y) = two(a, "beta")
                     SpecialFunctions.beta(x, y)
-                }
-                "erf" -> SpecialFunctions.erf(one())
-                "erfc" -> SpecialFunctions.erfc(one())
-                "zeta" -> SpecialFunctions.zeta(one())
-                "lambertw" -> SpecialFunctions.lambertW(one())
-                "digamma" -> SpecialFunctions.digamma(one())
+                },
+                "erf" to { _, a -> SpecialFunctions.erf(one(a, "erf")) },
+                "erfc" to { _, a -> SpecialFunctions.erfc(one(a, "erfc")) },
+                "zeta" to { _, a -> SpecialFunctions.zeta(one(a, "zeta")) },
+                "lambertw" to { _, a -> SpecialFunctions.lambertW(one(a, "lambertw")) },
+                "digamma" to { _, a -> SpecialFunctions.digamma(one(a, "digamma")) },
 
                 // ---- complex, for real inputs ----
-                "real" -> one()
-                "imag" -> 0.0
-                "conj" -> one()
-                "arg" -> if (one() >= 0) 0.0 else PI
+                "real" to { _, a -> one(a, "real") },
+                "imag" to { _, _ -> 0.0 },
+                "conj" to { _, a -> one(a, "conj") },
+                "arg" to { _, a -> if (one(a, "arg") >= 0) 0.0 else PI },
 
                 // ---- misc ----
-                "rand" -> Math.random()
-                "heaviside" -> when {
-                    one() < 0 -> 0.0
-                    one() > 0 -> 1.0
+                "rand" to { _, _ -> Math.random() },
+                "heaviside" to { _, a -> when {
+                    one(a, "heaviside") < 0 -> 0.0
+                    one(a, "heaviside") > 0 -> 1.0
                     else -> 0.5
+                } },
+                "radians" to { _, a -> Math.toRadians(one(a, "radians")) },
+                "degrees" to { _, a -> Math.toDegrees(one(a, "degrees")) },
+                "deg2rad" to { _, a -> Math.toRadians(one(a, "deg2rad")) },
+                "rad2deg" to { _, a -> Math.toDegrees(one(a, "rad2deg")) },
+                "pct" to { _, a -> one(a, "pct") / 100.0 },
+            )
+
+            /**
+             * The bare words that stand for a number, by name.
+             *
+             * `ans` is not one of them: it is whatever the caller last worked out,
+             * so it is read from the variables rather than from a constant.
+             */
+            private val CONSTANTS: Map<String, Double> = mapOf(
+                "pi" to PI,
+                "e" to E,
+                "tau" to 2 * PI,
+                "phi" to (1 + sqrt(5.0)) / 2,
+            )
+
+            /** Every function name the evaluator resolves. */
+            val functionNames: Set<String> get() = FUNCTIONS.keys
+
+            /** Every name that stands for a value, `ans` included. */
+            val constantNames: Set<String> get() = CONSTANTS.keys + "ans"
+
+            /** The single argument of a function of one. */
+            private fun one(a: List<Double>, name: String): Double =
+                a.firstOrNull() ?: throw EvalException("$name() needs an argument")
+
+            /** The first two arguments of a function of two. */
+            private fun two(a: List<Double>, name: String): Pair<Double, Double> =
+                if (a.size >= 2) a[0] to a[1] else throw EvalException("$name() needs two arguments")
+
+            // ---- helpers the function table leans on ----
+
+            /** nCr, refusing anything that is not a whole number in range. */
+            private fun combinations(n: Double, r: Double): Double {
+                if (n < 0 || r < 0 || r > n) throw EvalException("nCr needs 0 <= r <= n")
+                val nn = kotlin.math.round(n).toInt()
+                val rr = kotlin.math.round(r).toInt()
+                if (kotlin.math.abs(n - nn) > 1e-9 || kotlin.math.abs(r - rr) > 1e-9) {
+                    throw EvalException("nCr needs whole numbers")
                 }
-                "radians" -> Math.toRadians(one())
-                "degrees" -> Math.toDegrees(one())
-                "deg2rad" -> Math.toRadians(one())
-                "rad2deg" -> Math.toDegrees(one())
-                "pct" -> one() / 100.0
-
-                else -> throw EvalException("Unknown function '$name'")
+                var result = 1.0
+                for (i in 1..rr) result = result * (nn - rr + i) / i
+                return kotlin.math.round(result)
             }
-        }
 
-        // ---- helpers the function table leans on ----
-
-        private fun medianOf(values: List<Double>): Double {
-            if (values.isEmpty()) return 0.0
-            val sorted = values.sorted()
-            val mid = sorted.size / 2
-            return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2.0
-        }
-
-        private fun modeOf(values: List<Double>): Double {
-            if (values.isEmpty()) return 0.0
-            val counts = HashMap<Double, Int>()
-            values.forEach { counts[it] = (counts[it] ?: 0) + 1 }
-            // the most frequent, and the smallest of those if there is a tie
-            return counts.entries
-                .sortedWith(compareByDescending<Map.Entry<Double, Int>> { it.value }.thenBy { it.key })
-                .first()
-                .key
-        }
-
-        /** Population variance. */
-        private fun varianceOf(values: List<Double>): Double {
-            if (values.size < 1) return 0.0
-            val mean = values.sum() / values.size
-            return values.sumOf { (it - mean) * (it - mean) } / values.size
-        }
-
-        private fun isPrime(n: Long): Boolean {
-            if (n < 2) return false
-            if (n % 2 == 0L) return n == 2L
-            if (n % 3 == 0L) return n == 3L
-            var d = 5L
-            while (d * d <= n) {
-                if (n % d == 0L || n % (d + 2) == 0L) return false
-                d += 6
+            /** nPr. */
+            private fun permutations(n: Double, r: Double): Double {
+                if (n < 0 || r < 0 || r > n) throw EvalException("nPr needs 0 <= r <= n")
+                val nn = kotlin.math.round(n).toInt()
+                val rr = kotlin.math.round(r).toInt()
+                var result = 1.0
+                for (i in 0 until rr) result *= (nn - i)
+                return kotlin.math.round(result)
             }
-            return true
-        }
 
-        private fun nextPrime(after: Long): Long {
-            var n = if (after < 2) 2 else after + 1
-            while (!isPrime(n)) n++
-            return n
-        }
+            private fun medianOf(values: List<Double>): Double {
+                if (values.isEmpty()) return 0.0
+                val sorted = values.sorted()
+                val mid = sorted.size / 2
+                return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2.0
+            }
 
-        private fun totient(n: Long): Long {
-            if (n < 1) return 0
-            var result = n
-            var remaining = n
-            var p = 2L
-            while (p * p <= remaining) {
-                if (remaining % p == 0L) {
-                    while (remaining % p == 0L) remaining /= p
-                    result -= result / p
+            private fun modeOf(values: List<Double>): Double {
+                if (values.isEmpty()) return 0.0
+                val counts = HashMap<Double, Int>()
+                values.forEach { counts[it] = (counts[it] ?: 0) + 1 }
+                // the most frequent, and the smallest of those if there is a tie
+                return counts.entries
+                    .sortedWith(compareByDescending<Map.Entry<Double, Int>> { it.value }.thenBy { it.key })
+                    .first()
+                    .key
+            }
+
+            /** Population variance. */
+            private fun varianceOf(values: List<Double>): Double {
+                if (values.size < 1) return 0.0
+                val mean = values.sum() / values.size
+                return values.sumOf { (it - mean) * (it - mean) } / values.size
+            }
+
+            private fun isPrime(n: Long): Boolean {
+                if (n < 2) return false
+                if (n % 2 == 0L) return n == 2L
+                if (n % 3 == 0L) return n == 3L
+                var d = 5L
+                while (d * d <= n) {
+                    if (n % d == 0L || n % (d + 2) == 0L) return false
+                    d += 6
                 }
-                p++
+                return true
             }
-            if (remaining > 1) result -= result / remaining
-            return result
-        }
 
-        private fun fibonacci(n: Int): Long {
-            if (n <= 0) return 0
-            var a = 0L
-            var b = 1L
-            repeat(n - 1) {
-                val next = a + b
-                a = b
-                b = next
+            private fun nextPrime(after: Long): Long {
+                var n = if (after < 2) 2 else after + 1
+                while (!isPrime(n)) n++
+                return n
             }
-            return b
-        }
 
-        /** The n-th Catalan number. */
-        private fun catalan(n: Int): Long {
-            if (n < 0) return 0
-            var result = 1L
-            for (i in 0 until n) result = result * (2L * n - i) / (i + 1)
-            return result / (n + 1)
-        }
+            private fun totient(n: Long): Long {
+                if (n < 1) return 0
+                var result = n
+                var remaining = n
+                var p = 2L
+                while (p * p <= remaining) {
+                    if (remaining % p == 0L) {
+                        while (remaining % p == 0L) remaining /= p
+                        result -= result / p
+                    }
+                    p++
+                }
+                if (remaining > 1) result -= result / remaining
+                return result
+            }
+
+            private fun fibonacci(n: Int): Long {
+                if (n <= 0) return 0
+                var a = 0L
+                var b = 1L
+                repeat(n - 1) {
+                    val next = a + b
+                    a = b
+                    b = next
+                }
+                return b
+            }
+
+            /** The n-th Catalan number. */
+            private fun catalan(n: Int): Long {
+                if (n < 0) return 0
+                var result = 1L
+                for (i in 0 until n) result = result * (2L * n - i) / (i + 1)
+                return result / (n + 1)
+            }
+            }
     }
 
     fun factorial(x: Double): Double {

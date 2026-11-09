@@ -13,19 +13,17 @@ package com.merry8989uk.universalcalculator.calc
  */
 object ExpressionGuard {
 
-    /** The functions the calculator knows, longest first so `asinh` wins over `a`. */
-    private val FUNCTIONS = listOf(
-        "arcsinh", "arccosh", "arctanh", "arcsin", "arccos", "arctan",
-        "asinh", "acosh", "atanh", "asin", "acos", "atan",
-        "sinh", "cosh", "tanh", "coth", "sech", "csch",
-        "sin", "cos", "tan", "cot", "sec", "csc",
-        "log2", "log10", "log", "ln", "exp", "sqrt", "cbrt", "abs",
-        "floor", "ceil", "round", "sign", "gamma", "lgamma", "erf", "erfc",
-        "zeta", "lambertw", "digamma", "beta", "hypot", "nthroot", "mod",
-        "gcd", "lcm", "ncr", "npr", "fib", "catalan", "totient", "isqrt",
-        "isprime", "nextprime", "rand", "sinc", "mround", "sum", "prod",
-        "mean", "median", "min", "max", "range", "geomean", "harmean",
-    ).sortedByDescending { it.length }
+    /**
+     * The functions the calculator knows, longest first so `asinh` wins over `a`.
+     *
+     * Read from the evaluator's own table rather than kept by hand. A second
+     * list is a list that drifts, and a drifted list refuses sums the
+     * calculator could work out: this one was once missing thirty-four of the
+     * functions the evaluator resolves, and it had `harmmean` spelled
+     * `harmean`.
+     */
+    private val FUNCTIONS: List<String> = Evaluator.FUNCTION_NAMES
+        .sortedWith(compareByDescending<String> { it.length }.thenBy { it })
 
     /** Whether [word] is a name the calculator knows: a function or a variable. */
     private fun isAName(word: String): Boolean =
@@ -50,16 +48,35 @@ object ExpressionGuard {
         return if (parts.size >= 2) parts else null
     }
 
-    /** The names that stand for a value rather than doing something to one. */
-    private val CONSTANTS = setOf(
-        "pi", "\u03C0", "tau", "\u03C4", "e", "i", "x", "ans",
-        "inf", "infinity", "golden", "\u03C6",
+    /**
+     * The names that stand for a value rather than doing something to one.
+     *
+     * The evaluator's constants come from its own table, for the same reason the
+     * functions do — `phi` was readable by the evaluator and refused here. The
+     * rest are names the guard cannot check: a variable is whatever the caller
+     * put in it, so `x` and `i` are let through and the evaluator decides
+     * whether it has a value for them.
+     */
+    private val CONSTANTS: Set<String> = Evaluator.CONSTANT_NAMES + setOf(
+        "\u03C0", "\u03C4", "\u03C6", "i", "x", "inf", "infinity", "golden",
     )
 
     /** The characters an expression may contain. */
     private val ALLOWED = "0123456789.+-*/^()!% \u03C0\u03C4\u221A\u00D7\u00F7\u2212\u00B0,{}[]_"
 
     private val OPERATORS = setOf('+', '-', '*', '/', '^')
+
+    /**
+     * The shape of a name: letters, and the digits some of them carry.
+     *
+     * The digits belong in the run. Reading only the letters split `log2` into
+     * `log` and `2`, which happened to still be a name, but it made `rad2deg`
+     * read as `rad` followed by `2deg` and `expm1` as `expm` followed by `1` —
+     * functions the evaluator resolves and the guard refused. The evaluator
+     * reads a name the same way, letters and digits together, so this is the
+     * same word it will look up.
+     */
+    private val NAME = Regex("[A-Za-z][A-Za-z0-9]*")
 
     /**
      * What is wrong with [text], or null when there is nothing to say.
@@ -79,8 +96,8 @@ object ExpressionGuard {
         val unknown = t.firstOrNull { it !in ALLOWED && !it.isLetter() }
         if (unknown != null) return "'$unknown' is not a symbol this calculator knows."
 
-        // 2. a run of letters that is not a name it knows
-        for (word in Regex("[A-Za-z]+").findAll(t).map { it.value }) {
+        // 2. a word that is not a name it knows
+        for (word in NAME.findAll(t).map { it.value }) {
             if (isAName(word)) continue
             // it may be several names stuck together, which is what sinsinsin is
             val parts = decompose(word)
@@ -92,13 +109,13 @@ object ExpressionGuard {
         }
 
         // 3. a function with nothing after it, or two functions in a row
-        val names = Regex("[A-Za-z]+").findAll(t).map { it.range.first to it.value }.toList()
+        val names = NAME.findAll(t).map { it.range.first to it.value }.toList()
         for ((at, word) in names) {
             if (!FUNCTIONS.any { it.equals(word, ignoreCase = true) }) continue
             val after = t.substring(at + word.length).trimStart()
             if (after.isEmpty()) return "$word needs a value after it, as in ${word}(30)."
             if (after.first().isLetter()) {
-                val next = Regex("[A-Za-z]+").find(after)?.value ?: ""
+                val next = NAME.find(after)?.value ?: ""
                 return "$word cannot be followed by $next. Put a value between them."
             }
         }
