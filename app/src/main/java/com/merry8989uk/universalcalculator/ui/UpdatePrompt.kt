@@ -25,11 +25,13 @@ import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.updater.UpdateUiState
 
 /**
- * The update, shown the moment the app finds one.
+ * The update, shown only when the user has gone looking for one.
  *
- * It says what version is waiting and then, once the download starts, how far
- * along it is — a real bar with a real percentage, taken from the bytes that
- * have actually arrived, not a spinner that means nothing.
+ * It is raised from Settings, never from the app opening: a version waiting in
+ * the background is not a reason to stop somebody mid-sum. It says what version
+ * is on offer and then, once the download starts, how far along it is — a real
+ * bar with a real percentage, taken from the bytes that have actually arrived,
+ * not a spinner that means nothing.
  */
 @Composable
 internal fun UpdatePrompt(

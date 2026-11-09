@@ -68,6 +68,7 @@ class SettingsRepository(private val context: Context) {
         val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
         val SAVE_STATE = booleanPreferencesKey("save_state")
         val SAVED_EXPRESSION = stringPreferencesKey("saved_expression")
+        val DISMISSED_UPDATE_VERSION = stringPreferencesKey("update_dismissed_version")
     }
 
     val settings: Flow<SettingsState> = context.dataStore.data.map { p ->
@@ -123,6 +124,7 @@ class SettingsRepository(private val context: Context) {
             minimalMode = p[Keys.MINIMAL_MODE] ?: false,
             keepScreenOn = p[Keys.KEEP_SCREEN_ON] ?: false,
             saveState = p[Keys.SAVE_STATE] ?: true,
+            dismissedUpdateVersion = p[Keys.DISMISSED_UPDATE_VERSION] ?: "",
         )
     }
 
@@ -141,8 +143,9 @@ class SettingsRepository(private val context: Context) {
     /**
      * The settings worth carrying to another device, as plain strings.
      *
-     * Diagnostics, notifications and the saved expression are deliberately left
-     * out: they are about this device, not the user's choices.
+     * Diagnostics, notifications, the saved expression and the update version
+     * the user put aside are deliberately left out: they are about this device,
+     * not the user's choices.
      */
     suspend fun exportSyncable(): Map<String, String> {
         val p = context.dataStore.data.first()
@@ -389,6 +392,15 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setSavedExpression(text: String) =
         context.dataStore.edit { it[Keys.SAVED_EXPRESSION] = text }
+
+    /**
+     * The update the user has said "later" to, kept by version.
+     *
+     * A version and not a flag: a flag would silence every future release as
+     * well, and the user would never be told about a new one again.
+     */
+    suspend fun setDismissedUpdateVersion(version: String) =
+        context.dataStore.edit { it[Keys.DISMISSED_UPDATE_VERSION] = version }
 
     suspend fun reset() = context.dataStore.edit { it.clear() }
 }

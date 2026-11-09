@@ -78,4 +78,6 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     fun setKeepScreenOn(enabled: Boolean) = viewModelScope.launch { repo.setKeepScreenOn(enabled) }
     fun setSaveState(enabled: Boolean) = viewModelScope.launch { repo.setSaveState(enabled) }
     fun setSavedExpression(text: String) = viewModelScope.launch { repo.setSavedExpression(text) }
+    fun setDismissedUpdateVersion(version: String) =
+        viewModelScope.launch { repo.setDismissedUpdateVersion(version) }
 }
