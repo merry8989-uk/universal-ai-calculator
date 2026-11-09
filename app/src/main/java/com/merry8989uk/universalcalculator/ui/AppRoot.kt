@@ -235,6 +235,22 @@ fun AppRoot(settings: SettingsState) {
     var chatArchiveOpen by rememberSaveable { mutableStateOf(false) }
     var aiAsk by rememberSaveable { mutableStateOf("") }
 
+    // A message from the developer, asked for once when the app opens. It is a
+    // strip rather than a modal: a message that arrives unasked has not earned
+    // the right to stop somebody mid-sum.
+    val noticeContext = androidx.compose.ui.platform.LocalContext.current
+    var notice by remember {
+        mutableStateOf<com.merry8989uk.universalcalculator.ai.NoticeClient.Notice?>(null)
+    }
+    LaunchedEffect(Unit) {
+        val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                com.merry8989uk.universalcalculator.ai.NoticeClient.refresh(noticeContext)
+            }.getOrNull()
+        }
+        if (found != null) notice = found
+    }
+
     // The archive the assistant opened has to go when the assistant does. It is
     // remembered across a restart, so it cannot be trusted to be closed already.
     LaunchedEffect(aiVisible) {
@@ -315,6 +331,20 @@ fun AppRoot(settings: SettingsState) {
 
     Box(modifier = Modifier.fillMaxSize()) {
     AmbientGlow()
+
+    // Above everything, the same way an update prompt is: a notice has to be seen
+    // by somebody who only ever uses the keypad, and the keypad is not a tab with
+    // room at the top for anything else.
+    notice?.let { shown ->
+        NoticeStrip(
+            notice = shown,
+            onDismiss = {
+                com.merry8989uk.universalcalculator.ai.NoticeClient.markSeen(noticeContext, shown.id)
+                notice = null
+            },
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
+        )
+    }
 
     // An update in front of the user, whichever calculator they are on.
     if (updater.promptVisible) {

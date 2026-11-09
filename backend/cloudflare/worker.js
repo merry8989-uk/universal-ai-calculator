@@ -1281,6 +1281,60 @@ export default {
         return json({ error: "Could not read the numbers.", detail: String(e).slice(0, 200) }, 500);
       }
     }
+    // --- the notice board ---
+    //
+    // What the developer wants every installed app to be told. One message at a
+    // time, kept in KV, read by the app on launch. No push service, no Firebase,
+    // no Play Services: the app asks when it starts and shows what it is told.
+    //
+    // Reading is public because the app has no account to prove who it is, and
+    // there is nothing private in a notice. Writing needs the token.
+    if (path === "/notice") {
+      if (request.method === "GET") {
+        if (!env.NEXUS_SYNC) return json({ notice: null });
+        const raw = await env.NEXUS_SYNC.get("notice:current");
+        return new Response(raw || '{"notice":null}', {
+          headers: { ...CORS, "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+        });
+      }
+      if (request.method === "POST" || request.method === "DELETE") {
+        if (!statsAllowed(request, env)) return json({ error: "Not allowed." }, 401);
+        if (!env.NEXUS_SYNC) return json({ error: "No store is bound." }, 500);
+        if (request.method === "DELETE") {
+          await env.NEXUS_SYNC.delete("notice:current");
+          return json({ ok: true, cleared: true });
+        }
+        let body;
+        try {
+          body = await request.json();
+        } catch (e) {
+          return json({ error: "That is not JSON." }, 400);
+        }
+        const title = String(body.title || "").slice(0, 120).trim();
+        const text = String(body.body || "").slice(0, 1000).trim();
+        if (!title || !text) return json({ error: "A notice needs a title and a body." }, 400);
+        const notice = {
+          id: String(body.id || Date.now()).slice(0, 40),
+          title,
+          body: text,
+          // "info" sits quietly at the top of the screen; "important" is shown
+          // once as a card the reader has to dismiss.
+          level: body.level === "important" ? "important" : "info",
+          // an empty audience means everybody
+          audience: String(body.audience || "").slice(0, 40),
+          link: String(body.link || "").slice(0, 300),
+          published: new Date().toISOString(),
+          // null means "until I replace it"
+          until: body.until ? String(body.until).slice(0, 40) : null,
+        };
+        await env.NEXUS_SYNC.put("notice:current", JSON.stringify({ notice }), {
+          metadata: { published: notice.published },
+        });
+        return json({ ok: true, notice });
+      }
+      return json({ error: "Use GET, POST or DELETE." }, 405);
+    }
+
     if (path === "/dashboard") {
       if (!statsAllowed(request, env)) {
         return new Response("Add ?token=... to the address.", { status: 401 });
