@@ -349,13 +349,15 @@ fun HandwritingScreen(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    // read outside the click: a string resource is a composable call
+                    val copied = stringResource(R.string.handwriting_copied)
                     Button(
                         onClick = {
                             val text = read.trim()
                             if (text.isBlank()) return@Button
                             clipboard.setText(AnnotatedString(text))
                             onUseExpression(text)
-                            message = stringResource(R.string.handwriting_copied)
+                            message = copied
                         },
                     ) { Text(stringResource(R.string.handwriting_use)) }
                     OutlinedButton(onClick = { sendPage() }) {
