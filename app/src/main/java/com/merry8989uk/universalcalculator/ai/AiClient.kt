@@ -235,12 +235,18 @@ object AiClient {
                 }
             }.toString()
 
+            // One id for this attempt, sent to the worker and written into both
+            // events. Without it a failed answer is a timestamp in one log and a
+            // line in another, and matching them is guesswork.
+            val requestId = java.util.UUID.randomUUID().toString().take(8)
+
             conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
                 connectTimeout = 20_000
                 readTimeout = 45_000
                 setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("X-Request-Id", requestId)
             }
             count("ask")
             val started = System.currentTimeMillis()
@@ -275,6 +281,7 @@ object AiClient {
                     model = model,
                     fields = mapOf(
                         "status" to "success",
+                        "request_id" to requestId,
                         "duration_ms" to elapsed.toString(),
                         "prompt_chars" to question.length.toString(),
                         "answer_chars" to (ans?.length ?: 0).toString(),
@@ -294,6 +301,7 @@ object AiClient {
                     model = json?.optString("model").orEmpty(),
                     fields = mapOf(
                         "status" to "http_$code",
+                        "request_id" to requestId,
                         "duration_ms" to elapsed.toString(),
                         "http_code" to code.toString(),
                         "rate_limited" to (code == 429).toString(),
