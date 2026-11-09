@@ -3,10 +3,12 @@ package com.merry8989uk.universalcalculator.ui
 import android.graphics.Bitmap
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,9 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,10 +36,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -66,16 +74,40 @@ fun HandwritingScreen(
      * that forgets to pass it is a caller that has not answered the question.
      */
     savingEnabled: Boolean,
+    /**
+     * Where an accepted reading goes.
+     *
+     * Defaulted so the screen compiles wherever it is opened from, and so a
+     * caller that has somewhere to put the expression can say so. Until one
+     * does, an accepted reading is copied to the clipboard, which is the one
+     * route out of this screen the pad can take on its own.
+     */
+    onUseExpression: (String) -> Unit = {},
 ) {
     var strokes by remember { mutableStateOf(emptyList<List<Offset>>()) }
     var current by remember { mutableStateOf(emptyList<Offset>()) }
     var size by remember { mutableStateOf(IntSize.Zero) }
-    var busy by remember { mutableStateOf(false) }
+
+    /**
+     * Where the page is in its journey to the model.
+     *
+     * The drawing itself is held apart, in [strokes], because it is the user's
+     * work and outlives every attempt to read it: a failure moves [state] on and
+     * leaves the strokes exactly where they were, which is what makes the failure
+     * a step rather than an ending. Only Clear drops the drawing.
+     */
+    var state by remember { mutableStateOf(SketchState()) }
+
+    /** The rendered page, shown before it is sent and kept for the retry. */
+    var page by remember { mutableStateOf<Bitmap?>(null) }
+
+    /** What the model read, editable so a misreading costs a correction and not a redraw. */
     var read by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
+
     var message by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboardManager.current
     val ink = MaterialTheme.colorScheme.primary
     val paper = Color.White
 
@@ -103,47 +135,84 @@ fun HandwritingScreen(
         return bmp
     }
 
-    fun readIt() {
+    /**
+     * Renders the page and shows it, without sending anything.
+     *
+     * The pad used to go from "tap Read it" to "the model has your handwriting"
+     * in one step, so the user never saw the picture that left the phone. Here
+     * the strokes become an image on screen first, and Send is a second, separate
+     * tap. The switch is asked before the render, so a refusal costs no work and
+     * opens no connection.
+     */
+    fun previewIt() {
         if (strokes.isEmpty() && current.isEmpty()) {
             message = "Write something first."
             return
         }
-        // A page of handwriting is the user's own work, and posting it is a
-        // picture leaving the phone. The switch is asked before the strokes are
-        // rendered, so a refusal costs no work, opens no connection, and says
-        // which setting stopped it instead of blaming the network.
+        val decision = uploadDecision(savingEnabled)
+        if (decision is UploadDecision.Refused) {
+            // Nothing was rendered and nothing was sent, but the drawing is
+            // still on the pad, so the refusal is a stage with a way out rather
+            // than a line of text under it.
+            message = decision.message
+            state = state.copy(stage = SketchStage.Failed(decision.message))
+            return
+        }
+        message = ""
+        read = ""
+        scope.launch {
+            val bmp = withContext(Dispatchers.Default) { render() }
+            page = bmp
+            state = state.copy(stage = SketchStage.Previewing, hasDrawing = true)
+        }
+    }
+
+    /**
+     * Sends the page that is on screen.
+     *
+     * Reached from Send in the preview and from Try again after a failed read —
+     * never from the pad itself. The switch is asked again here because the
+     * preview can sit on screen while it is turned off, and because this is the
+     * moment the picture would leave the phone.
+     */
+    fun sendPage() {
+        val bmp = page
+        if (bmp == null) {
+            // Nothing rendered: fall back to the pad, so the tap is never lost.
+            previewIt()
+            return
+        }
         val decision = uploadDecision(savingEnabled)
         if (decision is UploadDecision.Refused) {
             message = decision.message
+            state = state.copy(stage = SketchStage.Failed(decision.message))
             return
         }
-        busy = true
         message = ""
+        state = state.copy(stage = SketchStage.Sending)
         scope.launch {
             val bytes = withContext(Dispatchers.Default) {
                 ByteArrayOutputStream().use { out ->
-                    render().compress(Bitmap.CompressFormat.JPEG, 85, out)
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 85, out)
                     out.toByteArray()
                 }
             }
             val r = AiClient.solveImage(bytes)
-            busy = false
-            if (r.expression != null) {
-                read = r.expression
-                result = try {
-                    if (ComplexEvaluator.hasImaginary(r.expression)) {
-                        val c = ComplexEvaluator.evaluate(r.expression)
-                        if (c.isReal(1e-10)) Format.number(c.re) else c.toString()
-                    } else {
-                        Format.number(Evaluator.evaluate(r.expression))
-                    }
-                } catch (e: Exception) {
-                    "could not evaluate"
-                }
-            } else {
-                message = r.error ?: "Could not read that."
-            }
+            // The drawing is not touched here: sketchAfterRead decides what the
+            // screen shows and carries the drawing through a failure, so one bad
+            // read never costs the user their work.
+            state = sketchAfterRead(state, r.expression, r.error)
+            read = r.expression.orEmpty()
         }
+    }
+
+    fun clearAll() {
+        strokes = emptyList()
+        current = emptyList()
+        read = ""
+        message = ""
+        page = null
+        state = sketchCleared()
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -171,6 +240,9 @@ fun HandwritingScreen(
                         onDragEnd = {
                             if (current.isNotEmpty()) strokes = strokes + listOf(current)
                             current = emptyList()
+                            // The page can be read again, so a failure from here
+                            // on has something to try again with.
+                            state = state.copy(hasDrawing = strokes.isNotEmpty())
                         },
                         onDragCancel = { current = emptyList() },
                     )
@@ -203,26 +275,241 @@ fun HandwritingScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            OutlinedButton(
-                onClick = { strokes = emptyList(); current = emptyList(); read = ""; result = ""; message = "" },
-            ) { Text("Clear") }
-            Button(onClick = { readIt() }, enabled = !busy) {
-                Text(if (busy) "Reading\u2026" else "Read it")
+            OutlinedButton(onClick = { clearAll() }) { Text("Clear") }
+            Button(
+                onClick = { previewIt() },
+                enabled = state.stage !is SketchStage.Sending && state.stage !is SketchStage.Previewing,
+            ) {
+                Text(
+                    if (state.stage is SketchStage.Sending) "Reading\u2026" else "Read it",
+                )
             }
-            if (busy) CircularProgressIndicator(modifier = Modifier.height(20.dp))
+            if (state.stage is SketchStage.Sending) CircularProgressIndicator(modifier = Modifier.height(20.dp))
+        }
+
+        when (val s = state.stage) {
+            SketchStage.Drawing -> {}
+
+            // The page as it will be sent. Nothing has left the phone.
+            SketchStage.Previewing -> SketchCard {
+                Text(
+                    stringResource(R.string.handwriting_preview_not_sent),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                page?.let { bmp ->
+                    Image(
+                        bitmap = bmp.asImageBitmap(),
+                        contentDescription = stringResource(R.string.handwriting_preview_a11y),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .padding(top = 8.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Button(onClick = { sendPage() }) { Text(stringResource(R.string.handwriting_send)) }
+                    OutlinedButton(onClick = {
+                        // Cancel keeps the drawing: it was the sending that was
+                        // cancelled, not the work.
+                        state = state.copy(stage = SketchStage.Drawing)
+                    }) { Text(stringResource(R.string.handwriting_cancel)) }
+                }
+            }
+
+            SketchStage.Sending -> {}
+
+            // What the model read, offered and editable rather than announced.
+            is SketchStage.Read -> SketchCard {
+                Text(
+                    stringResource(R.string.handwriting_read_as),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                OutlinedTextField(
+                    value = read,
+                    onValueChange = { read = it },
+                    label = { Text(stringResource(R.string.handwriting_edit_hint)) },
+                    textStyle = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace),
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                )
+                val value = read.trim()
+                val result = remember(value) { evaluate(value) }
+                if (result.isNotBlank()) {
+                    Text(
+                        "= $result",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Button(
+                        onClick = {
+                            val text = read.trim()
+                            if (text.isBlank()) return@Button
+                            clipboard.setText(AnnotatedString(text))
+                            onUseExpression(text)
+                            message = stringResource(R.string.handwriting_copied)
+                        },
+                    ) { Text(stringResource(R.string.handwriting_use)) }
+                    OutlinedButton(onClick = { sendPage() }) {
+                        Text(stringResource(R.string.handwriting_try_again))
+                    }
+                }
+            }
+
+            // A failed read says what failed, and the drawing is still on the pad
+            // above, so this is a step back rather than a dead end.
+            is SketchStage.Failed -> SketchCard(error = true) {
+                Text(
+                    s.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+                if (state.hasDrawing) {
+                    Text(
+                        stringResource(R.string.handwriting_failed_kept),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(top = 6.dp),
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (state.canRetry) {
+                        OutlinedButton(onClick = { sendPage() }) {
+                            Text(stringResource(R.string.handwriting_try_again))
+                        }
+                    }
+                }
+            }
         }
 
         if (message.isNotBlank()) {
-            Text(message, style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp))
-        }
-        if (read.isNotBlank()) {
-            Text("Read as: $read", style = MaterialTheme.typography.titleMedium,
-                fontFamily = FontFamily.Monospace, modifier = Modifier.padding(top = 8.dp))
-            if (result.isNotBlank()) {
-                Text("= $result", style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary)
-            }
+            Text(
+                message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (state.stage is SketchStage.Failed) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
     }
 }
+
+/** One shape for the preview, the reading and the failure, so the pad reads as one flow. */
+@Composable
+private fun SketchCard(
+    error: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+        colors = if (error) {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+        } else {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        },
+    ) {
+        Column(Modifier.padding(14.dp), content = content)
+    }
+}
+
+/**
+ * The value of what was read, or "" when it is not something that can be worked
+ * out. A blank answer is quieter than "could not evaluate" here: the reading is
+ * on screen and editable, so the user can see for themselves.
+ */
+private fun evaluate(expression: String): String {
+    if (expression.isBlank()) return ""
+    return try {
+        if (ComplexEvaluator.hasImaginary(expression)) {
+            val c = ComplexEvaluator.evaluate(expression)
+            if (c.isReal(1e-10)) Format.number(c.re) else c.toString()
+        } else {
+            Format.number(Evaluator.evaluate(expression))
+        }
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+/**
+ * Where the sketch is on its way to the model.
+ *
+ * [Drawing] and [Previewing] are the two the pad did not have: the first is a
+ * page that exists only on the screen, the second is the same page shown as the
+ * picture it will be sent as. Separating them is what puts a Send between the
+ * user's finger and the network.
+ *
+ * [Failed] is a stage and not an ending. The drawing lives outside this type, so
+ * a failed read can only ever move the stage — there is no branch here that
+ * could drop the user's work, which is what makes "the drawing is kept" a fact
+ * about the type rather than a promise about the code.
+ */
+internal sealed interface SketchStage {
+
+    /** The pad, with nothing sent and nothing read. */
+    data object Drawing : SketchStage
+
+    /** The rendered page is on screen, waiting for Send. */
+    data object Previewing : SketchStage
+
+    /** The page is with the model. */
+    data object Sending : SketchStage
+
+    /** The model read an expression. Held for the user to accept or correct. */
+    data class Read(val expression: String) : SketchStage
+
+    /** The read failed, and says why. The drawing is still on the pad. */
+    data class Failed(val message: String) : SketchStage
+}
+
+/**
+ * The pad's state: which stage it is in, and whether there is still a drawing.
+ *
+ * [hasDrawing] is carried rather than asked of the stroke list, so that "a
+ * failure kept the drawing" is something a test can check without a screen.
+ */
+internal data class SketchState(
+    val stage: SketchStage = SketchStage.Drawing,
+    val hasDrawing: Boolean = false,
+) {
+    /** Try again is offered only when there is a page to send and nothing in flight. */
+    val canRetry: Boolean get() = hasDrawing && stage !is SketchStage.Sending
+}
+
+/**
+ * What a read did to the pad.
+ *
+ * An expression becomes text the user can accept; anything else becomes a
+ * failure that names the reason and keeps [SketchState.hasDrawing] exactly as it
+ * was. The drawing is never cleared here — only Clear does that — because a
+ * model that could not read the page is not a reason to throw the page away.
+ */
+internal fun sketchAfterRead(state: SketchState, expression: String?, error: String?): SketchState {
+    val text = expression?.trim().orEmpty()
+    return if (text.isNotEmpty()) {
+        state.copy(stage = SketchStage.Read(text))
+    } else {
+        state.copy(
+            stage = SketchStage.Failed(
+                error?.takeIf { it.isNotBlank() } ?: "Could not read that.",
+            ),
+        )
+    }
+}
+
+/** An empty pad: the one transition that drops the drawing. */
+internal fun sketchCleared(): SketchState = SketchState()
