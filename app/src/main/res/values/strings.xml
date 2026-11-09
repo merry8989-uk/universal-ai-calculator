@@ -531,4 +531,25 @@
     <string name="more">More</string>
     <string name="now_selected">Now: %1$s</string>
     <string name="more_with_count">%1$s (%2$d)</string>
+
+    <string name="attach_cancel">Cancel</string>
+    <string name="attach_discard">Discard</string>
+    <string name="attach_failed_kept">Your picture is still here, so you can try again or discard it.</string>
+    <string name="attach_preview_a11y">the picture you picked, not sent yet</string>
+    <string name="attach_preview_not_sent">This is what will be sent. Nothing has left your phone yet.</string>
+    <string name="attach_read_result">What the assistant read from %1$s — check it before you use it.</string>
+    <string name="attach_send">Send it</string>
+    <string name="attach_try_again">Try again</string>
+    <string name="attach_use_file">Attach this</string>
+    <string name="attach_use_text">Use this text</string>
+    <string name="handwriting_cancel">Cancel</string>
+    <string name="handwriting_copied">Copied. Paste it where you want it.</string>
+    <string name="handwriting_edit_hint">Correct it if the reading is wrong</string>
+    <string name="handwriting_failed_kept">Your drawing is still here, so you can try again or write over it.</string>
+    <string name="handwriting_preview_a11y">the page you wrote, not sent yet</string>
+    <string name="handwriting_preview_not_sent">This is what will be sent. Nothing has left your phone yet.</string>
+    <string name="handwriting_read_as">Read as:</string>
+    <string name="handwriting_send">Send it</string>
+    <string name="handwriting_try_again">Try again</string>
+    <string name="handwriting_use">Use this</string>
 </resources>
