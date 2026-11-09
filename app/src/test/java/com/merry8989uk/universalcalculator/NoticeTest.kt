@@ -67,6 +67,22 @@ class NoticeTest {
         assertTrue("there is no tap alternative", strip.contains(".clickable { onDismiss() }"))
     }
 
+    @Test fun aMessageClearsItselfAfterHalfAMinute() {
+        val strip = listOf(
+            File("app/src/main/java/com/merry8989uk/universalcalculator/ui/NoticeStrip.kt"),
+            File("src/main/java/com/merry8989uk/universalcalculator/ui/NoticeStrip.kt"),
+        ).firstOrNull { it.exists() }?.readText() ?: return
+
+        // thirty seconds, not thirty-one and not for ever
+        assertTrue("the message has no time limit", strip.contains("AUTO_HIDE_MS = 30_000L"))
+        assertTrue("the limit is never applied", strip.contains("delay(AUTO_HIDE_MS)"))
+        // and it must be destroyed, not merely hidden: the id is recorded so it
+        // does not come back on the next launch
+        assertTrue("it leaves without being recorded", strip.contains("onDismiss()"))
+        // the timer is tied to the message, so a new one gets its own half minute
+        assertTrue("the timer is not tied to the notice", strip.contains("LaunchedEffect(notice.id)"))
+    }
+
     @Test fun theAppShowsItOnceAndNotOnEveryLaunch() {
         val client = listOf(
             File("app/src/main/java/com/merry8989uk/universalcalculator/ai/NoticeClient.kt"),

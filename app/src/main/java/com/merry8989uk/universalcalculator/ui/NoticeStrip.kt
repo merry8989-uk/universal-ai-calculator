@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -30,8 +31,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.merry8989uk.universalcalculator.ai.NoticeClient
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+
+/** How long a message is allowed to stay on screen. */
+const val AUTO_HIDE_MS = 30_000L
 
 /**
  * A message from the developer, at the top of the screen, swiped away.
@@ -68,6 +73,17 @@ fun NoticeStrip(
     // A third of the screen, or 90dp, whichever is less: far enough that a swipe
     // meant it, near enough that a thumb can reach it.
     val threshold = minOf(screenWidthPx / 3f, with(density) { 90.dp.toPx() })
+
+    // A message that stays for ever becomes part of the furniture and stops being
+    // read. Half a minute is long enough to read a sentence and short enough that
+    // nobody has to get rid of it.
+    LaunchedEffect(notice.id) {
+        delay(AUTO_HIDE_MS)
+        // it leaves the same way a swipe sends it, so the two do not feel like
+        // different things happening to the same message
+        offsetX.animateTo(screenWidthPx, animationSpec = spring(stiffness = Spring.StiffnessMedium))
+        onDismiss()
+    }
 
     fun settle() {
         val gone = abs(offsetX.value) > threshold
