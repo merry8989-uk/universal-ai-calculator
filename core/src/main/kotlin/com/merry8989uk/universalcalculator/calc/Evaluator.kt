@@ -1,5 +1,7 @@
 package com.merry8989uk.universalcalculator.calc
 
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlin.math.PI
 import kotlin.math.E
 import kotlin.math.acosh
@@ -78,6 +80,24 @@ object Evaluator {
         companion object {
             /** The whole of what the user sees, and the same for all four. */
             const val MESSAGE = "undefined"
+        }
+    }
+
+    /**
+     * An answer that is exact and right, and bigger than the screen can carry.
+     *
+     * The counting functions work their answers out in full integers, and then
+     * have nowhere to put them: an answer is shown as a double, and a double
+     * runs out a little under 2^1024. Past that point there is no number to
+     * show, and the honest thing is to say so — a wrapped or rounded leftover
+     * would look like an answer while being a different number. It rides on
+     * [EvalException] so every caller that already catches that keeps working,
+     * and it is its own type so a screen can tell this apart from bad input.
+     */
+    class TooLargeToDisplay : EvalException(MESSAGE) {
+        companion object {
+            /** The whole of what the user sees: the result, refused by name. */
+            const val MESSAGE = "too large to display"
         }
     }
 
@@ -535,11 +555,11 @@ object Evaluator {
                 "fact" to { _, a -> factorial(one(a, "fact")) },
                 "ncr" to { _, a ->
                     val (n, r) = two(a, "ncr")
-                    combinations(n, r)
+                    Evaluator.combinations(n, r)
                 },
                 "npr" to { _, a ->
                     val (n, r) = two(a, "npr")
-                    permutations(n, r)
+                    Evaluator.permutations(n, r)
                 },
                 "gcd" to { _, a ->
                     val (x, y) = two(a, "gcd")
@@ -558,8 +578,8 @@ object Evaluator {
                 "nextprime" to { _, a -> nextPrime(one(a, "nextprime").toLong()).toDouble() },
                 "totient" to { _, a -> totient(one(a, "totient").toLong()).toDouble() },
                 "isqrt" to { _, a -> floor(sqrt(one(a, "isqrt"))) },
-                "fib" to { _, a -> fibonacci(one(a, "fib").toInt()).toDouble() },
-                "catalan" to { _, a -> catalan(one(a, "catalan").toInt()).toDouble() },
+                "fib" to { _, a -> Evaluator.toDisplay(Evaluator.fibonacciExact(one(a, "fib").toInt())) },
+                "catalan" to { _, a -> Evaluator.toDisplay(Evaluator.catalanExact(one(a, "catalan").toInt())) },
 
                 // ---- statistics over the arguments ----
                 "sum" to { _, a -> a.sum() },
@@ -648,29 +668,6 @@ object Evaluator {
 
             // ---- helpers the function table leans on ----
 
-            /** nCr, refusing anything that is not a whole number in range. */
-            private fun combinations(n: Double, r: Double): Double {
-                if (n < 0 || r < 0 || r > n) throw EvalException("nCr needs 0 <= r <= n")
-                val nn = kotlin.math.round(n).toInt()
-                val rr = kotlin.math.round(r).toInt()
-                if (kotlin.math.abs(n - nn) > 1e-9 || kotlin.math.abs(r - rr) > 1e-9) {
-                    throw EvalException("nCr needs whole numbers")
-                }
-                var result = 1.0
-                for (i in 1..rr) result = result * (nn - rr + i) / i
-                return kotlin.math.round(result)
-            }
-
-            /** nPr. */
-            private fun permutations(n: Double, r: Double): Double {
-                if (n < 0 || r < 0 || r > n) throw EvalException("nPr needs 0 <= r <= n")
-                val nn = kotlin.math.round(n).toInt()
-                val rr = kotlin.math.round(r).toInt()
-                var result = 1.0
-                for (i in 0 until rr) result *= (nn - i)
-                return kotlin.math.round(result)
-            }
-
             private fun medianOf(values: List<Double>): Double {
                 if (values.isEmpty()) return 0.0
                 val sorted = values.sorted()
@@ -729,46 +726,172 @@ object Evaluator {
                 if (remaining > 1) result -= result / remaining
                 return result
             }
+        }
+    }
 
-            private fun fibonacci(n: Int): Long {
-                if (n <= 0) return 0
-                var a = 0L
-                var b = 1L
-                repeat(n - 1) {
-                    val next = a + b
-                    a = b
-                    b = next
-                }
-                return b
-            }
+    /**
+     * The largest number an answer can carry.
+     *
+     * Everything an expression produces is a double, so the answer field tops
+     * out a little under 2^1024 — about 1.8e308, three hundred and nine digits.
+     * The counting functions below work their answers out exactly and hand them
+     * over here, and this is the ceiling they are handed over against: past it
+     * there is no number the display can show.
+     */
+    private val DISPLAY_CEILING: BigInteger = BigInteger.ONE.shiftLeft(1024)
 
-            /** The n-th Catalan number. */
-            private fun catalan(n: Int): Long {
-                if (n < 0) return 0
-                var result = 1L
-                for (i in 0 until n) result = result * (2L * n - i) / (i + 1)
-                return result / (n + 1)
-            }
-            }
+    /**
+     * An exact count as the number the display can show.
+     *
+     * Below the ceiling this is the nearest double, which is as much as the
+     * display was ever going to print anyway. Above it the answer is refused by
+     * name: a double would come back as infinity, and anything else would be a
+     * wrapped or rounded number wearing the shape of an answer.
+     */
+    fun toDisplay(v: BigInteger): Double {
+        val d = v.toDouble()
+        if (d.isInfinite()) throw TooLargeToDisplay()
+        return d
+    }
+
+    /**
+     * A counting argument as the whole number it is.
+     *
+     * A hair off a whole number is forgiven, because an argument that arrived
+     * through arithmetic can be 4.999999999999999 when the user meant 5. A count
+     * of two and a half of something is refused, because there is no such count.
+     * The conversion is done from the double's exact value rather than through a
+     * long, so an argument too big for a long stays the number it is instead of
+     * saturating to the largest one.
+     */
+    private fun whole(v: Double, name: String): BigInteger {
+        if (!v.isFinite() || abs(v - round(v)) > 1e-9) {
+            throw EvalException("$name needs whole numbers")
+        }
+        return BigDecimal(round(v)).toBigIntegerExact()
     }
 
     fun factorial(x: Double): Double {
-        if (x < 0 || x != floor(x)) throw EvalException("Factorial needs a non-negative whole number")
-        if (x > 170) throw EvalException("Factorial is too large")
-        var r = 1.0
-        var k = 2.0
-        while (k <= x) { r *= k; k += 1.0 }
-        return r
+        if (!x.isFinite() || x < 0 || x != floor(x)) {
+            throw EvalException("Factorial needs a non-negative whole number")
+        }
+        return toDisplay(factorialExact(BigDecimal(x).toBigIntegerExact()))
+    }
+
+    /**
+     * n! as an exact integer.
+     *
+     * The product is abandoned the moment it passes the display ceiling: the
+     * ceiling is passed for good at 171!, so a request for the factorial of a
+     * very large number is refused in 171 multiplications rather than in as many
+     * as were asked for.
+     */
+    fun factorialExact(n: BigInteger): BigInteger {
+        if (n.signum() < 0) throw EvalException("Factorial needs a non-negative whole number")
+        var result = BigInteger.ONE
+        var k = BigInteger.valueOf(2L)
+        while (k <= n) {
+            result *= k
+            if (result.bitLength() > DISPLAY_CEILING.bitLength()) throw TooLargeToDisplay()
+            k += BigInteger.ONE
+        }
+        return result
+    }
+
+    /**
+     * nCr: how many ways there are to choose [r] of [n] things, exactly.
+     *
+     * Worked out by multiplying and dividing as it goes instead of through
+     * factorials. The factorial form needed three factorials and their quotient,
+     * so nCr(171, 1) was refused as "Factorial is too large" although the answer
+     * is 171 — the refusal was about the working, not about the result. Choosing
+     * the smaller of r and n−r to count with also means the short answer is the
+     * cheap one: nCr(1000, 999) is one multiplication.
+     */
+    fun combinationsExact(n: BigInteger, r: BigInteger): BigInteger {
+        if (n.signum() < 0 || r.signum() < 0 || r > n) {
+            throw EvalException("nCr needs 0 <= r <= n")
+        }
+        val k = r.min(n - r)
+        var result = BigInteger.ONE
+        var i = BigInteger.ONE
+        while (i <= k) {
+            result = result * (n - k + i) / i
+            if (result.bitLength() > DISPLAY_CEILING.bitLength()) throw TooLargeToDisplay()
+            i += BigInteger.ONE
+        }
+        return result
     }
 
     fun combinations(n: Double, r: Double): Double {
         if (r < 0 || n < 0 || r > n) throw EvalException("nCr needs 0 <= r <= n")
-        return factorial(n) / (factorial(r) * factorial(n - r))
+        return toDisplay(combinationsExact(whole(n, "nCr"), whole(r, "nCr")))
+    }
+
+    /**
+     * nPr: how many ways there are to arrange [r] of [n] things, exactly.
+     *
+     * Same rule as [combinationsExact]: the running product is abandoned once it
+     * is past what the display can carry, which for permutations happens within
+     * a couple of dozen multiplications however large r was.
+     */
+    fun permutationsExact(n: BigInteger, r: BigInteger): BigInteger {
+        if (n.signum() < 0 || r.signum() < 0 || r > n) {
+            throw EvalException("nPr needs 0 <= r <= n")
+        }
+        var result = BigInteger.ONE
+        var i = BigInteger.ZERO
+        while (i < r) {
+            result *= n - i
+            if (result.bitLength() > DISPLAY_CEILING.bitLength()) throw TooLargeToDisplay()
+            i += BigInteger.ONE
+        }
+        return result
     }
 
     fun permutations(n: Double, r: Double): Double {
         if (r < 0 || n < 0 || r > n) throw EvalException("nPr needs 0 <= r <= n")
-        return factorial(n) / factorial(n - r)
+        return toDisplay(permutationsExact(whole(n, "nPr"), whole(r, "nPr")))
+    }
+
+    /**
+     * The n-th Fibonacci number, exactly.
+     *
+     * Counted in a word, this wrapped: fib(93) is 12200160415121876738, one past
+     * the largest signed 64-bit number, so it came back as −6.2e18 — a negative
+     * count of rabbits. The walk is abandoned past the display ceiling, which
+     * fib(1477) is the first to pass, so asking for fib of a billion answers in
+     * about fifteen hundred steps instead of a billion.
+     */
+    fun fibonacciExact(n: Int): BigInteger {
+        if (n <= 0) return BigInteger.ZERO
+        var a = BigInteger.ZERO
+        var b = BigInteger.ONE
+        repeat(n - 1) {
+            val next = a + b
+            if (next.bitLength() > DISPLAY_CEILING.bitLength()) throw TooLargeToDisplay()
+            a = b
+            b = next
+        }
+        return b
+    }
+
+    /**
+     * The n-th Catalan number, exactly.
+     *
+     * It was counted in a long like the Fibonacci numbers were, and went wrong
+     * earlier than the answer alone suggests: the running product reaches (n+1)
+     * times the answer before the last division, so catalan(33) came back as
+     * 8.07e15 when the answer is 2.12e17.
+     */
+    fun catalanExact(n: Int): BigInteger {
+        if (n < 0) return BigInteger.ZERO
+        var result = BigInteger.ONE
+        for (i in 0 until n) {
+            result = result * BigInteger.valueOf(2L * n - i) / BigInteger.valueOf(i + 1L)
+            if (result.bitLength() > DISPLAY_CEILING.bitLength()) throw TooLargeToDisplay()
+        }
+        return result / BigInteger.valueOf(n + 1L)
     }
 
     fun gcd(a: Long, b: Long): Long {

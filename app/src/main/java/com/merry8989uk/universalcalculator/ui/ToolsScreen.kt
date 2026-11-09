@@ -44,31 +44,37 @@ fun ProgrammerScreen(
     var b by remember { mutableStateOf("10") }
     var op by remember { mutableStateOf("AND") }
 
-    val value: Long? = remember(input, base) {
-        try {
-            Programmer.fromBase(input, base)
-        } catch (e: Exception) {
-            null
-        }
+    // Kept as the whole attempt rather than as a value or nothing, because a
+    // refusal here is an answer: "too large to display" is what a person who
+    // typed 2^64 needs to read, and "enter a valid base-10 number" would be
+    // telling them they typed a number they typed correctly.
+    val parsed: Result<Long> = remember(input, base) {
+        runCatching { Programmer.fromBase(input, base) }
     }
+    val value: Long? = parsed.getOrNull()
 
     val result: String = remember(a, b, op, width) {
         val x = a.toLongOrNull()
         val y = b.toLongOrNull()
+        // A shift further than the word is refused rather than masked, and the
+        // refusal is the result line: the tool says what it cannot do instead of
+        // printing the answer to a question nobody asked.
         if (x == null || y == null) "\u2014"
-        else when (op) {
-            // every result is fitted to the chosen width, so 32-bit NOT is -1
-            // and 32-bit 0xFFFFFFFF + 1 wraps to 0
-            "AND" -> width.fit(Programmer.and(x, y)).toString()
-            "OR" -> width.fit(Programmer.or(x, y)).toString()
-            "XOR" -> width.fit(Programmer.xor(x, y)).toString()
-            "NOT a" -> width.fit(Programmer.not(x)).toString()
-            "a << b" -> width.fit(Programmer.shl(x, y)).toString()
-            "a >> b" -> width.fit(Programmer.shr(x, y)).toString()
-            "a >>> b" -> width.fit(Programmer.ushr(x, y)).toString()
-            "popcount a" -> Programmer.popcount(x).toString()
-            else -> "\u2014"
-        }
+        else runCatching {
+            when (op) {
+                // every result is fitted to the chosen width, so 32-bit NOT is -1
+                // and 32-bit 0xFFFFFFFF + 1 wraps to 0
+                "AND" -> width.fit(Programmer.and(x, y)).toString()
+                "OR" -> width.fit(Programmer.or(x, y)).toString()
+                "XOR" -> width.fit(Programmer.xor(x, y)).toString()
+                "NOT a" -> width.fit(Programmer.not(x)).toString()
+                "a << b" -> width.fit(Programmer.shl(x, y)).toString()
+                "a >> b" -> width.fit(Programmer.shr(x, y)).toString()
+                "a >>> b" -> width.fit(Programmer.ushr(x, y)).toString()
+                "popcount a" -> Programmer.popcount(x).toString()
+                else -> "\u2014"
+            }
+        }.getOrElse { it.message ?: "\u2014" }
     }
 
     Column(
@@ -91,7 +97,10 @@ fun ProgrammerScreen(
             }
         }
         if (value == null) {
-            Text("Enter a valid base-$base number", color = MaterialTheme.colorScheme.error)
+            Text(
+                parsed.exceptionOrNull()?.message ?: "Enter a valid base-$base number",
+                color = MaterialTheme.colorScheme.error,
+            )
         } else {
             listOf(2, 8, 10, 16).forEach { bs ->
                 Text(
