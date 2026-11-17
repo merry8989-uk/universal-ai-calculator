@@ -50,7 +50,7 @@ test('a session handshakes, lists the tools and runs one', async () => {
 
     const list = await s.send({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
     const names = list.result.tools.map((t) => t.name).sort();
-    assert.deepEqual(names, ['calculate', 'explain', 'list_calculators', 'run_calculator']);
+    assert.deepEqual(names, ['calculate', 'explain', 'list_calculators', 'read_calculation', 'run_calculator']);
 
     const calc = await s.send({
       jsonrpc: '2.0', id: 3, method: 'tools/call',
@@ -98,6 +98,43 @@ test('a bad expression comes back as a sentence, not a stack trace', async () =>
     assert.match(bad.result.content[0].text, /^Could not work that out:/);
     // a V8 frame is an indented "at ..." line; the word "at" in a sentence is fine
     assert.ok(!/\n\s+at /.test(bad.result.content[0].text), 'a stack frame leaked to the user');
+  } finally {
+    s.close();
+  }
+});
+
+test('a spoken sum is read, worked out, and explained', async () => {
+  const s = session();
+  try {
+    const read = await s.send({
+      jsonrpc: '2.0', id: 21, method: 'tools/call',
+      params: { name: 'read_calculation', arguments: { text: 'split 2400 between 4 with 10 percent tip' } },
+    });
+    const payload = JSON.parse(read.result.content[0].text);
+    assert.equal(payload.id, 'tip_split');
+    assert.equal(payload.outputs[2].value, 660);
+    assert.ok(payload.working.length >= 3);
+    assert.equal(payload.heard, 'split 2400 between 4 with 10 percent tip');
+
+    const sum = await s.send({
+      jsonrpc: '2.0', id: 22, method: 'tools/call',
+      params: { name: 'read_calculation', arguments: { text: 'twelve times four' } },
+    });
+    assert.equal(JSON.parse(sum.result.content[0].text).value, 48);
+  } finally {
+    s.close();
+  }
+});
+
+test('a sentence that is not a sum asks a question instead of guessing', async () => {
+  const s = session();
+  try {
+    const read = await s.send({
+      jsonrpc: '2.0', id: 23, method: 'tools/call',
+      params: { name: 'read_calculation', arguments: { text: 'make me a sandwich' } },
+    });
+    assert.equal(read.result.isError, true);
+    assert.match(read.result.content[0].text, /Ask which calculator they mean/);
   } finally {
     s.close();
   }

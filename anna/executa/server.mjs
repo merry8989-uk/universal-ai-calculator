@@ -22,6 +22,7 @@
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline';
 import { catalogue, runCalculator } from './calculators.mjs';
+import { readCalculation } from './phrase.mjs';
 
 const require = createRequire(import.meta.url);
 const Engine = require('./evaluator.cjs');
@@ -63,6 +64,18 @@ const TOOLS = [
         },
       },
       required: ['id'],
+    },
+  },
+  {
+    name: 'read_calculation',
+    description:
+      'Read a calculation out of ordinary words - what somebody said, or what was written on a slip of paper. Give it the transcribed text, not the picture. It works out which calculator is meant, fills in the numbers, and returns the answer with the working. Use this whenever the user speaks a sum or shows a photograph of one.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        text: { type: 'string', description: 'The words, as transcribed. For example "18% GST on 1500" or "split 2400 between 4 with 10 percent tip"' },
+      },
+      required: ['text'],
     },
   },
   {
@@ -108,6 +121,26 @@ function callTool(name, args = {}) {
   if (name === 'run_calculator') {
     const result = runCalculator(String(args.id ?? ''), args.arguments ?? {});
     return result.error ? failure(result.error) : text(result);
+  }
+
+  if (name === 'read_calculation') {
+    const said = String(args.text ?? '').trim();
+    if (!said) return failure('read_calculation needs the words, as transcribed.');
+    const read = readCalculation(said);
+    if (read.kind === 'unknown') {
+      return failure(`${read.reason} Ask which calculator they mean, or for the numbers.`);
+    }
+    if (read.kind === 'expression') {
+      try {
+        const value = Engine.evaluate(read.expression);
+        return text({ heard: said, expression: read.expression, value });
+      } catch (e) {
+        return failure(`I read that as "${read.expression}" but could not work it out: ${e.message}`);
+      }
+    }
+    const run = runCalculator(read.id, read.arguments);
+    if (run.error) return failure(run.error);
+    return text({ heard: said, ...run });
   }
 
   if (name === 'explain') {
