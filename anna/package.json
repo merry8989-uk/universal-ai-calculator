@@ -1,0 +1,12 @@
+{
+  "name": "nexus-calc-anna",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Nexus Calc, packaged as an Anna App: an Executa that computes with its working, and the studio page as the UI bundle.",
+  "scripts": {
+    "test": "node --test test/",
+    "build:ui": "node ui/build.mjs",
+    "serve": "node executa/server.mjs"
+  }
+}
