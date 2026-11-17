@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus Calc — read a calculation</title>
+<!--
+  The reading screen: say a sum, photograph one, or type one, and get the answer
+  with the working underneath.
+
+  Two halves. The transcription - voice to text, pixels to text - is the host's
+  job: this page asks the browser for the microphone or the camera, and hands the
+  text it gets to the app's own tool. The calculation and the working come back
+  from `read_calculation`, which is the same tool the assistant calls, so what a
+  person sees here and what the assistant says cannot drift apart.
+
+  One thing to know before reading further: the shape of the host call in
+  `callTool` is the part I could not verify against Anna's App UI Host API. It is
+  one function, and the fallback below says so out loud rather than pretending.
+-->
+<style>
+  :root{color-scheme:dark;--bg:#0a1020;--panel:#121c30;--border:#2a3a57;--text:#eff4ff;--muted:#a5b3cc;--blue:#79a7ff;--green:#70dfbd;--red:#ff8a8a}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(ellipse at top,#1a2b4a,#0a1020 60%);color:var(--text);font:15px/1.55 system-ui,Segoe UI,sans-serif;min-height:100vh}
+  main{max-width:760px;margin:auto;padding:22px}
+  header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .logo{font-weight:800;letter-spacing:.5px}
+  .logo span{color:var(--blue)}
+  .sub{color:var(--muted);font-size:13px}
+  .panel{background:linear-gradient(180deg,#152139,#10182a);border:1px solid var(--border);border-radius:16px;padding:16px}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+  textarea{width:100%;min-height:96px;background:#0b1426;border:1px solid #2d3e5c;border-radius:11px;color:var(--text);padding:11px;font:inherit;resize:vertical}
+  textarea:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  button{background:#0f1a2d;border:1px solid var(--border);border-radius:99px;color:var(--text);padding:9px 16px;font:inherit;cursor:pointer}
+  button.primary{background:#1d4ed8;border-color:#3b82f6}
+  button:disabled{opacity:.5;cursor:default}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px}
+  #out{margin-top:16px}
+  .working{font-family:ui-monospace,monospace;font-size:13px;color:var(--muted);margin:10px 0 0;padding-left:18px}
+  .working li{margin:3px 0}
+  .answer{font-family:ui-monospace,monospace;font-size:22px}
+  .heard{color:var(--green);font-size:12px}
+  .err{color:var(--red);font-size:13px}
+  .notes{color:var(--muted);font-size:12px;margin-top:14px}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="logo">NEXUS <span>CALC</span></div>
+    <div class="sub">Say a sum, photograph one, or type one — the working comes with the answer.</div>
+  </header>
+
+  <section class="panel">
+    <label for="said">What is the calculation?</label>
+    <textarea id="said" placeholder="18% GST on 1500&#10;split 2400 between 4 with 10 percent tip&#10;twelve times four"></textarea>
+
+    <div class="row">
+      <button id="speak" type="button">🎤 Speak it</button>
+      <button id="photo" type="button">📷 Photograph it</button>
+      <button id="read" class="primary" type="button">Read it</button>
+    </div>
+    <input id="file" type="file" accept="image/*" capture="environment" class="hidden">
+    <p class="hint" id="hint">Voice and camera need the Anna dashboard; typed sums work anywhere the tool does.</p>
+  </section>
+
+  <section id="out" aria-live="polite"></section>
+
+  <p class="notes">
+    Every answer here is computed by the same tool the assistant calls, so the
+    steps you read are the steps it will quote.
+  </p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var said = document.getElementById('said');
+  var out = document.getElementById('out');
+  var hint = document.getElementById('hint');
+
+  /**
+   * The one place that talks to Anna.
+   *
+   * The host exposes tools to an app's iframe; the exact call shape is the part I
+   * could not check, so it is here and nowhere else. If it turns out to be
+   * `anna.callTool(name, args)` or an RPC on `window.parent`, this is the line
+   * that changes.
+   */
+  async function callTool(name, args) {
+    var host = window.anna && window.anna.tools;
+    if (host && typeof host.call === 'function') {
+      return host.call(name, args);
+    }
+    throw new Error('No Anna host on this page — open it from the dashboard, or run the tool directly.');
+  }
+
+  function show(text) {
+    out.replaceChildren();
+    var pre = document.createElement('div');
+    pre.className = 'answer';
+    pre.textContent = text;
+    out.appendChild(pre);
+  }
+
+  function showError(message) {
+    out.replaceChildren();
+    var p = document.createElement('p');
+    p.className = 'err';
+    p.textContent = message;
+    out.appendChild(p);
+  }
+
+  function render(result) {
+    out.replaceChildren();
+
+    var heard = document.createElement('p');
+    heard.className = 'heard';
+    heard.textContent = 'Heard: ' + result.heard;
+    out.appendChild(heard);
+
+    if (result.expression) {
+      show(result.expression + ' = ' + result.value);
+      return;
+    }
+
+    var panel = document.createElement('div');
+    panel.className = 'panel';
+
+    var title = document.createElement('div');
+    title.className = 'sub';
+    title.textContent = result.title;
+    panel.appendChild(title);
+
+    result.outputs.forEach(function (o) {
+      var line = document.createElement('div');
+      line.className = 'answer';
+      line.textContent = o.label + ': ' + o.value + (o.unit ? ' ' + o.unit : '') + (o.note ? ' (' + o.note + ')' : '');
+      panel.appendChild(line);
+    });
+
+    if (result.working && result.working.length) {
+      var list = document.createElement('ol');
+      list.className = 'working';
+      result.working.forEach(function (step) {
+        var li = document.createElement('li');
+        li.textContent = step;
+        list.appendChild(li);
+      });
+      panel.appendChild(list);
+    }
+
+    out.appendChild(panel);
+  }
+
+  async function read() {
+    var text = said.value.trim();
+    if (!text) return showError('Type, say or photograph a calculation first.');
+    show('Working…');
+    try {
+      var response = await callTool('read_calculation', { text: text });
+      var payload = typeof response === 'string' ? JSON.parse(response) : response;
+      if (payload && payload.isError) {
+        var first = payload.content && payload.content[0];
+        return showError((first && first.text) || 'That did not work out.');
+      }
+      var body = payload && payload.content ? JSON.parse(payload.content[0].text) : payload;
+      render(body);
+    } catch (e) {
+      showError(e.message);
+    }
+  }
+
+  // Voice: the browser's own recogniser, which is the host's speech surface in
+  // the simplest form. Where it does not exist, the button says so and stays out
+  // of the way rather than pretending.
+  var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var speak = document.getElementById('speak');
+  if (!Recognition) {
+    speak.disabled = true;
+    speak.textContent = '🎤 Voice not available here';
+  } else {
+    speak.addEventListener('click', function () {
+      var r = new Recognition();
+      r.lang = document.documentElement.lang || 'en-IN';
+      r.interimResults = false;
+      r.maxAlternatives = 1;
+      speak.disabled = true;
+      speak.textContent = '🎤 Listening…';
+      r.onresult = function (event) {
+        said.value = event.results[0][0].transcript;
+        read();
+      };
+      r.onerror = function () { hint.textContent = 'The microphone was refused. Typing works the same.'; };
+      r.onend = function () { speak.disabled = false; speak.textContent = '🎤 Speak it'; };
+      r.start();
+    });
+  }
+
+  // Camera: hand the picture to the host's reader when there is one. Without a
+  // host, say plainly that the pixels cannot be read here, rather than silently
+  // doing nothing.
+  var photo = document.getElementById('photo');
+  var file = document.getElementById('file');
+  photo.addEventListener('click', function () { file.click(); });
+  file.addEventListener('change', async function () {
+    var chosen = file.files && file.files[0];
+    if (!chosen) return;
+    var host = window.anna && window.anna.vision;
+    if (host && typeof host.readText === 'function') {
+      show('Reading the picture…');
+      try {
+        var text = await host.readText(chosen);
+        said.value = text;
+        return read();
+      } catch (e) {
+        return showError('Could not read that picture: ' + e.message);
+      }
+    }
+    showError('This page cannot read pictures on its own. The dashboard reads them and hands the text over.');
+  });
+
+  document.getElementById('read').addEventListener('click', read);
+  said.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') read();
+  });
+})();
+</script>
+</body>
+</html>
