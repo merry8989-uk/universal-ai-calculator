@@ -19,3 +19,6 @@ release.p12
 
 # node_modules for the tools/ checks
 tools/node_modules
+
+# the Anna UI bundle is generated from the app asset
+anna/ui/dist
